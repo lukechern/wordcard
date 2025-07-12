@@ -82,7 +82,7 @@ WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 Ope
 
 1. **克隆项目**
    ```bash
-   git clone https://github.com/luckchern/wordcard.git
+   git clone https://github.com/lukechern/wordcard.git
    cd wordcard
    ```
 
@@ -159,16 +159,6 @@ app/src/main/java/com/x7ree/wordcard/
 - **数据导入**: 支持导入之前导出的学习数据
 - **手势导航**: 在单词详情页面上下滑动切换单词
 
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！请遵循以下步骤：
-
-1. Fork 本仓库
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开一个 Pull Request
-
 ### 开发规范
 - 遵循 Kotlin 编码规范
 - 使用有意义的变量和函数命名
@@ -189,8 +179,8 @@ app/src/main/java/com/x7ree/wordcard/
 
 ## 📞 联系方式
 
-- 项目主页: [https://github.com/luckchern/wordcard](https://github.com/luckchern/wordcard)
-- 问题反馈: [Issues](https://github.com/luckchern/wordcard/issues)
+- 项目主页: [https://github.com/lukechern/wordcard](https://github.com/lukechern/wordcard)
+- 问题反馈: [Issues](https://github.com/lukechern/wordcard/issues)
 
 
 ---
