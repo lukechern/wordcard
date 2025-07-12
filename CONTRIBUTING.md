@@ -14,7 +14,7 @@
 
 如果您发现了 Bug，请：
 
-1. 检查 [Issues](https://github.com/yourusername/wordcard/issues) 是否已经有人报告过
+1. 检查 [Issues](https://github.com/lukechern/wordcard/issues) 是否已经有人报告过
 2. 创建新的 Issue，并包含以下信息：
    - Bug 的详细描述
    - 重现步骤
@@ -43,7 +43,7 @@
 1. Fork 本仓库
 2. 克隆您的 Fork 到本地：
    ```bash
-   git clone https://github.com/yourusername/wordcard.git
+   git clone https://github.com/lukechern/wordcard.git
    cd wordcard
    ```
 3. 添加上游仓库：
@@ -165,7 +165,7 @@ Closes #123
 
 如果您有任何问题或需要帮助，请：
 
-- 在 [Issues](https://github.com/yourusername/wordcard/issues) 中提问
+- 在 [Issues](https://github.com/lukechern/wordcard/issues) 中提问
 - 发送邮件到：your.email@example.com
 - 加入我们的讨论群（如果有的话）
 
