@@ -40,7 +40,7 @@ fun DailyChartComponent_7ree(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 0.dp)
-            .height(400.dp), // 从420dp减少到400dp
+            .height(280.dp), // 降低30%高度（从400dp减少到280dp）
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
@@ -193,8 +193,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGrid_7ree(
     val chartHeight = height - 2 * padding - 80f // 为图例预留80f空间
     
     // 绘制水平网格线
-    for (i in 0..6) { // 改为0..6，与Y轴刻度保持一致，形成正方形网格
-        val y = padding + (chartHeight * i / 6) // 改为i/6
+    for (i in 0..4) { // 减少网格线数量，与Y轴刻度保持一致
+        val y = padding + (chartHeight * i / 4) // 改为i/4
         drawLine(
             color = Color.Gray.copy(alpha = 0.3f),
             start = androidx.compose.ui.geometry.Offset(padding, y),
@@ -347,9 +347,9 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAxes_7ree(
         }
         
         // 绘制Y轴标签（数值）
-        for (i in 0..6) { // 改为0..6，与7天数据点匹配，形成正方形网格
-            val y = padding + (chartHeight * i / 6) // 改为i/6
-            val value = (maxValue * (6 - i) / 6) // 改为(6-i)/6
+        for (i in 0..4) { // 减少刻度数量，压缩Y轴刻度间距
+            val y = padding + (chartHeight * i / 4) // 改为i/4
+            val value = (maxValue * (4 - i) / 4) // 改为(4-i)/4
             
             // 绘制刻度线
             drawLine(
@@ -507,4 +507,4 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
     
     println("DEBUG: 生成的数据: ${result.map { "${it.date}:${it.wordCount}/${it.viewCount}" }}")
     return result
-} 
+}
