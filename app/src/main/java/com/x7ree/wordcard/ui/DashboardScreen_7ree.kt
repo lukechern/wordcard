@@ -3,7 +3,6 @@ package com.x7ree.wordcard.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Upload
@@ -85,36 +84,13 @@ fun DashboardScreen_7ree(
                 onImportFile_7ree = onImportFile_7ree
             )
         } else {
-            // 仪表盘页面 - 建设中提示
-            DashboardContent_7ree()
+            // 仪表盘页面 - 实际内容
+            DashboardContent_7ree(wordQueryViewModel_7ree)
         }
     }
 }
 
-@Composable
-private fun DashboardContent_7ree() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Build,
-                contentDescription = "建设中",
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "建设中，请稍候",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
+
 
 @Composable
 private fun ConfigPage_7ree(

@@ -58,6 +58,7 @@ import java.util.regex.Pattern // Import Pattern for regex
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.Calendar
 import androidx.compose.runtime.collectAsState // 导入 collectAsState
 import com.x7ree.wordcard.ui.SwipeNavigationComponent_7ree // 导入滑动导航组件
 
@@ -202,6 +203,22 @@ private fun formatDate_7ree(timestamp: Long): String {
     return dateFormat_7ree.format(Date(timestamp))
 }
 
+// 计算学习天数
+internal fun calculateStudyDays_7ree(words_7ree: List<com.x7ree.wordcard.data.WordEntity_7ree>): Int {
+    if (words_7ree.isEmpty()) return 0
+    
+    val calendar = Calendar.getInstance()
+    val today = calendar.timeInMillis
+    
+    // 获取最早的查询时间
+    val earliestTime = words_7ree.minOfOrNull { it.queryTimestamp } ?: today
+    
+    // 计算天数差
+    val daysDiff = (today - earliestTime) / (1000 * 60 * 60 * 24)
+    
+    return if (daysDiff > 1) daysDiff.toInt() else 1 // 至少返回1天
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_7ree: (String, String) -> Unit, stopSpeaking_7ree: () -> Unit) {
@@ -316,6 +333,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 // 统计数据
                 val wordCount_7ree = wordQueryViewModel_7ree.wordCount_7ree.collectAsState().value
                 val totalViews_7ree = wordQueryViewModel_7ree.totalViews_7ree.collectAsState().value
+                val studyDays_7ree = calculateStudyDays_7ree(wordQueryViewModel_7ree.getHistoryWords_7ree().collectAsState(initial = emptyList()).value)
                 Spacer(modifier = Modifier.height(112.dp)) // 在按钮和统计数据之间增加一些间距
                 Text(
                     text = "已收集${wordCount_7ree}个单词",
@@ -327,6 +345,14 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
                 Text(
                     text = "已累计查阅${totalViews_7ree}次",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
+                Text(
+                    text = "已持续学习${studyDays_7ree}天",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
