@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -49,6 +51,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.graphics.graphicsLayer
 import android.util.Log
 import java.util.regex.Pattern // Import Pattern for regex
@@ -262,6 +265,17 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                         unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            // 点击回车时直接提交查询
+                            if (wordQueryViewModel_7ree.wordInput_7ree.length >= 3) {
+                                wordQueryViewModel_7ree.queryWord_7ree()
+                            }
+                        }
                     )
                 )
 
@@ -270,7 +284,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 // 查询按钮 - 统一设计风格，添加放大镜图标
                 Button(
                     onClick = { wordQueryViewModel_7ree.queryWord_7ree() },
-                    enabled = !wordQueryViewModel_7ree.isLoading_7ree && wordQueryViewModel_7ree.wordInput_7ree.isNotBlank(),
+                    enabled = !wordQueryViewModel_7ree.isLoading_7ree && wordQueryViewModel_7ree.wordInput_7ree.length >= 3,
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .height(56.dp),
