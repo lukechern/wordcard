@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.x7ree.wordcard"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -42,6 +42,14 @@ android {
     buildFeatures {
         compose = true
     }
+    
+    // 依赖解析策略
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+            force("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.0")
+        }
+    }
 }
 
 dependencies {
@@ -56,9 +64,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.compose.material.icons.extended)
     // Ktor for networking
-    implementation("io.ktor:ktor-client-android:2.3.11")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.11")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
+    implementation("io.ktor:ktor-client-android:2.3.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    
+    // Force kotlinx.serialization version compatible with Kotlin 1.9.22
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     // Markdown for Compose
     implementation("io.noties.markwon:core:4.6.2")
     implementation("io.noties.markwon:ext-tables:4.6.2")
@@ -77,4 +88,6 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+    
+    // Charts implemented with Compose Canvas
 }

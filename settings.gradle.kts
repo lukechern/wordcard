@@ -18,6 +18,7 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url = uri("https://repo.maven.apache.org/maven2/") }
         maven { url = uri("https://jitpack.io") }
+        maven { url = uri("https://packages.jetbrains.team/maven/p/kds/kotlin-ds-maven") }
     }
 }
 

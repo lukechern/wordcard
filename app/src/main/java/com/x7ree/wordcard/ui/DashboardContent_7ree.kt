@@ -127,7 +127,7 @@ fun DashboardContent_7ree(
         
         // 30天曲线图
         item {
-            DailyChart_7ree(allWords_7ree)
+            DailyChartComponent_7ree(allWords_7ree)
         }
         
         // 12个月柱状图
@@ -143,18 +143,18 @@ private fun StatisticsCards_7ree(stats_7ree: DashboardStats_7ree) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 单词总数卡片 - 暖色系（红色）
+        // 单词总数卡片 - 蓝色系（原来收藏总数的颜色）
         StatCard_7ree(
             modifier = Modifier.weight(1f),
             value = stats_7ree.totalWords,
             label = "单词总数",
             gradient = Brush.linearGradient(
                 colors = listOf(
-                    Color(0xFF8B0000), // 深红色
-                    Color(0xFFDC143C)  // 深红色到红色
+                    Color(0xFF191970), // 深蓝色（原来收藏总数的颜色）
+                    Color(0xFF4169E1)  // 深蓝色到蓝色
                 )
             ),
-            numberColor = Color(0xFF8B0000) // 深红色
+            numberColor = Color(0xFF191970) // 深蓝色
         )
         
         // 查阅总数卡片 - 橙色系
@@ -171,32 +171,32 @@ private fun StatisticsCards_7ree(stats_7ree: DashboardStats_7ree) {
             numberColor = Color(0xFFD2691E) // 深橙色
         )
         
-        // 收藏总数卡片 - 蓝色系
+        // 收藏总数卡片 - 冷色系（青色，原来学习天数的颜色）
         StatCard_7ree(
             modifier = Modifier.weight(1f),
             value = stats_7ree.favoriteWords,
             label = "收藏总数",
             gradient = Brush.linearGradient(
                 colors = listOf(
-                    Color(0xFF191970), // 深蓝色
-                    Color(0xFF4169E1)  // 深蓝色到蓝色
+                    Color(0xFF008B8B), // 深青色（原来学习天数的颜色）
+                    Color(0xFF20B2AA)  // 深青色到青色
                 )
             ),
-            numberColor = Color(0xFF191970) // 深蓝色
+            numberColor = Color(0xFF008B8B) // 深青色
         )
         
-        // 学习天数卡片 - 冷色系（青色）
+        // 学习天数卡片 - 暖色系（红色，原来收藏总数的颜色）
         StatCard_7ree(
             modifier = Modifier.weight(1f),
             value = stats_7ree.studyDays,
             label = "学习天数",
             gradient = Brush.linearGradient(
                 colors = listOf(
-                    Color(0xFF008B8B), // 深青色
-                    Color(0xFF20B2AA)  // 深青色到青色
+                    Color(0xFF8B0000), // 深红色（原来收藏总数的颜色）
+                    Color(0xFFDC143C)  // 深红色到红色
                 )
             ),
-            numberColor = Color(0xFF008B8B) // 深青色
+            numberColor = Color(0xFF8B0000) // 深红色
         )
     }
 }
@@ -264,61 +264,7 @@ private fun StatCard_7ree(
     }
 }
 
-@Composable
-private fun DailyChart_7ree(words_7ree: List<WordEntity_7ree>) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.dp) // 移除水平padding，让图表区域最大化
-            .height(300.dp)
-            .clip(RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp)
-        ) {
-            Text(
-                text = "近30天每日统计",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 简化的图表占位符
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF667eea).copy(alpha = 0.1f),
-                                Color(0xFFf093fb).copy(alpha = 0.1f)
-                            )
-                        ),
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "📊 曲线图区域\n收集单词 & 查阅统计",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
+
 
 @Composable
 private fun MonthlyChart_7ree(words_7ree: List<WordEntity_7ree>) {

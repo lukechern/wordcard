@@ -32,7 +32,8 @@ WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 Ope
 ### 📚 学习管理
 - 单词历史记录管理
 - 收藏功能，支持标记重要单词
-- 学习进度统计
+- 学习进度统计和可视化图表
+- 本周学习趋势分析
 - 数据导入导出功能
 
 ### 🎨 现代化界面
@@ -52,17 +53,19 @@ WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 Ope
 - **UI 框架**: Jetpack Compose
 - **设计语言**: Material Design 3
 - **编程语言**: Kotlin
-- **最低 SDK**: Android 6.0 (API 24)
+- **最低 SDK**: Android 8.0 (API 26)
 - **目标 SDK**: Android 14 (API 36)
+- **编译 SDK**: Android 14 (API 36)
+- **图表实现**: Compose Canvas 自定义绘制
 
 ### 后端技术
 - **AI 服务**: OpenAI GPT API
-- **网络请求**: Ktor Client
-- **数据序列化**: Kotlinx Serialization
-- **Markdown 渲染**: Markwon
+- **网络请求**: Ktor Client 2.3.4
+- **数据序列化**: Kotlinx Serialization 1.6.0
+- **Markdown 渲染**: Markwon 4.6.2
 
 ### 数据存储
-- **本地数据库**: Room Database
+- **本地数据库**: Room Database 2.6.1
 - **数据访问**: Repository Pattern
 - **数据导出**: JSON 格式
 
@@ -76,7 +79,8 @@ WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 Ope
 ### 环境要求
 - Android Studio Hedgehog | 2023.1.1 或更高版本
 - JDK 11 或更高版本
-- Android SDK 24 或更高版本
+- Android SDK 26 或更高版本 (Android 8.0+)
+- 支持设备: Android 8.0 及以上版本
 
 ### 构建步骤
 
@@ -135,6 +139,8 @@ app/src/main/java/com/x7ree/wordcard/
 │   ├── MainScreen_7ree.kt
 │   ├── WordCardScreen_7ree.kt
 │   ├── SplashScreen_7ree.kt
+│   ├── DashboardContent_7ree.kt
+│   ├── DailyChartComponent_7ree.kt
 │   ├── BottomNavigationBar_7ree.kt
 │   ├── SwipeNavigationComponent_7ree.kt
 │   ├── SwipeableRevealItem_7ree.kt
@@ -155,6 +161,8 @@ app/src/main/java/com/x7ree/wordcard/
 
 ### 高级功能
 - **历史记录**: 在历史标签页查看所有查询过的单词
+- **学习统计**: 在仪表盘查看学习进度和趋势图表
+- **本周分析**: 可视化展示本周的单词收集和查阅统计
 - **数据导出**: 在设置页面导出学习数据为 JSON 文件
 - **数据导入**: 支持导入之前导出的学习数据
 - **手势导航**: 在单词详情页面上下滑动切换单词
@@ -176,6 +184,7 @@ app/src/main/java/com/x7ree/wordcard/
 - [Material Design](https://material.io/) - 设计语言指导
 - [Ktor](https://ktor.io/) - 网络请求库
 - [Room](https://developer.android.com/training/data-storage/room) - 本地数据库
+- [Markwon](https://noties.io/Markwon/) - Markdown 渲染库
 
 ## 📞 联系方式
 

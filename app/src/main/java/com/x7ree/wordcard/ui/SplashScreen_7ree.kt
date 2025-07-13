@@ -42,7 +42,7 @@ fun SplashScreen_7ree() {
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "收集单词 收集快乐",
+                    text = "收集单词 获得快乐",
                     style = MaterialTheme.typography.headlineMedium
                 )
             }
