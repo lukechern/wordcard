@@ -299,7 +299,7 @@ fun HistoryScreen_7ree(
             .padding(16.dp)
     ) {
         Text(
-            text = "历史记录",
+            text = "单词本",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -315,7 +315,7 @@ fun HistoryScreen_7ree(
                     CircularProgressIndicator()
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "加载历史记录中...",
+                        text = "单词本加载中...",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -328,7 +328,7 @@ fun HistoryScreen_7ree(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "暂无历史记录",
+                    text = "单词本暂无记录",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -54,7 +54,7 @@ fun DailyChartComponent_7ree(
                 .padding(16.dp)
         ) {
             Text(
-                text = "本周每日统计",
+                text = "本周统计",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

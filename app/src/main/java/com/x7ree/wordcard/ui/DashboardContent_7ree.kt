@@ -67,55 +67,20 @@ fun DashboardContent_7ree(
         DashboardStats_7ree(totalWords, totalViews, favoriteWords, studyDays)
     }
     
-    // 数字动效 - 相同速度跳动，同时开始但不同时结束
+    // 数字动效 - 统一在1秒内完成
     LaunchedEffect(stats_7ree) {
-        val baseDuration = 1000L // 基础动画时长（毫秒）
-        val speedPerUnit = 50L // 每个数字单位需要的毫秒数
-        
-        // 计算每个数字的动画时长
-        val totalWordsDuration = baseDuration + (stats_7ree.totalWords * speedPerUnit)
-        val totalViewsDuration = baseDuration + (stats_7ree.totalViews * speedPerUnit)
-        val favoriteWordsDuration = baseDuration + (stats_7ree.favoriteWords * speedPerUnit)
-        val studyDaysDuration = baseDuration + (stats_7ree.studyDays * speedPerUnit)
-        
-        // 使用最长的动画时长作为总时长
-        val maxDuration = Math.max(Math.max(totalWordsDuration, totalViewsDuration), Math.max(favoriteWordsDuration, studyDaysDuration))
-        
+        val animationDuration = 1000 // 动画时长（毫秒）
+
         animate(
             initialValue = 0f,
             targetValue = 1f,
-            animationSpec = tween(maxDuration.toInt(), easing = EaseOutCubic)
+            animationSpec = tween(durationMillis = animationDuration, easing = EaseOutCubic)
         ) { progress, _ ->
-            // 计算每个数字的当前值，根据各自的动画时长
-            val currentTotalWords = if (progress * maxDuration <= totalWordsDuration) {
-                (stats_7ree.totalWords * progress * maxDuration / totalWordsDuration).toInt()
-            } else {
-                stats_7ree.totalWords
-            }
-            
-            val currentTotalViews = if (progress * maxDuration <= totalViewsDuration) {
-                (stats_7ree.totalViews * progress * maxDuration / totalViewsDuration).toInt()
-            } else {
-                stats_7ree.totalViews
-            }
-            
-            val currentFavoriteWords = if (progress * maxDuration <= favoriteWordsDuration) {
-                (stats_7ree.favoriteWords * progress * maxDuration / favoriteWordsDuration).toInt()
-            } else {
-                stats_7ree.favoriteWords
-            }
-            
-            val currentStudyDays = if (progress * maxDuration <= studyDaysDuration) {
-                (stats_7ree.studyDays * progress * maxDuration / studyDaysDuration).toInt()
-            } else {
-                stats_7ree.studyDays
-            }
-            
             animatedValues_7ree = DashboardStats_7ree(
-                totalWords = currentTotalWords,
-                totalViews = currentTotalViews,
-                favoriteWords = currentFavoriteWords,
-                studyDays = currentStudyDays
+                totalWords = (stats_7ree.totalWords * progress).toInt(),
+                totalViews = (stats_7ree.totalViews * progress).toInt(),
+                favoriteWords = (stats_7ree.favoriteWords * progress).toInt(),
+                studyDays = (stats_7ree.studyDays * progress).toInt()
             )
         }
     }

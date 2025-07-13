@@ -67,6 +67,7 @@ import java.util.Calendar
 import androidx.compose.runtime.collectAsState // 导入 collectAsState
 import com.x7ree.wordcard.ui.SwipeNavigationComponent_7ree // 导入滑动导航组件
 import kotlinx.coroutines.delay // 导入delay函数
+import com.x7ree.wordcard.R
 
 
 // 辅助函数：应用文本样式调整
@@ -100,7 +101,7 @@ private fun applyTextStyleAdjustments_7ree(textView: TextView) {
             val lineStart_7ree = currentPosition_7ree
             val lineEnd_7ree = currentPosition_7ree + line_7ree.length
             spannable_7ree.setSpan(
-                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#1976D2")),
+                android.text.style.ForegroundColorSpan(android.graphics.Color.parseColor("#2E7D32")),
                 lineStart_7ree,
                 lineEnd_7ree,
                 android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -524,7 +525,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     textSize = 20f
                                     gravity = android.view.Gravity.CENTER // 水平居中
                                     setTypeface(android.graphics.Typeface.DEFAULT_BOLD) // 粗体字效果
-                                    setTextColor(android.graphics.Color.parseColor("#690BED")) // 紫色
+                                    setTextColor(context.getColor(R.color.green_500_7ree))
                                 }
                             },
                             modifier = Modifier

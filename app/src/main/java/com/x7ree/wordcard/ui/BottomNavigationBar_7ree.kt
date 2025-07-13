@@ -114,7 +114,7 @@ private fun CustomNavigationItem_7ree(
                     imageVector = icon,
                     contentDescription = label,
                     modifier = Modifier.size(if (isSelected) 30.8.dp else 24.dp),
-                    tint = if (isSelected) Color(0xFF6200EE) else Color(0xFF666666)
+                    tint = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF666666)
                 )
             }
             Text(
@@ -122,8 +122,8 @@ private fun CustomNavigationItem_7ree(
                 style = MaterialTheme.typography.labelMedium.copy(
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
                 ),
-                color = if (isSelected) Color(0xFF6200EE) else Color(0xFF666666)
+                color = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF666666)
             )
         }
     }
-} 
+}

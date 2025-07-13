@@ -51,7 +51,7 @@ fun MonthlyChartComponent_7ree(
                 .padding(16.dp)
         ) {
             Text(
-                text = "今年月度统计",
+                text = "年度统计",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface

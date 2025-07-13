@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.WordCard" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.WordCard" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Standard Android color scheme -->
+        
+        <!-- Legacy Android colors for compatibility -->
+        <item name="android:colorPrimary">@color/green_500_7ree</item>
+        <item name="android:colorPrimaryDark">@color/green_700_7ree</item>
+        <item name="android:colorAccent">@color/green_200_7ree</item>
+    </style>
 </resources>
