@@ -15,6 +15,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 import com.x7ree.wordcard.ui.MainScreen_7ree
 import com.x7ree.wordcard.ui.WordCardScreen_7ree
@@ -32,14 +36,16 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private var tts_7ree: TextToSpeech? = null
     private val TAG_7ree = "MainActivity_7ree"
-
-    // 创建数据库和仓库实例
-    private val database_7ree by lazy { WordDatabase_7ree.getDatabase_7ree(this) }
-    private val wordRepository_7ree by lazy { WordRepository_7ree(database_7ree.wordDao_7ree()) }
     
-    private val wordQueryViewModel_7ree: WordQueryViewModel_7ree by lazy { 
-        WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree, this) 
-    }
+    // 初始化状态跟踪
+    private var isInitializationComplete_7ree = false
+    private var isTtsInitialized_7ree = false
+    private var isDatabaseInitialized_7ree = false
+
+    // 创建数据库和仓库实例 - 改为异步初始化
+    private var database_7ree: WordDatabase_7ree? = null
+    private var wordRepository_7ree: WordRepository_7ree? = null
+    private var wordQueryViewModel_7ree: WordQueryViewModel_7ree? = null
     
     // 文件选择器
     private val filePickerLauncher = registerForActivityResult(
@@ -47,23 +53,14 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     ) { uri: Uri? ->
         uri?.let { selectedUri ->
             Log.d(TAG_7ree, "文件选择器返回: $selectedUri")
-            wordQueryViewModel_7ree.importHistoryData_7ree(selectedUri)
+            wordQueryViewModel_7ree?.importHistoryData_7ree(selectedUri)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        try {
-            tts_7ree = TextToSpeech(this, this)
-            Log.d(TAG_7ree, "onCreate: Initializing TextToSpeech (Immediate)")
-        } catch (e: Exception) {
-            Log.e(TAG_7ree, "onCreate: Failed to initialize TextToSpeech (Immediate): ${e.message}", e)
-            if (!isFinishing) {
-                Toast.makeText(this, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
-            }
-            wordQueryViewModel_7ree.isTtsReady_7ree = false
-        }
-
+        
+        // 立即显示UI，不等待初始化
         enableEdgeToEdge()
         setContent {
             WordCardTheme {
@@ -73,12 +70,13 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 ) {
                     MainScreen_7ree(
                         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                        isInitializationComplete_7ree = isInitializationComplete_7ree,
                         speak_7ree = { text, utteranceId ->
-                            if (tts_7ree != null && wordQueryViewModel_7ree.isTtsReady_7ree && text.isNotBlank()) {
+                            if (tts_7ree != null && wordQueryViewModel_7ree?.isTtsReady_7ree == true && text.isNotBlank()) {
                                 tts_7ree?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
                                 Log.d(TAG_7ree, "speak_7ree: Attempting to speak: \"$text\" with utteranceId: $utteranceId")
                             } else {
-                                Log.e(TAG_7ree, "speak_7ree: TTS not ready or text is blank, cannot speak. isTtsReady_7ree: ${wordQueryViewModel_7ree.isTtsReady_7ree}")
+                                Log.e(TAG_7ree, "speak_7ree: TTS not ready or text is blank, cannot speak. isTtsReady_7ree: ${wordQueryViewModel_7ree?.isTtsReady_7ree}")
                                 if (!isFinishing) {
                                     Toast.makeText(this, "语音服务未准备好，请检查设备设置。", Toast.LENGTH_SHORT).show()
                                 }
@@ -86,9 +84,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         },
                         stopSpeaking_7ree = { // New lambda to stop speaking
                             tts_7ree?.stop()
-                            wordQueryViewModel_7ree.setIsSpeaking_7ree(false)
-                            wordQueryViewModel_7ree.setIsSpeakingWord_7ree(false)
-                            wordQueryViewModel_7ree.setIsSpeakingExamples_7ree(false)
+                            wordQueryViewModel_7ree?.setIsSpeaking_7ree(false)
+                            wordQueryViewModel_7ree?.setIsSpeakingWord_7ree(false)
+                            wordQueryViewModel_7ree?.setIsSpeakingExamples_7ree(false)
                             Log.d(TAG_7ree, "stopSpeaking_7ree: TTS stopped.")
                         },
                         onImportFile_7ree = {
@@ -97,6 +95,82 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     )
                 }
             }
+        }
+        
+        // 异步初始化所有组件
+        initializeAppAsync_7ree()
+    }
+    
+    private fun initializeAppAsync_7ree() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                Log.d(TAG_7ree, "开始异步初始化应用组件")
+                
+                // 并行初始化TTS和数据库
+                val ttsJob = launch { initializeTtsAsync_7ree() }
+                val databaseJob = launch { initializeDatabaseAsync_7ree() }
+                
+                // 等待两个初始化完成
+                ttsJob.join()
+                databaseJob.join()
+                
+                // 初始化ViewModel
+                initializeViewModel_7ree()
+                
+                // 标记初始化完成
+                withContext(Dispatchers.Main) {
+                    isInitializationComplete_7ree = true
+                    Log.d(TAG_7ree, "应用初始化完成")
+                }
+                
+            } catch (e: Exception) {
+                Log.e(TAG_7ree, "异步初始化失败: ${e.message}", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "应用初始化失败，部分功能可能不可用", Toast.LENGTH_LONG).show()
+                    isInitializationComplete_7ree = true // 即使失败也要完成初始化流程
+                }
+            }
+        }
+    }
+    
+    private suspend fun initializeTtsAsync_7ree() {
+        try {
+            Log.d(TAG_7ree, "开始异步初始化TTS")
+            tts_7ree = TextToSpeech(this@MainActivity, this@MainActivity)
+            Log.d(TAG_7ree, "TTS初始化请求已发送")
+        } catch (e: Exception) {
+            Log.e(TAG_7ree, "TTS异步初始化失败: ${e.message}", e)
+            withContext(Dispatchers.Main) {
+                if (!isFinishing) {
+                    Toast.makeText(this@MainActivity, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    private suspend fun initializeDatabaseAsync_7ree() {
+        try {
+            Log.d(TAG_7ree, "开始异步初始化数据库")
+            database_7ree = WordDatabase_7ree.getDatabase_7ree(this@MainActivity)
+            wordRepository_7ree = WordRepository_7ree(database_7ree!!.wordDao_7ree())
+            isDatabaseInitialized_7ree = true
+            Log.d(TAG_7ree, "数据库初始化完成")
+        } catch (e: Exception) {
+            Log.e(TAG_7ree, "数据库异步初始化失败: ${e.message}", e)
+        }
+    }
+    
+    private suspend fun initializeViewModel_7ree() {
+        try {
+            Log.d(TAG_7ree, "开始初始化ViewModel")
+            if (wordRepository_7ree != null) {
+                wordQueryViewModel_7ree = WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree!!, this@MainActivity)
+                Log.d(TAG_7ree, "ViewModel初始化完成")
+            } else {
+                Log.e(TAG_7ree, "WordRepository未初始化，无法创建ViewModel")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG_7ree, "ViewModel初始化失败: ${e.message}", e)
         }
     }
 
@@ -126,7 +200,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 }
             }
 
-            wordQueryViewModel_7ree.isTtsReady_7ree = isAnyLanguageSupported_7ree
+            wordQueryViewModel_7ree?.isTtsReady_7ree = isAnyLanguageSupported_7ree
+            isTtsInitialized_7ree = true
+            
             if (!isAnyLanguageSupported_7ree && !isFinishing) {
                 Toast.makeText(this, "文本转语音：所需语言数据不可用，请前往设置下载。", Toast.LENGTH_LONG).show()
                 val installIntent_7ree = Intent()
@@ -142,9 +218,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 override fun onStart(utteranceId: String?) {
                     // 根据utteranceId判断是单词朗读还是例句朗读
                     when (utteranceId) {
-                        "word" -> wordQueryViewModel_7ree.setIsSpeakingWord_7ree(true)
-                        "examples" -> wordQueryViewModel_7ree.setIsSpeakingExamples_7ree(true)
-                        else -> wordQueryViewModel_7ree.setIsSpeaking_7ree(true)
+                        "word" -> wordQueryViewModel_7ree?.setIsSpeakingWord_7ree(true)
+                        "examples" -> wordQueryViewModel_7ree?.setIsSpeakingExamples_7ree(true)
+                        else -> wordQueryViewModel_7ree?.setIsSpeaking_7ree(true)
                     }
                     Log.d(TAG_7ree, "onStart: Utterance playback started for ID: $utteranceId")
                 }
@@ -152,9 +228,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 override fun onDone(utteranceId: String?) {
                     // 根据utteranceId判断是单词朗读还是例句朗读
                     when (utteranceId) {
-                        "word" -> wordQueryViewModel_7ree.setIsSpeakingWord_7ree(false)
-                        "examples" -> wordQueryViewModel_7ree.setIsSpeakingExamples_7ree(false)
-                        else -> wordQueryViewModel_7ree.setIsSpeaking_7ree(false)
+                        "word" -> wordQueryViewModel_7ree?.setIsSpeakingWord_7ree(false)
+                        "examples" -> wordQueryViewModel_7ree?.setIsSpeakingExamples_7ree(false)
+                        else -> wordQueryViewModel_7ree?.setIsSpeaking_7ree(false)
                     }
                     Log.d(TAG_7ree, "onDone: Utterance playback completed for ID: $utteranceId")
                 }
@@ -163,16 +239,17 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 override fun onError(utteranceId: String?) {
                     // 根据utteranceId判断是单词朗读还是例句朗读
                     when (utteranceId) {
-                        "word" -> wordQueryViewModel_7ree.setIsSpeakingWord_7ree(false)
-                        "examples" -> wordQueryViewModel_7ree.setIsSpeakingExamples_7ree(false)
-                        else -> wordQueryViewModel_7ree.setIsSpeaking_7ree(false)
+                        "word" -> wordQueryViewModel_7ree?.setIsSpeakingWord_7ree(false)
+                        "examples" -> wordQueryViewModel_7ree?.setIsSpeakingExamples_7ree(false)
+                        else -> wordQueryViewModel_7ree?.setIsSpeaking_7ree(false)
                     }
                     Log.e(TAG_7ree, "onError: Utterance playback error for ID: $utteranceId")
                 }
             })
         } else {
             Log.e(TAG_7ree, "onInit: TextToSpeech initialization failed with status: $status")
-            wordQueryViewModel_7ree.isTtsReady_7ree = false
+            wordQueryViewModel_7ree?.isTtsReady_7ree = false
+            isTtsInitialized_7ree = false
             if (!isFinishing) {
                 Toast.makeText(this, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
             }

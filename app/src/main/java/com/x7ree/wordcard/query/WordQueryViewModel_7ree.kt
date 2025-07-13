@@ -99,17 +99,27 @@ class WordQueryViewModel_7ree(
         // 初始化导出路径
         _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
         
-        // 加载所有单词列表
-        loadAllWords_7ree()
+        // 延迟加载所有单词列表 - 不在初始化时加载，而是在需要时加载
+        // loadAllWords_7ree() // 注释掉，改为延迟加载
     }
 
-    // 加载所有单词列表
+    // 延迟加载所有单词列表 - 只在需要导航功能时才加载
     private fun loadAllWords_7ree() {
+        // 如果已经加载过，就不再重复加载
+        if (_allWords_7ree.value.isNotEmpty()) {
+            return
+        }
+        
         viewModelScope.launch {
             wordRepository_7ree.getAllWords_7ree().collect { words ->
                 _allWords_7ree.value = words
             }
         }
+    }
+    
+    // 公开方法，供外部调用时触发加载
+    fun ensureWordsLoaded_7ree() {
+        loadAllWords_7ree()
     }
 
     // 获取当前单词在列表中的索引
@@ -120,6 +130,10 @@ class WordQueryViewModel_7ree(
     // 切换到上一个单词
     fun navigateToPreviousWord_7ree() {
         println("DEBUG: navigateToPreviousWord_7ree - 开始切换到上一个单词")
+        
+        // 确保单词列表已加载
+        ensureWordsLoaded_7ree()
+        
         val currentIndex = getCurrentWordIndex_7ree()
         println("DEBUG: 当前单词索引: $currentIndex")
         if (currentIndex == -1) {
@@ -143,6 +157,10 @@ class WordQueryViewModel_7ree(
     // 切换到下一个单词
     fun navigateToNextWord_7ree() {
         println("DEBUG: navigateToNextWord_7ree - 开始切换到下一个单词")
+        
+        // 确保单词列表已加载
+        ensureWordsLoaded_7ree()
+        
         val currentIndex = getCurrentWordIndex_7ree()
         println("DEBUG: 当前单词索引: $currentIndex")
         if (currentIndex == -1) {
@@ -165,6 +183,9 @@ class WordQueryViewModel_7ree(
 
     // 检查是否可以导航（当前有单词且列表不为空）
     fun canNavigate_7ree(): Boolean {
+        // 确保单词列表已加载
+        ensureWordsLoaded_7ree()
+        
         val canNavigate = wordInput_7ree.isNotBlank() && _allWords_7ree.value.isNotEmpty()
         println("DEBUG: canNavigate_7ree - wordInput='${wordInput_7ree}', wordsCount=${_allWords_7ree.value.size}, canNavigate=$canNavigate")
         return canNavigate

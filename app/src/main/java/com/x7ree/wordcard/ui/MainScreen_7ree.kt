@@ -57,6 +57,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -95,7 +96,8 @@ enum class Screen_7ree {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
+    isInitializationComplete_7ree: Boolean = false,
     speak_7ree: (String, String) -> Unit,
     stopSpeaking_7ree: () -> Unit,
     onImportFile_7ree: () -> Unit = {}
@@ -103,7 +105,7 @@ fun MainScreen_7ree(
     var currentScreen_7ree by remember { mutableStateOf(Screen_7ree.SEARCH) }
     var showSplash_7ree by remember { mutableStateOf(true) }
     val snackbarHostState_7ree = remember { SnackbarHostState() }
-    val operationResult_7ree by wordQueryViewModel_7ree.operationResult_7ree.collectAsState()
+    val operationResult_7ree by wordQueryViewModel_7ree?.operationResult_7ree?.collectAsState() ?: mutableStateOf(null)
 
     // 监听操作结果，显示Snackbar
     LaunchedEffect(operationResult_7ree) {
@@ -113,23 +115,38 @@ fun MainScreen_7ree(
                 duration = androidx.compose.material3.SnackbarDuration.Short
             )
             // 清除操作结果
-            wordQueryViewModel_7ree.clearOperationResult_7ree()
+            wordQueryViewModel_7ree?.clearOperationResult_7ree()
         }
     }
 
-    // 主界面加载完成后立即隐藏启动画面
+    // 智能启动画面控制 - 并行执行，不增加总等待时间
+    LaunchedEffect(isInitializationComplete_7ree) {
+        if (isInitializationComplete_7ree) {
+            // 如果初始化已完成，至少显示1秒启动画面给用户视觉反馈
+            delay(1000)
+            showSplash_7ree = false
+        }
+    }
+    
+    // 如果初始化时间过长，确保启动画面不会无限显示
     LaunchedEffect(Unit) {
-        showSplash_7ree = false
+        delay(5000) // 最多显示5秒启动画面
+        if (showSplash_7ree) {
+            showSplash_7ree = false
+        }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState_7ree) },
         bottomBar = {
-            BottomNavigationBar_7ree(
-                currentScreen_7ree = currentScreen_7ree,
-                onScreenSelected_7ree = { screen -> currentScreen_7ree = screen },
-                onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
+            // 只有在初始化完成且不在启动画面时才显示底部导航
+            if (!showSplash_7ree && wordQueryViewModel_7ree != null) {
+                BottomNavigationBar_7ree(
+                    currentScreen_7ree = currentScreen_7ree,
+                    onScreenSelected_7ree = { screen -> currentScreen_7ree = screen },
+                    onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
                 )
+            }
         }
     ) { paddingValues_7ree ->
         Box(
@@ -140,28 +157,43 @@ fun MainScreen_7ree(
             if (showSplash_7ree) {
                 SplashScreen_7ree()
             } else {
-            when (currentScreen_7ree) {
-                Screen_7ree.SEARCH -> {
-                    WordCardScreen_7ree(
-                        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                        speak_7ree = speak_7ree,
-                        stopSpeaking_7ree = stopSpeaking_7ree
-                    )
-                }
-                Screen_7ree.HISTORY -> {
-                    HistoryScreen_7ree(
-                        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                        onWordClick_7ree = { word ->
-                            wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
-                            currentScreen_7ree = Screen_7ree.SEARCH
+                // 只有在初始化完成且ViewModel可用时才显示主界面
+                if (wordQueryViewModel_7ree != null) {
+                    when (currentScreen_7ree) {
+                        Screen_7ree.SEARCH -> {
+                            WordCardScreen_7ree(
+                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                speak_7ree = speak_7ree,
+                                stopSpeaking_7ree = stopSpeaking_7ree
+                            )
                         }
-                    )
-                }
-                Screen_7ree.SETTINGS -> {
-                    SettingsScreen_7ree(
-                        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                        onImportFile_7ree = onImportFile_7ree
-                    )
+                        Screen_7ree.HISTORY -> {
+                            HistoryScreen_7ree(
+                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                onWordClick_7ree = { word ->
+                                    wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
+                                    currentScreen_7ree = Screen_7ree.SEARCH
+                                }
+                            )
+                        }
+                        Screen_7ree.SETTINGS -> {
+                            SettingsScreen_7ree(
+                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                onImportFile_7ree = onImportFile_7ree
+                            )
+                        }
+                    }
+                } else {
+                    // 如果ViewModel还未初始化完成，显示加载状态
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "正在加载...",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
