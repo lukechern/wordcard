@@ -88,4 +88,7 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     
     // 获取单词总数
     val wordCount_7ree: Flow<Int> = wordDao_7ree.countAllWords_7ree()
+    
+    // 获取总查阅次数
+    val getTotalViews_7ree: Flow<Int> = wordDao_7ree.getTotalViews_7ree()
 } 

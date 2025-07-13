@@ -301,9 +301,18 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
 
                 // 统计数据
                 val wordCount_7ree = wordQueryViewModel_7ree.wordCount_7ree.collectAsState().value
+                val totalViews_7ree = wordQueryViewModel_7ree.totalViews_7ree.collectAsState().value
                 Spacer(modifier = Modifier.height(112.dp)) // 在按钮和统计数据之间增加一些间距
                 Text(
-                    text = "已累计收集了${wordCount_7ree}个单词",
+                    text = "已收集${wordCount_7ree}个单词",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
+                Text(
+                    text = "已累计查阅${totalViews_7ree}次",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),

@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 /**
 语言包定义
@@ -81,6 +84,10 @@ class WordQueryViewModel_7ree(
     private val _wordCount_7ree = MutableStateFlow(0)
     val wordCount_7ree: StateFlow<Int> = _wordCount_7ree
     
+    // 总查阅次数
+    private val _totalViews_7ree = MutableStateFlow(0)
+    val totalViews_7ree: StateFlow<Int> = _totalViews_7ree
+    
     // 导出路径
     private val _exportPath_7ree = MutableStateFlow("")
     val exportPath_7ree: StateFlow<String> = _exportPath_7ree
@@ -91,11 +98,24 @@ class WordQueryViewModel_7ree(
     private var currentWordIndex_7ree = -1
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             wordRepository_7ree.wordCount_7ree.collect { count ->
-                _wordCount_7ree.value = count
+                withContext(Dispatchers.Main) {
+                    _wordCount_7ree.value = count
+                }
             }
         }
+        
+        // 延迟初始化总查阅次数，避免影响启动速度
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(500) // 延迟500ms，让启动画面先显示
+            wordRepository_7ree.getTotalViews_7ree.collect { totalViews ->
+                withContext(Dispatchers.Main) {
+                    _totalViews_7ree.value = totalViews
+                }
+            }
+        }
+        
         // 初始化导出路径
         _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
         

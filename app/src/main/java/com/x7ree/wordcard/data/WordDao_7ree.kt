@@ -69,4 +69,8 @@ interface WordDao_7ree {
     // 获取所有单词的数量
     @Query("SELECT COUNT(*) FROM words")
     fun countAllWords_7ree(): Flow<Int>
+    
+    // 获取总查阅次数
+    @Query("SELECT SUM(viewCount) FROM words")
+    fun getTotalViews_7ree(): Flow<Int>
 } 
