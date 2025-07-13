@@ -34,11 +34,10 @@ fun SplashScreen_7ree() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_playstore),
+                    painter = painterResource(id = R.drawable.wordcardicon),
                     contentDescription = "App Icon",
                     modifier = Modifier
                         .size(120.dp)
-                        .clip(RoundedCornerShape(24.dp)) // 添加圆角效果
                 )
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(

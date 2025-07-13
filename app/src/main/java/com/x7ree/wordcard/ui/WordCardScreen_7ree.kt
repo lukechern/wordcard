@@ -52,6 +52,11 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.border
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -193,7 +198,7 @@ fun FavoriteCard_7ree(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (isFavorite) "已收藏" else "未收藏",
+                text = if (isFavorite) "已收藏" else "收藏",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
@@ -230,6 +235,17 @@ internal fun calculateStudyDays_7ree(words_7ree: List<com.x7ree.wordcard.data.Wo
 @Composable
 fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_7ree: (String, String) -> Unit, stopSpeaking_7ree: () -> Unit) {
     val TAG_7ree = "WordCardScreen_7ree"
+    
+    // 用于显示输入提示的状态
+    var showInputWarning_7ree by remember { mutableStateOf(false) }
+    
+    // 自动隐藏提示的效果
+    LaunchedEffect(showInputWarning_7ree) {
+        if (showInputWarning_7ree) {
+            delay(2000) // 2秒后自动隐藏
+            showInputWarning_7ree = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -260,11 +276,22 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 )
             }
         } else if (!wordQueryViewModel_7ree.isWordConfirmed_7ree || wordQueryViewModel_7ree.queryResult_7ree.isBlank()) {
-            // 未开始查询时，标题、输入框、按钮向上移动15%的距离
+            // 未开始查询时，标题、输入框、按钮向上移动15%的距离，但要为图标留出空间
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.offset(y = (-0.15f * 100).dp)
+                modifier = Modifier.offset(y = (-0.15f * 100 + 50).dp) // 调整偏移量
             ) {
+                // App图标
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.wordcardicon),
+                    contentDescription = "App图标",
+                    contentScale = ContentScale.Fit,
+                    alignment = androidx.compose.ui.Alignment.Center,
+                    modifier = Modifier
+                        .size(90.dp)
+                        .padding(bottom = 16.dp)
+                )
+                
                 // 标题
                 Text(
                     text = "AI查单词",
@@ -273,10 +300,20 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
                 
-                // 输入框 - 统一设计风格
+                // 输入框 - 统一设计风格，限制只能输入英文字母
                 OutlinedTextField(
                     value = wordQueryViewModel_7ree.wordInput_7ree,
-                    onValueChange = { wordQueryViewModel_7ree.onWordInputChanged_7ree(it) },
+                    onValueChange = { newValue ->
+                        // 检查是否包含非英文字符
+                        val hasInvalidChars = newValue.any { !it.isLetter() || (it !in 'a'..'z' && it !in 'A'..'Z') }
+                        if (hasInvalidChars) {
+                            showInputWarning_7ree = true
+                        }
+                        
+                        // 过滤输入，只允许英文字母
+                        val filteredValue = newValue.filter { it.isLetter() && (it in 'a'..'z' || it in 'A'..'Z') }
+                        wordQueryViewModel_7ree.onWordInputChanged_7ree(filteredValue)
+                    },
                     label = { Text("请输入英文单词") },
                     singleLine = true,
                     modifier = Modifier
@@ -302,6 +339,16 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                         }
                     )
                 )
+                
+                // 输入提示条
+                if (showInputWarning_7ree) {
+                    Text(
+                        text = "⚠️ 只能输入英文字母",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
