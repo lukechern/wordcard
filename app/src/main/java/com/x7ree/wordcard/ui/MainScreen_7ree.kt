@@ -29,9 +29,17 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
 
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -81,19 +89,69 @@ import kotlinx.coroutines.launch
     'pl_search_word_7r' => '查单词',
     'pl_history_7r' => '历史',
     'pl_settings_7r' => '配置',
+    'pl_dashboard_7r' => '仪表盘',
+    'pl_under_construction_7r' => '建设中，请稍候',
+    'pl_config_7r' => '配置',
+    'pl_back_7r' => '返回',
+    'pl_config_saved_7r' => '配置保存成功',
+    'pl_config_save_failed_7r' => '配置保存失败',
     'pl_history_placeholder_7r' => '历史功能开发中...',
     'pl_settings_placeholder_7r' => '配置功能开发中...',
 **/
+
+// 自定义提示条组件
+@Composable
+fun CustomToast_7ree(
+    message: String,
+    isVisible: Boolean,
+    onDismiss: () -> Unit
+) {
+    if (isVisible) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isVisible,
+                enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(),
+                exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically()
+            ) {
+                Card(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .background(
+                            color = Color.Black.copy(alpha = 0.6f),
+                            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                        ),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = Color.Transparent
+                    )
+                ) {
+                    Text(
+                        text = message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                }
+            }
+        }
+        
+        // 自动隐藏提示条
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(2000) // 2秒后自动隐藏
+            onDismiss()
+        }
+    }
+}
 
 enum class Screen_7ree {
     SEARCH,
     HISTORY,
     SETTINGS
 }
-
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -106,16 +164,15 @@ fun MainScreen_7ree(
 ) {
     var currentScreen_7ree by remember { mutableStateOf(Screen_7ree.SEARCH) }
     var showSplash_7ree by remember { mutableStateOf(true) }
-    val snackbarHostState_7ree = remember { SnackbarHostState() }
+    var showCustomToast_7ree by remember { mutableStateOf(false) }
+    var toastMessage_7ree by remember { mutableStateOf("") }
     val operationResult_7ree by wordQueryViewModel_7ree?.operationResult_7ree?.collectAsState() ?: mutableStateOf(null)
 
-    // 监听操作结果，显示Snackbar
+    // 监听操作结果，显示自定义提示条
     LaunchedEffect(operationResult_7ree) {
         operationResult_7ree?.let { result ->
-            snackbarHostState_7ree.showSnackbar(
-                message = result,
-                duration = androidx.compose.material3.SnackbarDuration.Short
-            )
+            toastMessage_7ree = result
+            showCustomToast_7ree = true
             // 清除操作结果
             wordQueryViewModel_7ree?.clearOperationResult_7ree()
         }
@@ -138,68 +195,76 @@ fun MainScreen_7ree(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState_7ree) },
-        bottomBar = {
-            // 只有在初始化完成且不在启动画面时才显示底部导航
-            if (!showSplash_7ree && wordQueryViewModel_7ree != null) {
-                BottomNavigationBar_7ree(
-                    currentScreen_7ree = currentScreen_7ree,
-                    onScreenSelected_7ree = { screen -> currentScreen_7ree = screen },
-                    onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
-                )
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
+            bottomBar = {
+                // 只有在初始化完成且不在启动画面时才显示底部导航
+                if (!showSplash_7ree && wordQueryViewModel_7ree != null) {
+                    BottomNavigationBar_7ree(
+                        currentScreen_7ree = currentScreen_7ree,
+                        onScreenSelected_7ree = { screen -> currentScreen_7ree = screen },
+                        onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
+                    )
+                }
             }
-        }
-    ) { paddingValues_7ree ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues_7ree)
-        ) {
-            if (showSplash_7ree) {
-                SplashScreen_7ree()
-            } else {
-                // 只有在初始化完成且ViewModel可用时才显示主界面
-                if (wordQueryViewModel_7ree != null) {
-                    when (currentScreen_7ree) {
-                        Screen_7ree.SEARCH -> {
-                            WordCardScreen_7ree(
-                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                                speak_7ree = speak_7ree,
-                                stopSpeaking_7ree = stopSpeaking_7ree
-                            )
-                        }
-                        Screen_7ree.HISTORY -> {
-                            HistoryScreen_7ree(
-                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                                onWordClick_7ree = { word ->
-                                    wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
-                                    currentScreen_7ree = Screen_7ree.SEARCH
-                                }
-                            )
-                        }
-                        Screen_7ree.SETTINGS -> {
-                            SettingsScreen_7ree(
-                                wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                                onImportFile_7ree = onImportFile_7ree
-                            )
-                        }
-                    }
+        ) { paddingValues_7ree ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues_7ree)
+            ) {
+                if (showSplash_7ree) {
+                    SplashScreen_7ree()
                 } else {
-                    // 如果ViewModel还未初始化完成，显示加载状态
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "正在加载...",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                    // 只有在初始化完成且ViewModel可用时才显示主界面
+                    if (wordQueryViewModel_7ree != null) {
+                        when (currentScreen_7ree) {
+                            Screen_7ree.SEARCH -> {
+                                WordCardScreen_7ree(
+                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                    speak_7ree = speak_7ree,
+                                    stopSpeaking_7ree = stopSpeaking_7ree
+                                )
+                            }
+                            Screen_7ree.HISTORY -> {
+                                HistoryScreen_7ree(
+                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                    onWordClick_7ree = { word ->
+                                        wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
+                                        currentScreen_7ree = Screen_7ree.SEARCH
+                                    }
+                                )
+                            }
+                            Screen_7ree.SETTINGS -> {
+                                SettingsScreen_7ree(
+                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                                    onImportFile_7ree = onImportFile_7ree
+                                )
+                            }
+                        }
+                    } else {
+                        // 如果ViewModel还未初始化完成，显示加载状态
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "正在加载...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
         }
+        
+        // 自定义提示条显示在最顶层
+        CustomToast_7ree(
+            message = toastMessage_7ree,
+            isVisible = showCustomToast_7ree,
+            onDismiss = { showCustomToast_7ree = false }
+        )
     }
 }
 
@@ -380,6 +445,7 @@ fun SettingsScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onImportFile_7ree: () -> Unit = {}
 ) {
+    var showConfigPage_7ree by remember { mutableStateOf(false) }
     var selectedTab_7ree by remember { mutableStateOf(SettingsTab_7ree.API_CONFIG) }
     
     Column(
@@ -387,49 +453,108 @@ fun SettingsScreen_7ree(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "配置",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        
-        TabRow(selectedTabIndex = selectedTab_7ree.ordinal) {
-            Tab(
-                selected = selectedTab_7ree == SettingsTab_7ree.API_CONFIG,
-                onClick = { selectedTab_7ree = SettingsTab_7ree.API_CONFIG },
-                text = { Text("API配置") }
+        // 标题栏：标题 + 图标
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (showConfigPage_7ree) "配置" else "仪表盘",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
             )
-            Tab(
-                selected = selectedTab_7ree == SettingsTab_7ree.PROMPT_CONFIG,
-                onClick = { selectedTab_7ree = SettingsTab_7ree.PROMPT_CONFIG },
-                text = { Text("提示词配置") }
-            )
-            Tab(
-                selected = selectedTab_7ree == SettingsTab_7ree.DATA_MANAGEMENT,
-                onClick = { selectedTab_7ree = SettingsTab_7ree.DATA_MANAGEMENT },
-                text = { Text("数据管理") }
-            )
+            
+            // 右上角图标：配置或返回
+            IconButton(
+                onClick = { 
+                    if (showConfigPage_7ree) {
+                        showConfigPage_7ree = false
+                    } else {
+                        showConfigPage_7ree = true
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = if (showConfigPage_7ree) Icons.Filled.ArrowBack else Icons.Filled.Settings,
+                    contentDescription = if (showConfigPage_7ree) "返回" else "配置",
+                    modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        when (selectedTab_7ree) {
-            SettingsTab_7ree.API_CONFIG -> {
-                ApiConfigTab_7ree(wordQueryViewModel_7ree)
+        // 页面内容
+        if (showConfigPage_7ree) {
+            // 配置页面
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TabRow(selectedTabIndex = selectedTab_7ree.ordinal) {
+                    Tab(
+                        selected = selectedTab_7ree == SettingsTab_7ree.API_CONFIG,
+                        onClick = { selectedTab_7ree = SettingsTab_7ree.API_CONFIG },
+                        text = { Text("API配置") }
+                    )
+                    Tab(
+                        selected = selectedTab_7ree == SettingsTab_7ree.PROMPT_CONFIG,
+                        onClick = { selectedTab_7ree = SettingsTab_7ree.PROMPT_CONFIG },
+                        text = { Text("提示词配置") }
+                    )
+                    Tab(
+                        selected = selectedTab_7ree == SettingsTab_7ree.DATA_MANAGEMENT,
+                        onClick = { selectedTab_7ree = SettingsTab_7ree.DATA_MANAGEMENT },
+                        text = { Text("数据管理") }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                when (selectedTab_7ree) {
+                    SettingsTab_7ree.API_CONFIG -> {
+                        ApiConfigTab_7ree(wordQueryViewModel_7ree)
+                    }
+                    SettingsTab_7ree.PROMPT_CONFIG -> {
+                        PromptConfigTab_7ree(wordQueryViewModel_7ree)
+                    }
+                    SettingsTab_7ree.DATA_MANAGEMENT -> {
+                        DataManagementTab_7ree(
+                            wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                            onImportFile_7ree = onImportFile_7ree
+                        )
+                    }
+                }
             }
-            SettingsTab_7ree.PROMPT_CONFIG -> {
-                PromptConfigTab_7ree(wordQueryViewModel_7ree)
-            }
-            SettingsTab_7ree.DATA_MANAGEMENT -> {
-                DataManagementTab_7ree(
-                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                    onImportFile_7ree = onImportFile_7ree
-                )
+        } else {
+            // 仪表盘页面 - 建设中提示
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Build,
+                        contentDescription = "建设中",
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "建设中，请稍候",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
 }
+
+
 
 @Composable
 fun ApiConfigTab_7ree(
