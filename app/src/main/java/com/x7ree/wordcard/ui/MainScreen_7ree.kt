@@ -158,7 +158,13 @@ fun MainScreen_7ree(
     stopSpeaking_7ree: () -> Unit,
     onImportFile_7ree: () -> Unit = {}
 ) {
-    var currentScreen_7ree by remember { mutableStateOf(Screen_7ree.SEARCH) }
+    // 从ViewModel获取当前屏幕状态
+    val currentScreenString_7ree by wordQueryViewModel_7ree?.currentScreen_7ree?.collectAsState() ?: mutableStateOf("SEARCH")
+    val currentScreen_7ree = when (currentScreenString_7ree) {
+        "HISTORY" -> Screen_7ree.HISTORY
+        "SETTINGS" -> Screen_7ree.SETTINGS
+        else -> Screen_7ree.SEARCH
+    }
     var showSplash_7ree by remember { mutableStateOf(true) }
     var showCustomToast_7ree by remember { mutableStateOf(false) }
     var toastMessage_7ree by remember { mutableStateOf("") }
@@ -198,8 +204,15 @@ fun MainScreen_7ree(
                 if (!showSplash_7ree && wordQueryViewModel_7ree != null) {
                     BottomNavigationBar_7ree(
                         currentScreen_7ree = currentScreen_7ree,
-                        onScreenSelected_7ree = { screen -> currentScreen_7ree = screen },
-                        onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
+                        onScreenSelected_7ree = { screen -> 
+                            val screenString = when (screen) {
+                                Screen_7ree.HISTORY -> "HISTORY"
+                                Screen_7ree.SETTINGS -> "SETTINGS"
+                                else -> "SEARCH"
+                            }
+                            wordQueryViewModel_7ree?.setCurrentScreen_7ree(screenString)
+                        },
+                        onSearchReset_7ree = { wordQueryViewModel_7ree?.resetQueryState_7ree() }
                     )
                 }
             }
@@ -227,7 +240,7 @@ fun MainScreen_7ree(
                                     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                                     onWordClick_7ree = { word ->
                                         wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
-                                        currentScreen_7ree = Screen_7ree.SEARCH
+                                        wordQueryViewModel_7ree.setCurrentScreen_7ree("SEARCH")
                                     }
                                 )
                             }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:background="@drawable/widget_background_7ree"
+    android:id="@+id/widget_container_7ree"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:layout_weight="1"
+        android:text="请输入需要查询的英文单词"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:background="@drawable/widget_input_background_7ree"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:layout_marginRight="6dp"
+        android:gravity="center_vertical" />
+
+    <Button
+        android:id="@+id/widget_query_button_7ree"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="查询"
+        android:textSize="12sp"
+        android:textColor="#FFFFFF"
+        android:background="@drawable/widget_button_background_7ree"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:layout_marginRight="6dp"
+        android:minWidth="0dp" />
+
+    <ImageButton
+        android:id="@+id/widget_wordbook_button_7ree"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_wordcard_leaf_7ree"
+        android:background="@drawable/widget_wordbook_button_background_7ree"
+        android:scaleType="fitCenter"
+        android:padding="8dp"
+        android:adjustViewBounds="true"
+        android:contentDescription="打开单词本" />
+
+</LinearLayout>

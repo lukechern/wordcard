@@ -51,6 +51,10 @@ class WordQueryViewModel_7ree(
     private val _operationResult_7ree = MutableStateFlow<String?>(null)
     val operationResult_7ree: StateFlow<String?> = _operationResult_7ree
     
+    // 当前屏幕状态
+    private val _currentScreen_7ree = MutableStateFlow("SEARCH")
+    val currentScreen_7ree: StateFlow<String> = _currentScreen_7ree
+    
     var wordInput_7ree by mutableStateOf("")
         private set
 
@@ -633,5 +637,9 @@ class WordQueryViewModel_7ree(
         isFromCache_7ree = false
         currentWordInfo_7ree = null
         clearOperationResult_7ree()
+    }
+    
+    fun setCurrentScreen_7ree(screen: String) {
+        _currentScreen_7ree.value = screen
     }
 }

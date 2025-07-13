@@ -37,6 +37,7 @@ import com.x7ree.wordcard.data.WordDatabase_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
 import com.x7ree.wordcard.api.OpenAiApiService_7ree
 import android.widget.Toast
+import com.x7ree.wordcard.widget.WordQueryWidgetProvider_7ree
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
@@ -115,13 +116,13 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         }
         
         // 异步初始化所有组件
-        initializeAppAsync_7ree()
+        initializeAppAsync_7ree(intent)
         
         // 立即初始化TTS，确保朗读按钮可用
         initializeTtsLazy_7ree()
     }
     
-    private fun initializeAppAsync_7ree() {
+    private fun initializeAppAsync_7ree(intent: Intent?) {
         // 记录启动开始时间
         val startTime = System.currentTimeMillis()
         
@@ -143,6 +144,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     val endTime = System.currentTimeMillis()
                     val startupTime = endTime - startTime
                     Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
+                    
+                    // 在初始化完成后处理小组件Intent
+                    handleWidgetIntent_7ree(intent)
                 }
                 
             } catch (e: Exception) {
@@ -343,6 +347,59 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             // 第二次按返回键，退出应用
             exitToast_7ree?.cancel()
             super.onBackPressed()
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleWidgetIntent_7ree(intent)
+    }
+    
+    private fun handleWidgetIntent_7ree(intent: Intent?) {
+        Log.d(TAG_7ree, "handleWidgetIntent_7ree called with action: ${intent?.action}")
+        when (intent?.action) {
+            WordQueryWidgetProvider_7ree.ACTION_WIDGET_QUERY_7ree -> {
+                val queryText = intent.getStringExtra(WordQueryWidgetProvider_7ree.EXTRA_QUERY_TEXT_7ree)
+                Log.d(TAG_7ree, "收到小组件查询请求: $queryText")
+                
+                if (!queryText.isNullOrBlank()) {
+                    // 等待ViewModel初始化完成后执行查询
+                    lifecycleScope.launch {
+                        // 等待初始化完成
+                        while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
+                            kotlinx.coroutines.delay(100)
+                        }
+                        
+                        // 在主线程执行查询
+                        withContext(Dispatchers.Main) {
+                            wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryText)
+                            wordQueryViewModel_7ree?.queryWord_7ree()
+                            Log.d(TAG_7ree, "小组件查询已执行: $queryText")
+                        }
+                    }
+                }
+            }
+            WordQueryWidgetProvider_7ree.ACTION_WIDGET_WORDBOOK_7ree -> {
+                Log.d(TAG_7ree, "收到小组件单词本请求")
+                try {
+                    // 等待ViewModel初始化完成后切换到单词本页面
+                    lifecycleScope.launch {
+                        // 等待初始化完成
+                        while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
+                            kotlinx.coroutines.delay(100)
+                        }
+                        
+                        // 在主线程切换到单词本页面
+                        withContext(Dispatchers.Main) {
+                            wordQueryViewModel_7ree?.setCurrentScreen_7ree("HISTORY")
+                            Log.d(TAG_7ree, "已切换到单词本页面")
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG_7ree, "处理单词本请求时出错: ${e.message}", e)
+                }
+            }
         }
     }
 
