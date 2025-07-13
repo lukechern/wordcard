@@ -27,6 +27,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -61,6 +66,7 @@ import java.util.Locale
 import java.util.Calendar
 import androidx.compose.runtime.collectAsState // 导入 collectAsState
 import com.x7ree.wordcard.ui.SwipeNavigationComponent_7ree // 导入滑动导航组件
+import kotlinx.coroutines.delay // 导入delay函数
 
 
 // 辅助函数：应用文本样式调整
@@ -380,8 +386,18 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 )
 
                 if (wordQueryViewModel_7ree.queryResult_7ree.isNotBlank()) {
+                    // 添加状态变量来跟踪导航是否可用
+                    var canNavigate_7ree by remember { mutableStateOf(false) }
+                    
+                    // 使用LaunchedEffect在单词详情页面显示后短暂延迟，然后评估canNavigate状态
+                    LaunchedEffect(wordQueryViewModel_7ree.wordInput_7ree) {
+                        // 给单词列表加载留出时间
+                        delay(300)
+                        canNavigate_7ree = wordQueryViewModel_7ree.canNavigate_7ree()
+                    }
+                    
                     SwipeNavigationComponent_7ree(
-                        canNavigate = wordQueryViewModel_7ree.canNavigate_7ree(),
+                        canNavigate = canNavigate_7ree,
                         onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
                         onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
                     ) {
@@ -738,4 +754,4 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
     }
 } 
 
-} 
+}
