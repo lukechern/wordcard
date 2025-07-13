@@ -269,6 +269,7 @@ private fun DailyChart_7ree(words_7ree: List<WordEntity_7ree>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 6.dp) // 减去统计卡片间距的一半，实现左右对齐
             .height(300.dp)
             .clip(RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
@@ -324,6 +325,7 @@ private fun MonthlyChart_7ree(words_7ree: List<WordEntity_7ree>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(horizontal = 6.dp) // 减去统计卡片间距的一半，实现左右对齐
             .height(300.dp)
             .clip(RoundedCornerShape(16.dp)),
         colors = CardDefaults.cardColors(
