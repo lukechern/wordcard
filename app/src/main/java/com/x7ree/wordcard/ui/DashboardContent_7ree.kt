@@ -268,58 +268,8 @@ private fun StatCard_7ree(
 
 @Composable
 private fun MonthlyChart_7ree(words_7ree: List<WordEntity_7ree>) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 0.dp) // 移除水平padding，让图表区域最大化
-            .height(300.dp)
-            .clip(RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(6.dp)
-        ) {
-            Text(
-                text = "近1年月度统计",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 简化的图表占位符
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(
-                                Color(0xFF4facfe).copy(alpha = 0.1f),
-                                Color(0xFF00f2fe).copy(alpha = 0.1f)
-                            )
-                        ),
-                        RoundedCornerShape(12.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "📈 柱状图区域\n月度数据统计",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
+    // 使用新的MonthlyChartComponent_7ree组件
+    MonthlyChartComponent_7ree(words_7ree = words_7ree)
 }
 
 
@@ -330,4 +280,4 @@ data class DashboardStats_7ree(
     val totalViews: Int,
     val favoriteWords: Int,
     val studyDays: Int
-) 
+)
