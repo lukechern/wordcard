@@ -33,7 +33,7 @@
         <activity
             android:name=".widget.WidgetConfigActivity_7ree"
             android:exported="true"
-            android:theme="@android:style/Theme.DeviceDefault.Dialog" />
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar" />
         
         <receiver
             android:name=".widget.WordQueryWidgetProvider_7ree"

@@ -1,26 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="#FFFFFF">
+    android:background="@drawable/widget_dialog_background_7ree"
+    android:layout_gravity="center">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="单词查询"
-        android:textSize="20sp"
-        android:textColor="#333333"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:layout_marginBottom="24dp" />
+
 
     <EditText
         android:id="@+id/widget_input_config_7ree"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="请输入需要查询的英文单词"
+        android:hint="请输入需要查询的单词"
         android:textSize="16sp"
         android:textColor="#333333"
         android:textColorHint="#999999"
@@ -28,6 +21,7 @@
         android:padding="16dp"
         android:layout_marginBottom="16dp"
         android:inputType="text"
+        android:imeOptions="actionSearch"
         android:maxLines="1" />
 
     <Button
@@ -37,7 +31,8 @@
         android:text="用AI查询"
         android:textSize="16sp"
         android:textColor="#FFFFFF"
-        android:background="@drawable/widget_button_background_7ree"
-        android:padding="16dp" />
+        android:background="@drawable/widget_green_button_background_7ree"
+        android:padding="16dp"
+        android:gravity="center" />
 
 </LinearLayout>

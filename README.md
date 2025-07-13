@@ -8,13 +8,39 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
 ## 📱 应用简介
 
 WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 OpenAI GPT 或兼容模型，为用户提供智能化的英语单词查询和学习体验。应用采用现代化的 Jetpack Compose UI 框架，提供流畅的用户界面和丰富的功能特性。
+
+## 🆕 版本 2.0 更新内容
+
+### 🎨 UI/UX 优化
+- **桌面小组件优化**: 调整了小组件搜索条的图标间距，提升视觉效果
+- **搜索弹窗重构**: 完全重新设计了搜索弹出卡片的用户界面
+  - 自动聚焦输入框并弹出键盘
+  - 动态按钮状态管理（输入少于3个字符时禁用查询按钮）
+  - 限制输入框只允许英文字母输入
+  - 添加了精美的放大镜SVG图标
+  - 支持回车键快速搜索
+  - 统一了弹窗、输入框和按钮的圆角样式（8dp）
+  - 调整弹窗宽度与桌面小组件保持一致（280dp）
+  - 移除了弹出卡片的黑色标题栏，界面更简洁
+
+### 🔧 技术改进
+- **图标内嵌技术**: 使用SpannableString和ImageSpan技术将SVG图标完美嵌入按钮文字中
+- **精确位置控制**: 实现了图标的像素级位置微调（向下偏移2px）
+- **输入过滤优化**: 改进了中文字符过滤逻辑，确保只能输入英文字母
+- **键盘显示优化**: 修复了键盘自动弹出的时序问题
+
+### 📱 用户体验提升
+- 搜索流程更加流畅和直观
+- 视觉一致性大幅提升
+- 减少了用户操作步骤
+- 提供了更好的视觉反馈
 
 ## ✨ 主要功能
 
@@ -198,4 +224,4 @@ app/src/main/java/com/x7ree/wordcard/
 
 **如果这个项目对您有帮助，请给它一个 ⭐️**
 
-</div> 
+</div>
