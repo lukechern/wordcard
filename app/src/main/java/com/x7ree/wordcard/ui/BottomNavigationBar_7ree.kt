@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 语言包定义
 
     'pl_search_word_7r' => '查单词',
-    'pl_history_7r' => '历史',
-    'pl_settings_7r' => '配置',
+    'pl_wordbook_7r' => '单词本',
+    'pl_dashboard_7r' => '仪表盘',
 **/
 
 // 定义统一的背景色，减少视觉干扰
@@ -68,14 +68,14 @@ fun BottomNavigationBar_7ree(
             
             CustomNavigationItem_7ree(
                 icon = Icons.Filled.ListAlt,
-                label = "历史",
+                label = "单词本",
                 isSelected = currentScreen_7ree == Screen_7ree.HISTORY,
                 onClick = { onScreenSelected_7ree(Screen_7ree.HISTORY) }
             )
             
             CustomNavigationItem_7ree(
                 icon = Icons.Filled.Tune,
-                label = "配置",
+                label = "仪表盘",
                 isSelected = currentScreen_7ree == Screen_7ree.SETTINGS,
                 onClick = { onScreenSelected_7ree(Screen_7ree.SETTINGS) }
             )
