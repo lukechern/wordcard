@@ -98,29 +98,38 @@ class WordQueryViewModel_7ree(
     private var currentWordIndex_7ree = -1
 
     init {
+        // 只初始化导出路径，其他数据改为按需加载
+        _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
+    }
+    
+    // 按需加载单词计数
+    fun loadWordCount_7ree() {
+        val startTime = System.currentTimeMillis()
         viewModelScope.launch(Dispatchers.IO) {
             wordRepository_7ree.wordCount_7ree.collect { count ->
                 withContext(Dispatchers.Main) {
                     _wordCount_7ree.value = count
+                    val endTime = System.currentTimeMillis()
+                    val duration = endTime - startTime
+                    println("DEBUG: 加载单词计数完成，耗时: ${duration}ms")
                 }
             }
         }
-        
-        // 延迟初始化总查阅次数，避免影响启动速度
+    }
+    
+    // 按需加载总查阅次数
+    fun loadTotalViews_7ree() {
+        val startTime = System.currentTimeMillis()
         viewModelScope.launch(Dispatchers.IO) {
-            delay(500) // 延迟500ms，让启动画面先显示
             wordRepository_7ree.getTotalViews_7ree.collect { totalViews ->
                 withContext(Dispatchers.Main) {
                     _totalViews_7ree.value = totalViews
+                    val endTime = System.currentTimeMillis()
+                    val duration = endTime - startTime
+                    println("DEBUG: 加载总查阅次数完成，耗时: ${duration}ms")
                 }
             }
         }
-        
-        // 初始化导出路径
-        _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
-        
-        // 延迟加载所有单词列表 - 不在初始化时加载，而是在需要时加载
-        // loadAllWords_7ree() // 注释掉，改为延迟加载
     }
 
     // 延迟加载所有单词列表 - 只在需要导航功能时才加载
@@ -130,9 +139,15 @@ class WordQueryViewModel_7ree(
             return
         }
         
+        val startTime = System.currentTimeMillis()
+        println("DEBUG: 开始加载所有单词列表")
+        
         viewModelScope.launch {
             wordRepository_7ree.getAllWords_7ree().collect { words ->
                 _allWords_7ree.value = words
+                val endTime = System.currentTimeMillis()
+                val duration = endTime - startTime
+                println("DEBUG: 加载所有单词列表完成，共${words.size}个单词，耗时: ${duration}ms")
             }
         }
     }
@@ -311,12 +326,18 @@ class WordQueryViewModel_7ree(
         queryResult_7ree = ""
         isFromCache_7ree = false
         
+        // 记录查询开始时间
+        val queryStartTime = System.currentTimeMillis()
+        println("DEBUG: 开始查询单词: ${wordInput_7ree}, 时间: ${queryStartTime}ms")
+        
         viewModelScope.launch {
             try {
-                println("DEBUG: 开始查询单词: ${wordInput_7ree}")
-                
                 // 1. 先查询本地数据库
+                val dbStartTime = System.currentTimeMillis()
                 val cachedWord_7ree = wordRepository_7ree.getWord_7ree(wordInput_7ree)
+                val dbEndTime = System.currentTimeMillis()
+                val dbQueryTime = dbEndTime - dbStartTime
+                println("DEBUG: 数据库查询耗时: ${dbQueryTime}ms")
                 
                 if (cachedWord_7ree != null) {
                     // 本地有缓存数据
@@ -325,15 +346,30 @@ class WordQueryViewModel_7ree(
                     isFromCache_7ree = true
                     
                     // 增加浏览次数
+                    val viewCountStartTime = System.currentTimeMillis()
                     wordRepository_7ree.incrementViewCount_7ree(wordInput_7ree)
+                    val viewCountEndTime = System.currentTimeMillis()
+                    println("DEBUG: 增加浏览次数耗时: ${viewCountEndTime - viewCountStartTime}ms")
                     
                     // 更新当前单词信息
+                    val updateInfoStartTime = System.currentTimeMillis()
                     updateCurrentWordInfo_7ree()
+                    val updateInfoEndTime = System.currentTimeMillis()
+                    println("DEBUG: 更新单词信息耗时: ${updateInfoEndTime - updateInfoStartTime}ms")
                 } else {
                     // 本地没有数据，发起API请求
                     println("DEBUG: 本地无缓存，发起API请求")
+                    val apiStartTime = System.currentTimeMillis()
                     var isFirstChunk_7ree = true
+                    var firstChunkTime: Long = 0
+                    
                     apiService_7ree.queryWordStreamSimple_7ree(wordInput_7ree).collect { chunk_7ree ->
+                        val chunkTime = System.currentTimeMillis()
+                        if (isFirstChunk_7ree) {
+                            firstChunkTime = chunkTime
+                            println("DEBUG: 收到第一个内容块，耗时: ${firstChunkTime - apiStartTime}ms")
+                        }
+                        
                         println("DEBUG: 收到流式内容块: $chunk_7ree")
                         queryResult_7ree += chunk_7ree
                         
@@ -344,22 +380,38 @@ class WordQueryViewModel_7ree(
                         }
                     }
                     
+                    val apiEndTime = System.currentTimeMillis()
+                    println("DEBUG: API请求总耗时: ${apiEndTime - apiStartTime}ms")
+                    
                     // API请求成功后，保存到本地数据库
                     if (queryResult_7ree.isNotBlank() && !queryResult_7ree.startsWith("错误:")) {
                         println("DEBUG: 保存查询结果到数据库")
+                        val saveStartTime = System.currentTimeMillis()
                         wordRepository_7ree.saveWord_7ree(wordInput_7ree, queryResult_7ree)
+                        val saveEndTime = System.currentTimeMillis()
+                        println("DEBUG: 保存到数据库耗时: ${saveEndTime - saveStartTime}ms")
                         
                         // 更新当前单词信息
+                        val updateInfoStartTime = System.currentTimeMillis()
                         updateCurrentWordInfo_7ree()
+                        val updateInfoEndTime = System.currentTimeMillis()
+                        println("DEBUG: 更新单词信息耗时: ${updateInfoEndTime - updateInfoStartTime}ms")
+                        
                         // 重新加载单词列表以确保导航功能正常
                         loadAllWords_7ree()
                     }
                 }
                 
-                println("DEBUG: 查询完成")
+                val queryEndTime = System.currentTimeMillis()
+                val totalQueryTime = queryEndTime - queryStartTime
+                println("DEBUG: 查询完成，总耗时: ${totalQueryTime}ms")
             } catch (e: Exception) {
                 println("DEBUG: 查询异常: ${e.message}")
                 queryResult_7ree = "查询失败: ${e.localizedMessage}"
+                
+                val queryEndTime = System.currentTimeMillis()
+                val totalQueryTime = queryEndTime - queryStartTime
+                println("DEBUG: 查询失败，总耗时: ${totalQueryTime}ms")
             } finally {
                 isLoading_7ree = false
             }
@@ -582,4 +634,4 @@ class WordQueryViewModel_7ree(
         currentWordInfo_7ree = null
         clearOperationResult_7ree()
     }
-} 
+}

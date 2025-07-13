@@ -336,7 +336,14 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                     )
                 }
 
-                // 统计数据
+                // 统计数据 - 按需加载
+                LaunchedEffect(Unit) {
+                    // 延迟加载统计数据，不阻塞UI显示
+                    delay(100) // 短暂延迟，让UI先渲染
+                    wordQueryViewModel_7ree.loadWordCount_7ree()
+                    wordQueryViewModel_7ree.loadTotalViews_7ree()
+                }
+                
                 val wordCount_7ree = wordQueryViewModel_7ree.wordCount_7ree.collectAsState().value
                 val totalViews_7ree = wordQueryViewModel_7ree.totalViews_7ree.collectAsState().value
                 val studyDays_7ree = calculateStudyDays_7ree(wordQueryViewModel_7ree.getHistoryWords_7ree().collectAsState(initial = emptyList()).value)

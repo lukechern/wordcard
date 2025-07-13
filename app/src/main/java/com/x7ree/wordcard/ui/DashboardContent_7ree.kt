@@ -48,6 +48,11 @@ fun DashboardContent_7ree(
     
     // 加载数据
     LaunchedEffect(Unit) {
+        // 按需加载单词计数和总查阅次数
+        wordQueryViewModel_7ree.loadWordCount_7ree()
+        wordQueryViewModel_7ree.loadTotalViews_7ree()
+        
+        // 加载历史单词列表
         wordQueryViewModel_7ree.getHistoryWords_7ree().collect { words_7ree ->
             allWords_7ree = words_7ree
         }

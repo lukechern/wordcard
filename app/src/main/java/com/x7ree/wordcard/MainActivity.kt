@@ -47,6 +47,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private var isInitializationComplete_7ree = false
     private var isTtsInitialized_7ree = false
     private var isDatabaseInitialized_7ree = false
+    
+    // 性能测量变量
+    private var ttsInitStartTime_7ree: Long = 0
 
     // 双击退出相关变量
     private var backPressedTime_7ree: Long = 0
@@ -88,7 +91,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                             } else {
                                 Log.e(TAG_7ree, "speak_7ree: TTS not ready or text is blank, cannot speak. isTtsReady_7ree: ${wordQueryViewModel_7ree?.isTtsReady_7ree}")
                                 if (!isFinishing) {
-                                    Toast.makeText(this, "语音服务未准备好，请检查设备设置。", Toast.LENGTH_SHORT).show()
+                                    if (tts_7ree == null) {
+                                        Toast.makeText(this, "语音服务正在初始化，请稍后再试", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        Toast.makeText(this, "语音服务未准备好，请检查设备设置。", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
                             }
                         },
@@ -109,20 +116,21 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         
         // 异步初始化所有组件
         initializeAppAsync_7ree()
+        
+        // 立即初始化TTS，确保朗读按钮可用
+        initializeTtsLazy_7ree()
     }
     
     private fun initializeAppAsync_7ree() {
+        // 记录启动开始时间
+        val startTime = System.currentTimeMillis()
+        
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 Log.d(TAG_7ree, "开始异步初始化应用组件")
                 
-                // 并行初始化TTS和数据库
-                val ttsJob = launch { initializeTtsAsync_7ree() }
-                val databaseJob = launch { initializeDatabaseAsync_7ree() }
-                
-                // 等待两个初始化完成
-                ttsJob.join()
-                databaseJob.join()
+                // 只初始化数据库，TTS改为懒加载
+                initializeDatabaseAsync_7ree()
                 
                 // 初始化ViewModel
                 initializeViewModel_7ree()
@@ -130,7 +138,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 // 标记初始化完成
                 withContext(Dispatchers.Main) {
                     isInitializationComplete_7ree = true
-                    Log.d(TAG_7ree, "应用初始化完成")
+                    
+                    // 计算并记录启动时间
+                    val endTime = System.currentTimeMillis()
+                    val startupTime = endTime - startTime
+                    Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
                 }
                 
             } catch (e: Exception) {
@@ -138,23 +150,37 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "应用初始化失败，部分功能可能不可用", Toast.LENGTH_LONG).show()
                     isInitializationComplete_7ree = true // 即使失败也要完成初始化流程
+                    
+                    // 即使失败也记录启动时间
+                    val endTime = System.currentTimeMillis()
+                    val startupTime = endTime - startTime
+                    Log.e(TAG_7ree, "应用初始化失败，耗时: ${startupTime}ms")
                 }
             }
         }
     }
     
-    private suspend fun initializeTtsAsync_7ree() {
+    // 改为懒加载方式初始化TTS
+    private fun initializeTtsLazy_7ree() {
+        if (tts_7ree != null) return // 已经初始化过，不再重复初始化
+        
+        // 记录TTS初始化开始时间
+        ttsInitStartTime_7ree = System.currentTimeMillis()
+        
         try {
-            Log.d(TAG_7ree, "开始异步初始化TTS")
+            Log.d(TAG_7ree, "开始懒加载初始化TTS")
             tts_7ree = TextToSpeech(this@MainActivity, this@MainActivity)
-            Log.d(TAG_7ree, "TTS初始化请求已发送")
+            Log.d(TAG_7ree, "TTS懒加载初始化请求已发送，开始时间: ${ttsInitStartTime_7ree}ms")
         } catch (e: Exception) {
-            Log.e(TAG_7ree, "TTS异步初始化失败: ${e.message}", e)
-            withContext(Dispatchers.Main) {
-                if (!isFinishing) {
-                    Toast.makeText(this@MainActivity, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
-                }
+            Log.e(TAG_7ree, "TTS懒加载初始化失败: ${e.message}", e)
+            if (!isFinishing) {
+                Toast.makeText(this@MainActivity, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
             }
+            
+            // 记录TTS初始化失败时间
+            val ttsEndTime = System.currentTimeMillis()
+            val ttsDuration = ttsEndTime - ttsInitStartTime_7ree
+            Log.e(TAG_7ree, "TTS懒加载初始化失败，耗时: ${ttsDuration}ms")
         }
     }
     
@@ -175,7 +201,20 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             Log.d(TAG_7ree, "开始初始化ViewModel")
             if (wordRepository_7ree != null) {
                 wordQueryViewModel_7ree = WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree!!, this@MainActivity)
-                Log.d(TAG_7ree, "ViewModel初始化完成")
+                
+                // 如果TTS已经初始化完成，同步状态到ViewModel
+                if (isTtsInitialized_7ree && tts_7ree != null) {
+                    // 检查TTS是否真正可用
+                    val isTtsReady = try {
+                        tts_7ree?.language != null
+                    } catch (e: Exception) {
+                        false
+                    }
+                    wordQueryViewModel_7ree?.isTtsReady_7ree = isTtsReady
+                    Log.d(TAG_7ree, "ViewModel初始化完成，TTS状态已同步: isTtsReady_7ree = $isTtsReady")
+                } else {
+                    Log.d(TAG_7ree, "ViewModel初始化完成，TTS尚未初始化")
+                }
             } else {
                 Log.e(TAG_7ree, "WordRepository未初始化，无法创建ViewModel")
             }
@@ -185,6 +224,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onInit(status: Int) {
+        // 记录TTS初始化完成时间
+        val ttsEndTime = System.currentTimeMillis()
+        
         Log.d(TAG_7ree, "onInit: Received status: $status")
         if (status == TextToSpeech.SUCCESS) {
             Log.d(TAG_7ree, "onInit: TextToSpeech initialized successfully.")
@@ -210,8 +252,19 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 }
             }
 
-            wordQueryViewModel_7ree?.isTtsReady_7ree = isAnyLanguageSupported_7ree
+            // 确保ViewModel存在后再设置TTS状态
+            if (wordQueryViewModel_7ree != null) {
+                wordQueryViewModel_7ree?.isTtsReady_7ree = isAnyLanguageSupported_7ree
+                Log.d(TAG_7ree, "onInit: TTS状态已设置到ViewModel，isTtsReady_7ree = $isAnyLanguageSupported_7ree")
+            } else {
+                Log.w(TAG_7ree, "onInit: ViewModel尚未初始化，将在ViewModel初始化后设置TTS状态")
+                // 如果ViewModel还没初始化，我们需要在其他地方设置这个状态
+            }
             isTtsInitialized_7ree = true
+            
+            // 计算TTS初始化总耗时
+            val ttsDuration = ttsEndTime - ttsInitStartTime_7ree
+            Log.d(TAG_7ree, "TTS初始化成功完成，耗时: ${ttsDuration}ms")
             
             if (!isAnyLanguageSupported_7ree && !isFinishing) {
                 Toast.makeText(this, "文本转语音：所需语言数据不可用，请前往设置下载。", Toast.LENGTH_LONG).show()
@@ -258,8 +311,19 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             })
         } else {
             Log.e(TAG_7ree, "onInit: TextToSpeech initialization failed with status: $status")
-            wordQueryViewModel_7ree?.isTtsReady_7ree = false
+            // 确保ViewModel存在后再设置TTS状态
+            if (wordQueryViewModel_7ree != null) {
+                wordQueryViewModel_7ree?.isTtsReady_7ree = false
+                Log.d(TAG_7ree, "onInit: TTS失败状态已设置到ViewModel，isTtsReady_7ree = false")
+            } else {
+                Log.w(TAG_7ree, "onInit: ViewModel尚未初始化，TTS失败状态无法设置")
+            }
             isTtsInitialized_7ree = false
+            
+            // 计算TTS初始化失败耗时
+            val ttsDuration = ttsEndTime - ttsInitStartTime_7ree
+            Log.e(TAG_7ree, "TTS初始化失败，耗时: ${ttsDuration}ms")
+            
             if (!isFinishing) {
                 Toast.makeText(this, "文本转语音初始化失败，请检查设备设置。", Toast.LENGTH_LONG).show()
             }

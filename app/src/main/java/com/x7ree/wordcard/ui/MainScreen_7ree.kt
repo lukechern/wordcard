@@ -56,6 +56,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import com.x7ree.wordcard.ui.BottomNavigationBar_7ree // 导入新的组件
 
 import androidx.compose.runtime.Composable
@@ -176,15 +177,15 @@ fun MainScreen_7ree(
     // 智能启动画面控制 - 并行执行，不增加总等待时间
     LaunchedEffect(isInitializationComplete_7ree) {
         if (isInitializationComplete_7ree) {
-            // 如果初始化已完成，至少显示1秒启动画面给用户视觉反馈
-            delay(1000)
+            // 如果初始化已完成，只显示500毫秒启动画面给用户视觉反馈
+            delay(500)
             showSplash_7ree = false
         }
     }
     
     // 如果初始化时间过长，确保启动画面不会无限显示
     LaunchedEffect(Unit) {
-        delay(5000) // 最多显示5秒启动画面
+        delay(3000) // 最多显示3秒启动画面
         if (showSplash_7ree) {
             showSplash_7ree = false
         }
@@ -270,14 +271,25 @@ fun HistoryScreen_7ree(
 ) {
     var historyWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
+    var isLoading_7ree by remember { mutableStateOf(true) }
     
-    // 加载历史单词列表
+    // 加载历史单词列表 - 优化加载方式
     LaunchedEffect(Unit) {
+        // 先显示加载状态
+        isLoading_7ree = true
+        
+        // 按需加载单词计数
+        wordQueryViewModel_7ree.loadWordCount_7ree()
+        
+        // 加载历史单词列表
         wordQueryViewModel_7ree.getHistoryWords_7ree().collect { words_7ree ->
             // 过滤掉已删除的单词，确保UI状态同步
             historyWords_7ree = words_7ree
                 .filter { it.word !in deletedWords_7ree }
                 .sortedByDescending { it.queryTimestamp }
+            
+            // 加载完成
+            isLoading_7ree = false
         }
     }
     
@@ -293,7 +305,24 @@ fun HistoryScreen_7ree(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        if (historyWords_7ree.isEmpty()) {
+        if (isLoading_7ree) {
+            // 显示加载状态
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "加载历史记录中...",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        } else if (historyWords_7ree.isEmpty()) {
+            // 显示空状态
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
