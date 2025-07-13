@@ -79,57 +79,84 @@ private fun DailyChartCanvas_7ree(
     modifier: Modifier = Modifier
 ) {
     val chartData_7ree = remember(words_7ree) {
-        // 总是使用示例数据来测试图表显示
-        println("DEBUG: 使用示例数据测试图表")
-        generateSampleData_7ree()
+        // 使用真实数据生成图表
+        println("DEBUG: 使用真实数据生成图表，总单词数: ${words_7ree.size}")
+        generateDailyChartData_7ree(words_7ree)
     }
     
 
     
     if (chartData_7ree.isNotEmpty()) {
-        Canvas(modifier = modifier) {
-            val width = size.width
-            val height = size.height
-            val padding = 60f // 增加padding以容纳坐标轴标签
-            
-            val chartWidth = width - 2 * padding
-            val chartHeight = height - 2 * padding - 80f // 为图例预留80f空间
-            
-            // 计算数据范围
-            val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
-            val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
-            val maxValue = maxOf(maxWordCount, maxViewCount, 1)
-            
-            // 绘制坐标轴
-            drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)
-            
-            // 绘制背景网格
-            drawGrid_7ree(width, height, padding, chartData_7ree.size)
-            
-            // 绘制单词数量曲线（即使为0也绘制）
-            drawLine_7ree(
-                chartData_7ree.map { it.wordCount },
-                maxValue,
-                chartWidth,
-                chartHeight,
-                padding,
-                Color(0xFF191970), // 使用单词总数的深蓝色
-                "单词"
-            )
-            
-            // 绘制查阅次数曲线（即使为0也绘制）
-            drawLine_7ree(
-                chartData_7ree.map { it.viewCount },
-                maxValue,
-                chartWidth,
-                chartHeight,
-                padding,
-                Color(0xFFD2691E), // 使用查阅总数的深橙色
-                "查阅"
-            )
-            
-            // 绘制图例
-            drawLegend_7ree(width, height, padding)
+        // 检查是否有实际数据（不是全为0）
+        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 }
+        
+        if (hasRealData) {
+            Canvas(modifier = modifier) {
+                val width = size.width
+                val height = size.height
+                val padding = 60f // 增加padding以容纳坐标轴标签
+                
+                val chartWidth = width - 2 * padding
+                val chartHeight = height - 2 * padding - 80f // 为图例预留80f空间
+                
+                // 计算数据范围
+                val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
+                val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
+                val maxValue = maxOf(maxWordCount, maxViewCount, 1)
+                
+                // 绘制坐标轴
+                drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)
+                
+                // 绘制背景网格
+                drawGrid_7ree(width, height, padding, chartData_7ree.size)
+                
+                // 绘制单词数量曲线（即使为0也绘制）
+                drawLine_7ree(
+                    chartData_7ree.map { it.wordCount },
+                    maxValue,
+                    chartWidth,
+                    chartHeight,
+                    padding,
+                    Color(0xFF191970), // 使用单词总数的深蓝色
+                    "单词"
+                )
+                
+                // 绘制查阅次数曲线（即使为0也绘制）
+                drawLine_7ree(
+                    chartData_7ree.map { it.viewCount },
+                    maxValue,
+                    chartWidth,
+                    chartHeight,
+                    padding,
+                    Color(0xFFD2691E), // 使用查阅总数的深橙色
+                    "查阅"
+                )
+                
+                // 绘制图例
+                drawLegend_7ree(width, height, padding)
+            }
+        } else {
+            // 如果没有数据，显示占位符
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF191970).copy(alpha = 0.1f),
+                                Color(0xFFD2691E).copy(alpha = 0.1f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "📊 暂无学习数据\n请添加单词开始学习",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     } else {
         // 如果没有数据，显示占位符
@@ -139,15 +166,15 @@ private fun DailyChartCanvas_7ree(
                 .background(
                     Brush.linearGradient(
                         colors = listOf(
-                            Color(0xFF667eea).copy(alpha = 0.1f),
-                            Color(0xFFf093fb).copy(alpha = 0.1f)
+                            Color(0xFF191970).copy(alpha = 0.1f),
+                            Color(0xFFD2691E).copy(alpha = 0.1f)
                         )
                     )
                 ),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "📊 暂无数据\n请添加单词开始学习",
+                text = "📊 暂无学习数据\n请添加单词开始学习",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -241,7 +268,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
         drawPath(
             path = path,
             color = color,
-            style = Stroke(width = 15f)
+            style = Stroke(width = 12.75f) // 从15f减少15%到12.75f
         )
         
         // 绘制数据点（相应增大）
@@ -410,18 +437,38 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
     val result = mutableListOf<DailyData_7ree>()
     
     // 获取本周的开始日期（周一）
-    val currentWeek = Calendar.getInstance()
-    currentWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-    currentWeek.set(Calendar.HOUR_OF_DAY, 0)
-    currentWeek.set(Calendar.MINUTE, 0)
-    currentWeek.set(Calendar.SECOND, 0)
-    currentWeek.set(Calendar.MILLISECOND, 0)
+    val calendar = Calendar.getInstance()
+    // 先获取当前日期
+    val currentDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+    // 计算到本周一的天数差
+    val daysToMonday = when (currentDayOfWeek) {
+        Calendar.SUNDAY -> -6  // 周日到周一差6天
+        Calendar.MONDAY -> 0   // 周一差0天
+        Calendar.TUESDAY -> -1 // 周二到周一差1天
+        Calendar.WEDNESDAY -> -2 // 周三到周一差2天
+        Calendar.THURSDAY -> -3 // 周四到周一差3天
+        Calendar.FRIDAY -> -4   // 周五到周一差4天
+        Calendar.SATURDAY -> -5 // 周六到周一差5天
+        else -> 0
+    }
+    
+    // 设置到本周一
+    calendar.add(Calendar.DAY_OF_YEAR, daysToMonday)
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+    
+    val weekStart = calendar.timeInMillis
+    
+    println("DEBUG: 当前日期: ${Date()}")
+    println("DEBUG: 本周开始时间: ${Date(weekStart)}")
+    println("DEBUG: 当前星期: $currentDayOfWeek, 到周一差: $daysToMonday 天")
     
     // 生成本周7天的数据
     for (i in 0..6) {
         val currentDate = Calendar.getInstance().apply {
-            time = currentWeek.time
-            add(Calendar.DAY_OF_YEAR, i)
+            timeInMillis = weekStart + (i * 24 * 60 * 60 * 1000L) // 每天增加24小时
         }
         
         val dateStr = dateFormat.format(currentDate.time)
@@ -429,14 +476,18 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
         // 计算当天的单词数量和查阅次数
         val dayWords = words_7ree.filter { word ->
             val wordDate = Calendar.getInstance().apply {
-                time = Date(word.queryTimestamp)
+                timeInMillis = word.queryTimestamp
             }
+            
+            // 比较年月日，忽略时分秒
             val isSameDay = wordDate.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR) &&
                            wordDate.get(Calendar.DAY_OF_YEAR) == currentDate.get(Calendar.DAY_OF_YEAR)
             
-            // 添加详细的调试信息
-            if (words_7ree.size <= 5) { // 只对少量数据进行详细调试
-                println("DEBUG: 比较日期 - 单词: ${word.word}, 单词日期: ${wordDate.time}, 当前日期: ${currentDate.time}, 是否同一天: $isSameDay")
+            // 添加调试信息
+            if (i == 0) { // 只在第一天打印调试信息
+                println("DEBUG: 单词 '${word.word}' 时间戳: ${word.queryTimestamp}, 日期: ${wordDate.time}")
+                println("DEBUG: 当前比较日期: ${currentDate.time}")
+                println("DEBUG: 是否同一天: $isSameDay")
             }
             
             isSameDay
@@ -448,52 +499,12 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
         result.add(DailyData_7ree(dateStr, wordCount, viewCount))
         
         // 添加调试信息
-        println("DEBUG: 生成数据 - ${dateStr}: 单词${wordCount}, 查阅${viewCount}")
-        println("DEBUG: 当前日期时间: ${currentDate.time}")
-        println("DEBUG: 总单词数: ${words_7ree.size}")
+        println("DEBUG: ${dateStr} - 单词数: $wordCount, 查阅次数: $viewCount")
+        if (dayWords.isNotEmpty()) {
+            println("DEBUG: ${dateStr} 的单词: ${dayWords.map { it.word }}")
+        }
     }
     
-    return result
-}
-
-// 生成示例数据用于测试
-private fun generateSampleData_7ree(): List<DailyData_7ree> {
-    val dateFormat = SimpleDateFormat("E", Locale.getDefault())
-    val result = mutableListOf<DailyData_7ree>()
-    
-    // 获取本周的开始日期（周一）
-    val currentWeek = Calendar.getInstance()
-    currentWeek.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
-    currentWeek.set(Calendar.HOUR_OF_DAY, 0)
-    currentWeek.set(Calendar.MINUTE, 0)
-    currentWeek.set(Calendar.SECOND, 0)
-    currentWeek.set(Calendar.MILLISECOND, 0)
-    
-    // 生成本周7天的示例数据
-    for (i in 0..6) {
-        val currentDate = Calendar.getInstance().apply {
-            time = currentWeek.time
-            add(Calendar.DAY_OF_YEAR, i)
-        }
-        
-        val dateStr = dateFormat.format(currentDate.time)
-        
-        // 生成一些示例数据
-        val wordCount = when (i) {
-            0 -> 5  // 周一
-            1 -> 8  // 周二
-            2 -> 3  // 周三
-            3 -> 12 // 周四
-            4 -> 6  // 周五
-            5 -> 9  // 周六
-            6 -> 4  // 周日
-            else -> 0
-        }
-        
-        val viewCount = wordCount * 2 // 查阅次数是单词数的2倍
-        
-        result.add(DailyData_7ree(dateStr, wordCount, viewCount))
-    }
-    
+    println("DEBUG: 生成的数据: ${result.map { "${it.date}:${it.wordCount}/${it.viewCount}" }}")
     return result
 } 
