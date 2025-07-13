@@ -1,5 +1,11 @@
 package com.x7ree.wordcard
 
+/**
+语言包定义
+
+    'pl_exit_app_7r' => '再按一次退出应用',
+**/
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -41,6 +47,10 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private var isInitializationComplete_7ree = false
     private var isTtsInitialized_7ree = false
     private var isDatabaseInitialized_7ree = false
+
+    // 双击退出相关变量
+    private var backPressedTime_7ree: Long = 0
+    private var exitToast_7ree: Toast? = null
 
     // 创建数据库和仓库实例 - 改为异步初始化
     private var database_7ree: WordDatabase_7ree? = null
@@ -256,12 +266,29 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         }
     }
 
+    override fun onBackPressed() {
+        val currentTime_7ree = System.currentTimeMillis()
+        
+        if (currentTime_7ree - backPressedTime_7ree > 2000) {
+            // 第一次按返回键
+            backPressedTime_7ree = currentTime_7ree
+            exitToast_7ree?.cancel() // 取消之前的Toast
+            exitToast_7ree = Toast.makeText(this, "再按一次退出应用", Toast.LENGTH_SHORT)
+            exitToast_7ree?.show()
+        } else {
+            // 第二次按返回键，退出应用
+            exitToast_7ree?.cancel()
+            super.onBackPressed()
+        }
+    }
+
     override fun onDestroy() {
         if (tts_7ree != null) {
             tts_7ree?.stop()
             tts_7ree?.shutdown()
             Log.d(TAG_7ree, "onDestroy: TextToSpeech stopped and shut down.")
         }
+        exitToast_7ree?.cancel() // 清理Toast
         super.onDestroy()
     }
 }
