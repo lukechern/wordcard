@@ -11,6 +11,7 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.ImageSpan
 import android.view.KeyEvent
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -23,6 +24,20 @@ class WidgetConfigActivity_7ree : Activity() {
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 设置窗口参数，确保内容不被裁剪
+        window?.let { window ->
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+            )
+            window.attributes?.let { params ->
+                params.width = WindowManager.LayoutParams.WRAP_CONTENT
+                params.height = WindowManager.LayoutParams.WRAP_CONTENT
+                window.attributes = params
+            }
+        }
+        
         setContentView(R.layout.activity_widget_config_7ree)
         
         val inputText = findViewById<EditText>(R.id.widget_input_config_7ree)

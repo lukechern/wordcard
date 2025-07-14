@@ -1,38 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="280dp"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:background="@drawable/widget_dialog_background_7ree"
-    android:layout_gravity="center">
+    android:layout_gravity="center"
+    android:paddingTop="48dp"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:layout_marginTop="36dp"
+        android:background="@drawable/widget_dialog_background_7ree">
 
     <EditText
         android:id="@+id/widget_input_config_7ree"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:hint="请输入需要查询的单词"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="#333333"
         android:textColorHint="#999999"
         android:background="@drawable/widget_input_background_7ree"
-        android:padding="16dp"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
         android:layout_marginBottom="16dp"
         android:inputType="text"
         android:imeOptions="actionSearch"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:gravity="center_vertical" />
 
     <Button
         android:id="@+id/widget_query_button_config_7ree"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="36dp"
         android:text="用AI查询"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:textColor="#FFFFFF"
         android:background="@drawable/widget_green_button_background_7ree"
-        android:padding="16dp"
         android:gravity="center" />
 
-</LinearLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/widget_icon_7ree"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="2dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/wordcardicon"
+        android:contentDescription="WordCard图标"
+        android:elevation="8dp" />
+
+</FrameLayout>

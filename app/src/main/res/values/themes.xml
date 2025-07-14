@@ -8,4 +8,16 @@
         <item name="android:colorPrimaryDark">@color/green_700_7ree</item>
         <item name="android:colorAccent">@color/green_200_7ree</item>
     </style>
+
+    <style name="Theme.WidgetConfig_7ree" parent="android:Theme.Material.Light.Dialog.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.5</item>
+        <item name="android:windowClipToOutline">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+    </style>
 </resources>
