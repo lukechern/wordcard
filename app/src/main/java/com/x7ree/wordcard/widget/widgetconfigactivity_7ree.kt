@@ -166,12 +166,26 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             val resultText = findViewById<TextView>(R.id.widget_result_text_7ree)
             val wordTitle = findViewById<TextView>(R.id.widget_word_title_7ree)
             val chineseMeaning = findViewById<TextView>(R.id.widget_chinese_meaning_7ree)
+            val loadingText = findViewById<TextView>(R.id.widget_loading_text_7ree)
+            val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
             
-            // 显示进度条，隐藏结果文本
+            // 立即切换到结果模式
+            // 隐藏输入框和查询按钮
+            inputText.visibility = View.GONE
+            queryButton.visibility = View.GONE
+            
+            // 显示查询的单词标题
+            wordTitle.text = queryText
+            wordTitle.visibility = View.VISIBLE
+            
+            // 显示进度条和提示文字
             progressBar.visibility = View.VISIBLE
+            loadingText.visibility = View.VISIBLE
+            
+            // 隐藏其他元素
             resultText.visibility = View.GONE
-            wordTitle.visibility = View.GONE
             chineseMeaning.visibility = View.GONE
+            resultButtons.visibility = View.GONE
             
             // 禁用查询按钮防止重复查询
             queryButton.isEnabled = false
@@ -209,6 +223,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                     }
                 } catch (e: Exception) {
                     progressBar.visibility = View.GONE
+                    loadingText.visibility = View.GONE
                     resultText.text = "查询失败: ${e.localizedMessage}"
                     resultText.visibility = View.VISIBLE
                 } finally {
@@ -230,6 +245,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         queryButton: Button
     ) {
         progressBar.visibility = View.GONE
+        
+        // 隐藏加载提示文字
+        val loadingText = findViewById<TextView>(R.id.widget_loading_text_7ree)
+        loadingText.visibility = View.GONE
         
         // 从Pair中获取主要内容和详细信息
         val mainContent = extractedInfo.first

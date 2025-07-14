@@ -75,6 +75,17 @@
         android:visibility="gone" />
 
     <TextView
+        android:id="@+id/widget_loading_text_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="正在问AI，请稍候……"
+        android:textSize="12sp"
+        android:textColor="#999999"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <TextView
         android:id="@+id/widget_result_text_7ree"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
