@@ -14,7 +14,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
+
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
@@ -31,6 +31,8 @@ import kotlinx.coroutines.launch
 import java.util.regex.Pattern
 import io.noties.markwon.Markwon
 import com.x7ree.wordcard.widget.WidgetMarkdownParser_7ree
+import com.x7ree.wordcard.utils.showKeyboardWithDelay_7ree
+import com.x7ree.wordcard.utils.hideKeyboard_7ree
 
 class WidgetConfigActivity_7ree : AppCompatActivity() {
     
@@ -76,11 +78,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         val queryButton = findViewById<Button>(R.id.widget_query_button_config_7ree)
         
         // 1. 自动聚焦到输入框并打开键盘
-        inputText.requestFocus()
-        inputText.post {
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(inputText, InputMethodManager.SHOW_IMPLICIT)
-        }
+        inputText.showKeyboardWithDelay_7ree()
         
         // 2. 初始状态按钮为灰色无效
         updateButtonState_7ree(queryButton, false)
@@ -156,8 +154,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     
     private fun performSearch_7ree(inputText: EditText, queryButton: Button) {
         // 收起键盘
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(inputText.windowToken, 0)
+        inputText.hideKeyboard_7ree()
         
         val queryText = inputText.text.toString().trim()
         
