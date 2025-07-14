@@ -36,7 +36,7 @@ class WordQueryWidgetProvider_7ree : AppWidgetProvider() {
 
         // 设置查询按钮的Intent
         val queryIntent = Intent(context, WidgetConfigActivity_7ree::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 
         val queryPendingIntent = PendingIntent.getActivity(

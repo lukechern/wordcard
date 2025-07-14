@@ -15,6 +15,29 @@
         android:layout_marginTop="36dp"
         android:background="@drawable/widget_dialog_background_7ree">
 
+    <!-- 单词标题显示区域 -->
+    <TextView
+        android:id="@+id/widget_word_title_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/green_700_7ree"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone" />
+
+    <!-- 中文意思显示区域 -->
+    <TextView
+        android:id="@+id/widget_chinese_meaning_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#666666"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone" />
+
     <EditText
         android:id="@+id/widget_input_config_7ree"
         android:layout_width="match_parent"
@@ -41,6 +64,27 @@
         android:textColor="#FFFFFF"
         android:background="@drawable/widget_green_button_background_7ree"
         android:gravity="center" />
+
+    <!-- 查询结果显示区域 -->
+    <ProgressBar
+        android:id="@+id/widget_progress_bar_7ree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/widget_result_text_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="12sp"
+        android:textColor="#333333"
+        android:lineSpacingExtra="2dp"
+        android:visibility="gone"
+        android:maxHeight="200dp"
+        android:scrollbars="vertical" />
 
     </LinearLayout>
 

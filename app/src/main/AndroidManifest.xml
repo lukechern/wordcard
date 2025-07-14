@@ -33,7 +33,12 @@
         <activity
             android:name=".widget.WidgetConfigActivity_7ree"
             android:exported="true"
-            android:theme="@style/Theme.WidgetConfig_7ree" />
+            android:label=" "
+            android:theme="@style/Theme.WidgetConfig_7ree"
+            android:windowSoftInputMode="adjustNothing"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
         
         <receiver
             android:name=".widget.WordQueryWidgetProvider_7ree"
