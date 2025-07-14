@@ -363,7 +363,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         val queryWord = intent?.getStringExtra("query_word")
         val showDetail = intent?.getBooleanExtra("show_detail", false)
         
-        if (!queryWord.isNullOrBlank() && showDetail ?: false) {
+        if (!queryWord.isNullOrBlank() && (showDetail == true)) {
             Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
             // 等待ViewModel初始化完成后执行查询并显示详情
             lifecycleScope.launch {
@@ -374,6 +374,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 
                 // 在主线程执行查询并切换到查询页面
                 withContext(Dispatchers.Main) {
+                    // 设置查询文本
+                    wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryWord)
                     // 先切换到查询页面
                     wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
                     // 然后加载单词详情

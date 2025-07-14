@@ -17,6 +17,8 @@ import android.view.inputmethod.EditorInfo
 
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -258,8 +260,48 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         WidgetMarkdownParser_7ree.renderToTextView_7ree(resultText, detailInfo)
         
         resultText.visibility = View.VISIBLE
+        
+        // 显示结果按钮区域
+        val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
+        resultButtons.visibility = View.VISIBLE
+        
+        // 设置按钮点击事件
+        setupResultButtons_7ree(queryText)
     }
     
+    private fun setupResultButtons_7ree(queryText: String) {
+        // 知道了按钮 - 关闭卡片
+        val knowButton = findViewById<ImageView>(R.id.widget_know_button_7ree)
+        val knowContainer = findViewById<LinearLayout>(R.id.widget_know_container_7ree)
+        knowContainer.setOnClickListener {
+            finish()
+        }
+        
+        // 单词本按钮 - 进入app单词本栏目
+        val wordbookButton = findViewById<ImageView>(R.id.widget_wordbook_button_7ree)
+        val wordbookContainer = findViewById<LinearLayout>(R.id.widget_wordbook_container_7ree)
+        wordbookContainer.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                action = WordQueryWidgetProvider_7ree.ACTION_WIDGET_WORDBOOK_7ree
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
+        
+        // 详情页按钮 - 进入app对应单词查询的详情页面
+        val detailButton = findViewById<ImageView>(R.id.widget_detail_button_7ree)
+        val detailContainer = findViewById<LinearLayout>(R.id.widget_detail_container_7ree)
+        detailContainer.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java).apply {
+                putExtra("query_word", queryText)
+                putExtra("show_detail", true)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            }
+            startActivity(intent)
+            finish()
+        }
+    }
 
     
     private fun extractBasicInfo_7ree(fullResult: String): Pair<String, String> {
