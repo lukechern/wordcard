@@ -183,13 +183,13 @@ private fun StatCard_7ree(
     
     Card(
         modifier = modifier
-            .height(80.dp)
-            .clip(RoundedCornerShape(12.dp)),
+            .height(80.dp),
+        shape = RoundedCornerShape(12.dp),  // 使用shape而不是clip来保留阴影
         colors = CardDefaults.cardColors(
             containerColor = lightGrayColor
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 6.dp  // 增加阴影使其更明显
         )
     ) {
         Column(

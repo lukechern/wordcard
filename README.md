@@ -8,13 +8,33 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-2.6.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
 ## 📱 应用简介
 
 WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 OpenAI GPT 或兼容模型，为用户提供智能化的英语单词查询和学习体验。应用采用现代化的 Jetpack Compose UI 框架，提供流畅的用户界面和丰富的功能特性。
+
+## 🆕 版本 2.6 更新内容
+
+### 🎨 UI/UX 优化
+- **桌面小组件优化**: 打开桌面小组件时，自动聚焦输入框，弹出手机键盘，提升用户体验
+- **桌面小组件优化**: 用户发起查询，立刻进入结果等待页面，并给与合理提示，避免误操作
+- **桌面小组件优化**: 查询结果添加3个常用操作icon按钮，点击可快速执行关闭卡片、进入单词本，进入详情页的操作
+
+### 🎬 图表动画优化
+- **本周统计图表动画**: 为本周曲线图添加了1秒动画效果，数据点从0向Y轴移动到对应数值
+- **年度统计图表动画**: 为年度柱状图添加了1秒动画效果，每个柱子从0向Y轴增长到对应数值
+- **线条细化**: 将本周统计图表中的线条宽度减少15%，视觉效果更精细
+- **柱状图优化**: 年度统计图表中每个月的两个柱子各占50%的x轴格子并紧密贴合
+- **阴影效果调整**: 统一调整了所有卡片组件的阴影效果，提升界面一致性
+
+### 🎨 视觉体验提升
+- 图表加载时的流畅动画效果
+- 更紧凑和专业的柱状图布局
+- 统一的卡片阴影设计语言
+- 优化的线条粗细，提升数据可读性
 
 ## 🆕 版本 2.0 更新内容
 

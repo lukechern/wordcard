@@ -1,5 +1,8 @@
 package com.x7ree.wordcard.ui
 
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -45,7 +48,7 @@ fun DailyChartComponent_7ree(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 6.dp  // 增加阴影使其更明显
         )
     ) {
         Column(
@@ -84,7 +87,20 @@ private fun DailyChartCanvas_7ree(
         generateDailyChartData_7ree(words_7ree)
     }
     
-
+    // 动画进度状态
+    var animationProgress by remember { mutableStateOf(0f) }
+    
+    // 启动动画
+    LaunchedEffect(chartData_7ree) {
+        animationProgress = 0f
+        animate(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1000, easing = EaseOutCubic)
+        ) { value, _ ->
+            animationProgress = value
+        }
+    }
     
     if (chartData_7ree.isNotEmpty()) {
         // 检查是否有实际数据（不是全为0）
@@ -118,7 +134,8 @@ private fun DailyChartCanvas_7ree(
                     chartHeight,
                     padding,
                     Color(0xFF191970), // 使用单词总数的深蓝色
-                    "单词"
+                    "单词",
+                    animationProgress
                 )
                 
                 // 绘制查阅次数曲线（即使为0也绘制）
@@ -129,7 +146,8 @@ private fun DailyChartCanvas_7ree(
                     chartHeight,
                     padding,
                     Color(0xFFD2691E), // 使用查阅总数的深橙色
-                    "查阅"
+                    "查阅",
+                    animationProgress
                 )
                 
                 // 绘制图例
@@ -222,7 +240,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
     chartHeight: Float,
     padding: Float,
     color: Color,
-    label: String
+    label: String,
+    animationProgress: Float
 ) {
     if (data.isEmpty()) return
     
@@ -234,8 +253,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
         val x = padding + (chartWidth * i / (data.size - 1))
         // 确保即使数据为0也能正确绘制
         val normalizedValue = if (maxValue > 0) data[i] else 0
-        val y = padding + chartHeight - (chartHeight * normalizedValue / maxOf(maxValue, 1))
-        points.add(androidx.compose.ui.geometry.Offset(x, y))
+        // 应用动画效果：从底部（0值位置）向上移动到目标位置
+        val baseY = padding + chartHeight // 底部位置（0值）
+        val targetY = padding + chartHeight - (chartHeight * normalizedValue / maxOf(maxValue, 1))
+        val animatedY = baseY + (targetY - baseY) * animationProgress
+        points.add(androidx.compose.ui.geometry.Offset(x, animatedY))
         
 
     }
@@ -264,11 +286,11 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
             path.cubicTo(control1X, control1Y, control2X, control2Y, next.x, next.y)
         }
         
-        // 绘制平滑线条（加粗5倍）
+        // 绘制平滑线条（减少15%线条宽度）
         drawPath(
             path = path,
             color = color,
-            style = Stroke(width = 12.75f) // 从15f减少15%到12.75f
+            style = Stroke(width = 10.84f) // 从12.75f再减少15%到10.84f
         )
         
         // 绘制数据点（相应增大）

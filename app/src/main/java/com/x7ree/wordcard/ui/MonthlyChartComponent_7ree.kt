@@ -1,5 +1,8 @@
 package com.x7ree.wordcard.ui
 
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -42,7 +45,7 @@ fun MonthlyChartComponent_7ree(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 6.dp  // 增加阴影使其更明显
         )
     ) {
         Column(
@@ -81,6 +84,21 @@ private fun MonthlyChartCanvas_7ree(
         generateMonthlyChartData_7ree(words_7ree)
     }
     
+    // 动画进度状态
+    var animationProgress by remember { mutableStateOf(0f) }
+    
+    // 启动动画
+    LaunchedEffect(chartData_7ree) {
+        animationProgress = 0f
+        animate(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1000, easing = EaseOutCubic)
+        ) { value, _ ->
+            animationProgress = value
+        }
+    }
+    
     if (chartData_7ree.isNotEmpty()) {
         // 检查是否有实际数据（不是全为0）
         val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 }
@@ -112,7 +130,8 @@ private fun MonthlyChartCanvas_7ree(
                     chartWidth,
                     chartHeight,
                     padding,
-                    height
+                    height,
+                    animationProgress
                 )
                 
                 // 绘制图例
@@ -204,44 +223,49 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
     chartWidth: Float,
     chartHeight: Float,
     padding: Float,
-    height: Float
+    height: Float,
+    animationProgress: Float
 ) {
     if (data.isEmpty()) return
     
     // 每个月份的宽度
     val monthWidth = chartWidth / data.size
-    // 每个柱子的宽度（两个柱子并排，留有间距）
-    val barWidth = monthWidth * 0.35f
-    // 柱子间距
-    val barSpacing = monthWidth * 0.1f
+    // 每个柱子的宽度（各占50%的x轴格子）
+    val barWidth = monthWidth * 0.5f
+    // 柱子间距（贴在一起，无间距）
+    val barSpacing = 0f
     
     // 绘制每个月的数据
     for (i in data.indices) {
         val monthX = padding + (monthWidth * i)
         val centerX = monthX + monthWidth / 2
         
-        // 单词数量柱子（左侧）- 蓝色
+        // 单词数量柱子（左半部分）- 蓝色
         val wordCount = data[i].wordCount
-        val wordBarHeight = if (maxValue > 0) (chartHeight * wordCount / maxValue) else 0f
-        val wordBarX = centerX - barWidth - barSpacing / 2
-        val wordBarY = height - padding - 80f - wordBarHeight // 为图例预留空间
+        val targetWordBarHeight = if (maxValue > 0) (chartHeight * wordCount / maxValue) else 0f
+        // 应用动画效果：从0高度向上增长到目标高度
+        val animatedWordBarHeight = targetWordBarHeight * animationProgress
+        val wordBarX = monthX  // 从月份起始位置开始
+        val wordBarY = height - padding - 80f - animatedWordBarHeight // 为图例预留空间
         
         drawRect(
             color = Color(0xFF191970), // 深蓝色（单词总数的颜色）
             topLeft = androidx.compose.ui.geometry.Offset(wordBarX, wordBarY),
-            size = androidx.compose.ui.geometry.Size(barWidth, wordBarHeight)
+            size = androidx.compose.ui.geometry.Size(barWidth, animatedWordBarHeight)
         )
         
-        // 查阅次数柱子（右侧）- 橙色
+        // 查阅次数柱子（右半部分）- 橙色
         val viewCount = data[i].viewCount
-        val viewBarHeight = if (maxValue > 0) (chartHeight * viewCount / maxValue) else 0f
-        val viewBarX = centerX + barSpacing / 2
-        val viewBarY = height - padding - 80f - viewBarHeight // 为图例预留空间
+        val targetViewBarHeight = if (maxValue > 0) (chartHeight * viewCount / maxValue) else 0f
+        // 应用动画效果：从0高度向上增长到目标高度
+        val animatedViewBarHeight = targetViewBarHeight * animationProgress
+        val viewBarX = monthX + barWidth  // 紧贴在单词柱子右侧
+        val viewBarY = height - padding - 80f - animatedViewBarHeight // 为图例预留空间
         
         drawRect(
             color = Color(0xFFD2691E), // 深橙色（查阅总数的颜色）
             topLeft = androidx.compose.ui.geometry.Offset(viewBarX, viewBarY),
-            size = androidx.compose.ui.geometry.Size(barWidth, viewBarHeight)
+            size = androidx.compose.ui.geometry.Size(barWidth, animatedViewBarHeight)
         )
     }
 }
