@@ -84,7 +84,72 @@
         android:lineSpacingExtra="2dp"
         android:visibility="gone"
         android:maxHeight="200dp"
-        android:scrollbars="vertical" />
+        android:scrollbars="vertical"
+        android:fadeScrollbars="false" />
+
+    <!-- 结果页面按钮区域 -->
+    <LinearLayout
+        android:id="@+id/widget_result_buttons_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/widget_wordbook_container_7ree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginRight="36dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/widget_wordbook_button_7ree"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_list_alt_black_7ree"
+                android:contentDescription="打开单词本" />
+
+            <TextView
+                android:id="@+id/widget_wordbook_text_7ree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="单词本"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_detail_container_7ree"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginLeft="36dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/widget_detail_button_7ree"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_auto_awesome_black_7ree"
+                android:contentDescription="查看详情" />
+
+            <TextView
+                android:id="@+id/widget_detail_text_7ree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="详情页"
+                android:textSize="12sp"
+                android:textColor="#333333"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     </LinearLayout>
 

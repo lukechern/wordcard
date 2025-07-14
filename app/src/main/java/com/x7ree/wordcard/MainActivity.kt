@@ -358,6 +358,32 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     
     private fun handleWidgetIntent_7ree(intent: Intent?) {
         Log.d(TAG_7ree, "handleWidgetIntent_7ree called with action: ${intent?.action}")
+        
+        // 处理来自WidgetConfigActivity_7ree的查看详情请求
+        val queryWord = intent?.getStringExtra("query_word")
+        val showDetail = intent?.getBooleanExtra("show_detail", false)
+        
+        if (!queryWord.isNullOrBlank() && showDetail ?: false) {
+            Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
+            // 等待ViewModel初始化完成后执行查询并显示详情
+            lifecycleScope.launch {
+                // 等待初始化完成
+                while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
+                    kotlinx.coroutines.delay(100)
+                }
+                
+                // 在主线程执行查询并切换到查询页面
+                withContext(Dispatchers.Main) {
+                    // 先切换到查询页面
+                    wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
+                    // 然后加载单词详情
+                    wordQueryViewModel_7ree?.loadWordFromHistory_7ree(queryWord)
+                    Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
+                }
+            }
+            return
+        }
+        
         when (intent?.action) {
             WordQueryWidgetProvider_7ree.ACTION_WIDGET_QUERY_7ree -> {
                 val queryText = intent.getStringExtra(WordQueryWidgetProvider_7ree.EXTRA_QUERY_TEXT_7ree)
