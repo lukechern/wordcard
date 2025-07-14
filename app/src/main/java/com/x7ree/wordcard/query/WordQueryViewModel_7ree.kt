@@ -100,6 +100,19 @@ class WordQueryViewModel_7ree(
     private val _allWords_7ree = MutableStateFlow<List<WordEntity_7ree>>(emptyList())
     val allWords_7ree: StateFlow<List<WordEntity_7ree>> = _allWords_7ree
     private var currentWordIndex_7ree = -1
+    
+    // 分页加载相关状态
+    private val _pagedWords_7ree = MutableStateFlow<List<WordEntity_7ree>>(emptyList())
+    val pagedWords_7ree: StateFlow<List<WordEntity_7ree>> = _pagedWords_7ree
+    
+    private val _isLoadingMore_7ree = MutableStateFlow(false)
+    val isLoadingMore_7ree: StateFlow<Boolean> = _isLoadingMore_7ree
+    
+    private val _hasMoreData_7ree = MutableStateFlow(true)
+    val hasMoreData_7ree: StateFlow<Boolean> = _hasMoreData_7ree
+    
+    private var currentPage_7ree = 0
+    private val pageSize_7ree = 10 // 每页10个项目
 
     init {
         // 只初始化导出路径，其他数据改为按需加载
@@ -461,6 +474,12 @@ class WordQueryViewModel_7ree(
         viewModelScope.launch {
             try {
                 wordRepository_7ree.deleteWord_7ree(word)
+                
+                // 从分页数据中移除已删除的单词
+                val currentWords = _pagedWords_7ree.value.toMutableList()
+                currentWords.removeAll { it.word == word }
+                _pagedWords_7ree.value = currentWords
+                
                 _operationResult_7ree.value = "删除成功"
                 println("DEBUG: 单词删除成功: $word")
             } catch (e: Exception) {
@@ -627,6 +646,71 @@ class WordQueryViewModel_7ree(
     // 清除操作结果
     fun clearOperationResult_7ree() {
         _operationResult_7ree.value = null
+    }
+    
+    // 分页加载单词列表
+    fun loadInitialWords_7ree() {
+        viewModelScope.launch {
+            try {
+                currentPage_7ree = 0
+                _hasMoreData_7ree.value = true
+                val words = wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, 0)
+                _pagedWords_7ree.value = words
+                
+                // 如果返回的数据少于页面大小，说明没有更多数据了
+                if (words.size < pageSize_7ree) {
+                    _hasMoreData_7ree.value = false
+                }
+                
+                println("DEBUG: 初始加载完成，共${words.size}个单词")
+            } catch (e: Exception) {
+                println("DEBUG: 初始加载失败: ${e.message}")
+            }
+        }
+    }
+    
+    // 加载更多单词
+    fun loadMoreWords_7ree() {
+        if (_isLoadingMore_7ree.value || !_hasMoreData_7ree.value) {
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                _isLoadingMore_7ree.value = true
+                currentPage_7ree++
+                val offset = currentPage_7ree * pageSize_7ree
+                val newWords = wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, offset)
+                
+                if (newWords.isNotEmpty()) {
+                    val currentWords = _pagedWords_7ree.value.toMutableList()
+                    currentWords.addAll(newWords)
+                    _pagedWords_7ree.value = currentWords
+                    
+                    // 如果返回的数据少于页面大小，说明没有更多数据了
+                    if (newWords.size < pageSize_7ree) {
+                        _hasMoreData_7ree.value = false
+                    }
+                    
+                    println("DEBUG: 加载更多完成，新增${newWords.size}个单词，总计${currentWords.size}个")
+                } else {
+                    _hasMoreData_7ree.value = false
+                    println("DEBUG: 没有更多数据")
+                }
+            } catch (e: Exception) {
+                println("DEBUG: 加载更多失败: ${e.message}")
+            } finally {
+                _isLoadingMore_7ree.value = false
+            }
+        }
+    }
+    
+    // 重置分页状态
+    fun resetPagination_7ree() {
+        currentPage_7ree = 0
+        _pagedWords_7ree.value = emptyList()
+        _hasMoreData_7ree.value = true
+        _isLoadingMore_7ree.value = false
     }
     
     // 重置查询状态

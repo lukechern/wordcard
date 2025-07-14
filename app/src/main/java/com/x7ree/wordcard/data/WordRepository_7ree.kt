@@ -91,4 +91,9 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     
     // 获取总查阅次数
     val getTotalViews_7ree: Flow<Int> = wordDao_7ree.getTotalViews_7ree()
-} 
+    
+    // 分页获取单词记录
+    suspend fun getWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree> {
+        return wordDao_7ree.getWordsPaged_7ree(limit, offset)
+    }
+}

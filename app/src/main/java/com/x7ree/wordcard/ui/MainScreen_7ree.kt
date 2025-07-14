@@ -282,28 +282,29 @@ fun HistoryScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onWordClick_7ree: (String) -> Unit
 ) {
-    var historyWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
+    val pagedWords_7ree by wordQueryViewModel_7ree.pagedWords_7ree.collectAsState()
+    val isLoadingMore_7ree by wordQueryViewModel_7ree.isLoadingMore_7ree.collectAsState()
+    val hasMoreData_7ree by wordQueryViewModel_7ree.hasMoreData_7ree.collectAsState()
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
-    var isLoading_7ree by remember { mutableStateOf(true) }
+    var isInitialLoading_7ree by remember { mutableStateOf(true) }
     
-    // 加载历史单词列表 - 优化加载方式
+    // 过滤掉已删除的单词
+    val filteredWords_7ree = remember(pagedWords_7ree, deletedWords_7ree) {
+        pagedWords_7ree.filter { it.word !in deletedWords_7ree }
+    }
+    
+    // 初始加载
     LaunchedEffect(Unit) {
-        // 先显示加载状态
-        isLoading_7ree = true
+        // 重置分页状态并加载初始数据
+        wordQueryViewModel_7ree.resetPagination_7ree()
+        wordQueryViewModel_7ree.loadInitialWords_7ree()
         
         // 按需加载单词计数
         wordQueryViewModel_7ree.loadWordCount_7ree()
         
-        // 加载历史单词列表
-        wordQueryViewModel_7ree.getHistoryWords_7ree().collect { words_7ree ->
-            // 过滤掉已删除的单词，确保UI状态同步
-            historyWords_7ree = words_7ree
-                .filter { it.word !in deletedWords_7ree }
-                .sortedByDescending { it.queryTimestamp }
-            
-            // 加载完成
-            isLoading_7ree = false
-        }
+        // 等待初始数据加载完成
+        delay(500)
+        isInitialLoading_7ree = false
     }
     
     Column(
@@ -318,8 +319,8 @@ fun HistoryScreen_7ree(
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
-        if (isLoading_7ree) {
-            // 显示加载状态
+        if (isInitialLoading_7ree) {
+            // 显示初始加载状态
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -334,7 +335,7 @@ fun HistoryScreen_7ree(
                     )
                 }
             }
-        } else if (historyWords_7ree.isEmpty()) {
+        } else if (filteredWords_7ree.isEmpty() && !hasMoreData_7ree) {
             // 显示空状态
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -347,55 +348,24 @@ fun HistoryScreen_7ree(
                 )
             }
         } else {
-            LazyColumn {
-                items(historyWords_7ree) { wordEntity_7ree ->
-                    HistoryWordItem_7ree(
-                        wordEntity_7ree = wordEntity_7ree,
-                        onWordClick_7ree = onWordClick_7ree,
-                        onFavoriteToggle_7ree = { entity ->
-                            wordQueryViewModel_7ree.setFavorite_7ree(entity.word, !entity.isFavorite)
-                        },
-                        onDismiss_7ree = {
-                            // 立即添加到删除集合，从UI中移除
-                            deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word
-                            // 然后执行实际的删除操作
-                            wordQueryViewModel_7ree.deleteWord_7ree(wordEntity_7ree.word)
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+            PaginatedWordList_7ree(
+                words = filteredWords_7ree,
+                isLoadingMore = isLoadingMore_7ree,
+                hasMoreData = hasMoreData_7ree,
+                onWordClick = onWordClick_7ree,
+                onFavoriteToggle = { entity ->
+                    wordQueryViewModel_7ree.setFavorite_7ree(entity.word, !entity.isFavorite)
+                },
+                onWordDelete = { wordEntity_7ree ->
+                    // 立即添加到删除集合，从UI中移除
+                    deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word
+                    // 然后执行实际的删除操作
+                    wordQueryViewModel_7ree.deleteWord_7ree(wordEntity_7ree.word)
+                },
+                onLoadMore = {
+                    wordQueryViewModel_7ree.loadMoreWords_7ree()
                 }
-                
-                // 添加底部提示
-                item {
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "向左滑动单词条目，然后点击",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "删除",
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "图标可将其删除",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
+            )
         }
     }
 }

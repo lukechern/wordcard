@@ -73,4 +73,8 @@ interface WordDao_7ree {
     // 获取总查阅次数
     @Query("SELECT SUM(viewCount) FROM words")
     fun getTotalViews_7ree(): Flow<Int>
-} 
+    
+    // 分页获取单词记录，按查询时间倒序排列
+    @Query("SELECT * FROM words ORDER BY queryTimestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+}
