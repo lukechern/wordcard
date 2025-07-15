@@ -25,6 +25,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 **/
 
 enum class SettingsTab_7ree {
+    HELP,
     API_CONFIG,
     PROMPT_CONFIG,
     DATA_MANAGEMENT
@@ -97,32 +98,40 @@ private fun ConfigPage_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onImportFile_7ree: () -> Unit
 ) {
-    var selectedTab_7ree by remember { mutableStateOf(SettingsTab_7ree.API_CONFIG) }
+    var selectedTab_7ree by remember { mutableStateOf(SettingsTab_7ree.HELP) }
     
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         TabRow(selectedTabIndex = selectedTab_7ree.ordinal) {
             Tab(
+                selected = selectedTab_7ree == SettingsTab_7ree.HELP,
+                onClick = { selectedTab_7ree = SettingsTab_7ree.HELP },
+                text = { Text("帮助") }
+            )
+            Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.API_CONFIG,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.API_CONFIG },
-                text = { Text("API配置") }
+                text = { Text("API") }
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.PROMPT_CONFIG,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.PROMPT_CONFIG },
-                text = { Text("提示词配置") }
+                text = { Text("提示词") }
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.DATA_MANAGEMENT,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.DATA_MANAGEMENT },
-                text = { Text("数据管理") }
+                text = { Text("数据") }
             )
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         when (selectedTab_7ree) {
+            SettingsTab_7ree.HELP -> {
+                HelpScreen_7ree()
+            }
             SettingsTab_7ree.API_CONFIG -> {
                 ApiConfigTab_7ree(wordQueryViewModel_7ree)
             }
@@ -384,4 +393,4 @@ fun PromptConfigTab_7ree(
             Text("保存配置")
         }
     }
-} 
+}

@@ -312,10 +312,12 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
     private fun setupResultButtons_7ree(queryText: String) {
         // 朗读按钮 - 朗读当前单词
         val speakButton = findViewById<ImageView>(R.id.widget_speak_button_7ree)
+        val speakText = findViewById<TextView>(R.id.widget_speak_text_7ree)
         val speakContainer = findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
         
         // 添加触摸反馈效果
         addTouchFeedback_7ree(speakButton)
+        addTextTouchFeedback_7ree(speakText, speakButton)
         
         speakContainer.setOnClickListener {
             speakWord_7ree(currentQueryWord_7ree)
@@ -323,10 +325,12 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         
         // 单词本按钮 - 进入app单词本栏目
         val wordbookButton = findViewById<ImageView>(R.id.widget_wordbook_button_7ree)
+        val wordbookText = findViewById<TextView>(R.id.widget_wordbook_text_7ree)
         val wordbookContainer = findViewById<LinearLayout>(R.id.widget_wordbook_container_7ree)
         
         // 添加触摸反馈效果
         addTouchFeedback_7ree(wordbookButton)
+        addTextTouchFeedback_7ree(wordbookText, wordbookButton)
         
         wordbookContainer.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
@@ -339,10 +343,12 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         
         // 详情页按钮 - 进入app对应单词查询的详情页面
         val detailButton = findViewById<ImageView>(R.id.widget_detail_button_7ree)
+        val detailText = findViewById<TextView>(R.id.widget_detail_text_7ree)
         val detailContainer = findViewById<LinearLayout>(R.id.widget_detail_container_7ree)
         
         // 添加触摸反馈效果
         addTouchFeedback_7ree(detailButton)
+        addTextTouchFeedback_7ree(detailText, detailButton)
         
         detailContainer.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
@@ -421,28 +427,52 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
     }
     
     private fun addTouchFeedback_7ree(imageView: ImageView) {
-            imageView.setOnTouchListener { view, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    // 只监控第一个触摸动作，按顺序播放动画
-                    view.animate()
-                        .scaleX(0.7f)
-                        .scaleY(0.7f)
-                        .setDuration(100)
-                        .withEndAction {
-                            // 等待200毫秒后还原
-                            view.postDelayed({
-                                view.animate()
-                                    .scaleX(1.0f)
-                                    .scaleY(1.0f)
-                                    .setDuration(100)
-                                    .start()
-                            }, 200)
-                        }
-                        .start()
-                }
-                false // 返回false让其他点击事件继续处理
-            }
-        }
+             imageView.setOnTouchListener { view, event ->
+                 if (event.action == MotionEvent.ACTION_DOWN) {
+                     // 只监控第一个触摸动作，按顺序播放动画
+                     view.animate()
+                         .scaleX(0.7f)
+                         .scaleY(0.7f)
+                         .setDuration(100)
+                         .withEndAction {
+                             // 等待200毫秒后还原
+                             view.postDelayed({
+                                 view.animate()
+                                     .scaleX(1.0f)
+                                     .scaleY(1.0f)
+                                     .setDuration(100)
+                                     .start()
+                             }, 200)
+                         }
+                         .start()
+                 }
+                 false // 返回false让其他点击事件继续处理
+             }
+         }
+         
+     private fun addTextTouchFeedback_7ree(textView: TextView, targetImageView: ImageView) {
+             textView.setOnTouchListener { _, event ->
+                 if (event.action == MotionEvent.ACTION_DOWN) {
+                     // 点击文字时缩放对应的图标
+                     targetImageView.animate()
+                         .scaleX(0.7f)
+                         .scaleY(0.7f)
+                         .setDuration(100)
+                         .withEndAction {
+                             // 等待200毫秒后还原
+                             targetImageView.postDelayed({
+                                 targetImageView.animate()
+                                     .scaleX(1.0f)
+                                     .scaleY(1.0f)
+                                     .setDuration(100)
+                                     .start()
+                             }, 200)
+                         }
+                         .start()
+                 }
+                 false // 返回false让其他点击事件继续处理
+             }
+         }
     
     override fun onDestroy() {
         super.onDestroy()
