@@ -35,11 +35,18 @@ import io.noties.markwon.Markwon
 import com.x7ree.wordcard.widget.WidgetMarkdownParser_7ree
 import com.x7ree.wordcard.utils.showKeyboardWithDelay_7ree
 import com.x7ree.wordcard.utils.hideKeyboard_7ree
+import android.speech.tts.TextToSpeech
+import android.util.Log
+import java.util.Locale
 
-class WidgetConfigActivity_7ree : AppCompatActivity() {
+class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListener {
     
     private lateinit var wordRepository_7ree: WordRepository_7ree
     private lateinit var apiService_7ree: OpenAiApiService_7ree
+    private var tts_7ree: TextToSpeech? = null
+    private var isTtsReady_7ree = false
+    private var currentQueryWord_7ree = ""
+    private val TAG_7ree = "WidgetConfigActivity_7ree"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +135,9 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         queryButton.setOnClickListener {
             performSearch_7ree(inputText, queryButton)
         }
+        
+        // 初始化TTS（在API查询之后才初始化，避免影响用户体验）
+        // TTS将在查询完成后懒加载初始化
     }
     
     private fun updateButtonState_7ree(button: Button, enabled: Boolean) {
@@ -203,6 +213,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                         
                         // 增加浏览次数
                         wordRepository_7ree.incrementViewCount_7ree(queryText)
+                        
+                        // 保存当前查询的单词并初始化TTS
+                        currentQueryWord_7ree = queryText
+                        initializeTtsLazy_7ree()
                     } else {
                         // 发起API请求
                         var fullResult = ""
@@ -220,6 +234,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                         if (fullResult.isNotBlank() && !fullResult.startsWith("错误:")) {
                             wordRepository_7ree.saveWord_7ree(queryText, fullResult)
                         }
+                        
+                        // 保存当前查询的单词并初始化TTS
+                        currentQueryWord_7ree = queryText
+                        initializeTtsLazy_7ree()
                     }
                 } catch (e: Exception) {
                     progressBar.visibility = View.GONE
@@ -289,11 +307,11 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     }
     
     private fun setupResultButtons_7ree(queryText: String) {
-        // 知道了按钮 - 关闭卡片
-        val knowButton = findViewById<ImageView>(R.id.widget_know_button_7ree)
-        val knowContainer = findViewById<LinearLayout>(R.id.widget_know_container_7ree)
-        knowContainer.setOnClickListener {
-            finish()
+        // 朗读按钮 - 朗读当前单词
+        val speakButton = findViewById<ImageView>(R.id.widget_speak_button_7ree)
+        val speakContainer = findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
+        speakContainer.setOnClickListener {
+            speakWord_7ree(currentQueryWord_7ree)
         }
         
         // 单词本按钮 - 进入app单词本栏目
@@ -345,5 +363,54 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         val formattedContent = WidgetMarkdownParser_7ree.formatCompleteContent_7ree(parsedContent)
         
         return Pair(mainContent.toString(), fullResult)
+    }
+    
+    override fun onInit(status: Int) {
+        Log.d(TAG_7ree, "onInit: Received status: $status")
+        if (status == TextToSpeech.SUCCESS) {
+            Log.d(TAG_7ree, "onInit: TextToSpeech initialized successfully.")
+            
+            val resultUs_7ree = tts_7ree?.setLanguage(Locale.US)
+            Log.d(TAG_7ree, "onInit: setLanguage(Locale.US) result: $resultUs_7ree")
+            
+            if (resultUs_7ree != null && resultUs_7ree >= TextToSpeech.LANG_AVAILABLE) {
+                isTtsReady_7ree = true
+                Log.d(TAG_7ree, "onInit: TTS is ready for English.")
+            } else {
+                Log.w(TAG_7ree, "onInit: English language not supported.")
+            }
+        } else {
+            Log.e(TAG_7ree, "onInit: TextToSpeech initialization failed with status: $status")
+        }
+    }
+    
+    private fun initializeTtsLazy_7ree() {
+        if (tts_7ree != null) return // 已经初始化过，不再重复初始化
+        
+        try {
+            Log.d(TAG_7ree, "开始懒加载初始化TTS")
+            tts_7ree = TextToSpeech(this@WidgetConfigActivity_7ree, this@WidgetConfigActivity_7ree)
+            Log.d(TAG_7ree, "TTS懒加载初始化请求已发送")
+        } catch (e: Exception) {
+            Log.e(TAG_7ree, "TTS懒加载初始化失败: ${e.message}")
+        }
+    }
+    
+    private fun speakWord_7ree(word: String) {
+        if (tts_7ree != null && isTtsReady_7ree && word.isNotBlank()) {
+            tts_7ree?.speak(word, TextToSpeech.QUEUE_FLUSH, null, "widget_word")
+            Log.d(TAG_7ree, "speakWord_7ree: 开始朗读单词: \"$word\"")
+        } else {
+            Log.w(TAG_7ree, "speakWord_7ree: TTS未准备好或单词为空")
+        }
+    }
+    
+    override fun onDestroy() {
+        super.onDestroy()
+        tts_7ree?.let {
+            it.stop()
+            it.shutdown()
+        }
+        Log.d(TAG_7ree, "onDestroy: TTS resources released")
     }
 }

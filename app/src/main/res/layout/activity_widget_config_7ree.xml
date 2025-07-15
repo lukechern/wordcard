@@ -109,32 +109,6 @@
         android:visibility="gone">
 
         <LinearLayout
-            android:id="@+id/widget_know_container_7ree"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageView
-                android:id="@+id/widget_know_button_7ree"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:padding="8dp"
-                android:src="@drawable/ic_check_black_7ree"
-                android:contentDescription="知道了" />
-
-            <TextView
-                android:id="@+id/widget_know_text_7ree"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="知道了"
-                android:textSize="12sp"
-                android:textColor="#666666"
-                android:layout_marginTop="2dp" />
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/widget_wordbook_container_7ree"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -181,6 +155,32 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="详情页"
+                android:textSize="12sp"
+                android:textColor="#666666"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_speak_container_7ree"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/widget_speak_button_7ree"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_speaker_black_7ree"
+                android:contentDescription="朗读" />
+
+            <TextView
+                android:id="@+id/widget_speak_text_7ree"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="朗读"
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:layout_marginTop="2dp" />
