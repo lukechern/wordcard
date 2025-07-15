@@ -38,6 +38,9 @@ import com.x7ree.wordcard.utils.hideKeyboard_7ree
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import java.util.Locale
+import android.view.MotionEvent
+import android.animation.ObjectAnimator
+import android.animation.AnimatorSet
 
 class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListener {
     
@@ -310,6 +313,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         // 朗读按钮 - 朗读当前单词
         val speakButton = findViewById<ImageView>(R.id.widget_speak_button_7ree)
         val speakContainer = findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
+        
+        // 添加触摸反馈效果
+        addTouchFeedback_7ree(speakButton)
+        
         speakContainer.setOnClickListener {
             speakWord_7ree(currentQueryWord_7ree)
         }
@@ -317,6 +324,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         // 单词本按钮 - 进入app单词本栏目
         val wordbookButton = findViewById<ImageView>(R.id.widget_wordbook_button_7ree)
         val wordbookContainer = findViewById<LinearLayout>(R.id.widget_wordbook_container_7ree)
+        
+        // 添加触摸反馈效果
+        addTouchFeedback_7ree(wordbookButton)
+        
         wordbookContainer.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 action = WordQueryWidgetProvider_7ree.ACTION_WIDGET_WORDBOOK_7ree
@@ -329,6 +340,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         // 详情页按钮 - 进入app对应单词查询的详情页面
         val detailButton = findViewById<ImageView>(R.id.widget_detail_button_7ree)
         val detailContainer = findViewById<LinearLayout>(R.id.widget_detail_container_7ree)
+        
+        // 添加触摸反馈效果
+        addTouchFeedback_7ree(detailButton)
+        
         detailContainer.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java).apply {
                 putExtra("query_word", queryText)
@@ -404,6 +419,30 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
             Log.w(TAG_7ree, "speakWord_7ree: TTS未准备好或单词为空")
         }
     }
+    
+    private fun addTouchFeedback_7ree(imageView: ImageView) {
+            imageView.setOnTouchListener { view, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    // 只监控第一个触摸动作，按顺序播放动画
+                    view.animate()
+                        .scaleX(0.7f)
+                        .scaleY(0.7f)
+                        .setDuration(100)
+                        .withEndAction {
+                            // 等待200毫秒后还原
+                            view.postDelayed({
+                                view.animate()
+                                    .scaleX(1.0f)
+                                    .scaleY(1.0f)
+                                    .setDuration(100)
+                                    .start()
+                            }, 200)
+                        }
+                        .start()
+                }
+                false // 返回false让其他点击事件继续处理
+            }
+        }
     
     override fun onDestroy() {
         super.onDestroy()

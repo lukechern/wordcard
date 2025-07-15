@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 按下状态 - 放大10% -->
+    <item android:state_pressed="true">
+        <scale
+            android:drawable="@android:color/transparent"
+            android:scaleWidth="1.1"
+            android:scaleHeight="1.1" />
+    </item>
+    <!-- 默认状态 -->
+    <item>
+        <scale
+            android:drawable="@android:color/transparent"
+            android:scaleWidth="1.0"
+            android:scaleHeight="1.0" />
+    </item>
+</selector>

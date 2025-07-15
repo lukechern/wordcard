@@ -131,7 +131,7 @@
                 android:text="单词本"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="0dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -157,7 +157,7 @@
                 android:text="详情页"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="0dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -183,7 +183,7 @@
                 android:text="朗读"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="0dp" />
         </LinearLayout>
 
     </LinearLayout>
