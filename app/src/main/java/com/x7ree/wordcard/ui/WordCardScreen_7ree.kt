@@ -74,6 +74,10 @@ import com.x7ree.wordcard.ui.SwipeNavigationComponent_7ree // 导入滑动导航
 import kotlinx.coroutines.delay // 导入delay函数
 import com.x7ree.wordcard.R
 import com.x7ree.wordcard.utils.MarkdownRenderer_7ree
+import com.x7ree.wordcard.utils.DataStatistics_7ree
+import androidx.compose.ui.platform.LocalContext
+import com.x7ree.wordcard.utils.CacheManager_7ree
+import kotlinx.coroutines.flow.first
 
 // 信息卡片组件
 @Composable
@@ -167,21 +171,7 @@ private fun formatDate_7ree(timestamp: Long): String {
     return dateFormat_7ree.format(Date(timestamp))
 }
 
-// 计算学习天数
-internal fun calculateStudyDays_7ree(words_7ree: List<com.x7ree.wordcard.data.WordEntity_7ree>): Int {
-    if (words_7ree.isEmpty()) return 0
-    
-    val calendar = Calendar.getInstance()
-    val today = calendar.timeInMillis
-    
-    // 获取最早的查询时间
-    val earliestTime = words_7ree.minOfOrNull { it.queryTimestamp } ?: today
-    
-    // 计算天数差
-    val daysDiff = (today - earliestTime) / (1000 * 60 * 60 * 24)
-    
-    return if (daysDiff > 1) daysDiff.toInt() else 1 // 至少返回1天
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -336,20 +326,31 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                     )
                 }
 
-                // 统计数据 - 按需加载
+                // 统计数据 - 使用缓存机制
+                val context = LocalContext.current
+                val cacheManager_7ree = remember { CacheManager_7ree(context) }
+                var cachedStats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
+                
+                // 加载缓存的统计数据
                 LaunchedEffect(Unit) {
                     // 延迟加载统计数据，不阻塞UI显示
                     delay(100) // 短暂延迟，让UI先渲染
-                    wordQueryViewModel_7ree.loadWordCount_7ree()
-                    wordQueryViewModel_7ree.loadTotalViews_7ree()
+                    
+                    // 检查是否需要更新缓存
+                    if (cacheManager_7ree.shouldUpdateCache_7ree()) {
+                        // 需要更新缓存时，获取最新数据
+                        val allWords_7ree = wordQueryViewModel_7ree.getHistoryWords_7ree().first()
+                        cachedStats_7ree = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
+                        cacheManager_7ree.updateCacheTimestamp_7ree()
+                    } else {
+                        // 使用缓存数据，快速获取一次性数据
+                        val allWords_7ree = wordQueryViewModel_7ree.getHistoryWords_7ree().first()
+                        cachedStats_7ree = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
+                    }
                 }
-                
-                val wordCount_7ree = wordQueryViewModel_7ree.wordCount_7ree.collectAsState().value
-                val totalViews_7ree = wordQueryViewModel_7ree.totalViews_7ree.collectAsState().value
-                val studyDays_7ree = calculateStudyDays_7ree(wordQueryViewModel_7ree.getHistoryWords_7ree().collectAsState(initial = emptyList()).value)
                 Spacer(modifier = Modifier.height(112.dp)) // 在按钮和统计数据之间增加一些间距
                 Text(
-                    text = "已收集${wordCount_7ree}个单词",
+                    text = "已收集${cachedStats_7ree.totalWords}个单词",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
@@ -357,7 +358,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 )
                 Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
                 Text(
-                    text = "已累计查阅${totalViews_7ree}次",
+                    text = "已累计查阅${cachedStats_7ree.totalViews}次",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
@@ -365,7 +366,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 )
                 Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
                 Text(
-                    text = "已持续学习${studyDays_7ree}天",
+                    text = "已持续学习${cachedStats_7ree.studyDays}天",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),

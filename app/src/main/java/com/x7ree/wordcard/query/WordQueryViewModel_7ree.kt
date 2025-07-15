@@ -648,6 +648,11 @@ class WordQueryViewModel_7ree(
         _operationResult_7ree.value = null
     }
     
+    // 设置操作结果
+    fun setOperationResult_7ree(message: String) {
+        _operationResult_7ree.value = message
+    }
+    
     // 分页加载单词列表
     fun loadInitialWords_7ree() {
         viewModelScope.launch {

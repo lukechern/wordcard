@@ -71,7 +71,7 @@ interface WordDao_7ree {
     fun countAllWords_7ree(): Flow<Int>
     
     // 获取总查阅次数
-    @Query("SELECT SUM(viewCount) FROM words")
+    @Query("SELECT COALESCE(SUM(viewCount), 0) FROM words")
     fun getTotalViews_7ree(): Flow<Int>
     
     // 分页获取单词记录，按查询时间倒序排列
