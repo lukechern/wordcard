@@ -55,8 +55,7 @@ fun DashboardContent_7ree(
     val cacheManager_7ree = remember { CacheManager_7ree(context) }
     
     var allWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
-    var cachedWordCount_7ree by remember { mutableStateOf(0) }
-    var cachedTotalViews_7ree by remember { mutableStateOf(0) }
+    var stats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
     var animatedValues_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
     var lastUpdateTime_7ree by remember { mutableStateOf(System.currentTimeMillis()) }
     var timeUntilNextUpdate_7ree by remember { mutableStateOf("") }
@@ -82,8 +81,14 @@ fun DashboardContent_7ree(
         
         // 获取当前实时数据并缓存
         allWords_7ree = wordQueryViewModel_7ree.getHistoryWords_7ree().first()
-        cachedWordCount_7ree = wordQueryViewModel_7ree.wordCount_7ree.first()
-        cachedTotalViews_7ree = wordQueryViewModel_7ree.totalViews_7ree.first()
+        val wordCount = wordQueryViewModel_7ree.wordCount_7ree.first()
+        val totalViews = wordQueryViewModel_7ree.totalViews_7ree.first()
+        
+        val baseStats = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
+        stats_7ree = baseStats.copy(
+            totalWords = wordCount,
+            totalViews = totalViews
+        )
     }
     
     // 初始加载数据
@@ -122,14 +127,14 @@ fun DashboardContent_7ree(
     }
     
     // 计算统计数据 - 使用缓存的数据
-    val stats_7ree = remember(allWords_7ree, cachedWordCount_7ree, cachedTotalViews_7ree) {
-        val baseStats = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
-        // 使用缓存的计数数据，而不是实时计算的数据
-        baseStats.copy(
-            totalWords = cachedWordCount_7ree,
-            totalViews = cachedTotalViews_7ree
-        )
-    }
+    // val stats_7ree = remember(allWords_7ree, cachedWordCount_7ree, cachedTotalViews_7ree) {
+    //     val baseStats = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
+    //     // 使用缓存的计数数据，而不是实时计算的数据
+    //     baseStats.copy(
+    //         totalWords = cachedWordCount_7ree,
+    //         totalViews = cachedTotalViews_7ree
+    //     )
+    // }
     
     // 数字动效 - 统一在1秒内完成
     LaunchedEffect(stats_7ree) {
