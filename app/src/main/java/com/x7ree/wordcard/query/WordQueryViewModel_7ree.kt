@@ -111,6 +111,10 @@ class WordQueryViewModel_7ree(
     private val _hasMoreData_7ree = MutableStateFlow(true)
     val hasMoreData_7ree: StateFlow<Boolean> = _hasMoreData_7ree
     
+    // 收藏过滤状态
+    private val _showFavoritesOnly_7ree = MutableStateFlow(false)
+    val showFavoritesOnly_7ree: StateFlow<Boolean> = _showFavoritesOnly_7ree
+    
     private var currentPage_7ree = 0
     private val pageSize_7ree = 10 // 每页10个项目
 
@@ -659,7 +663,11 @@ class WordQueryViewModel_7ree(
             try {
                 currentPage_7ree = 0
                 _hasMoreData_7ree.value = true
-                val words = wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, 0)
+                val words = if (_showFavoritesOnly_7ree.value) {
+                    wordRepository_7ree.getFavoriteWordsPaged_7ree(pageSize_7ree, 0)
+                } else {
+                    wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, 0)
+                }
                 _pagedWords_7ree.value = words
                 
                 // 如果返回的数据少于页面大小，说明没有更多数据了
@@ -667,7 +675,8 @@ class WordQueryViewModel_7ree(
                     _hasMoreData_7ree.value = false
                 }
                 
-                println("DEBUG: 初始加载完成，共${words.size}个单词")
+                val filterType = if (_showFavoritesOnly_7ree.value) "收藏" else "全部"
+                println("DEBUG: 初始加载完成，共${words.size}个${filterType}单词")
             } catch (e: Exception) {
                 println("DEBUG: 初始加载失败: ${e.message}")
             }
@@ -685,7 +694,11 @@ class WordQueryViewModel_7ree(
                 _isLoadingMore_7ree.value = true
                 currentPage_7ree++
                 val offset = currentPage_7ree * pageSize_7ree
-                val newWords = wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, offset)
+                val newWords = if (_showFavoritesOnly_7ree.value) {
+                    wordRepository_7ree.getFavoriteWordsPaged_7ree(pageSize_7ree, offset)
+                } else {
+                    wordRepository_7ree.getWordsPaged_7ree(pageSize_7ree, offset)
+                }
                 
                 if (newWords.isNotEmpty()) {
                     val currentWords = _pagedWords_7ree.value.toMutableList()
@@ -697,7 +710,8 @@ class WordQueryViewModel_7ree(
                         _hasMoreData_7ree.value = false
                     }
                     
-                    println("DEBUG: 加载更多完成，新增${newWords.size}个单词，总计${currentWords.size}个")
+                    val filterType = if (_showFavoritesOnly_7ree.value) "收藏" else "全部"
+                    println("DEBUG: 加载更多完成，新增${newWords.size}个${filterType}单词，总计${currentWords.size}个")
                 } else {
                     _hasMoreData_7ree.value = false
                     println("DEBUG: 没有更多数据")
@@ -730,5 +744,15 @@ class WordQueryViewModel_7ree(
     
     fun setCurrentScreen_7ree(screen: String) {
         _currentScreen_7ree.value = screen
+    }
+    
+    // 切换收藏过滤状态
+    fun toggleFavoriteFilter_7ree() {
+        _showFavoritesOnly_7ree.value = !_showFavoritesOnly_7ree.value
+        // 重新加载数据
+        resetPagination_7ree()
+        loadInitialWords_7ree()
+        val filterType = if (_showFavoritesOnly_7ree.value) "收藏" else "全部"
+        println("DEBUG: 切换到${filterType}单词过滤")
     }
 }

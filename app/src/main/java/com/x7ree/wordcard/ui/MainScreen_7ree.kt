@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.VolumeUp
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -241,7 +242,8 @@ fun MainScreen_7ree(
                                     onWordClick_7ree = { word ->
                                         wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
                                         wordQueryViewModel_7ree.setCurrentScreen_7ree("SEARCH")
-                                    }
+                                    },
+                                    speak_7ree = speak_7ree
                                 )
                             }
                                                     Screen_7ree.SETTINGS -> {
@@ -280,15 +282,17 @@ fun MainScreen_7ree(
 @Composable
 fun HistoryScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onWordClick_7ree: (String) -> Unit
+    onWordClick_7ree: (String) -> Unit,
+    speak_7ree: (String, String) -> Unit = { _, _ -> }
 ) {
     val pagedWords_7ree by wordQueryViewModel_7ree.pagedWords_7ree.collectAsState()
     val isLoadingMore_7ree by wordQueryViewModel_7ree.isLoadingMore_7ree.collectAsState()
     val hasMoreData_7ree by wordQueryViewModel_7ree.hasMoreData_7ree.collectAsState()
+    val showFavoritesOnly_7ree by wordQueryViewModel_7ree.showFavoritesOnly_7ree.collectAsState()
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isInitialLoading_7ree by remember { mutableStateOf(true) }
     
-    // 过滤掉已删除的单词
+    // 只过滤掉已删除的单词，收藏过滤由ViewModel在数据库层面处理
     val filteredWords_7ree = remember(pagedWords_7ree, deletedWords_7ree) {
         pagedWords_7ree.filter { it.word !in deletedWords_7ree }
     }
@@ -312,12 +316,30 @@ fun HistoryScreen_7ree(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text(
-            text = "单词本",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+        // 标题行，包含标题和收藏过滤按钮
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "单词本",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            
+            IconButton(
+                onClick = { wordQueryViewModel_7ree.toggleFavoriteFilter_7ree() }
+            ) {
+                Icon(
+                    imageVector = if (showFavoritesOnly_7ree) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = if (showFavoritesOnly_7ree) "显示全部单词" else "只显示收藏单词",
+                    tint = if (showFavoritesOnly_7ree) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         
         if (isInitialLoading_7ree) {
             // 显示初始加载状态
@@ -342,7 +364,7 @@ fun HistoryScreen_7ree(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "单词本暂无记录",
+                    text = if (showFavoritesOnly_7ree) "暂无收藏的单词" else "单词本暂无记录",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -355,15 +377,26 @@ fun HistoryScreen_7ree(
                 onWordClick = onWordClick_7ree,
                 onFavoriteToggle = { entity ->
                     wordQueryViewModel_7ree.setFavorite_7ree(entity.word, !entity.isFavorite)
+                    // 如果当前在收藏过滤模式下，需要重新加载数据
+                    if (showFavoritesOnly_7ree) {
+                        wordQueryViewModel_7ree.resetPagination_7ree()
+                        wordQueryViewModel_7ree.loadInitialWords_7ree()
+                    }
                 },
                 onWordDelete = { wordEntity_7ree ->
                     // 立即添加到删除集合，从UI中移除
                     deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word
-                    // 然后执行实际的删除操作
+                    // 执行实际的删除操作
                     wordQueryViewModel_7ree.deleteWord_7ree(wordEntity_7ree.word)
+                    // 重新加载数据以保持分页正确性
+                    wordQueryViewModel_7ree.resetPagination_7ree()
+                    wordQueryViewModel_7ree.loadInitialWords_7ree()
                 },
                 onLoadMore = {
                     wordQueryViewModel_7ree.loadMoreWords_7ree()
+                },
+                onWordSpeak = { word ->
+                    speak_7ree(word, "word")
                 }
             )
         }
@@ -375,7 +408,8 @@ fun HistoryWordItem_7ree(
     wordEntity_7ree: WordEntity_7ree,
     onWordClick_7ree: (String) -> Unit,
     onFavoriteToggle_7ree: (WordEntity_7ree) -> Unit,
-    onDismiss_7ree: () -> Unit
+    onDismiss_7ree: () -> Unit,
+    onWordSpeak_7ree: (String) -> Unit = {}
 ) {
     val dateFormat_7ree = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     val dateStr_7ree = dateFormat_7ree.format(Date(wordEntity_7ree.queryTimestamp))
@@ -398,41 +432,55 @@ fun HistoryWordItem_7ree(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = wordEntity_7ree.word,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                 text = wordEntity_7ree.word,
+                                 style = MaterialTheme.typography.titleLarge,
+                                 fontWeight = FontWeight.Bold
+                             )
+                            
+                            // 收藏状态显示（仅显示，不可点击）
+                            if (wordEntity_7ree.isFavorite) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                     imageVector = Icons.Filled.Favorite,
+                                     contentDescription = "已收藏",
+                                     tint = MaterialTheme.colorScheme.primary,
+                                     modifier = Modifier.size(13.6.dp)
+                                 )
+                            }
+                        }
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Filled.Visibility,
                                 contentDescription = "浏览次数",
                                 modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = Color.Gray
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "${wordEntity_7ree.viewCount}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.Gray
                             )
                             Spacer(modifier = Modifier.width(16.dp))
                             Text(
                                 text = dateStr_7ree,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.Gray
                             )
                         }
                     }
 
+                    // 朗读按钮（喇叭图标）
                     IconButton(
-                        onClick = { onFavoriteToggle_7ree(wordEntity_7ree) }
+                        onClick = { onWordSpeak_7ree(wordEntity_7ree.word) }
                     ) {
                         Icon(
-                            imageVector = if (wordEntity_7ree.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = if (wordEntity_7ree.isFavorite) "取消收藏" else "收藏",
-                            tint = if (wordEntity_7ree.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            imageVector = Icons.Default.VolumeUp,
+                            contentDescription = "朗读单词",
+                            tint = Color.Gray
                         )
                     }
                 }

@@ -77,4 +77,8 @@ interface WordDao_7ree {
     // 分页获取单词记录，按查询时间倒序排列
     @Query("SELECT * FROM words ORDER BY queryTimestamp DESC LIMIT :limit OFFSET :offset")
     suspend fun getWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 分页获取收藏的单词记录，按查询时间倒序排列
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY queryTimestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
 }

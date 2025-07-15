@@ -96,4 +96,8 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     suspend fun getWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree> {
         return wordDao_7ree.getWordsPaged_7ree(limit, offset)
     }
+    
+    suspend fun getFavoriteWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree> {
+        return wordDao_7ree.getFavoriteWordsPaged_7ree(limit, offset)
+    }
 }
