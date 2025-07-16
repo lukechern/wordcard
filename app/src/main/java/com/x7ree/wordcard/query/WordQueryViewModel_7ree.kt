@@ -443,9 +443,23 @@ class WordQueryViewModel_7ree(
     fun toggleFavorite_7ree() {
         if (wordInput_7ree.isNotBlank()) {
             viewModelScope.launch {
-                wordRepository_7ree.toggleFavorite_7ree(wordInput_7ree)
-                // 更新当前单词信息
-                updateCurrentWordInfo_7ree()
+                try {
+                    // 获取当前收藏状态
+                    val currentWord = wordRepository_7ree.getWord_7ree(wordInput_7ree)
+                    val wasAlreadyFavorite = currentWord?.isFavorite ?: false
+                    
+                    // 切换收藏状态
+                    wordRepository_7ree.toggleFavorite_7ree(wordInput_7ree)
+                    
+                    // 更新当前单词信息
+                    updateCurrentWordInfo_7ree()
+                    
+                    // 设置操作结果提示
+                    _operationResult_7ree.value = if (wasAlreadyFavorite) "已取消收藏" else "已添加收藏"
+                } catch (e: Exception) {
+                    _operationResult_7ree.value = "收藏操作失败: ${e.message}"
+                    println("DEBUG: 收藏操作失败: ${e.message}")
+                }
             }
         }
     }

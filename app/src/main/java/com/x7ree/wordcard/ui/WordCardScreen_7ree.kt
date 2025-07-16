@@ -388,8 +388,36 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                     .padding(16.dp), // 将内边距移到这里
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 查询结果详情页顶部单词标题下移两行
-                Spacer(modifier = Modifier.height(32.dp))
+                // 标题栏：左边"单词卡片"，右边收藏桃心图标
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "单词卡片",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    // 右上角收藏桃心图标
+                    if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
+                        IconButton(
+                            onClick = { wordQueryViewModel_7ree.toggleFavorite_7ree() }
+                        ) {
+                            Icon(
+                                imageVector = if (wordQueryViewModel_7ree.currentWordInfo_7ree!!.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                                contentDescription = if (wordQueryViewModel_7ree.currentWordInfo_7ree!!.isFavorite) "取消收藏" else "收藏",
+                                modifier = Modifier.size(24.dp),
+                                tint = if (wordQueryViewModel_7ree.currentWordInfo_7ree!!.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+                
+                // 查询结果详情页顶部单词标题
                 Text(
                     text = if (wordQueryViewModel_7ree.wordInput_7ree.isNotBlank()) wordQueryViewModel_7ree.wordInput_7ree else "AI查单词",
                     style = MaterialTheme.typography.headlineMedium.copy(
@@ -434,7 +462,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                             isTtsReady = wordQueryViewModel_7ree.isTtsReady_7ree
                         )
                         
-                        // 添加4个并排的信息卡片
+                        // 添加3个并排的信息卡片（删除收藏卡片）
                         if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
                             Spacer(modifier = Modifier.height(24.dp))
                             Row(
@@ -449,7 +477,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     modifier = Modifier.weight(1f)
                                 )
                                 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
                                 
                                 // 卡片2：查阅次数
                                 InfoCard_7ree(
@@ -459,18 +487,9 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     modifier = Modifier.weight(1f)
                                 )
                                 
-                                Spacer(modifier = Modifier.width(6.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
                                 
-                                // 卡片3：收藏桃心
-                                FavoriteCard_7ree(
-                                    isFavorite = wordQueryViewModel_7ree.currentWordInfo_7ree!!.isFavorite,
-                                    onToggle = { wordQueryViewModel_7ree.toggleFavorite_7ree() },
-                                    modifier = Modifier.weight(1f)
-                                )
-                                
-                                Spacer(modifier = Modifier.width(6.dp))
-                                
-                                // 卡片4：拼写练习
+                                // 卡片3：拼写练习
                                 SpellingCard_7ree(
                                     spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
                                     onSpellingClick = { showSpellingDialog_7ree = true },
