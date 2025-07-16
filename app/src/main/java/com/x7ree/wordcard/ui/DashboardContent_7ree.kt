@@ -55,8 +55,8 @@ fun DashboardContent_7ree(
     val cacheManager_7ree = remember { CacheManager_7ree(context) }
     
     var allWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
-    var stats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
-    var animatedValues_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
+    var stats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
+    var animatedValues_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
     var lastUpdateTime_7ree by remember { mutableStateOf(System.currentTimeMillis()) }
     var timeUntilNextUpdate_7ree by remember { mutableStateOf("") }
     
@@ -72,23 +72,25 @@ fun DashboardContent_7ree(
     
     // 数据加载函数
     suspend fun loadData_7ree() {
-        // 确保数据源被初始化
-        wordQueryViewModel_7ree.loadWordCount_7ree()
-        wordQueryViewModel_7ree.loadTotalViews_7ree()
-        
-        // 等待数据加载完成
-        delay(100)
-        
-        // 获取当前实时数据并缓存
-        allWords_7ree = wordQueryViewModel_7ree.getHistoryWords_7ree().first()
-        val wordCount = wordQueryViewModel_7ree.wordCount_7ree.first()
-        val totalViews = wordQueryViewModel_7ree.totalViews_7ree.first()
-        
-        val baseStats = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
-        stats_7ree = baseStats.copy(
-            totalWords = wordCount,
-            totalViews = totalViews
-        )
+        try {
+            // 获取当前实时数据
+            allWords_7ree = wordQueryViewModel_7ree.getHistoryWords_7ree().first()
+            
+            // 直接从数据库获取计数数据，而不依赖ViewModel的Flow
+            val wordCount = if (allWords_7ree.isNotEmpty()) allWords_7ree.size else 0
+            val totalViews = allWords_7ree.sumOf { it.viewCount }
+            
+            val baseStats = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
+            stats_7ree = baseStats.copy(
+                totalWords = wordCount,
+                totalViews = totalViews
+            )
+            
+            // 数据加载完成
+        } catch (e: Exception) {
+            // 数据加载失败: ${e.message}
+            e.printStackTrace()
+        }
     }
     
     // 初始加载数据
@@ -136,24 +138,9 @@ fun DashboardContent_7ree(
     //     )
     // }
     
-    // 数字动效 - 统一在1秒内完成
+    // 直接使用统计数据，不使用动画效果，避免数字显示为0的问题
     LaunchedEffect(stats_7ree) {
-        val animationDuration = 1000 // 动画时长（毫秒）
-
-        animate(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = animationDuration, easing = EaseOutCubic)
-        ) { progress, _ ->
-            animatedValues_7ree = DataStatistics_7ree.StatisticsData_7ree(
-                totalWords = (stats_7ree.totalWords * progress).toInt(),
-                totalViews = (stats_7ree.totalViews * progress).toInt(),
-                favoriteWords = (stats_7ree.favoriteWords * progress).toInt(),
-                studyDays = (stats_7ree.studyDays * progress).toInt(),
-                reviewRatio = round((stats_7ree.reviewRatio * progress) * 100) / 100,
-                dailyStudy = round((stats_7ree.dailyStudy * progress) * 100) / 100
-            )
-        }
+        animatedValues_7ree = stats_7ree
     }
     
     LazyColumn(
@@ -161,10 +148,12 @@ fun DashboardContent_7ree(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        // 统计卡片
+        // 新的统计卡片网格
         item {
-            StatisticsCards_7ree(animatedValues_7ree)
+            NewStatisticsGrid_7ree(animatedValues_7ree)
         }
+        
+
         
         // 30天曲线图
         item {
@@ -234,104 +223,225 @@ fun DashboardContent_7ree(
 }
 
 @Composable
+private fun TestStatisticsTable_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 4.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "统计数据测试表格",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            // 表格数据
+            val tableData = listOf(
+                "单词总数" to stats_7ree.totalWords.toString(),
+                "学习天数" to stats_7ree.studyDays.toString(),
+                "收藏总数" to stats_7ree.favoriteWords.toString(),
+                "查阅总数" to stats_7ree.totalViews.toString(),
+                "查阅倍率" to DataStatistics_7ree.formatReviewRatio_7ree(stats_7ree.reviewRatio),
+                "每日查阅" to DataStatistics_7ree.formatDailyStudy_7ree(stats_7ree.dailyStudy),
+                "拼写练习" to stats_7ree.totalSpelling.toString(),
+                "拼写倍率" to DataStatistics_7ree.formatSpellingRatio_7ree(stats_7ree.spellingRatio),
+                "每日拼写" to DataStatistics_7ree.formatDailySpelling_7ree(stats_7ree.dailySpelling)
+            )
+            
+            tableData.forEachIndexed { index, (label, value) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "${index + 1}. $label:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Red,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
+                if (index < tableData.size - 1) {
+                    Divider(
+                        modifier = Modifier.padding(vertical = 2.dp),
+                        color = Color.Gray.copy(alpha = 0.3f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun StatisticsCards_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) {
+    
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        // 第一行：3个卡片
+        // 第一行：3个卡片 - 红色系（最深）
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // 单词总数卡片 - 蓝色系（冷色）
+            // 单词总数卡片 - 极深红色
             StatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.totalWords.toString(),
                 label = "单词总数",
                 gradient = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF191970), // 深蓝色
-                        Color(0xFF4169E1)  // 深蓝色到蓝色
+                        Color(0xFF4B0000), // 极深红色
+                        Color(0xFF8B0000)  // 极深红色到深红色
                     )
                 ),
-                numberColor = Color(0xFF191970) // 深蓝色
+                numberColor = Color(0xFFDC143C) // 使用更明显的红色
             )
             
-            // 查阅总数卡片 - 橙色系（暖色）
-            StatCard_7ree(
-                modifier = Modifier.weight(1f),
-                value = stats_7ree.totalViews.toString(),
-                label = "查阅总数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFFD2691E), // 深橙色
-                        Color(0xFFFF8C00)  // 深橙色到橙色
-                    )
-                ),
-                numberColor = Color(0xFFD2691E) // 深橙色
-            )
-            
-            // 收藏总数卡片 - 青色系（冷色）
-            StatCard_7ree(
-                modifier = Modifier.weight(1f),
-                value = stats_7ree.favoriteWords.toString(),
-                label = "收藏总数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(
-                        Color(0xFF008B8B), // 深青色
-                        Color(0xFF20B2AA)  // 深青色到青色
-                    )
-                ),
-                numberColor = Color(0xFF008B8B) // 深青色
-            )
-        }
-        
-        // 第二行：3个卡片
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            // 学习天数卡片 - 紫色系（冷色）
+            // 学习天数卡片 - 很深红色（交换内容）
             StatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.studyDays.toString(),
                 label = "学习天数",
                 gradient = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF4B0082), // 深紫色
-                        Color(0xFF8A2BE2)  // 深紫色到紫色
+                        Color(0xFF660000), // 很深红色
+                        Color(0xFFB22222)  // 很深红色到深红色
                     )
                 ),
-                numberColor = Color(0xFF4B0082) // 深紫色
+                numberColor = Color(0xFFB22222) // 使用更明显的红色
             )
             
-            // 复习倍率卡片 - 红色系（暖色）
+            // 收藏总数卡片 - 深红色
             StatCard_7ree(
                 modifier = Modifier.weight(1f),
-                value = DataStatistics_7ree.formatReviewRatio_7ree(stats_7ree.reviewRatio),
-                label = "复习倍率",
+                value = stats_7ree.favoriteWords.toString(),
+                label = "收藏总数",
                 gradient = Brush.linearGradient(
                     colors = listOf(
                         Color(0xFF8B0000), // 深红色
                         Color(0xFFDC143C)  // 深红色到红色
                     )
                 ),
-                numberColor = Color(0xFF8B0000) // 深红色
+                numberColor = Color(0xFFDC143C) // 使用更明显的红色
+            )
+        }
+        
+        // 第二行：3个卡片 - 绿色系（中等深度）
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 查阅总数卡片 - 较深绿色（交换内容）
+            StatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = stats_7ree.totalViews.toString(),
+                label = "查阅总数",
+                gradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF003300), // 较深绿色
+                        Color(0xFF006400)  // 较深绿色到深绿色
+                    )
+                ),
+                numberColor = Color(0xFF228B22) // 使用更明显的绿色
             )
             
-            // 每日学习卡片 - 深绿色系（暖色）
+            // 复习倍率卡片 - 中绿色
+            StatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = DataStatistics_7ree.formatReviewRatio_7ree(stats_7ree.reviewRatio),
+                label = "查阅倍率",
+                gradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF004400), // 深绿色
+                        Color(0xFF228B22)  // 深绿色到绿色
+                    )
+                ),
+                numberColor = Color(0xFF228B22) // 使用更明显的绿色
+            )
+            
+            // 每日学习卡片 - 中绿色
             StatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatDailyStudy_7ree(stats_7ree.dailyStudy),
                 label = "每日查阅",
                 gradient = Brush.linearGradient(
                     colors = listOf(
-                        Color(0xFF006400), // 更深的绿色
-                        Color(0xFF228B22)  // 深绿色
+                        Color(0xFF006400), // 中绿色
+                        Color(0xFF228B22)  // 中绿色到绿色
                     )
                 ),
-                numberColor = Color(0xFF006400) // 更深的绿色
+                numberColor = Color(0xFF228B22) // 使用更明显的绿色
+            )
+        }
+        
+        // 第三行：3个卡片 - 蓝色系（原第一行深度）
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // 拼写练习卡片 - 深蓝色（原第一行第一列深度）
+            StatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = stats_7ree.totalSpelling.toString(),
+                label = "拼写练习",
+                gradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF000080), // 深蓝色
+                        Color(0xFF4169E1)  // 深蓝色到蓝色
+                    )
+                ),
+                numberColor = Color(0xFF4169E1) // 使用更明显的蓝色
+            )
+            
+            // 拼写倍率卡片 - 中蓝色（原第一行第二列深度）
+            StatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = DataStatistics_7ree.formatSpellingRatio_7ree(stats_7ree.spellingRatio),
+                label = "拼写倍率",
+                gradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF191970), // 中蓝色
+                        Color(0xFF6495ED)  // 中蓝色到矢车菊蓝
+                    )
+                ),
+                numberColor = Color(0xFF4169E1) // 使用更明显的蓝色
+            )
+            
+            // 每日拼写卡片 - 浅蓝色（原第一行第三列深度）
+            StatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = DataStatistics_7ree.formatDailySpelling_7ree(stats_7ree.dailySpelling),
+                label = "每日拼写",
+                gradient = Brush.linearGradient(
+                    colors = listOf(
+                        Color(0xFF4169E1), // 浅蓝色
+                        Color(0xFF87CEEB)  // 浅蓝色到淡蓝
+                    )
+                ),
+                numberColor = Color(0xFF4169E1) // 使用更明显的蓝色
             )
         }
     }

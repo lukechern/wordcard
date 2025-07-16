@@ -80,7 +80,6 @@ private fun MonthlyChartCanvas_7ree(
 ) {
     val chartData_7ree = remember(words_7ree) {
         // 使用真实数据生成图表
-        println("DEBUG: 使用真实数据生成月度图表，总单词数: ${words_7ree.size}")
         generateMonthlyChartData_7ree(words_7ree)
     }
     
@@ -101,7 +100,7 @@ private fun MonthlyChartCanvas_7ree(
     
     if (chartData_7ree.isNotEmpty()) {
         // 检查是否有实际数据（不是全为0）
-        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 }
+        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 }
         
         if (hasRealData) {
             Canvas(modifier = modifier) {
@@ -115,7 +114,8 @@ private fun MonthlyChartCanvas_7ree(
                 // 计算数据范围
                 val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
                 val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
-                val maxValue = maxOf(maxWordCount, maxViewCount, 1)
+                val maxSpellingCount = chartData_7ree.maxOfOrNull { it.spellingCount } ?: 0
+                val maxValue = maxOf(maxWordCount, maxViewCount, maxSpellingCount, 1)
                 
                 // 绘制坐标轴
                 drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)
@@ -230,8 +230,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
     
     // 每个月份的宽度
     val monthWidth = chartWidth / data.size
-    // 每个柱子的宽度（各占50%的x轴格子）
-    val barWidth = monthWidth * 0.5f
+    // 每个柱子的宽度（各占33.3%的x轴格子）
+    val barWidth = monthWidth / 3f
     // 柱子间距（贴在一起，无间距）
     val barSpacing = 0f
     
@@ -240,7 +240,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
         val monthX = padding + (monthWidth * i)
         val centerX = monthX + monthWidth / 2
         
-        // 单词数量柱子（左半部分）- 蓝色
+        // 单词数量柱子（左1/3部分）- 蓝色
         val wordCount = data[i].wordCount
         val targetWordBarHeight = if (maxValue > 0) (chartHeight * wordCount / maxValue) else 0f
         // 应用动画效果：从0高度向上增长到目标高度
@@ -254,7 +254,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
             size = androidx.compose.ui.geometry.Size(barWidth, animatedWordBarHeight)
         )
         
-        // 查阅次数柱子（右半部分）- 橙色
+        // 查阅次数柱子（中1/3部分）- 橙色
         val viewCount = data[i].viewCount
         val targetViewBarHeight = if (maxValue > 0) (chartHeight * viewCount / maxValue) else 0f
         // 应用动画效果：从0高度向上增长到目标高度
@@ -266,6 +266,20 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
             color = Color(0xFFD2691E), // 深橙色（查阅总数的颜色）
             topLeft = androidx.compose.ui.geometry.Offset(viewBarX, viewBarY),
             size = androidx.compose.ui.geometry.Size(barWidth, animatedViewBarHeight)
+        )
+        
+        // 拼写练习柱子（右1/3部分）- 绿色
+        val spellingCount = data[i].spellingCount
+        val targetSpellingBarHeight = if (maxValue > 0) (chartHeight * spellingCount / maxValue) else 0f
+        // 应用动画效果：从0高度向上增长到目标高度
+        val animatedSpellingBarHeight = targetSpellingBarHeight * animationProgress
+        val spellingBarX = monthX + barWidth * 2  // 紧贴在查阅柱子右侧
+        val spellingBarY = height - padding - 80f - animatedSpellingBarHeight // 为图例预留空间
+        
+        drawRect(
+            color = Color(0xFF228B22), // 绿色（拼写练习的颜色）
+            topLeft = androidx.compose.ui.geometry.Offset(spellingBarX, spellingBarY),
+            size = androidx.compose.ui.geometry.Size(barWidth, animatedSpellingBarHeight)
         )
     }
 }
@@ -372,10 +386,17 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
         size = androidx.compose.ui.geometry.Size(24f, 24f)
     )
     
-    // 绘制查阅图例（方块），增大两个图例之间的距离
+    // 绘制查阅图例（方块），调整位置
     drawRect(
         color = Color(0xFFD2691E), // 使用查阅总数的深橙色
-        topLeft = androidx.compose.ui.geometry.Offset(legendX + 200f, legendY - 12f),
+        topLeft = androidx.compose.ui.geometry.Offset(legendX + 220f, legendY - 12f),
+        size = androidx.compose.ui.geometry.Size(24f, 24f)
+    )
+    
+    // 绘制拼写练习图例（方块）
+    drawRect(
+        color = Color(0xFF228B22), // 使用绿色表示拼写练习
+        topLeft = androidx.compose.ui.geometry.Offset(legendX + 500f, legendY - 12f),
         size = androidx.compose.ui.geometry.Size(24f, 24f)
     )
     
@@ -396,11 +417,20 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
             paint
         )
         
-        // 绘制查阅图例文本（深橙色），增大文字间距
+        // 绘制查阅图例文本（深橙色），调整位置
         paint.color = android.graphics.Color.parseColor("#D2691E")
         canvas.nativeCanvas.drawText(
-            "查阅次数",
-            legendX + 230f,
+            "查询次数*10",
+            legendX + 250f,
+            legendY + 12f,
+            paint
+        )
+        
+        // 绘制拼写练习图例文本（绿色）
+        paint.color = android.graphics.Color.parseColor("#228B22")
+        canvas.nativeCanvas.drawText(
+            "拼写练习",
+            legendX + 530f,
             legendY + 12f,
             paint
         )
@@ -411,7 +441,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
 private data class MonthlyData_7ree(
     val month: String,
     val wordCount: Int,
-    val viewCount: Int
+    val viewCount: Int,
+    val spellingCount: Int
 )
 
 // 生成年度月度统计数据
@@ -429,8 +460,7 @@ private fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): Li
     
     val yearStart = calendar.timeInMillis
     
-    println("DEBUG: 当前年份: $currentYear")
-    println("DEBUG: 年度开始时间: ${Date(yearStart)}")
+    // 年度开始时间计算完成
     
     // 生成12个月的数据
     for (i in 0..11) {
@@ -456,14 +486,14 @@ private fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): Li
         }
         
         val wordCount = monthWords.size
-        val viewCount = monthWords.sumOf { it.viewCount }
+        val viewCount = monthWords.sumOf { it.viewCount } / 10
+        val spellingCount = monthWords.sumOf { it.spellingCount ?: 0 }
         
-        result.add(MonthlyData_7ree(monthStr, wordCount, viewCount))
+        result.add(MonthlyData_7ree(monthStr, wordCount, viewCount, spellingCount))
         
-        // 添加调试信息
-        println("DEBUG: ${monthStr} - 单词数: $wordCount, 查阅次数: $viewCount")
+        // 月度统计数据计算完成
     }
     
-    println("DEBUG: 生成的月度数据: ${result.map { "${it.month}:${it.wordCount}/${it.viewCount}" }}")
+    // 月度数据生成完成
     return result
 }

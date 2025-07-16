@@ -83,7 +83,6 @@ private fun DailyChartCanvas_7ree(
 ) {
     val chartData_7ree = remember(words_7ree) {
         // 使用真实数据生成图表
-        println("DEBUG: 使用真实数据生成图表，总单词数: ${words_7ree.size}")
         generateDailyChartData_7ree(words_7ree)
     }
     
@@ -104,7 +103,7 @@ private fun DailyChartCanvas_7ree(
     
     if (chartData_7ree.isNotEmpty()) {
         // 检查是否有实际数据（不是全为0）
-        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 }
+        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 }
         
         if (hasRealData) {
             Canvas(modifier = modifier) {
@@ -118,7 +117,8 @@ private fun DailyChartCanvas_7ree(
                 // 计算数据范围
                 val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
                 val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
-                val maxValue = maxOf(maxWordCount, maxViewCount, 1)
+                val maxSpellingCount = chartData_7ree.maxOfOrNull { it.spellingCount } ?: 0
+                val maxValue = maxOf(maxWordCount, maxViewCount, maxSpellingCount, 1)
                 
                 // 绘制坐标轴
                 drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)
@@ -147,6 +147,18 @@ private fun DailyChartCanvas_7ree(
                     padding,
                     Color(0xFFD2691E), // 使用查阅总数的深橙色
                     "查阅",
+                    animationProgress
+                )
+                
+                // 绘制拼写练习曲线（即使为0也绘制）
+                drawLine_7ree(
+                    chartData_7ree.map { it.spellingCount },
+                    maxValue,
+                    chartWidth,
+                    chartHeight,
+                    padding,
+                    Color(0xFF228B22), // 使用绿色表示拼写练习
+                    "拼写",
                     animationProgress
                 )
                 
@@ -290,7 +302,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
         drawPath(
             path = path,
             color = color,
-            style = Stroke(width = 10.84f) // 从12.75f再减少15%到10.84f
+            style = Stroke(width = 9.21f) // 从10.84f再减少15%到9.21f
         )
         
         // 绘制数据点（相应增大）
@@ -415,7 +427,14 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
     drawCircle(
         color = Color(0xFFD2691E), // 使用查阅总数的深橙色
         radius = 12f, // 加大圆点
-        center = androidx.compose.ui.geometry.Offset(legendX + 200f, legendY) // 从150f增加到200f
+        center = androidx.compose.ui.geometry.Offset(legendX + 220f, legendY) // 调整位置
+    )
+    
+    // 绘制拼写练习图例（加大圆点）
+    drawCircle(
+        color = Color(0xFF228B22), // 使用绿色表示拼写练习
+        radius = 12f, // 加大圆点
+        center = androidx.compose.ui.geometry.Offset(legendX + 500f, legendY) // 进一步向右移动以避免重叠
     )
     
     // 使用drawIntoCanvas绘制图例文本
@@ -438,9 +457,18 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
         // 绘制查阅图例文本（深橙色），增大文字间距
         paint.color = android.graphics.Color.parseColor("#D2691E")
         canvas.nativeCanvas.drawText(
-            "查阅次数",
-            legendX + 225f, // 从175f增加到225f
+            "查询次数*10",
+            legendX + 245f, // 调整位置
             legendY + 12f, // 从10f增加到12f，调整文字垂直位置
+            paint
+        )
+        
+        // 绘制拼写练习图例文本（绿色）
+        paint.color = android.graphics.Color.parseColor("#228B22")
+        canvas.nativeCanvas.drawText(
+            "拼写练习",
+            legendX + 525f, // 进一步向右移动文本位置以避免重叠
+            legendY + 12f,
             paint
         )
     }
@@ -450,7 +478,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
 private data class DailyData_7ree(
     val date: String,
     val wordCount: Int,
-    val viewCount: Int
+    val viewCount: Int,
+    val spellingCount: Int
 )
 
 // 生成本周统计数据
@@ -483,9 +512,7 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
     
     val weekStart = calendar.timeInMillis
     
-    println("DEBUG: 当前日期: ${Date()}")
-    println("DEBUG: 本周开始时间: ${Date(weekStart)}")
-    println("DEBUG: 当前星期: $currentDayOfWeek, 到周一差: $daysToMonday 天")
+    // 本周开始时间计算完成
     
     // 生成本周7天的数据
     for (i in 0..6) {
@@ -505,28 +532,20 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
             val isSameDay = wordDate.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR) &&
                            wordDate.get(Calendar.DAY_OF_YEAR) == currentDate.get(Calendar.DAY_OF_YEAR)
             
-            // 添加调试信息
-            if (i == 0) { // 只在第一天打印调试信息
-                println("DEBUG: 单词 '${word.word}' 时间戳: ${word.queryTimestamp}, 日期: ${wordDate.time}")
-                println("DEBUG: 当前比较日期: ${currentDate.time}")
-                println("DEBUG: 是否同一天: $isSameDay")
-            }
+            // 日期比较逻辑
             
             isSameDay
         }
         
         val wordCount = dayWords.size
-        val viewCount = dayWords.sumOf { it.viewCount }
+        val viewCount = dayWords.sumOf { it.viewCount } / 10
+        val spellingCount = dayWords.sumOf { it.spellingCount ?: 0 }
         
-        result.add(DailyData_7ree(dateStr, wordCount, viewCount))
+        result.add(DailyData_7ree(dateStr, wordCount, viewCount, spellingCount))
         
-        // 添加调试信息
-        println("DEBUG: ${dateStr} - 单词数: $wordCount, 查阅次数: $viewCount")
-        if (dayWords.isNotEmpty()) {
-            println("DEBUG: ${dateStr} 的单词: ${dayWords.map { it.word }}")
-        }
+        // 统计数据计算完成
     }
     
-    println("DEBUG: 生成的数据: ${result.map { "${it.date}:${it.wordCount}/${it.viewCount}" }}")
+    // 数据生成完成
     return result
 }

@@ -335,7 +335,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                 // 统计数据 - 使用缓存机制
                 val context = LocalContext.current
                 val cacheManager_7ree = remember { CacheManager_7ree(context) }
-                var cachedStats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f)) }
+                var cachedStats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
                 
                 // 加载缓存的统计数据
                 LaunchedEffect(Unit) {

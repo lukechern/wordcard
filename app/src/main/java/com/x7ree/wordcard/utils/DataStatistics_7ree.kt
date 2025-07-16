@@ -19,7 +19,10 @@ object DataStatistics_7ree {
         val favoriteWords: Int,     // 收藏总数
         val studyDays: Int,         // 学习天数
         val reviewRatio: Float,     // 复习倍率（查阅总数/单词总数）
-        val dailyStudy: Float       // 每日学习（查阅总数/学习天数）
+        val dailyStudy: Float,      // 每日学习（查阅总数/学习天数）
+        val totalSpelling: Int,     // 拼写练习总数
+        val spellingRatio: Float,   // 拼写倍率（拼写总数/单词总数）
+        val dailySpelling: Float    // 每日拼写（拼写总数/学习天数）
     )
     
     /**
@@ -32,6 +35,7 @@ object DataStatistics_7ree {
         val totalViews = words.sumOf { it.viewCount }
         val favoriteWords = words.count { it.isFavorite }
         val studyDays = calculateStudyDays_7ree(words)
+        val totalSpelling = words.sumOf { it.spellingCount }
         
         // 计算复习倍率（查阅总数/单词总数），精确到小数点后2位
         val reviewRatio = if (totalWords > 0) {
@@ -47,13 +51,30 @@ object DataStatistics_7ree {
             0.0f
         }
         
+        // 计算拼写倍率（拼写总数/单词总数），精确到小数点后2位
+        val spellingRatio = if (totalWords > 0) {
+            round((totalSpelling.toFloat() / totalWords) * 100) / 100
+        } else {
+            0.0f
+        }
+        
+        // 计算每日拼写（拼写总数/学习天数），精确到小数点后2位
+        val dailySpelling = if (studyDays > 0) {
+            round((totalSpelling.toFloat() / studyDays) * 100) / 100
+        } else {
+            0.0f
+        }
+        
         return StatisticsData_7ree(
             totalWords = totalWords,
             totalViews = totalViews,
             favoriteWords = favoriteWords,
             studyDays = studyDays,
             reviewRatio = reviewRatio,
-            dailyStudy = dailyStudy
+            dailyStudy = dailyStudy,
+            totalSpelling = totalSpelling,
+            spellingRatio = spellingRatio,
+            dailySpelling = dailySpelling
         )
     }
     
@@ -95,6 +116,20 @@ object DataStatistics_7ree {
      * 格式化每日学习显示文本
      */
     fun formatDailyStudy_7ree(daily: Float): String {
+        return String.format("%.2f", daily)
+    }
+    
+    /**
+     * 格式化拼写倍率显示文本
+     */
+    fun formatSpellingRatio_7ree(ratio: Float): String {
+        return String.format("%.2f", ratio)
+    }
+    
+    /**
+     * 格式化每日拼写显示文本
+     */
+    fun formatDailySpelling_7ree(daily: Float): String {
         return String.format("%.2f", daily)
     }
 }

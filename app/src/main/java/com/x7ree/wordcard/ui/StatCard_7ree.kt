@@ -33,7 +33,7 @@ fun StatCard_7ree(
     
     Card(
         modifier = modifier
-            .height(100.dp),
+            .heightIn(min = 120.dp),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = lightGrayColor
@@ -46,13 +46,13 @@ fun StatCard_7ree(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 数字部分 - 浅灰色背景
+            // 数字部分 - 白色背景提高对比度
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .background(lightGrayColor)
-                    .padding(10.dp),
+                    .background(Color.White)
+                    .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 // 检查是否包含小数点，如果有则使用特殊显示
@@ -67,7 +67,7 @@ fun StatCard_7ree(
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = numberColor,
-                        fontSize = 22.sp,
+                        fontSize = 28.sp,
                         textAlign = TextAlign.Center
                     )
                 }
@@ -77,7 +77,7 @@ fun StatCard_7ree(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(30.dp)
+                    .height(40.dp)
                     .background(gradient),
                 contentAlignment = Alignment.Center
             ) {
@@ -86,7 +86,7 @@ fun StatCard_7ree(
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Medium,
                     color = Color.White,
-                    fontSize = 12.sp
+                    fontSize = 14.sp
                 )
             }
         }
@@ -111,27 +111,27 @@ fun DecimalNumberText_7ree(
         decimalPart = decimalPart.padEnd(2, '0').take(2)
         
         val annotatedString = buildAnnotatedString {
-            // 整数部分 - 22sp
+            // 整数部分 - 28sp
             withStyle(style = SpanStyle(
-                fontSize = 22.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
             )) {
                 append(integerPart)
             }
             
-            // 小数点 - 16sp
+            // 小数点 - 20sp
             withStyle(style = SpanStyle(
-                fontSize = 16.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
             )) {
                 append(".")
             }
             
-            // 小数部分 - 14sp
+            // 小数部分 - 18sp
             withStyle(style = SpanStyle(
-                fontSize = 14.sp,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 color = color
             )) {
@@ -150,7 +150,7 @@ fun DecimalNumberText_7ree(
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             color = color,
-            fontSize = 22.sp,
+            fontSize = 28.sp,
             textAlign = TextAlign.Center
         )
     }
