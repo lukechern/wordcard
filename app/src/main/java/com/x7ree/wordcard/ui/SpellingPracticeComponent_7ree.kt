@@ -44,6 +44,20 @@ import android.util.Log
 import com.x7ree.wordcard.utils.showKeyboardWithDelay_7ree
 import kotlinx.coroutines.delay
 
+// 获取前两个中文词义的工具函数
+fun getFirstTwoMeanings_7ree(chineseMeaning: String): String {
+    // 按逗号或分号分割词义
+    val meanings = chineseMeaning.split(Regex("[,，;；]"))
+        .map { it.trim() }
+        .filter { it.isNotEmpty() }
+    
+    return when {
+        meanings.isEmpty() -> chineseMeaning
+        meanings.size == 1 -> meanings[0]
+        else -> "${meanings[0]}，${meanings[1]}"
+    }
+}
+
 // 拼写卡片组件
 @Composable
 fun SpellingCard_7ree(
@@ -171,15 +185,16 @@ fun SpellingPracticeContent_7ree(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 大标题：中文词义（深绿色）
+            // 大标题：中文词义（深绿色，只显示前两个词义）
             if (chineseMeaning.isNotEmpty()) {
+                val displayMeaning_7ree = getFirstTwoMeanings_7ree(chineseMeaning)
                 Text(
-                    text = chineseMeaning,
+                    text = displayMeaning_7ree,
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2E7D32) // 深绿色
                 )
-                Log.d("SpellingPractice_7ree", "显示中文词义: '$chineseMeaning'")
+                Log.d("SpellingPractice_7ree", "显示中文词义: '$displayMeaning_7ree'（原始: '$chineseMeaning'）")
             } else {
                 Log.w("SpellingPractice_7ree", "中文词义为空，未显示")
             }
