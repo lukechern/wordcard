@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Keyboard
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -452,24 +453,53 @@ fun HistoryWordItem_7ree(
                         }
                         Spacer(modifier = Modifier.height(4.dp))
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Filled.Visibility,
-                                contentDescription = "浏览次数",
-                                modifier = Modifier.size(16.dp),
-                                tint = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = "${wordEntity_7ree.viewCount}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
+                            // 时间显示 - 固定宽度
                             Text(
                                 text = dateStr_7ree,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
+                                color = Color.Gray,
+                                modifier = Modifier.width(120.dp)
                             )
+                            
+                            // 查看次数 - 固定宽度
+                             Row(
+                                 verticalAlignment = Alignment.CenterVertically,
+                                 modifier = Modifier.width(50.dp)
+                             ) {
+                                 Icon(
+                                     imageVector = Icons.Filled.Visibility,
+                                     contentDescription = "浏览次数",
+                                     modifier = Modifier.size(16.dp),
+                                     tint = Color.Gray
+                                 )
+                                 Spacer(modifier = Modifier.width(2.dp))
+                                 Text(
+                                     text = if (wordEntity_7ree.viewCount > 99) "99+" else "${wordEntity_7ree.viewCount}",
+                                     style = MaterialTheme.typography.bodySmall,
+                                     color = Color.Gray
+                                 )
+                             }
+                            
+                            // 拼写练习次数 - 固定宽度（如果大于0才显示）
+                             if (wordEntity_7ree.spellingCount > 0) {
+                                 Row(
+                                     verticalAlignment = Alignment.CenterVertically,
+                                     modifier = Modifier.width(60.dp)
+                                 ) {
+                                     Icon(
+                                         imageVector = Icons.Filled.Keyboard,
+                                         contentDescription = "拼写练习次数",
+                                         modifier = Modifier.size(16.dp),
+                                         tint = Color.Gray
+                                     )
+                                     Spacer(modifier = Modifier.width(2.dp))
+                                     Text(
+                                         text = if (wordEntity_7ree.spellingCount > 99) "99+" else "${wordEntity_7ree.spellingCount}",
+                                         style = MaterialTheme.typography.bodySmall,
+                                         color = Color.Gray
+                                     )
+                                 }
+                             }
                         }
                     }
 
