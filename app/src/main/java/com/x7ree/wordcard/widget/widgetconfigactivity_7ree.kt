@@ -59,6 +59,12 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         
         // 设置窗口参数
         window?.let { window ->
+            // 强制设置软键盘模式，确保窗口位置不被改变
+            window.setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING or 
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
+            )
+            
             window.attributes?.let { params ->
                 params.width = WindowManager.LayoutParams.WRAP_CONTENT
                 params.height = WindowManager.LayoutParams.WRAP_CONTENT
@@ -67,6 +73,9 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
                 val displayMetrics = resources.displayMetrics
                 val screenHeight = displayMetrics.heightPixels
                 params.y = -(screenHeight * 0.25).toInt()
+                
+                // 设置窗口重力，确保位置固定
+                params.gravity = android.view.Gravity.CENTER or android.view.Gravity.TOP
                 
                 window.attributes = params
             }
