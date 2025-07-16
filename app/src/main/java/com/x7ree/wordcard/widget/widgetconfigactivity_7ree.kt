@@ -210,9 +210,9 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
                     val cachedWord = wordRepository_7ree.getWord_7ree(queryText)
                     
                     if (cachedWord != null) {
-                        // 从缓存获取结果
+                        // 从缓存获取结果，直接显示按钮
                         val extractedInfo = extractBasicInfo_7ree(cachedWord.apiResult)
-                        displayResult_7ree(extractedInfo, queryText, progressBar, resultText, wordTitle, chineseMeaning, inputText, queryButton)
+                        displayResult_7ree(extractedInfo, queryText, progressBar, resultText, wordTitle, chineseMeaning, inputText, queryButton, true)
                         
                         // 增加浏览次数
                         wordRepository_7ree.incrementViewCount_7ree(queryText)
@@ -226,12 +226,16 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
                         apiService_7ree.queryWordStreamSimple_7ree(queryText).collect { chunk ->
                             fullResult += chunk
                             
-                            // 实时更新显示内容
+                            // 实时更新显示内容，但不显示按钮
                             val extractedInfo = extractBasicInfo_7ree(fullResult)
                             if (extractedInfo.first.isNotBlank() || extractedInfo.second.isNotBlank()) {
-                                displayResult_7ree(extractedInfo, queryText, progressBar, resultText, wordTitle, chineseMeaning, inputText, queryButton)
+                                displayResult_7ree(extractedInfo, queryText, progressBar, resultText, wordTitle, chineseMeaning, inputText, queryButton, false)
                             }
                         }
+                        
+                        // 流式返回结束后，最后一次显示结果并显示按钮
+                        val finalExtractedInfo = extractBasicInfo_7ree(fullResult)
+                        displayResult_7ree(finalExtractedInfo, queryText, progressBar, resultText, wordTitle, chineseMeaning, inputText, queryButton, true)
                         
                         // 保存到数据库
                         if (fullResult.isNotBlank() && !fullResult.startsWith("错误:")) {
@@ -263,7 +267,8 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         wordTitle: TextView,
         chineseMeaning: TextView,
         inputText: EditText,
-        queryButton: Button
+        queryButton: Button,
+        showButtons: Boolean = true // 新增参数控制是否显示按钮
     ) {
         progressBar.visibility = View.GONE
         
@@ -301,12 +306,15 @@ class WidgetConfigActivity_7ree : AppCompatActivity(), TextToSpeech.OnInitListen
         
         resultText.visibility = View.VISIBLE
         
-        // 显示结果按钮区域
+        // 根据showButtons参数决定是否显示结果按钮区域
         val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
-        resultButtons.visibility = View.VISIBLE
-        
-        // 设置按钮点击事件
-        setupResultButtons_7ree(queryText)
+        if (showButtons) {
+            resultButtons.visibility = View.VISIBLE
+            // 设置按钮点击事件
+            setupResultButtons_7ree(queryText)
+        } else {
+            resultButtons.visibility = View.GONE
+        }
     }
     
     private fun setupResultButtons_7ree(queryText: String) {
