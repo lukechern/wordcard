@@ -78,6 +78,8 @@ import com.x7ree.wordcard.utils.DataStatistics_7ree
 import androidx.compose.ui.platform.LocalContext
 import com.x7ree.wordcard.utils.CacheManager_7ree
 import kotlinx.coroutines.flow.first
+import com.x7ree.wordcard.ui.SpellingCard_7ree
+import com.x7ree.wordcard.ui.SpellingPracticeDialog_7ree
 
 // 信息卡片组件
 @Composable
@@ -173,13 +175,17 @@ private fun formatDate_7ree(timestamp: Long): String {
 
 
 
+private const val TAG_7ree = "WordCardScreen_7ree"
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_7ree: (String, String) -> Unit, stopSpeaking_7ree: () -> Unit) {
-    val TAG_7ree = "WordCardScreen_7ree"
     
     // 用于显示输入提示的状态
     var showInputWarning_7ree by remember { mutableStateOf(false) }
+    
+    // 拼写练习对话框状态
+    var showSpellingDialog_7ree by remember { mutableStateOf(false) }
     
     // 自动隐藏提示的效果
     LaunchedEffect(showInputWarning_7ree) {
@@ -428,7 +434,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                             isTtsReady = wordQueryViewModel_7ree.isTtsReady_7ree
                         )
                         
-                        // 添加3个并排的信息卡片
+                        // 添加4个并排的信息卡片
                         if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
                             Spacer(modifier = Modifier.height(24.dp))
                             Row(
@@ -443,7 +449,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     modifier = Modifier.weight(1f)
                                 )
                                 
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
                                 
                                 // 卡片2：查阅次数
                                 InfoCard_7ree(
@@ -453,12 +459,21 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     modifier = Modifier.weight(1f)
                                 )
                                 
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(6.dp))
                                 
                                 // 卡片3：收藏桃心
                                 FavoriteCard_7ree(
                                     isFavorite = wordQueryViewModel_7ree.currentWordInfo_7ree!!.isFavorite,
                                     onToggle = { wordQueryViewModel_7ree.toggleFavorite_7ree() },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                
+                                Spacer(modifier = Modifier.width(6.dp))
+                                
+                                // 卡片4：拼写练习
+                                SpellingCard_7ree(
+                                    spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
+                                    onSpellingClick = { showSpellingDialog_7ree = true },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -475,12 +490,29 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
-
+                        }
                     }
                 }
             }
         }
+        
+        // 拼写练习对话框
+        val chineseMeaning = if (wordQueryViewModel_7ree.queryResult_7ree.isNotBlank()) {
+            // 直接使用MarkdownRenderer_7ree的解析结果获取中文意思
+            com.x7ree.wordcard.utils.MarkdownRenderer_7ree.parseMarkdownContent_7ree(wordQueryViewModel_7ree.queryResult_7ree).chineseMeaning.trim()
+        } else {
+            ""
+        }
+        Log.d(TAG_7ree, "拼写练习对话框 - 获取到的中文词义: '$chineseMeaning'")
+        
+        SpellingPracticeDialog_7ree(
+            targetWord = wordQueryViewModel_7ree.wordInput_7ree,
+            chineseMeaning = chineseMeaning,
+            isVisible = showSpellingDialog_7ree,
+            onDismiss = { showSpellingDialog_7ree = false },
+            onSpellingSuccess = {
+                wordQueryViewModel_7ree.onSpellingSuccess_7ree()
+            }
+        )
     }
-} 
-
 }

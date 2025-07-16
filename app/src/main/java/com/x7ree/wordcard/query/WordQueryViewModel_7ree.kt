@@ -755,4 +755,25 @@ class WordQueryViewModel_7ree(
         val filterType = if (_showFavoritesOnly_7ree.value) "收藏" else "全部"
         println("DEBUG: 切换到${filterType}单词过滤")
     }
+    
+    // 拼写练习成功，增加拼写次数
+    fun onSpellingSuccess_7ree() {
+        viewModelScope.launch {
+            try {
+                if (wordInput_7ree.isNotBlank()) {
+                    wordRepository_7ree.incrementSpellingCount_7ree(wordInput_7ree)
+                    // 更新当前单词信息
+                    updateCurrentWordInfo_7ree()
+                    println("DEBUG: 拼写练习成功，单词: $wordInput_7ree")
+                }
+            } catch (e: Exception) {
+                println("DEBUG: 更新拼写次数失败: ${e.message}")
+            }
+        }
+    }
+    
+    // 获取当前单词的拼写次数
+    fun getCurrentSpellingCount_7ree(): Int {
+        return currentWordInfo_7ree?.spellingCount ?: 0
+    }
 }

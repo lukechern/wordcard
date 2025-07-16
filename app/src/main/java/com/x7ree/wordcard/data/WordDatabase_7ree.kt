@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [WordEntity_7ree::class], version = 1, exportSchema = false)
+@Database(entities = [WordEntity_7ree::class], version = 2, exportSchema = false)
 abstract class WordDatabase_7ree : RoomDatabase() {
     
     abstract fun wordDao_7ree(): WordDao_7ree
@@ -14,16 +16,23 @@ abstract class WordDatabase_7ree : RoomDatabase() {
         @Volatile
         private var INSTANCE_7ree: WordDatabase_7ree? = null
         
+        // 数据库迁移：从版本1到版本2，添加拼写次数字段
+        private val MIGRATION_1_2_7ree = object : Migration(1, 2) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE words ADD COLUMN spellingCount INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+        
         fun getDatabase_7ree(context: Context): WordDatabase_7ree {
             return INSTANCE_7ree ?: synchronized(this) {
                 val instance_7ree = Room.databaseBuilder(
                     context.applicationContext,
                     WordDatabase_7ree::class.java,
                     "word_database_7ree"
-                ).build()
+                ).addMigrations(MIGRATION_1_2_7ree).build()
                 INSTANCE_7ree = instance_7ree
                 instance_7ree
             }
         }
     }
-} 
+}

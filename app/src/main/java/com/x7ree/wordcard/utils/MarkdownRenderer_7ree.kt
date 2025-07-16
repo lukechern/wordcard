@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.x7ree.wordcard.R
 import io.noties.markwon.Markwon
+import android.util.Log
 
 /**
  * Markdown渲染工具类，用于处理API查询结果的Markdown格式化和显示
@@ -26,6 +27,8 @@ import io.noties.markwon.Markwon
 class MarkdownRenderer_7ree {
     
     companion object {
+        
+        const val TAG_7ree = "MarkdownRenderer_7ree"
         
         /**
          * 应用文本样式调整
@@ -65,7 +68,11 @@ class MarkdownRenderer_7ree {
          * 解析Markdown内容并提取各个部分
          */
         fun parseMarkdownContent_7ree(queryResult: String): MarkdownContent_7ree {
+            Log.d(TAG_7ree, "开始解析Markdown内容，输入长度: ${queryResult.length}")
+            Log.d(TAG_7ree, "输入内容前200字符: ${queryResult.take(200)}")
             val lines_7ree = queryResult.split("\n")
+            Log.d(TAG_7ree, "分割后行数: ${lines_7ree.size}")
+            
             val beforePhonetic_7ree = StringBuilder()
             val afterPhonetic_7ree = StringBuilder()
             val beforeExamples_7ree = StringBuilder()
@@ -148,16 +155,21 @@ class MarkdownRenderer_7ree {
                         break
                     }
 
-                    chineseMeaningLineCount_7ree += 1
+                    // 跳过空行，只处理非空行
+                    if (trimmedLine_7ree.isNotEmpty()) {
+                        chineseMeaningLineCount_7ree += 1
 
-                    // 只保留第二行
-                    if (chineseMeaningLineCount_7ree == 2) {
-                        chineseMeaning_7ree.append(line_7ree.trimStart()).append("\n")
-                        break // 提前终止
+                        // 只保留第一个非空行（标题后的第一行内容）
+                        if (chineseMeaningLineCount_7ree == 1) {
+                            chineseMeaning_7ree.append(line_7ree.trimStart()).append("\n")
+                            Log.d(TAG_7ree, "提取到中文词义内容: ${line_7ree.trimStart()}")
+                            break // 提前终止
+                        }
                     }
                 }
 
                 if (trimmedLine_7ree.matches(Regex("^#+\\s*中文词义.*$"))) {
+                    Log.d(TAG_7ree, "找到中文词义标题行: $trimmedLine_7ree")
                     foundChineseMeaningStarted_7ree = true
                     foundChineseMeaningSection_7ree = true
                 }
@@ -190,6 +202,8 @@ class MarkdownRenderer_7ree {
                     }
                 }
             }
+            
+            Log.d(TAG_7ree, "解析完成 - 中文词义: '${chineseMeaning_7ree.toString()}', 找到中文词义段落: $foundChineseMeaningSection_7ree")
             
             return MarkdownContent_7ree(
                 beforePhonetic = beforePhonetic_7ree.toString(),
@@ -267,20 +281,7 @@ fun MarkdownRenderer_7ree(
             )
         }
         
-        // 显示中文词义内容（超大字体，水平居中，粗体）
-        if (content.foundChineseMeaningSection && content.chineseMeaning.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            AndroidView(
-                factory = { context ->
-                    TextView(context)
-                },
-                update = { textView ->
-                    val markwon_7ree = Markwon.builder(textView.context).build()
-                    markwon_7ree.setMarkdown(textView, content.chineseMeaning)
-                    MarkdownRenderer_7ree.applyTextStyleAdjustments_7ree(textView)
-                }
-            )
-        }
+        // 中文词义已在标题栏下方单独显示，此处不再重复显示
         
         // 显示音标标题行（带单词朗读喇叭按钮）
         if (content.foundPhoneticSection) {
