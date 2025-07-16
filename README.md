@@ -8,13 +8,34 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.2-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-3.5-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
 ## 📱 应用简介
 
 WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 OpenAI GPT 或兼容模型，为用户提供智能化的英语单词查询和学习体验。应用采用现代化的 Jetpack Compose UI 框架，提供流畅的用户界面和丰富的功能特性。
+
+## 🆕 版本 3.5 更新内容
+
+### 📊 数据统计功能全面升级
+- **全新统计卡片设计**: 重新设计了9个数据统计卡片，采用现代化的扁平设计风格
+- **智能数字动画**: 数字卡片加载时实现从0增长到目标数值的1秒动画效果，提升视觉体验
+- **精美视觉效果**: 统一了卡片阴影效果，添加了精致的边框线条，整体视觉更加协调
+- **优化颜色主题**: 采用三行不同颜色主题（蓝色、橙色、绿色），数据分类更加清晰
+- **图表布局优化**: 调整了图表中图例的位置，避免文字重叠，提升可读性
+- **代码架构优化**: 清理了废弃的统计卡片组件，代码结构更加清晰
+
+### 🎨 用户界面提升
+- 统计数据展示更加直观和美观
+- 卡片高度和内边距经过精心调整，信息密度适中
+- 底部标题区域采用彩色背景配白色文字，视觉对比度更佳
+- 数字字体和标题字体经过优化，提升可读性
+
+### 🔧 技术改进
+- 移除了旧版本的StatCard组件，代码更加精简
+- 优化了动画性能，确保流畅的用户体验
+- 改进了图表渲染逻辑，提升了数据展示的准确性
 
 ## 🆕 版本 3.2 更新内容
 
@@ -226,7 +247,9 @@ app/src/main/java/com/x7ree/wordcard/
 │   ├── WordCardScreen_7ree.kt
 │   ├── SplashScreen_7ree.kt
 │   ├── DashboardContent_7ree.kt
+│   ├── NewStatCard_7ree.kt
 │   ├── DailyChartComponent_7ree.kt
+│   ├── MonthlyChartComponent_7ree.kt
 │   ├── BottomNavigationBar_7ree.kt
 │   ├── SwipeNavigationComponent_7ree.kt
 │   ├── SwipeableRevealItem_7ree.kt
