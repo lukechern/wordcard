@@ -24,8 +24,7 @@ fun SwipeArrowIndicator_7ree(
     
     if (canNavigate && swipeState.showSwipeFeedback) {
         Box(
-            modifier = modifier,
-            contentAlignment = Alignment.Center
+            modifier = modifier
         ) {
             // 根据滑动方向显示对应的箭头
             when (swipeState.swipeDirection) {
@@ -34,8 +33,10 @@ fun SwipeArrowIndicator_7ree(
                         painter = painterResource(id = R.drawable.ic_arrow_up_7ree),
                         contentDescription = "向上滑动",
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(220.dp) // 减少100dp：320dp - 100dp = 220dp
                             .alpha(0.5f) // 50%透明度
+                            .align(Alignment.TopCenter)
+                            .padding(top = 80.dp) // 增加距离上边缘的位置
                     )
                 }
                 SwipeDirection_7ree.DOWN -> {
@@ -43,8 +44,10 @@ fun SwipeArrowIndicator_7ree(
                         painter = painterResource(id = R.drawable.ic_arrow_down_7ree),
                         contentDescription = "向下滑动",
                         modifier = Modifier
-                            .size(64.dp)
+                            .size(220.dp) // 减少100dp：320dp - 100dp = 220dp
                             .alpha(0.5f) // 50%透明度
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 80.dp) // 增加距离下边缘的位置
                     )
                 }
                 SwipeDirection_7ree.NONE -> {

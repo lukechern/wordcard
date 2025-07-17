@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 fun ScrollIndicator_7ree(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
-    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.2f),
-    thumbColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f), // 滑轨颜色更淡
+    thumbColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f) // 滑动条颜色更淡
 ) {
     // 计算滚动进度
     val scrollProgress = if (scrollState.maxValue > 0) {
@@ -48,23 +48,25 @@ fun ScrollIndicator_7ree(
     if (scrollState.maxValue > 0) {
         Box(
             modifier = modifier
-                .width(4.dp)
+                .width(4.6.dp) // 原来4dp，增加15%变为4.6dp
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(2.dp))
+                .clip(RoundedCornerShape(2.3.dp))
                 .background(trackColor)
         ) {
             Canvas(
                 modifier = Modifier
-                    .width(4.dp)
+                    .width(4.6.dp)
                     .fillMaxHeight()
             ) {
                 val canvasHeight = size.height
                 val canvasWidth = size.width
                 
-                // 计算滑块的高度（至少20dp，最多为轨道高度的30%）
+                // 计算滑块的高度，使其符合屏幕与页面长度的比例
                 val minThumbHeight = 20.dp.toPx()
-                val maxThumbHeight = canvasHeight * 0.3f
-                val thumbHeight = minThumbHeight.coerceAtMost(maxThumbHeight)
+                val contentHeight = scrollState.maxValue + canvasHeight // 总内容高度
+                val visibleRatio = canvasHeight / contentHeight // 可见区域比例
+                val proportionalThumbHeight = canvasHeight * visibleRatio // 按比例计算的滑块高度
+                val thumbHeight = minThumbHeight.coerceAtLeast(proportionalThumbHeight)
                 
                 // 计算滑块的位置
                 val thumbTop = animatedProgress * (canvasHeight - thumbHeight)
@@ -74,7 +76,7 @@ fun ScrollIndicator_7ree(
                     color = thumbColor,
                     topLeft = Offset(0f, thumbTop),
                     size = Size(canvasWidth, thumbHeight),
-                    cornerRadius = CornerRadius(2.dp.toPx())
+                    cornerRadius = CornerRadius(2.3.dp.toPx())
                 )
             }
         }

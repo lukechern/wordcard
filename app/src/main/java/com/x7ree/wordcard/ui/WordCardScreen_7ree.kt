@@ -173,7 +173,7 @@ fun FavoriteCard_7ree(
 
 // 格式化日期函数
 private fun formatDate_7ree(timestamp: Long): String {
-    val dateFormat_7ree = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
+    val dateFormat_7ree = SimpleDateFormat("yy.MM.dd", Locale.getDefault())
     return dateFormat_7ree.format(Date(timestamp))
 }
 
@@ -389,7 +389,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp), // 将内边距移到这里
+                    .padding(horizontal = 24.dp, vertical = 16.dp), // 左右对称24.dp，上下保持16.dp
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 标题栏：左边"单词卡片"，右边收藏桃心图标
@@ -458,7 +458,7 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                     state = scrollState_7ree,
                                     enabled = true // 确保滚动功能正常
                                 )
-                                .padding(bottom = 16.dp) // 添加底部间距
+                                .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
                         ) {
                             // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
                             MarkdownRenderer_7ree(
@@ -473,36 +473,42 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                             // 添加3个并排的信息卡片（删除收藏卡片）
                             if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
                                 Spacer(modifier = Modifier.height(24.dp))
-                                Row(
+                                // 使用Box居中对齐，减少卡片总宽度15%
+                                Box(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    // 卡片1：初次查询时间
-                                    InfoCard_7ree(
-                                        title = "初次查询",
-                                        value = formatDate_7ree(wordQueryViewModel_7ree.currentWordInfo_7ree!!.queryTimestamp),
-                                        icon = Icons.Filled.History,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    
-                                    // 卡片2：查阅次数
-                                    InfoCard_7ree(
-                                        title = "查阅次数",
-                                        value = "查阅${wordQueryViewModel_7ree.currentWordInfo_7ree!!.viewCount}次",
-                                        icon = Icons.Filled.Visibility,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    
-                                    // 卡片3：拼写练习
-                                    SpellingCard_7ree(
-                                        spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
-                                        onSpellingClick = { showSpellingDialog_7ree = true },
-                                        modifier = Modifier.weight(1f)
-                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(0.85f), // 减少15%宽度
+                                        horizontalArrangement = Arrangement.SpaceEvenly
+                                    ) {
+                                        // 卡片1：初次查询时间
+                                        InfoCard_7ree(
+                                            title = "初次查询",
+                                            value = formatDate_7ree(wordQueryViewModel_7ree.currentWordInfo_7ree!!.queryTimestamp),
+                                            icon = Icons.Filled.History,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        
+                                        // 卡片2：查阅次数
+                                        InfoCard_7ree(
+                                            title = "查阅次数",
+                                            value = "查阅${wordQueryViewModel_7ree.currentWordInfo_7ree!!.viewCount}次",
+                                            icon = Icons.Filled.Visibility,
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        
+                                        // 卡片3：拼写练习
+                                        SpellingCard_7ree(
+                                            spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
+                                            onSpellingClick = { showSpellingDialog_7ree = true },
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                    }
                                 }
                             
                                 // 在底部添加滑动提示信息
@@ -519,12 +525,13 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                             }
                         }
                         
-                        // 添加自定义滚动指示器
+                        // 添加自定义滚动指示器，定位在正文内容右侧
                         ScrollIndicator_7ree(
                             scrollState = scrollState_7ree,
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
                                 .fillMaxHeight()
+                                .padding(end = 0.dp) // 紧贴屏幕右边缘
                         )
                         
                         // 使用CompositionLocalProvider提供滑动状态
