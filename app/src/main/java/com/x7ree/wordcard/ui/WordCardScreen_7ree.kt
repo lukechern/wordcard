@@ -28,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -434,6 +435,9 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                     // 添加状态变量来跟踪导航是否可用
                     var canNavigate_7ree by remember { mutableStateOf(false) }
                     
+                    // 滑动状态管理
+                    var swipeState_7ree by remember { mutableStateOf(SwipeState_7ree()) }
+                    
                     // 使用LaunchedEffect在单词详情页面显示后短暂延迟，然后评估canNavigate状态
                     LaunchedEffect(wordQueryViewModel_7ree.wordInput_7ree) {
                         // 给单词列表加载留出时间
@@ -523,14 +527,34 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                 .fillMaxHeight()
                         )
                         
-                        // 添加滑动导航组件作为覆盖层，对齐到左侧
-                        Box(
-                            modifier = Modifier.align(Alignment.CenterStart)
-                        ) {
-                            SwipeNavigationComponent_7ree(
+                        // 使用CompositionLocalProvider提供滑动状态
+                        CompositionLocalProvider(LocalSwipeState_7ree provides swipeState_7ree) {
+                            // 添加滑动导航组件作为覆盖层，对齐到左侧
+                            Box(
+                                modifier = Modifier.align(Alignment.CenterStart)
+                            ) {
+                                SwipeNavigationComponent_7ree(
+                                    canNavigate = canNavigate_7ree,
+                                    onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
+                                    onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() },
+                                    onSwipeStateChange = { isSwipping, direction, distance ->
+                                        swipeState_7ree = SwipeState_7ree(
+                                            showSwipeFeedback = isSwipping,
+                                            swipeDirection = when (direction) {
+                                                "up" -> SwipeDirection_7ree.UP
+                                                "down" -> SwipeDirection_7ree.DOWN
+                                                else -> SwipeDirection_7ree.NONE
+                                            },
+                                            totalDragDistance = distance
+                                        )
+                                    }
+                                )
+                            }
+                            
+                            // 添加箭头指示器覆盖层，覆盖整个屏幕宽度，箭头显示在屏幕中心
+                            SwipeArrowIndicator_7ree(
                                 canNavigate = canNavigate_7ree,
-                                onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
-                                onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
+                                modifier = Modifier.fillMaxSize()
                             )
                         }
                     }
