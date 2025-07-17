@@ -1,6 +1,8 @@
 package com.x7ree.wordcard.ui
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -22,6 +25,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.utils.DataStatistics_7ree
 import kotlin.math.roundToInt
+
+private enum class AnimationState_7ree { Initial, Final }
 
 /**
  * 带小数部分缩放的数字文本组件
@@ -105,23 +110,27 @@ fun NewStatCard_7ree(
         value.replace("[^0-9.]".toRegex(), "").toFloatOrNull() ?: 0f
     }
     
-    // 数字动画状态 - 只在页面载入时播放一次
-    var targetValue by remember { mutableStateOf(0f) }
-    var hasAnimated by remember { mutableStateOf(false) }
-    val animatedValue by animateFloatAsState(
-        targetValue = targetValue,
-        animationSpec = tween(durationMillis = 1000),
-        label = "number_animation"
-    )
-    
-    // 只在组件初始化时触发动画，不响应数值变化
-    LaunchedEffect(numericValue) {
-        if (!hasAnimated) {
-            targetValue = numericValue
-            hasAnimated = true
-        } else {
-            // 如果已经动画过，直接设置为最终值
-            targetValue = numericValue
+    // Animation state management
+    var animationState_7ree by rememberSaveable(key = label) { mutableStateOf(AnimationState_7ree.Initial) }
+    LaunchedEffect(Unit) {
+        animationState_7ree = AnimationState_7ree.Final
+    }
+
+    val transition_7ree = updateTransition(targetState = animationState_7ree, label = "${label}_transition")
+    val animatedValue by transition_7ree.animateFloat(
+        label = "${label}_value",
+        transitionSpec = {
+            when {
+                AnimationState_7ree.Initial isTransitioningTo AnimationState_7ree.Final ->
+                    tween(durationMillis = 1000)
+                else ->
+                    snap()
+            }
+        }
+    ) { state ->
+        when (state) {
+            AnimationState_7ree.Initial -> 0f
+            AnimationState_7ree.Final -> numericValue
         }
     }
     
