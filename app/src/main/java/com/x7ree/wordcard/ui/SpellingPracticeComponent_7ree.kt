@@ -137,6 +137,7 @@ fun SpellingPracticeContent_7ree(
     var userInput_7ree by remember { mutableStateOf("") }
     var showResult_7ree by remember { mutableStateOf(false) }
     var isCorrect_7ree by remember { mutableStateOf(false) }
+    var inputTextColor_7ree by remember { mutableStateOf(Color.Unspecified) }
     val focusRequester_7ree = remember { FocusRequester() }
     val view = LocalView.current
     
@@ -144,6 +145,18 @@ fun SpellingPracticeContent_7ree(
     LaunchedEffect(userInput_7ree) {
         if (userInput_7ree.length == targetWord.length) {
             isCorrect_7ree = userInput_7ree.equals(targetWord, ignoreCase = true)
+            
+            // 先改变输入框文字颜色
+            if (isCorrect_7ree) {
+                inputTextColor_7ree = Color(0xFF2E7D32) // 深绿色，与标题一致
+            } else {
+                inputTextColor_7ree = Color(0xFFF44336) // 红色
+            }
+            
+            // 延迟一下让用户看到颜色变化
+            delay(100)
+            
+            // 然后显示结果
             showResult_7ree = true
             
             if (isCorrect_7ree) {
@@ -152,10 +165,11 @@ fun SpellingPracticeContent_7ree(
                 onSpellingSuccess()
                 onDismiss()
             } else {
-                // 错误时，3秒后清空输入框
+                // 错误时，3秒后清空输入框并重置颜色
                 delay(3000)
                 userInput_7ree = ""
                 showResult_7ree = false
+                inputTextColor_7ree = Color.Unspecified
                 // 错误时不自动重新聚焦，避免异常
             }
         }
@@ -164,7 +178,7 @@ fun SpellingPracticeContent_7ree(
     // 自动聚焦到输入框，延迟执行避免BringIntoViewRequester异常
     LaunchedEffect(targetWord) {
         try {
-            delay(800) // 增加延迟确保对话框完全显示
+            delay(500) // 增加延迟确保对话框完全显示
             focusRequester_7ree.requestFocus()
         } catch (e: Exception) {
             // 忽略聚焦异常，不影响功能
@@ -202,7 +216,7 @@ fun SpellingPracticeContent_7ree(
                 Log.w("SpellingPractice_7ree", "中文词义为空，未显示")
             }
             
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             
             // 字母输入框
             LetterInputBoxes_7ree(
@@ -210,10 +224,15 @@ fun SpellingPracticeContent_7ree(
                 userInput = userInput_7ree,
                 onInputChange = { newInput ->
                     if (newInput.length <= targetWord.length && newInput.all { it.isLetter() }) {
+                        // 重置文字颜色（当用户开始新的输入时）
+                        if (inputTextColor_7ree != Color.Unspecified) {
+                            inputTextColor_7ree = Color.Unspecified
+                        }
                         userInput_7ree = newInput
                     }
                 },
-                focusRequester = focusRequester_7ree
+                focusRequester = focusRequester_7ree,
+                textColor = inputTextColor_7ree
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -232,14 +251,14 @@ fun SpellingPracticeContent_7ree(
                             imageVector = Icons.Filled.Check,
                             contentDescription = "正确",
                             modifier = Modifier.size(64.dp),
-                            tint = Color(0xFF4CAF50) // 绿色
+                            tint = Color(0xFF2E7D32) // 深绿色，与标题一致
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "单词正确！",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium,
-                            color = Color(0xFF4CAF50)
+                            color = Color(0xFF2E7D32) // 深绿色，与标题一致
                         )
                     } else {
                         Icon(
@@ -268,7 +287,8 @@ fun LetterInputBoxes_7ree(
     targetWord: String,
     userInput: String,
     onInputChange: (String) -> Unit,
-    focusRequester: FocusRequester
+    focusRequester: FocusRequester,
+    textColor: Color = Color.Unspecified
 ) {
     // 使用普通TextField替代BasicTextField，避免BringIntoViewRequester问题
     TextField(
@@ -289,7 +309,8 @@ fun LetterInputBoxes_7ree(
               textAlign = TextAlign.Center,
               letterSpacing = 2.sp,
               fontSize = 27.sp,
-              fontWeight = FontWeight.Bold
+              fontWeight = FontWeight.Black,
+              color = if (textColor != Color.Unspecified) textColor else Color.Unspecified
           ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,

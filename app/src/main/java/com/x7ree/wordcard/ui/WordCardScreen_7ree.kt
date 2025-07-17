@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+// 移除不存在的滚动条导入
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
@@ -80,6 +81,8 @@ import com.x7ree.wordcard.utils.CacheManager_7ree
 import kotlinx.coroutines.flow.first
 import com.x7ree.wordcard.ui.SpellingCard_7ree
 import com.x7ree.wordcard.ui.SpellingPracticeDialog_7ree
+import com.x7ree.wordcard.ui.ScrollIndicator_7ree
+import androidx.compose.foundation.layout.fillMaxHeight
 
 // 信息卡片组件
 @Composable
@@ -283,8 +286,8 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                             // 点击回车时直接提交查询
                             if (wordQueryViewModel_7ree.wordInput_7ree.length >= 3) {
                                 wordQueryViewModel_7ree.queryWord_7ree()
-                            }
-                        }
+                             }
+                         }
                     )
                 )
                 
@@ -438,81 +441,98 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                         canNavigate_7ree = wordQueryViewModel_7ree.canNavigate_7ree()
                     }
                     
-                    SwipeNavigationComponent_7ree(
-                        canNavigate = canNavigate_7ree,
-                        onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
-                        onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
+                    // 创建滚动状态
+                    val scrollState_7ree = rememberScrollState()
+                    
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(
-                                    state = rememberScrollState(),
+                                    state = scrollState_7ree,
                                     enabled = true // 确保滚动功能正常
                                 )
                                 .padding(bottom = 16.dp) // 添加底部间距
                         ) {
-                        // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
-                        MarkdownRenderer_7ree(
-                            queryResult = wordQueryViewModel_7ree.queryResult_7ree,
-                            onWordSpeak = { speak_7ree(wordQueryViewModel_7ree.getWordSpeechText_7ree(), "word") },
-                            onExamplesSpeak = { speak_7ree(wordQueryViewModel_7ree.getExamplesSpeechText_7ree(), "examples") },
-                            isSpeakingWord = wordQueryViewModel_7ree.isSpeakingWord_7ree,
-                            isSpeakingExamples = wordQueryViewModel_7ree.isSpeakingExamples_7ree,
-                            isTtsReady = wordQueryViewModel_7ree.isTtsReady_7ree
-                        )
-                        
-                        // 添加3个并排的信息卡片（删除收藏卡片）
-                        if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                // 卡片1：初次查询时间
-                                InfoCard_7ree(
-                                    title = "初次查询",
-                                    value = formatDate_7ree(wordQueryViewModel_7ree.currentWordInfo_7ree!!.queryTimestamp),
-                                    icon = Icons.Filled.History,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                
-                                Spacer(modifier = Modifier.width(8.dp))
-                                
-                                // 卡片2：查阅次数
-                                InfoCard_7ree(
-                                    title = "查阅次数",
-                                    value = "查阅${wordQueryViewModel_7ree.currentWordInfo_7ree!!.viewCount}次",
-                                    icon = Icons.Filled.Visibility,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                
-                                Spacer(modifier = Modifier.width(8.dp))
-                                
-                                // 卡片3：拼写练习
-                                SpellingCard_7ree(
-                                    spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
-                                    onSpellingClick = { showSpellingDialog_7ree = true },
-                                    modifier = Modifier.weight(1f)
-                                )
+                            // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
+                            MarkdownRenderer_7ree(
+                                queryResult = wordQueryViewModel_7ree.queryResult_7ree,
+                                onWordSpeak = { speak_7ree(wordQueryViewModel_7ree.getWordSpeechText_7ree(), "word") },
+                                onExamplesSpeak = { speak_7ree(wordQueryViewModel_7ree.getExamplesSpeechText_7ree(), "examples") },
+                                isSpeakingWord = wordQueryViewModel_7ree.isSpeakingWord_7ree,
+                                isSpeakingExamples = wordQueryViewModel_7ree.isSpeakingExamples_7ree,
+                                isTtsReady = wordQueryViewModel_7ree.isTtsReady_7ree
+                            )
+                            
+                            // 添加3个并排的信息卡片（删除收藏卡片）
+                            if (wordQueryViewModel_7ree.currentWordInfo_7ree != null) {
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
+                                ) {
+                                    // 卡片1：初次查询时间
+                                    InfoCard_7ree(
+                                        title = "初次查询",
+                                        value = formatDate_7ree(wordQueryViewModel_7ree.currentWordInfo_7ree!!.queryTimestamp),
+                                        icon = Icons.Filled.History,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    
+                                    // 卡片2：查阅次数
+                                    InfoCard_7ree(
+                                        title = "查阅次数",
+                                        value = "查阅${wordQueryViewModel_7ree.currentWordInfo_7ree!!.viewCount}次",
+                                        icon = Icons.Filled.Visibility,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    
+                                    // 卡片3：拼写练习
+                                    SpellingCard_7ree(
+                                        spellingCount = wordQueryViewModel_7ree.getCurrentSpellingCount_7ree(),
+                                        onSpellingClick = { showSpellingDialog_7ree = true },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                            
+                                // 在底部添加滑动提示信息
+                                if (wordQueryViewModel_7ree.canNavigate_7ree()) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = "上下滑动切换单词",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
                             }
                         }
                         
-                        // 在底部添加滑动提示信息
-                        if (wordQueryViewModel_7ree.canNavigate_7ree()) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "上下滑动切换单词",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
-                        }
+                        // 添加自定义滚动指示器
+                        ScrollIndicator_7ree(
+                            scrollState = scrollState_7ree,
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .fillMaxHeight()
+                        )
+                        
+                        // 添加滑动导航组件作为覆盖层
+                        SwipeNavigationComponent_7ree(
+                            canNavigate = canNavigate_7ree,
+                            onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
+                            onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
+                        )
                     }
                 }
             }
+        }
         }
         
         // 拼写练习对话框
@@ -534,4 +554,3 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
             }
         )
     }
-}

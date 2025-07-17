@@ -420,7 +420,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
         // 绘制查阅图例文本（深橙色），调整位置
         paint.color = android.graphics.Color.parseColor("#D2691E")
         canvas.nativeCanvas.drawText(
-            "查询次数*10",
+            "查阅次数/10",
             legendX + 250f,
             legendY + 12f,
             paint

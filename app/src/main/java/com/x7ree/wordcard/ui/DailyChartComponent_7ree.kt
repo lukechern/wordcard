@@ -457,7 +457,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
         // 绘制查阅图例文本（深橙色），增大文字间距
         paint.color = android.graphics.Color.parseColor("#D2691E")
         canvas.nativeCanvas.drawText(
-            "查询次数*10",
+            "查阅次数/10",
             legendX + 245f, // 调整位置
             legendY + 12f, // 从10f增加到12f，调整文字垂直位置
             paint

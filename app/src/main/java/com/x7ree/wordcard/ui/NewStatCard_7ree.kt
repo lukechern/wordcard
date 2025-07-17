@@ -100,21 +100,29 @@ fun NewStatCard_7ree(
     numberColor: Color = Color(0xFF333333),
     labelColor: Color = Color(0xFF666666)
 ) {
-    // 数字动画状态
+    // 解析数字值用于动画
+    val numericValue = remember(value) {
+        value.replace("[^0-9.]".toRegex(), "").toFloatOrNull() ?: 0f
+    }
+    
+    // 数字动画状态 - 只在页面载入时播放一次
     var targetValue by remember { mutableStateOf(0f) }
+    var hasAnimated by remember { mutableStateOf(false) }
     val animatedValue by animateFloatAsState(
         targetValue = targetValue,
         animationSpec = tween(durationMillis = 1000),
         label = "number_animation"
     )
     
-    // 解析数字值用于动画
-    val numericValue = remember(value) {
-        value.replace("[^0-9.]".toRegex(), "").toFloatOrNull() ?: 0f
-    }
-    
+    // 只在组件初始化时触发动画，不响应数值变化
     LaunchedEffect(numericValue) {
-        targetValue = numericValue
+        if (!hasAnimated) {
+            targetValue = numericValue
+            hasAnimated = true
+        } else {
+            // 如果已经动画过，直接设置为最终值
+            targetValue = numericValue
+        }
     }
     
     // 格式化显示值
@@ -164,12 +172,23 @@ fun NewStatCard_7ree(
                 )
             }
             
-            // 标题区域 - 交换文字和背景颜色
+            // 标题区域 - 渐变背景效果
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(0.34f)
-                    .background(labelColor)
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                labelColor,
+                                labelColor.copy(
+                                    red = (labelColor.red * 0.7f).coerceAtLeast(0f),
+                                    green = (labelColor.green * 0.7f).coerceAtLeast(0f),
+                                    blue = (labelColor.blue * 0.7f).coerceAtLeast(0f)
+                                )
+                            )
+                        )
+                    )
                     .padding(vertical = 2.dp, horizontal = 8.dp),
                 contentAlignment = Alignment.Center
             ) {
