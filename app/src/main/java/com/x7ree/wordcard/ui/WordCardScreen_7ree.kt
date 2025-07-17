@@ -523,12 +523,16 @@ fun WordCardScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree, speak_
                                 .fillMaxHeight()
                         )
                         
-                        // 添加滑动导航组件作为覆盖层
-                        SwipeNavigationComponent_7ree(
-                            canNavigate = canNavigate_7ree,
-                            onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
-                            onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
-                        )
+                        // 添加滑动导航组件作为覆盖层，对齐到左侧
+                        Box(
+                            modifier = Modifier.align(Alignment.CenterStart)
+                        ) {
+                            SwipeNavigationComponent_7ree(
+                                canNavigate = canNavigate_7ree,
+                                onNavigateToPrevious = { wordQueryViewModel_7ree.navigateToPreviousWord_7ree() },
+                                onNavigateToNext = { wordQueryViewModel_7ree.navigateToNextWord_7ree() }
+                            )
+                        }
                     }
                 }
             }

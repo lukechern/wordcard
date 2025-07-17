@@ -48,11 +48,15 @@ fun SwipeNavigationComponent_7ree(
     
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth(0.7f) // 只占70%宽度
+            .fillMaxHeight() // 保持全高度
             .pointerInput(canNavigate) {
                 if (canNavigate) {
                     var dragOffset = 0f
                     detectDragGestures(
+                        onDragStart = {
+                            showSwipeFeedback_7ree = true
+                        },
                         onDragEnd = {
                             val dragThreshold = 50.dp.toPx()
                             when {
@@ -64,13 +68,58 @@ fun SwipeNavigationComponent_7ree(
                                 }
                             }
                             dragOffset = 0f
+                            showSwipeFeedback_7ree = false
+                            swipeDirection_7ree = ""
                         }
                     ) { _, dragAmount ->
                         dragOffset += dragAmount.y
+                        totalDragDistance_7ree = dragOffset
+                        
+                        // 更新滑动方向
+                        swipeDirection_7ree = if (dragOffset > 0) "down" else "up"
                     }
                 }
             }
     ) {
-
+        // 显示滑动反馈箭头
+        if (showSwipeFeedback_7ree && canNavigate) {
+            val alpha = (abs(totalDragDistance_7ree) / 100f).coerceIn(0.3f, 1.0f)
+            
+            if (swipeDirection_7ree == "up") {
+                // 向上箭头 - 切换到下一个单词
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowUp,
+                    contentDescription = "下一个单词",
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 32.dp)
+                        .size(48.dp)
+                        .background(
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp)
+                        .graphicsLayer { this.alpha = alpha },
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+                )
+            } else if (swipeDirection_7ree == "down") {
+                // 向下箭头 - 切换到上一个单词
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = "上一个单词",
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 32.dp)
+                        .size(48.dp)
+                        .background(
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                            shape = CircleShape
+                        )
+                        .padding(8.dp)
+                        .graphicsLayer { this.alpha = alpha },
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
