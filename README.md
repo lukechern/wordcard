@@ -8,13 +8,33 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.5-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-3.6-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
 ## 📱 应用简介
 
 WordCard 是一款基于 AI 的智能单词学习安卓应用APP，集成了 OpenAI GPT 或兼容模型，为用户提供智能化的英语单词查询和学习体验。应用采用现代化的 Jetpack Compose UI 框架，提供流畅的用户界面和丰富的功能特性。
+
+## 🆕 版本 3.6 更新内容
+
+### 🎯 导航体验全面升级
+- **边缘滑动返回功能**: 在单词详情页面新增边缘滑动检测，从屏幕左边缘向右滑动即可返回单词本
+- **智能返回键优化**: 优化了返回键逻辑，从单词本进入单词详情页时，按返回键直接返回单词本而非退出应用
+- **滚动位置记忆**: 实现了单词本滚动位置的智能保存和恢复，从单词详情页返回时精确恢复到之前的浏览位置
+- **状态保持优化**: 返回单词本时完美保持筛选状态（收藏过滤）和分页数据，无需重新加载
+
+### 🔧 技术架构改进
+- **新增EdgeSwipeNavigationComponent_7ree组件**: 专门处理边缘滑动手势检测，支持自定义滑动阈值
+- **ScrollPosition_7ree数据类**: 新增滚动位置数据结构，精确保存列表的滚动状态
+- **优化LazyListState管理**: 改进了列表状态的传递和恢复机制，避免不必要的数据重载
+- **智能滚动恢复**: 实现了条件化的滚动位置恢复，只在从单词详情页返回时触发
+
+### 🎨 用户体验提升
+- 手势导航更加自然流畅，符合现代移动应用的交互习惯
+- 消除了返回时的位置跳转问题，提供连贯的浏览体验
+- 减少了用户重新定位内容的时间成本
+- 保持了完整的应用状态，避免了数据丢失和重复加载
 
 ## 🆕 版本 3.5 更新内容
 
