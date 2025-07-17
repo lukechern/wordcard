@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backspace
@@ -145,7 +146,11 @@ fun CustomKeyboard_7ree(
                 .shadow(
                     elevation = 8.dp,
                     shape = RoundedCornerShape(8.dp)
-                ),
+                )
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { /* 拦截点击事件，防止失去焦点 */ },
             shape = RoundedCornerShape(8.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface

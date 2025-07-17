@@ -112,27 +112,32 @@ private fun ConfigPage_7ree(
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.HELP,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.HELP },
-                text = { Text("帮助") }
+                text = { Text("帮助", fontSize = 13.sp) },
+                modifier = Modifier.padding(0.dp)
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.GENERAL,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.GENERAL },
-                text = { Text("通用") }
+                text = { Text("通用", fontSize = 13.sp) },
+                modifier = Modifier.padding(0.dp)
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.API_CONFIG,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.API_CONFIG },
-                text = { Text("API") }
+                text = { Text("API", fontSize = 13.sp) },
+                modifier = Modifier.padding(0.dp)
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.PROMPT_CONFIG,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.PROMPT_CONFIG },
-                text = { Text("提示词") }
+                text = { Text("提示词", fontSize = 13.sp) },
+                modifier = Modifier.padding(0.dp)
             )
             Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.DATA_MANAGEMENT,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.DATA_MANAGEMENT },
-                text = { Text("数据") }
+                text = { Text("数据", fontSize = 13.sp) },
+                modifier = Modifier.padding(0.dp)
             )
         }
         
@@ -512,20 +517,6 @@ fun GeneralConfigTab_7ree(
             }
         }
         
-        // 显示操作结果
-        operationResult_7ree?.let { result ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (result.contains("成功")) androidx.compose.ui.graphics.Color(0xFF4CAF50) else androidx.compose.ui.graphics.Color(0xFFF44336)
-                )
-            ) {
-                Text(
-                    text = result,
-                    color = androidx.compose.ui.graphics.Color.White,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-        }
+        // 移除重复的绿色提示条，使用统一的黑色提示条
     }
 }

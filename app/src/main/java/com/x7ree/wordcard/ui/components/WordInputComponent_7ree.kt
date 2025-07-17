@@ -156,6 +156,7 @@ fun WordInputComponent_7ree(
                 // 同步更新ViewModel
                 wordQueryViewModel.onWordInputChanged_7ree(filteredText)
             },
+            // 移除readOnly属性，保持光标显示
             label = { Text("请输入英文单词") },
             singleLine = true,
             modifier = Modifier
