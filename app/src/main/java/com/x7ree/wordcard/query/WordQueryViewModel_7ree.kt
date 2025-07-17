@@ -22,6 +22,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
+// 滚动位置数据类
+data class ScrollPosition_7ree(
+    val firstVisibleItemIndex: Int = 0,
+    val firstVisibleItemScrollOffset: Int = 0
+)
+
 /**
 语言包定义
 
@@ -54,6 +60,14 @@ class WordQueryViewModel_7ree(
     // 当前屏幕状态
     private val _currentScreen_7ree = MutableStateFlow("SEARCH")
     val currentScreen_7ree: StateFlow<String> = _currentScreen_7ree
+    
+    // 是否从单词本进入单词详情页面
+    private val _isFromWordBook_7ree = MutableStateFlow(false)
+    val isFromWordBook_7ree: StateFlow<Boolean> = _isFromWordBook_7ree
+    
+    // 单词本状态保存（用于返回时恢复状态）
+    var savedWordBookScrollPosition_7ree = ScrollPosition_7ree()
+    var savedWordBookFilterState_7ree = false
     
     var wordInput_7ree by mutableStateOf("")
         private set
@@ -516,6 +530,12 @@ class WordQueryViewModel_7ree(
         isWordConfirmed_7ree = true
         isFromCache_7ree = false
         
+        // 标记为从单词本进入
+        _isFromWordBook_7ree.value = true
+        
+        // 保存当前单词本状态
+        savedWordBookFilterState_7ree = _showFavoritesOnly_7ree.value
+        
         viewModelScope.launch {
             try {
                 val cachedWord_7ree = wordRepository_7ree.getWord_7ree(word)
@@ -758,6 +778,26 @@ class WordQueryViewModel_7ree(
     
     fun setCurrentScreen_7ree(screen: String) {
         _currentScreen_7ree.value = screen
+        
+        // 如果切换到非搜索页面，清除从单词本进入的标记
+        if (screen != "SEARCH") {
+            _isFromWordBook_7ree.value = false
+        }
+    }
+    
+    // 返回单词本并恢复状态
+    fun returnToWordBook_7ree() {
+        // 恢复单词本的过滤状态
+        _showFavoritesOnly_7ree.value = savedWordBookFilterState_7ree
+        
+        // 切换到单词本页面
+        _currentScreen_7ree.value = "HISTORY"
+        
+        // 清除从单词本进入的标记
+        _isFromWordBook_7ree.value = false
+        
+        // 注意：不重新加载数据，保持原有的分页状态和滚动位置
+        // 滚动位置会通过savedWordBookScrollPosition_7ree在UI层恢复
     }
     
     // 切换收藏过滤状态

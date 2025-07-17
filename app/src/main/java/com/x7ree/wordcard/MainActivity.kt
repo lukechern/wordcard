@@ -335,6 +335,16 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
 
     override fun onBackPressed() {
+        // 检查是否从单词本进入单词详情页面
+        val isFromWordBook_7ree = wordQueryViewModel_7ree?.isFromWordBook_7ree?.value ?: false
+        val currentScreen_7ree = wordQueryViewModel_7ree?.currentScreen_7ree?.value ?: "SEARCH"
+        
+        if (isFromWordBook_7ree && currentScreen_7ree == "SEARCH") {
+            // 如果是从单词本进入的单词详情页面，直接返回单词本
+            wordQueryViewModel_7ree?.returnToWordBook_7ree()
+            return
+        }
+        
         val currentTime_7ree = System.currentTimeMillis()
         
         if (currentTime_7ree - backPressedTime_7ree > 2000) {

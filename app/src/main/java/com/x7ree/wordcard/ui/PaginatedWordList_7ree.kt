@@ -40,9 +40,9 @@ fun PaginatedWordList_7ree(
     onWordDelete: (WordEntity_7ree) -> Unit,
     onLoadMore: () -> Unit,
     onWordSpeak: (String) -> Unit = {},
+    listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier
 ) {
-    val listState = rememberLazyListState()
     
     // 检测是否滚动到接近底部
     val shouldLoadMore by remember {

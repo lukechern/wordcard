@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Download
@@ -78,6 +80,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Color
 import com.x7ree.wordcard.data.WordEntity_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
+import com.x7ree.wordcard.query.ScrollPosition_7ree
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -293,6 +296,40 @@ fun HistoryScreen_7ree(
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isInitialLoading_7ree by remember { mutableStateOf(true) }
     
+    // 创建或获取保存的滚动状态
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.firstVisibleItemIndex,
+        initialFirstVisibleItemScrollOffset = wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.firstVisibleItemScrollOffset
+    )
+    
+    // 保存滚动位置
+    LaunchedEffect(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset) {
+        wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree = wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.copy(
+            firstVisibleItemIndex = listState.firstVisibleItemIndex,
+            firstVisibleItemScrollOffset = listState.firstVisibleItemScrollOffset
+        )
+    }
+    
+    // 恢复滚动位置（当从单词详情页返回时）
+    val isFromWordBook_7ree by wordQueryViewModel_7ree.isFromWordBook_7ree.collectAsState()
+    LaunchedEffect(pagedWords_7ree.size, isFromWordBook_7ree) {
+        if (pagedWords_7ree.isNotEmpty() && 
+            !isFromWordBook_7ree && // 只有在不是从单词本进入时才恢复位置（即刚从单词详情页返回）
+            wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.firstVisibleItemIndex > 0) {
+            try {
+                delay(100) // 稍微延迟以确保列表已渲染
+                listState.scrollToItem(
+                    index = wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.firstVisibleItemIndex,
+                    scrollOffset = wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree.firstVisibleItemScrollOffset
+                )
+                // 恢复后重置滚动位置，避免重复恢复
+                wordQueryViewModel_7ree.savedWordBookScrollPosition_7ree = ScrollPosition_7ree()
+            } catch (e: Exception) {
+                // 如果滚动失败，忽略错误
+            }
+        }
+    }
+    
     // 只过滤掉已删除的单词，收藏过滤由ViewModel在数据库层面处理
     val filteredWords_7ree = remember(pagedWords_7ree, deletedWords_7ree) {
         pagedWords_7ree.filter { it.word !in deletedWords_7ree }
@@ -300,9 +337,11 @@ fun HistoryScreen_7ree(
     
     // 初始加载
     LaunchedEffect(Unit) {
-        // 重置分页状态并加载初始数据
-        wordQueryViewModel_7ree.resetPagination_7ree()
-        wordQueryViewModel_7ree.loadInitialWords_7ree()
+        // 只有在没有数据时才重置分页状态并加载初始数据
+        if (pagedWords_7ree.isEmpty()) {
+            wordQueryViewModel_7ree.resetPagination_7ree()
+            wordQueryViewModel_7ree.loadInitialWords_7ree()
+        }
         
         // 按需加载单词计数
         wordQueryViewModel_7ree.loadWordCount_7ree()
@@ -398,7 +437,8 @@ fun HistoryScreen_7ree(
                 },
                 onWordSpeak = { word ->
                     speak_7ree(word, "word")
-                }
+                },
+                listState = listState
             )
         }
     }

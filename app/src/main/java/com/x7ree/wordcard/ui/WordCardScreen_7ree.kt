@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,9 @@ fun WordCardScreen_7ree(
     // 拼写练习对话框状态
     var showSpellingDialog_7ree by remember { mutableStateOf(false) }
     
+    // 获取是否从单词本进入的状态
+    val isFromWordBook_7ree by wordQueryViewModel_7ree.isFromWordBook_7ree.collectAsState()
+    
     // 自动隐藏提示的效果
     LaunchedEffect(showInputWarning_7ree) {
         if (showInputWarning_7ree) {
@@ -42,35 +46,43 @@ fun WordCardScreen_7ree(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .animateContentSize(animationSpec = tween(durationMillis = 300)),
-        contentAlignment = Alignment.Center
+    // 使用边缘滑动导航组件包装内容
+    EdgeSwipeNavigationComponent_7ree(
+        isFromWordBook = isFromWordBook_7ree,
+        onReturnToWordBook = {
+            wordQueryViewModel_7ree.returnToWordBook_7ree()
+        }
     ) {
-        when {
-            // 如果正在加载且没有查询结果，显示加载动画
-            wordQueryViewModel_7ree.isLoading_7ree && wordQueryViewModel_7ree.queryResult_7ree.isBlank() -> {
-                LoadingComponent_7ree(
-                    wordInput = wordQueryViewModel_7ree.wordInput_7ree
-                )
-            }
-            // 未开始查询时，显示输入界面
-            !wordQueryViewModel_7ree.isWordConfirmed_7ree || wordQueryViewModel_7ree.queryResult_7ree.isBlank() -> {
-                WordInputComponent_7ree(
-                    wordQueryViewModel = wordQueryViewModel_7ree,
-                    showInputWarning = showInputWarning_7ree,
-                    onInputWarningChange = { showInputWarning_7ree = it }
-                )
-            }
-            // 有查询结果时，显示结果界面
-            else -> {
-                WordResultComponent_7ree(
-                    wordQueryViewModel = wordQueryViewModel_7ree,
-                    speak = speak_7ree,
-                    showSpellingDialog = showSpellingDialog_7ree,
-                    onShowSpellingDialogChange = { showSpellingDialog_7ree = it }
-                )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .animateContentSize(animationSpec = tween(durationMillis = 300)),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                // 如果正在加载且没有查询结果，显示加载动画
+                wordQueryViewModel_7ree.isLoading_7ree && wordQueryViewModel_7ree.queryResult_7ree.isBlank() -> {
+                    LoadingComponent_7ree(
+                        wordInput = wordQueryViewModel_7ree.wordInput_7ree
+                    )
+                }
+                // 未开始查询时，显示输入界面
+                !wordQueryViewModel_7ree.isWordConfirmed_7ree || wordQueryViewModel_7ree.queryResult_7ree.isBlank() -> {
+                    WordInputComponent_7ree(
+                        wordQueryViewModel = wordQueryViewModel_7ree,
+                        showInputWarning = showInputWarning_7ree,
+                        onInputWarningChange = { showInputWarning_7ree = it }
+                    )
+                }
+                // 有查询结果时，显示结果界面
+                else -> {
+                    WordResultComponent_7ree(
+                        wordQueryViewModel = wordQueryViewModel_7ree,
+                        speak = speak_7ree,
+                        showSpellingDialog = showSpellingDialog_7ree,
+                        onShowSpellingDialogChange = { showSpellingDialog_7ree = it }
+                    )
+                }
             }
         }
     }
