@@ -1,6 +1,8 @@
 package com.x7ree.wordcard.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
@@ -10,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.LaunchedEffect
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 /**
@@ -26,6 +30,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 enum class SettingsTab_7ree {
     HELP,
+    GENERAL,
     API_CONFIG,
     PROMPT_CONFIG,
     DATA_MANAGEMENT
@@ -110,6 +115,11 @@ private fun ConfigPage_7ree(
                 text = { Text("帮助") }
             )
             Tab(
+                selected = selectedTab_7ree == SettingsTab_7ree.GENERAL,
+                onClick = { selectedTab_7ree = SettingsTab_7ree.GENERAL },
+                text = { Text("通用") }
+            )
+            Tab(
                 selected = selectedTab_7ree == SettingsTab_7ree.API_CONFIG,
                 onClick = { selectedTab_7ree = SettingsTab_7ree.API_CONFIG },
                 text = { Text("API") }
@@ -131,6 +141,9 @@ private fun ConfigPage_7ree(
         when (selectedTab_7ree) {
             SettingsTab_7ree.HELP -> {
                 HelpScreen_7ree()
+            }
+            SettingsTab_7ree.GENERAL -> {
+                GeneralConfigTab_7ree(wordQueryViewModel_7ree)
             }
             SettingsTab_7ree.API_CONFIG -> {
                 ApiConfigTab_7ree(wordQueryViewModel_7ree)
@@ -391,6 +404,128 @@ fun PromptConfigTab_7ree(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("保存配置")
+        }
+    }
+}
+
+@Composable
+fun GeneralConfigTab_7ree(
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree
+) {
+    val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
+    val operationResult_7ree by wordQueryViewModel_7ree.operationResult_7ree.collectAsState()
+    
+    var selectedKeyboardType_7ree by remember { mutableStateOf(generalConfig_7ree.keyboardType) }
+    
+    // 当配置更新时，同步到选择状态
+    LaunchedEffect(generalConfig_7ree) {
+        selectedKeyboardType_7ree = generalConfig_7ree.keyboardType
+    }
+    
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "通用设置",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "输入键盘",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                
+                Column(
+                    modifier = Modifier.selectableGroup()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (selectedKeyboardType_7ree == "custom"),
+                                onClick = {
+                                    selectedKeyboardType_7ree = "custom"
+                                },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (selectedKeyboardType_7ree == "custom"),
+                            onClick = null
+                        )
+                        Text(
+                            text = "App自带键盘",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (selectedKeyboardType_7ree == "system"),
+                                onClick = {
+                                    selectedKeyboardType_7ree = "system"
+                                },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (selectedKeyboardType_7ree == "system"),
+                            onClick = null
+                        )
+                        Text(
+                            text = "手机系统键盘",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+                }
+                
+                Button(
+                    onClick = {
+                        wordQueryViewModel_7ree.saveGeneralConfig_7ree(selectedKeyboardType_7ree)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                ) {
+                    Text("保存配置")
+                }
+            }
+        }
+        
+        // 显示操作结果
+        operationResult_7ree?.let { result ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (result.contains("成功")) androidx.compose.ui.graphics.Color(0xFF4CAF50) else androidx.compose.ui.graphics.Color(0xFFF44336)
+                )
+            ) {
+                Text(
+                    text = result,
+                    color = androidx.compose.ui.graphics.Color.White,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
         }
     }
 }

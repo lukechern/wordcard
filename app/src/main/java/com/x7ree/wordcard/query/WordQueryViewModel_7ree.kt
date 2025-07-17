@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.x7ree.wordcard.api.OpenAiApiService_7ree
 import com.x7ree.wordcard.config.ApiConfig_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
+import com.x7ree.wordcard.config.GeneralConfig_7ree
 import com.x7ree.wordcard.config.PromptConfig_7ree
 import com.x7ree.wordcard.data.DataExportImportManager_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
@@ -52,6 +53,10 @@ class WordQueryViewModel_7ree(
     // 提示词配置状态
     private val _promptConfig_7ree = MutableStateFlow(PromptConfig_7ree())
     val promptConfig_7ree: StateFlow<PromptConfig_7ree> = _promptConfig_7ree
+    
+    // 通用配置状态
+    private val _generalConfig_7ree = MutableStateFlow(GeneralConfig_7ree())
+    val generalConfig_7ree: StateFlow<GeneralConfig_7ree> = _generalConfig_7ree
     
     // 操作结果状态
     private val _operationResult_7ree = MutableStateFlow<String?>(null)
@@ -135,6 +140,8 @@ class WordQueryViewModel_7ree(
     init {
         // 只初始化导出路径，其他数据改为按需加载
         _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
+        // 加载通用配置
+        loadGeneralConfig_7ree()
     }
     
     // 按需加载单词计数
@@ -581,6 +588,12 @@ class WordQueryViewModel_7ree(
         apiService_7ree.updatePromptConfig_7ree(config)
     }
     
+    // 加载通用配置
+    private fun loadGeneralConfig_7ree() {
+        val config = configManager_7ree.loadGeneralConfig_7ree()
+        _generalConfig_7ree.value = config
+    }
+    
     // 保存API配置
     fun saveApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String) {
         viewModelScope.launch {
@@ -632,6 +645,30 @@ class WordQueryViewModel_7ree(
             } catch (e: Exception) {
                 _operationResult_7ree.value = "提示词配置保存失败: ${e.message}"
                 println("DEBUG: 提示词配置保存异常: ${e.message}")
+            }
+        }
+    }
+    
+    // 保存通用配置
+    fun saveGeneralConfig_7ree(keyboardType: String) {
+        viewModelScope.launch {
+            try {
+                val config = GeneralConfig_7ree(
+                    keyboardType = keyboardType
+                )
+                
+                val success = configManager_7ree.saveGeneralConfig_7ree(config)
+                if (success) {
+                    _generalConfig_7ree.value = config
+                    _operationResult_7ree.value = "通用配置保存成功"
+                    println("DEBUG: 通用配置保存成功")
+                } else {
+                    _operationResult_7ree.value = "通用配置保存失败"
+                    println("DEBUG: 通用配置保存失败")
+                }
+            } catch (e: Exception) {
+                _operationResult_7ree.value = "通用配置保存失败: ${e.message}"
+                println("DEBUG: 通用配置保存异常: ${e.message}")
             }
         }
     }

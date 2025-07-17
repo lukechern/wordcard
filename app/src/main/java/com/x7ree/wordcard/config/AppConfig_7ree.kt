@@ -21,6 +21,11 @@ data class ApiConfig_7ree(
     val modelName: String = "gpt-3.5-turbo"
 )
 
+@Serializable
+data class GeneralConfig_7ree(
+    val keyboardType: String = "system" // "system" 或 "custom"
+)
+
 class AppConfigManager_7ree(context: Context) {
     private val sharedPreferences: SharedPreferences = context.getSharedPreferences(
         "wordcard_config_7ree",
@@ -35,6 +40,7 @@ class AppConfigManager_7ree(context: Context) {
     companion object {
         private const val KEY_API_CONFIG = "api_config_7ree"
         private const val KEY_PROMPT_CONFIG = "prompt_config_7ree"
+        private const val KEY_GENERAL_CONFIG = "general_config_7ree"
     }
     
     // 保存API配置
@@ -104,4 +110,38 @@ class AppConfigManager_7ree(context: Context) {
     fun hasPromptConfig_7ree(): Boolean {
         return sharedPreferences.contains(KEY_PROMPT_CONFIG)
     }
-} 
+    
+    // 保存通用配置
+    fun saveGeneralConfig_7ree(config: GeneralConfig_7ree): Boolean {
+        return try {
+            val configJson = json.encodeToString(config)
+            sharedPreferences.edit()
+                .putString(KEY_GENERAL_CONFIG, configJson)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: 保存通用配置失败: ${e.message}")
+            false
+        }
+    }
+    
+    // 读取通用配置
+    fun loadGeneralConfig_7ree(): GeneralConfig_7ree {
+        return try {
+            val configJson = sharedPreferences.getString(KEY_GENERAL_CONFIG, null)
+            if (configJson != null) {
+                json.decodeFromString<GeneralConfig_7ree>(configJson)
+            } else {
+                GeneralConfig_7ree()
+            }
+        } catch (e: Exception) {
+            println("DEBUG: 读取通用配置失败: ${e.message}")
+            GeneralConfig_7ree()
+        }
+    }
+    
+    // 检查是否有保存的通用配置
+    fun hasGeneralConfig_7ree(): Boolean {
+        return sharedPreferences.contains(KEY_GENERAL_CONFIG)
+    }
+}
