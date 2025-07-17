@@ -135,13 +135,12 @@ fun NewStatCard_7ree(
     }
     
     // 格式化显示值
-    val displayValue = remember(animatedValue, value) {
-        if (value.contains(".")) {
-            // 如果原值包含小数点，保持小数格式
-            String.format("%.1f", animatedValue)
-        } else {
-            // 如果原值是整数，显示整数
-            animatedValue.roundToInt().toString()
+    val displayValue = remember(animatedValue, value, label) {
+        val isTwoDecimalLabel = label in listOf("查阅倍率", "每日查阅", "拼写倍率", "每日拼写")
+        when {
+            isTwoDecimalLabel -> String.format("%.2f", animatedValue)
+            value.contains(".") -> String.format("%.1f", animatedValue)
+            else -> animatedValue.roundToInt().toString()
         }
     }
     
