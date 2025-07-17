@@ -255,7 +255,7 @@ fun SpellingPracticeContent_7ree(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "单词正确！",
+                            text = "恭喜，拼写正确！",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFF2E7D32) // 深绿色，与标题一致
@@ -263,13 +263,14 @@ fun SpellingPracticeContent_7ree(
                     } else {
                         Icon(
                             imageVector = Icons.Filled.Close,
-                            contentDescription = "错误",
+                            contentDescription = "抱歉，拼写错误！",
+
                             modifier = Modifier.size(64.dp),
                             tint = Color(0xFFF44336) // 红色
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "请重新输入单词",
+                            text = "错误，请重新拼写！",
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Medium,
                             color = Color(0xFFF44336)
@@ -300,7 +301,7 @@ fun LetterInputBoxes_7ree(
              .focusRequester(focusRequester),
         placeholder = {
             Text(
-                "点击这里输入单词拼写",
+                "点击这里开始拼写单词",
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
