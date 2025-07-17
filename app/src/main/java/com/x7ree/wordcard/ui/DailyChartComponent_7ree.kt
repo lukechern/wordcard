@@ -5,17 +5,21 @@ import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -89,6 +93,9 @@ private fun DailyChartCanvas_7ree(
     // 动画进度状态
     var animationProgress by remember { mutableStateOf(0f) }
     
+    // 图例点击状态管理
+    var selectedLegend by remember { mutableStateOf<String?>(null) }
+    
     // 启动动画
     LaunchedEffect(chartData_7ree) {
         animationProgress = 0f
@@ -106,7 +113,39 @@ private fun DailyChartCanvas_7ree(
         val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 }
         
         if (hasRealData) {
-            Canvas(modifier = modifier) {
+            Canvas(
+                modifier = modifier.pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // 检测图例点击
+                        val legendY = size.height - 60f + 40f
+                        val legendClickRadius = 30f
+                        
+                        when {
+                            // 检测单词图例点击
+                            offset.x >= (60f + 20f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 100f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "word") null else "word"
+                            }
+                            // 检测查阅图例点击
+                            offset.x >= (60f + 20f + 220f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 220f + 150f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "view") null else "view"
+                            }
+                            // 检测拼写练习图例点击
+                            offset.x >= (60f + 20f + 500f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 500f + 120f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "spelling") null else "spelling"
+                            }
+                        }
+                    }
+                }
+            ) {
                 val width = size.width
                 val height = size.height
                 val padding = 60f // 增加padding以容纳坐标轴标签
@@ -126,44 +165,86 @@ private fun DailyChartCanvas_7ree(
                 // 绘制背景网格
                 drawGrid_7ree(width, height, padding, chartData_7ree.size)
                 
-                // 绘制单词数量曲线（即使为0也绘制）
-                drawLine_7ree(
-                    chartData_7ree.map { it.wordCount },
-                    maxValue,
-                    chartWidth,
-                    chartHeight,
-                    padding,
-                    Color(0xFF191970), // 使用单词总数的深蓝色
-                    "单词",
-                    animationProgress
-                )
+                // 根据选中状态绘制曲线
+                when (selectedLegend) {
+                    "word" -> {
+                        // 只显示单词数量曲线
+                        drawLine_7ree(
+                            chartData_7ree.map { it.wordCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFF191970),
+                            "单词",
+                            animationProgress
+                        )
+                    }
+                    "view" -> {
+                        // 只显示查阅次数曲线
+                        drawLine_7ree(
+                            chartData_7ree.map { it.viewCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFFD2691E),
+                            "查阅",
+                            animationProgress
+                        )
+                    }
+                    "spelling" -> {
+                        // 只显示拼写练习曲线
+                        drawLine_7ree(
+                            chartData_7ree.map { it.spellingCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFF228B22),
+                            "拼写",
+                            animationProgress
+                        )
+                    }
+                    else -> {
+                        // 显示所有曲线
+                        drawLine_7ree(
+                            chartData_7ree.map { it.wordCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFF191970),
+                            "单词",
+                            animationProgress
+                        )
+                        
+                        drawLine_7ree(
+                            chartData_7ree.map { it.viewCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFFD2691E),
+                            "查阅",
+                            animationProgress
+                        )
+                        
+                        drawLine_7ree(
+                            chartData_7ree.map { it.spellingCount },
+                            maxValue,
+                            chartWidth,
+                            chartHeight,
+                            padding,
+                            Color(0xFF228B22),
+                            "拼写",
+                            animationProgress
+                        )
+                    }
+                }
                 
-                // 绘制查阅次数曲线（即使为0也绘制）
-                drawLine_7ree(
-                    chartData_7ree.map { it.viewCount },
-                    maxValue,
-                    chartWidth,
-                    chartHeight,
-                    padding,
-                    Color(0xFFD2691E), // 使用查阅总数的深橙色
-                    "查阅",
-                    animationProgress
-                )
-                
-                // 绘制拼写练习曲线（即使为0也绘制）
-                drawLine_7ree(
-                    chartData_7ree.map { it.spellingCount },
-                    maxValue,
-                    chartWidth,
-                    chartHeight,
-                    padding,
-                    Color(0xFF228B22), // 使用绿色表示拼写练习
-                    "拼写",
-                    animationProgress
-                )
-                
-                // 绘制图例
-                drawLegend_7ree(width, height, padding)
+                // 绘制图例（传递选中状态）
+                drawLegend_7ree(width, height, padding, selectedLegend)
             }
         } else {
             // 如果没有数据，显示占位符
@@ -410,30 +491,34 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAxes_7ree(
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
     width: Float,
     height: Float,
-    padding: Float
+    padding: Float,
+    selectedLegend: String? = null
 ) {
     // 图例位置调整到X轴下方
     val legendX = padding + 20f // 距离左边缘20px
     val legendY = height - padding + 40f // 在X轴下方40f的位置
     
     // 绘制单词图例（加大圆点）
+    val wordAlpha = if (selectedLegend == null || selectedLegend == "word") 1f else 0.3f
     drawCircle(
-        color = Color(0xFF191970), // 使用单词总数的深蓝色
-        radius = 12f, // 加大圆点
+        color = Color(0xFF191970).copy(alpha = wordAlpha), // 使用单词总数的深蓝色
+        radius = if (selectedLegend == "word") 15f else 12f, // 选中时加大圆点
         center = androidx.compose.ui.geometry.Offset(legendX, legendY)
     )
     
     // 绘制查阅图例（加大圆点），增大两个图例之间的距离
+    val viewAlpha = if (selectedLegend == null || selectedLegend == "view") 1f else 0.3f
     drawCircle(
-        color = Color(0xFFD2691E), // 使用查阅总数的深橙色
-        radius = 12f, // 加大圆点
+        color = Color(0xFFD2691E).copy(alpha = viewAlpha), // 使用查阅总数的深橙色
+        radius = if (selectedLegend == "view") 15f else 12f, // 选中时加大圆点
         center = androidx.compose.ui.geometry.Offset(legendX + 220f, legendY) // 调整位置
     )
     
     // 绘制拼写练习图例（加大圆点）
+    val spellingAlpha = if (selectedLegend == null || selectedLegend == "spelling") 1f else 0.3f
     drawCircle(
-        color = Color(0xFF228B22), // 使用绿色表示拼写练习
-        radius = 12f, // 加大圆点
+        color = Color(0xFF228B22).copy(alpha = spellingAlpha), // 使用绿色表示拼写练习
+        radius = if (selectedLegend == "spelling") 15f else 12f, // 选中时加大圆点
         center = androidx.compose.ui.geometry.Offset(legendX + 500f, legendY) // 进一步向右移动以避免重叠
     )
     
@@ -446,28 +531,49 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
         }
         
         // 绘制单词图例文本（深蓝色）
-        paint.color = android.graphics.Color.parseColor("#191970")
+        val wordColor = Color(0xFF191970).copy(alpha = wordAlpha)
+        paint.color = android.graphics.Color.argb(
+            (wordColor.alpha * 255).toInt(),
+            (wordColor.red * 255).toInt(),
+            (wordColor.green * 255).toInt(),
+            (wordColor.blue * 255).toInt()
+        )
+        paint.textSize = if (selectedLegend == "word") 38f else 35f // 选中时加大文字
         canvas.nativeCanvas.drawText(
             "收集单词",
             legendX + 25f,
-            legendY + 12f, // 从10f增加到12f，调整文字垂直位置
+            legendY + 12f,
             paint
         )
         
-        // 绘制查阅图例文本（深橙色），增大文字间距
-        paint.color = android.graphics.Color.parseColor("#D2691E")
+        // 绘制查阅图例文本（深橙色）
+        val viewColor = Color(0xFFD2691E).copy(alpha = viewAlpha)
+        paint.color = android.graphics.Color.argb(
+            (viewColor.alpha * 255).toInt(),
+            (viewColor.red * 255).toInt(),
+            (viewColor.green * 255).toInt(),
+            (viewColor.blue * 255).toInt()
+        )
+        paint.textSize = if (selectedLegend == "view") 38f else 35f // 选中时加大文字
         canvas.nativeCanvas.drawText(
             "查阅次数/10",
-            legendX + 245f, // 调整位置
-            legendY + 12f, // 从10f增加到12f，调整文字垂直位置
+            legendX + 245f,
+            legendY + 12f,
             paint
         )
         
         // 绘制拼写练习图例文本（绿色）
-        paint.color = android.graphics.Color.parseColor("#228B22")
+        val spellingColor = Color(0xFF228B22).copy(alpha = spellingAlpha)
+        paint.color = android.graphics.Color.argb(
+            (spellingColor.alpha * 255).toInt(),
+            (spellingColor.red * 255).toInt(),
+            (spellingColor.green * 255).toInt(),
+            (spellingColor.blue * 255).toInt()
+        )
+        paint.textSize = if (selectedLegend == "spelling") 38f else 35f // 选中时加大文字
         canvas.nativeCanvas.drawText(
             "拼写练习",
-            legendX + 525f, // 进一步向右移动文本位置以避免重叠
+            legendX + 525f,
             legendY + 12f,
             paint
         )

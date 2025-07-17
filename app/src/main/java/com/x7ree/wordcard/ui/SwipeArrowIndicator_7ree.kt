@@ -36,7 +36,7 @@ fun SwipeArrowIndicator_7ree(
                             .size(220.dp) // 减少100dp：320dp - 100dp = 220dp
                             .alpha(0.5f) // 50%透明度
                             .align(Alignment.TopCenter)
-                            .padding(top = 80.dp) // 增加距离上边缘的位置
+                            .padding(top = 40.dp) // 增加距离上边缘的位置
                     )
                 }
                 SwipeDirection_7ree.DOWN -> {
@@ -47,7 +47,7 @@ fun SwipeArrowIndicator_7ree(
                             .size(220.dp) // 减少100dp：320dp - 100dp = 220dp
                             .alpha(0.5f) // 50%透明度
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 80.dp) // 增加距离下边缘的位置
+                            .padding(bottom = 40.dp) // 增加距离下边缘的位置
                     )
                 }
                 SwipeDirection_7ree.NONE -> {
