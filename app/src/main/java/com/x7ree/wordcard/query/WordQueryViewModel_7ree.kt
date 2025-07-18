@@ -441,6 +441,16 @@ class WordQueryViewModel_7ree(
                         
                         // 重新加载单词列表以确保导航功能正常
                         loadAllWords_7ree()
+                        
+                        // 🔧 新增：刷新单词本分页数据
+                        if (_currentScreen_7ree.value != "HISTORY") {
+                            // 只有在不在单词本页面时才重置分页，避免影响用户当前浏览
+                            resetPagination_7ree()
+                            loadInitialWords_7ree()
+                        } else {
+                            // 如果当前在单词本页面，只在列表顶部插入新单词
+                            refreshWordBookWithNewWord_7ree(wordInput_7ree)
+                        }
                     }
                 }
                 
@@ -866,5 +876,31 @@ class WordQueryViewModel_7ree(
     // 获取当前单词的拼写次数
     fun getCurrentSpellingCount_7ree(): Int {
         return currentWordInfo_7ree?.spellingCount ?: 0
+    }
+    
+    // 新增方法：在单词本中刷新新单词
+    private fun refreshWordBookWithNewWord_7ree(newWord: String) {
+        viewModelScope.launch {
+            try {
+                // 获取新单词的完整信息
+                val newWordEntity = wordRepository_7ree.getWord_7ree(newWord)
+                if (newWordEntity != null) {
+                    val currentWords = _pagedWords_7ree.value.toMutableList()
+                    // 检查是否已存在（避免重复）
+                    val existingIndex = currentWords.indexOfFirst { it.word == newWord }
+                    if (existingIndex >= 0) {
+                        // 更新现有单词（可能是浏览次数等信息变化）
+                        currentWords[existingIndex] = newWordEntity
+                    } else {
+                        // 在列表顶部插入新单词
+                        currentWords.add(0, newWordEntity)
+                    }
+                    _pagedWords_7ree.value = currentWords
+                    println("DEBUG: 单词本已刷新，新增/更新单词: $newWord")
+                }
+            } catch (e: Exception) {
+                println("DEBUG: 刷新单词本失败: ${e.message}")
+            }
+        }
     }
 }
