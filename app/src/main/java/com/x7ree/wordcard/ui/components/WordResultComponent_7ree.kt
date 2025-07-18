@@ -121,121 +121,133 @@ fun WordResultComponent_7ree(
             // 创建滚动状态
             val scrollState_7ree = rememberScrollState()
             
-            Box(
-                modifier = Modifier.fillMaxWidth()
+            // 使用Column布局，将内容分为可滚动的正文部分和固定的底部卡片部分
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column(
+                // 可滚动的正文内容区域
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(
-                            state = scrollState_7ree,
-                            enabled = true // 确保滚动功能正常
-                        )
-                        .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
+                        .weight(1f) // 占据剩余空间
                 ) {
-                    // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
-                    MarkdownRenderer_7ree(
-                        queryResult = wordQueryViewModel.queryResult_7ree,
-                        onWordSpeak = { speak(wordQueryViewModel.getWordSpeechText_7ree(), "word") },
-                        onExamplesSpeak = { speak(wordQueryViewModel.getExamplesSpeechText_7ree(), "examples") },
-                        isSpeakingWord = wordQueryViewModel.isSpeakingWord_7ree,
-                        isSpeakingExamples = wordQueryViewModel.isSpeakingExamples_7ree,
-                        isTtsReady = wordQueryViewModel.isTtsReady_7ree
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(
+                                state = scrollState_7ree,
+                                enabled = true // 确保滚动功能正常
+                            )
+                            .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
+                    ) {
+                        // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
+                        MarkdownRenderer_7ree(
+                            queryResult = wordQueryViewModel.queryResult_7ree,
+                            onWordSpeak = { speak(wordQueryViewModel.getWordSpeechText_7ree(), "word") },
+                            onExamplesSpeak = { speak(wordQueryViewModel.getExamplesSpeechText_7ree(), "examples") },
+                            isSpeakingWord = wordQueryViewModel.isSpeakingWord_7ree,
+                            isSpeakingExamples = wordQueryViewModel.isSpeakingExamples_7ree,
+                            isTtsReady = wordQueryViewModel.isTtsReady_7ree
+                        )
+                    }
+                    
+                    // 添加自定义滚动指示器，定位在正文内容右侧
+                    ScrollIndicator_7ree(
+                        scrollState = scrollState_7ree,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                            .padding(end = 0.dp) // 紧贴屏幕右边缘
                     )
                     
-                    // 添加3个并排的信息卡片（删除收藏卡片）
-                    if (wordQueryViewModel.currentWordInfo_7ree != null) {
-                        Spacer(modifier = Modifier.height(24.dp))
-                        // 使用Box居中对齐，减少卡片总宽度15%
+                    // 使用CompositionLocalProvider提供滑动状态
+                    CompositionLocalProvider(LocalSwipeState_7ree provides swipeState_7ree) {
+                        // 添加滑动导航组件作为覆盖层，对齐到左侧
                         Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                            modifier = Modifier.align(Alignment.CenterStart)
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(0.85f), // 减少15%宽度
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                // 卡片1：初次查询时间
-                                InfoCard_7ree(
-                                    title = "初次查询",
-                                    value = formatDate_7ree(wordQueryViewModel.currentWordInfo_7ree!!.queryTimestamp),
-                                    icon = Icons.Filled.History,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                
-                                Spacer(modifier = Modifier.width(8.dp))
-                                
-                                // 卡片2：查阅次数
-                                InfoCard_7ree(
-                                    title = "查阅次数",
-                                    value = "查阅${wordQueryViewModel.currentWordInfo_7ree!!.viewCount}次",
-                                    icon = Icons.Filled.Visibility,
-                                    modifier = Modifier.weight(1f)
-                                )
-                                
-                                Spacer(modifier = Modifier.width(8.dp))
-                                
-                                // 卡片3：拼写练习
-                                SpellingCard_7ree(
-                                    spellingCount = wordQueryViewModel.getCurrentSpellingCount_7ree(),
-                                    onSpellingClick = { onShowSpellingDialogChange(true) },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                    
-                        // 在底部添加滑动提示信息
-                        if (wordQueryViewModel.canNavigate_7ree()) {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "上下滑动切换单词",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Center
+                            SwipeNavigationComponent_7ree(
+                                canNavigate = canNavigate_7ree,
+                                onNavigateToPrevious = { wordQueryViewModel.navigateToPreviousWord_7ree() },
+                                onNavigateToNext = { wordQueryViewModel.navigateToNextWord_7ree() },
+                                onSwipeStateChange = { isSwipping, direction, distance ->
+                                    swipeState_7ree = SwipeState_7ree(
+                                        showSwipeFeedback = isSwipping,
+                                        swipeDirection = when (direction) {
+                                            "up" -> SwipeDirection_7ree.UP
+                                            "down" -> SwipeDirection_7ree.DOWN
+                                            else -> SwipeDirection_7ree.NONE
+                                        },
+                                        totalDragDistance = distance
+                                    )
+                                }
                             )
                         }
+                        
+                        // 添加箭头指示器覆盖层，覆盖整个屏幕宽度，箭头显示在屏幕中心
+                        SwipeArrowIndicator_7ree(
+                            canNavigate = canNavigate_7ree,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
                 
-                // 添加自定义滚动指示器，定位在正文内容右侧
-                ScrollIndicator_7ree(
-                    scrollState = scrollState_7ree,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(end = 0.dp) // 紧贴屏幕右边缘
-                )
-                
-                // 使用CompositionLocalProvider提供滑动状态
-                CompositionLocalProvider(LocalSwipeState_7ree provides swipeState_7ree) {
-                    // 添加滑动导航组件作为覆盖层，对齐到左侧
+                // 固定在底部的3个信息卡片，不参与滚动
+                if (wordQueryViewModel.currentWordInfo_7ree != null) {
+                    // 使用Box居中对齐，减少卡片总宽度15%
                     Box(
-                        modifier = Modifier.align(Alignment.CenterStart)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp, bottom = 16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        SwipeNavigationComponent_7ree(
-                            canNavigate = canNavigate_7ree,
-                            onNavigateToPrevious = { wordQueryViewModel.navigateToPreviousWord_7ree() },
-                            onNavigateToNext = { wordQueryViewModel.navigateToNextWord_7ree() },
-                            onSwipeStateChange = { isSwipping, direction, distance ->
-                                swipeState_7ree = SwipeState_7ree(
-                                    showSwipeFeedback = isSwipping,
-                                    swipeDirection = when (direction) {
-                                        "up" -> SwipeDirection_7ree.UP
-                                        "down" -> SwipeDirection_7ree.DOWN
-                                        else -> SwipeDirection_7ree.NONE
-                                    },
-                                    totalDragDistance = distance
-                                )
-                            }
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(0.85f), // 减少15%宽度
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            // 卡片1：初次查询时间
+                            InfoCard_7ree(
+                                title = "初次查询",
+                                value = formatDate_7ree(wordQueryViewModel.currentWordInfo_7ree!!.queryTimestamp),
+                                icon = Icons.Filled.History,
+                                modifier = Modifier.weight(1f)
+                            )
+                            
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            // 卡片2：查阅次数
+                            InfoCard_7ree(
+                                title = "查阅次数",
+                                value = "查阅${wordQueryViewModel.currentWordInfo_7ree!!.viewCount}次",
+                                icon = Icons.Filled.Visibility,
+                                modifier = Modifier.weight(1f)
+                            )
+                            
+                            Spacer(modifier = Modifier.width(8.dp))
+                            
+                            // 卡片3：拼写练习
+                            SpellingCard_7ree(
+                                spellingCount = wordQueryViewModel.getCurrentSpellingCount_7ree(),
+                                onSpellingClick = { onShowSpellingDialogChange(true) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                     
-                    // 添加箭头指示器覆盖层，覆盖整个屏幕宽度，箭头显示在屏幕中心
-                    SwipeArrowIndicator_7ree(
-                        canNavigate = canNavigate_7ree,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    // 在底部添加滑动提示信息
+                     if (wordQueryViewModel.canNavigate_7ree()) {
+                         Text(
+                             text = "上下滑动切换单词",
+                             style = MaterialTheme.typography.bodySmall.copy(
+                                 lineHeight = MaterialTheme.typography.bodySmall.lineHeight * 0.8f // 减少行高
+                             ),
+                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f), // 更灰一些
+                             modifier = Modifier
+                                 .fillMaxWidth()
+                                 .padding(bottom = 4.dp), // 从8.dp减少到4.dp
+                             textAlign = TextAlign.Center
+                         )
+                     }
                 }
             }
         }
