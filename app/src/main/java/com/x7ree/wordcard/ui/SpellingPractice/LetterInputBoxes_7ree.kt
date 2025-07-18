@@ -28,8 +28,8 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.x7ree.wordcard.utils.CustomKeyboard_7ree
-import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 /**

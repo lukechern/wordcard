@@ -31,8 +31,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import com.x7ree.wordcard.utils.CustomKeyboard_7ree
-import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -80,7 +81,7 @@ fun WordInputComponent_7ree(
     val generalConfig_7ree by wordQueryViewModel.generalConfig_7ree.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
-    val customKeyboardState_7ree = remember { CustomKeyboardState_7ree() }
+    val customKeyboardState_7ree = rememberCustomKeyboardState_7ree()
     
     // 根据键盘类型决定是否显示自定义键盘
     val useCustomKeyboard = generalConfig_7ree.keyboardType == "custom"

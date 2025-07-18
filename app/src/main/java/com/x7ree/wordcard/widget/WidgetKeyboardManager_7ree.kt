@@ -17,8 +17,9 @@ import androidx.lifecycle.lifecycleScope
 import com.x7ree.wordcard.R
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.config.GeneralConfig_7ree
-import com.x7ree.wordcard.utils.CustomKeyboard_7ree
-import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import com.x7ree.wordcard.utils.hideKeyboard_7ree
 import kotlinx.coroutines.launch
 
@@ -29,7 +30,7 @@ import kotlinx.coroutines.launch
 class WidgetKeyboardManager_7ree(private val activity: Activity) {
     
     private val configManager_7ree = AppConfigManager_7ree(activity)
-    private val customKeyboardState_7ree = CustomKeyboardState_7ree()
+    private var customKeyboardState_7ree: CustomKeyboardState_7ree? = null
     private var currentConfig_7ree = GeneralConfig_7ree()
     private var customKeyboardContainer_7ree: LinearLayout? = null
     private var composeView_7ree: ComposeView? = null
@@ -92,8 +93,12 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
             composeView_7ree = ComposeView(activity).apply {
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
                 setContent {
+                    // 创建并记住键盘状态
+                    val keyboardState = rememberCustomKeyboardState_7ree()
+                    customKeyboardState_7ree = keyboardState
+                    
                     // 监听键盘状态
-                    val isVisible by customKeyboardState_7ree.isVisible_7ree
+                    val isVisible by keyboardState.isVisible_7ree
                     
                     if (isVisible && shouldUseCustomKeyboard_7ree()) {
                         CustomKeyboard_7ree(
@@ -131,6 +136,13 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
     fun setCustomKeyboardContainer_7ree(container: LinearLayout) {
         customKeyboardContainer_7ree = container
         setupCustomKeyboardContainer_7ree()
+        
+        // 确保容器可见性正确设置
+        if (shouldUseCustomKeyboard_7ree()) {
+            container.visibility = View.VISIBLE
+        } else {
+            container.visibility = View.GONE
+        }
     }
     
     /**
@@ -210,7 +222,7 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
      */
     internal fun showCustomKeyboard_7ree() {
         if (shouldUseCustomKeyboard_7ree()) {
-            customKeyboardState_7ree.show_7ree()
+            customKeyboardState_7ree?.show_7ree()
             customKeyboardContainer_7ree?.visibility = View.VISIBLE
         }
     }
@@ -219,7 +231,7 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
      * 隐藏自定义键盘
      */
     private fun hideCustomKeyboard_7ree() {
-        customKeyboardState_7ree.hide_7ree()
+        customKeyboardState_7ree?.hide_7ree()
         customKeyboardContainer_7ree?.visibility = View.GONE
     }
     

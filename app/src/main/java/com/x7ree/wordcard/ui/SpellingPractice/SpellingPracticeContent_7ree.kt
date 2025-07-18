@@ -18,8 +18,9 @@ import androidx.compose.ui.unit.dp
 import android.util.Log
 import kotlinx.coroutines.delay
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
-import com.x7ree.wordcard.utils.CustomKeyboard_7ree
-import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 
 /**
  * 拼写练习内容组件
@@ -44,7 +45,7 @@ fun SpellingPracticeContent_7ree(
     // 自定义键盘状态管理
     val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
     val useCustomKeyboard = generalConfig_7ree.keyboardType == "custom"
-    val customKeyboardState_7ree = remember { CustomKeyboardState_7ree() }
+    val customKeyboardState_7ree = rememberCustomKeyboardState_7ree()
     val keyboardController = LocalSoftwareKeyboardController.current
     var isInputFocused_7ree by remember { mutableStateOf(false) }
     

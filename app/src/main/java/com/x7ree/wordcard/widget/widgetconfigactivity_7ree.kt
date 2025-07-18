@@ -105,14 +105,22 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             finish()
         }
         
+        // 设置自定义键盘容器
+        keyboardManager_7ree.setCustomKeyboardContainer_7ree(customKeyboardContainer)
+        
         // 绑定键盘管理器到输入框
         keyboardManager_7ree.bindInputText_7ree(inputText, { _ -> }, {
             performSearch_7ree(inputText, queryButton)
         })
         
-        // 自动弹出键盘
-        inputText.requestFocus()
-        keyboardManager_7ree.showCustomKeyboard_7ree()
+        // 延迟自动弹出键盘，确保UI完全加载
+        inputText.post {
+            inputText.requestFocus()
+            // 再次延迟确保键盘状态正确初始化
+            inputText.postDelayed({
+                keyboardManager_7ree.showCustomKeyboard_7ree()
+            }, 100)
+        }
         
         // 2. 初始状态按钮为灰色无效
         buttonManager_7ree.updateButtonState_7ree(queryButton, false)
