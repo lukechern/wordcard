@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"
-    android:paddingTop="48dp"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false">
 
+    <!-- 主要内容区域 -->
+    <FrameLayout
+        android:id="@+id/widget_main_content_7ree"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
+
     <LinearLayout
-        android:layout_width="280dp"
+        android:id="@+id/widget_dialog_container_7ree"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
         android:layout_marginTop="36dp"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
         android:background="@drawable/widget_dialog_background_7ree">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp">
 
     <!-- 单词标题显示区域 -->
     <TextView
@@ -38,22 +58,36 @@
         android:layout_marginBottom="16dp"
         android:visibility="gone" />
 
-    <EditText
-        android:id="@+id/widget_input_config_7ree"
+    <!-- 输入框容器 -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="36dp"
-        android:hint="请输入需要查询的单词"
-        android:textSize="14sp"
-        android:textColor="#333333"
-        android:textColorHint="#999999"
-        android:background="@drawable/widget_input_background_7ree"
-        android:paddingLeft="12dp"
-        android:paddingRight="12dp"
-        android:layout_marginBottom="16dp"
-        android:inputType="text"
-        android:imeOptions="actionSearch"
-        android:maxLines="1"
-        android:gravity="center_vertical" />
+        android:layout_marginBottom="16dp">
+        
+        <EditText
+            android:id="@+id/widget_input_config_7ree"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="请输入需要查询的单词"
+            android:textSize="14sp"
+            android:textColor="#333333"
+            android:textColorHint="#999999"
+            android:background="@drawable/widget_input_background_7ree"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:maxLines="1"
+            android:gravity="center" />
+        
+        <!-- 自定义光标 -->
+        <com.x7ree.wordcard.widget.WidgetCustomCursor_7ree
+            android:id="@+id/widget_custom_cursor_7ree"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+        
+    </FrameLayout>
 
     <Button
         android:id="@+id/widget_query_button_config_7ree"
@@ -97,6 +131,8 @@
         android:maxHeight="200dp"
         android:scrollbars="vertical"
         android:fadeScrollbars="false" />
+
+        </LinearLayout>
 
     <!-- 结果页面按钮区域 -->
     <LinearLayout
@@ -201,4 +237,32 @@
         android:contentDescription="WordCard图标"
         android:elevation="8dp" />
 
-</FrameLayout>
+    </FrameLayout>
+
+    <!-- 关闭按钮 -->
+    <ImageView
+        android:id="@+id/widget_close_button_7ree"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/widget_main_content_7ree"
+        android:layout_marginTop="24dp"
+        android:padding="8dp"
+        android:src="@drawable/ic_close_7ree"
+        android:background="@android:color/transparent"
+        android:contentDescription="关闭"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- 自定义键盘容器 - 定位到屏幕底部 -->
+    <LinearLayout
+        android:id="@+id/widget_custom_keyboard_container_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:elevation="16dp"
+        android:visibility="gone" />
+
+</RelativeLayout>

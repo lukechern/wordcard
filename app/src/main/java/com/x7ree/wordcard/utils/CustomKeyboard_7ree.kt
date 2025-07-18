@@ -235,7 +235,7 @@ private fun KeyboardKey_7ree(
     
     Box(
         modifier = modifier
-            .padding(2.dp)
+            .padding(horizontal = 1.dp, vertical = 2.dp)
             .scale(scale)
             .shadow(
                 elevation = 2.dp,
@@ -288,7 +288,7 @@ private fun BackspaceKey_7ree(
     
     Box(
         modifier = modifier
-            .padding(2.dp)
+            .padding(horizontal = 1.dp, vertical = 2.dp)
             .scale(scale)
             .shadow(
                 elevation = 2.dp,
@@ -342,7 +342,7 @@ private fun EnterKey_7ree(
     
     Box(
         modifier = modifier
-            .padding(2.dp)
+            .padding(horizontal = 1.dp, vertical = 2.dp)
             .scale(scale)
             .shadow(
                 elevation = 2.dp,
@@ -352,8 +352,8 @@ private fun EnterKey_7ree(
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary,
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f)
+                        Color(0xFF2E7D32), // 绿色
+                        Color(0xFF2E7D32).copy(alpha = 0.8f)
                     )
                 )
             )

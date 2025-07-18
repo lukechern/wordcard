@@ -20,14 +20,13 @@ class WidgetWindowManager_7ree {
             
             // 设置窗口参数
             activity.window?.let { window ->
-                // 强制设置软键盘模式，确保窗口位置不被改变
-                window.setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING or 
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE
-                )
+                // 设置软键盘模式
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+                // 监听窗口外的触摸事件
+                window.addFlags(WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH)
                 
                 window.attributes?.let { params ->
-                    params.width = WindowManager.LayoutParams.WRAP_CONTENT
+                    params.width = WindowManager.LayoutParams.MATCH_PARENT
                     params.height = WindowManager.LayoutParams.WRAP_CONTENT
                     
                     // 将窗口向上移动屏幕高度的25%

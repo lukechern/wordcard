@@ -5,6 +5,7 @@ import android.os.Bundle
 
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -17,6 +18,7 @@ import com.x7ree.wordcard.config.AppConfigManager_7ree
 import kotlinx.coroutines.launch
 import com.x7ree.wordcard.utils.showKeyboardWithDelay_7ree
 import com.x7ree.wordcard.utils.hideKeyboard_7ree
+import android.view.MotionEvent
 
 class WidgetConfigActivity_7ree : AppCompatActivity() {
     
@@ -32,12 +34,15 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     private lateinit var ttsManager_7ree: WidgetTTSManager_7ree
     private lateinit var touchFeedbackManager_7ree: WidgetTouchFeedbackManager_7ree
     private lateinit var resultButtonManager_7ree: WidgetResultButtonManager_7ree
+    private lateinit var keyboardManager_7ree: WidgetKeyboardManager_7ree
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         // 配置窗口
         WidgetWindowManager_7ree.configureWindow_7ree(this)
+        // 点击外部区域关闭Activity
+        setFinishOnTouchOutside(true)
         
         setContentView(R.layout.activity_widget_config_7ree)
         
@@ -74,6 +79,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         touchFeedbackManager_7ree = WidgetTouchFeedbackManager_7ree()
         resultButtonManager_7ree = WidgetResultButtonManager_7ree(this, ttsManager_7ree, touchFeedbackManager_7ree)
         
+        // 初始化键盘管理器
+        keyboardManager_7ree = WidgetKeyboardManager_7ree(this)
+        keyboardManager_7ree.initialize_7ree()
+        
         // 提前初始化TTS，确保朗读功能可用
         ttsManager_7ree.initializeTtsLazy_7ree()
     }
@@ -84,9 +93,26 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     private fun setupUI_7ree() {
         val inputText = findViewById<EditText>(R.id.widget_input_config_7ree)
         val queryButton = findViewById<Button>(R.id.widget_query_button_config_7ree)
+        val customKeyboardContainer = findViewById<LinearLayout>(R.id.widget_custom_keyboard_container_7ree)
+        val closeButton = findViewById<ImageView>(R.id.widget_close_button_7ree)
+
+        // 设置关闭按钮点击事件
+        closeButton.setOnClickListener {
+            // 隐藏键盘
+            keyboardManager_7ree.hideKeyboard_7ree()
+            inputText.hideKeyboard_7ree()
+            // 关闭Activity
+            finish()
+        }
         
-        // 1. 自动聚焦到输入框并打开键盘
-        inputText.showKeyboardWithDelay_7ree()
+        // 绑定键盘管理器到输入框
+        keyboardManager_7ree.bindInputText_7ree(inputText, { _ -> }, {
+            performSearch_7ree(inputText, queryButton)
+        })
+        
+        // 自动弹出键盘
+        inputText.requestFocus()
+        keyboardManager_7ree.showCustomKeyboard_7ree()
         
         // 2. 初始状态按钮为灰色无效
         buttonManager_7ree.updateButtonState_7ree(queryButton, false)
@@ -103,11 +129,20 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             performSearch_7ree(inputText, queryButton)
         }
     }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event?.action == MotionEvent.ACTION_OUTSIDE) {
+            finish()
+            return true
+        }
+        return super.onTouchEvent(event)
+    }
     
 
     
     private fun performSearch_7ree(inputText: EditText, queryButton: Button) {
-        // 收起键盘
+        // 收起键盘（包括自定义键盘）
+        keyboardManager_7ree.hideKeyboard_7ree()
         inputText.hideKeyboard_7ree()
         
         val queryText = inputText.text.toString().trim()
@@ -215,5 +250,6 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         ttsManager_7ree.release_7ree()
+        keyboardManager_7ree.release_7ree()
     }
 }
