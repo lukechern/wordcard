@@ -1,5 +1,7 @@
 package com.x7ree.wordcard.ui.SpellingPractice
 
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -8,11 +10,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
@@ -59,8 +63,17 @@ fun LetterInputBoxes_7ree(
         )
     }
     
-    // 使用普通TextField，确保光标位置正确
-    TextField(
+    // 焦点状态
+    var isFocused by remember { mutableStateOf(false) }
+    
+    // 使用Box包装TextField和自定义光标
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+    ) {
+        // 使用普通TextField，确保光标位置正确
+        TextField(
         value = textFieldValue,
         onValueChange = { newValue ->
             // 只有在非自定义键盘模式下才允许直接输入
@@ -72,10 +85,10 @@ fun LetterInputBoxes_7ree(
         },
         readOnly = useCustomKeyboard, // 自定义键盘模式下设置为只读
         modifier = Modifier
-             .fillMaxWidth()
-             .height(80.dp)
+             .fillMaxSize()
              .focusRequester(focusRequester)
              .onFocusChanged { focusState ->
+                 isFocused = focusState.isFocused
                  onFocusChanged(focusState.isFocused)
                  if (focusState.isFocused && useCustomKeyboard) {
                      // 获得焦点时，如果使用自定义键盘，隐藏系统键盘
@@ -130,7 +143,65 @@ fun LetterInputBoxes_7ree(
             focusedContainerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f),
             unfocusedContainerColor = MaterialTheme.colorScheme.surface,
             focusedIndicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+            cursorColor = Color.Transparent // 隐藏原生光标
         )
     )
+    
+    // 自定义光标组件
+    if (useCustomKeyboard && isFocused) {
+        CustomCursor_7ree(
+            text = userInput,
+            textStyle = TextStyle(
+                fontSize = 27.sp,
+                fontWeight = FontWeight.Black,
+                textAlign = TextAlign.Center
+            ),
+            modifier = Modifier.align(Alignment.Center)
+        )
+    }
+ }
+}
+
+@Composable
+fun CustomCursor_7ree(
+    text: String,
+    textStyle: TextStyle,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    
+    // 光标闪烁动画
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cursor_alpha"
+    )
+    
+    // 计算文本宽度和光标位置
+    val textWidth = with(density) {
+        // 估算文本宽度，每个字符大约占用textStyle.fontSize * 0.6的宽度
+        val charWidth = textStyle.fontSize.toPx() * 0.6f
+        (text.length * charWidth).toDp()
+    }
+    
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // 光标线条
+        Box(
+            modifier = Modifier
+                .offset(x = textWidth / 2) // 定位到文本末尾
+                .width(2.dp)
+                .height(textStyle.fontSize.value.dp * 1.2f)
+                .alpha(alpha)
+                .background(Color.Black)
+        )
+    }
 }

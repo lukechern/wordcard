@@ -1,6 +1,8 @@
 package com.x7ree.wordcard.ui.components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import com.x7ree.wordcard.utils.CustomKeyboard_7ree
 import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
 import androidx.compose.material.icons.Icons
@@ -134,8 +140,17 @@ fun WordInputComponent_7ree(
             modifier = Modifier.padding(bottom = 32.dp)
         )
         
-        // 输入框 - 统一设计风格，限制只能输入英文字母
-        OutlinedTextField(
+        // 焦点状态
+        var isFocused by remember { mutableStateOf(false) }
+        
+        // 输入框容器
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(80.dp)
+        ) {
+            // 输入框 - 统一设计风格，限制只能输入英文字母
+            OutlinedTextField(
             value = textFieldValue,
             onValueChange = { newTextFieldValue ->
                 // 检查是否包含非英文字符
@@ -154,16 +169,18 @@ fun WordInputComponent_7ree(
                 )
                 
                 // 同步更新ViewModel
-                wordQueryViewModel.onWordInputChanged_7ree(filteredText)
+                if (!useCustomKeyboard) {
+                    wordQueryViewModel.onWordInputChanged_7ree(filteredText)
+                }
             },
-            // 移除readOnly属性，保持光标显示
+            readOnly = useCustomKeyboard, // 自定义键盘模式下设置为只读
             label = { Text("请输入英文单词") },
             singleLine = true,
             modifier = Modifier
-                .fillMaxWidth(0.8f)
-                .height(64.dp)
+                .fillMaxSize()
                 .focusRequester(focusRequester)
                 .onFocusChanged { focusState ->
+                    isFocused = focusState.isFocused
                     if (focusState.isFocused && useCustomKeyboard) {
                         keyboardController?.hide()
                         customKeyboardState_7ree.show_7ree()
@@ -179,14 +196,17 @@ fun WordInputComponent_7ree(
                         }
                     })
                 },
-            textStyle = LocalTextStyle.current.copy(fontSize = 20.sp),
+            textStyle = LocalTextStyle.current.copy(
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
+            ),
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                 focusedLabelColor = MaterialTheme.colorScheme.primary,
                 unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                cursorColor = MaterialTheme.colorScheme.primary
+                cursorColor = if (useCustomKeyboard) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.primary
             ),
             keyboardOptions = if (useCustomKeyboard) {
                 KeyboardOptions(imeAction = ImeAction.None)
@@ -202,6 +222,20 @@ fun WordInputComponent_7ree(
                 }
             )
         )
+        
+        // 自定义光标组件
+        if (useCustomKeyboard && isFocused) {
+            CustomCursor_7ree(
+                text = wordQueryViewModel.wordInput_7ree,
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 24.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                    textAlign = TextAlign.Center
+                ),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
         
         // 自动聚焦到输入框
         LaunchedEffect(Unit) {
@@ -365,5 +399,48 @@ fun StatisticsComponent_7ree(
             textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(16.dp)) // 在统计数据和底部之间增加一些间距
+    }
+}
+
+@Composable
+fun CustomCursor_7ree(
+    text: String,
+    textStyle: androidx.compose.ui.text.TextStyle,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    
+    // 光标闪烁动画
+    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "cursor_alpha"
+    )
+    
+    // 计算文本宽度和光标位置
+    val textWidth = with(density) {
+        // 估算文本宽度，每个字符大约占用textStyle.fontSize * 0.6的宽度
+        val charWidth = textStyle.fontSize.toPx() * 0.6f
+        (text.length * charWidth).toDp()
+    }
+    
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        // 光标线条
+        Box(
+            modifier = Modifier
+                .offset(x = textWidth / 2) // 定位到文本末尾
+                .width(2.dp)
+                .height(textStyle.fontSize.value.dp * 1.2f)
+                .alpha(alpha)
+                .background(androidx.compose.ui.graphics.Color.Black)
+        )
     }
 }
