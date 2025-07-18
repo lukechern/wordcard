@@ -1,18 +1,25 @@
 package com.x7ree.wordcard.ui.SpellingPractice
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import android.util.Log
 import kotlinx.coroutines.delay
+import com.x7ree.wordcard.query.WordQueryViewModel_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboardState_7ree
 
 /**
  * 拼写练习内容组件
@@ -22,6 +29,7 @@ import kotlinx.coroutines.delay
 fun SpellingPracticeContent_7ree(
     targetWord: String,
     chineseMeaning: String,
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onDismiss: () -> Unit,
     onSpellingSuccess: () -> Unit
 ) {
@@ -32,6 +40,13 @@ fun SpellingPracticeContent_7ree(
     var inputTextColor_7ree by remember { mutableStateOf(Color.Unspecified) }
     val focusRequester_7ree = remember { FocusRequester() }
     val view = LocalView.current
+    
+    // 自定义键盘状态管理
+    val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
+    val useCustomKeyboard = generalConfig_7ree.keyboardType == "custom"
+    val customKeyboardState_7ree = remember { CustomKeyboardState_7ree() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var isInputFocused_7ree by remember { mutableStateOf(false) }
     
     // 检查拼写是否正确
     LaunchedEffect(userInput_7ree) {
@@ -72,67 +87,159 @@ fun SpellingPracticeContent_7ree(
         try {
             delay(SpellingConstants_7ree.FOCUS_REQUEST_DELAY) // 增加延迟确保对话框完全显示
             focusRequester_7ree.requestFocus()
+            isInputFocused_7ree = true
+            if (useCustomKeyboard) {
+                customKeyboardState_7ree.show_7ree()
+            }
         } catch (e: Exception) {
             // 忽略聚焦异常，不影响功能
         }
     }
     
-    Card(
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .wrapContentHeight(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // 大标题：中文词义（深绿色，只显示前两个词义）
-            if (chineseMeaning.isNotEmpty()) {
-                val displayMeaning_7ree = getFirstTwoMeanings_7ree(chineseMeaning)
-                Text(
-                    text = displayMeaning_7ree,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = SpellingColors_7ree.SUCCESS_COLOR,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Log.d("SpellingPractice_7ree", "显示中文词义: '$displayMeaning_7ree'（原始: '$chineseMeaning'）")
+    // 管理自定义键盘显示状态
+    LaunchedEffect(isInputFocused_7ree, useCustomKeyboard) {
+        if (useCustomKeyboard) {
+            if (isInputFocused_7ree) {
+                customKeyboardState_7ree.show_7ree()
+                keyboardController?.hide()
             } else {
-                Log.w("SpellingPractice_7ree", "中文词义为空，未显示")
+                customKeyboardState_7ree.hide_7ree()
             }
-            
-            Spacer(modifier = Modifier.height(2.dp))
-            
-            // 字母输入框
-            LetterInputBoxes_7ree(
-                targetWord = targetWord,
-                userInput = userInput_7ree,
-                onInputChange = { newInput ->
-                    if (newInput.length <= targetWord.length && newInput.all { it.isLetter() }) {
-                        // 重置文字颜色（当用户开始新的输入时）
-                        if (inputTextColor_7ree != Color.Unspecified) {
-                            inputTextColor_7ree = Color.Unspecified
+        } else {
+            customKeyboardState_7ree.hide_7ree()
+        }
+    }
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = {
+                        // 单击空白区域关闭拼写卡片和键盘
+                        onDismiss()
+                    }
+                )
+            }
+    ) {
+        // 主要内容卡片
+        Card(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .wrapContentHeight()
+                .align(Alignment.Center)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            // 阻止事件冒泡到父级Box
                         }
+                    )
+                },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // 大标题：中文词义（深绿色，只显示前两个词义）
+                if (chineseMeaning.isNotEmpty()) {
+                    val displayMeaning_7ree = getFirstTwoMeanings_7ree(chineseMeaning)
+                    Text(
+                        text = displayMeaning_7ree,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = SpellingColors_7ree.SUCCESS_COLOR,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Log.d("SpellingPractice_7ree", "显示中文词义: '$displayMeaning_7ree'（原始: '$chineseMeaning'）")
+                } else {
+                    Log.w("SpellingPractice_7ree", "中文词义为空，未显示")
+                }
+                
+                Spacer(modifier = Modifier.height(2.dp))
+                
+                // 字母输入框
+                 LetterInputBoxes_7ree(
+                     targetWord = targetWord,
+                     userInput = userInput_7ree,
+                     onInputChange = { newInput ->
+                         if (newInput.length <= targetWord.length && newInput.all { it.isLetter() }) {
+                             // 重置文字颜色（当用户开始新的输入时）
+                             if (inputTextColor_7ree != Color.Unspecified) {
+                                 inputTextColor_7ree = Color.Unspecified
+                             }
+                             userInput_7ree = newInput
+                         }
+                     },
+                     focusRequester = focusRequester_7ree,
+                     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                     textColor = inputTextColor_7ree,
+                     onFocusChanged = { isFocused ->
+                         isInputFocused_7ree = isFocused
+                     }
+                 )
+                
+                Spacer(modifier = Modifier.height(24.dp))
+                
+                // 结果显示
+                SpellingResultDisplay_7ree(
+                    showResult = showResult_7ree,
+                    isCorrect = isCorrect_7ree
+                )
+            }
+        }
+        
+        // 自定义键盘 - 固定在屏幕底部，全屏宽度
+        if (useCustomKeyboard && customKeyboardState_7ree.isVisible_7ree.value) {
+            CustomKeyboard_7ree(
+                onKeyPress_7ree = { key ->
+                    when (key) {
+                        "BACKSPACE" -> {
+                            if (userInput_7ree.isNotEmpty()) {
+                                val newInput = userInput_7ree.dropLast(1)
+                                userInput_7ree = newInput
+                            }
+                        }
+                        "SEARCH" -> {
+                            // 完成输入
+                            isInputFocused_7ree = false
+                            customKeyboardState_7ree.hide_7ree()
+                        }
+                        else -> {
+                            // 添加字母，只允许英文字母
+                            if (key.length == 1 && key[0].isLetter() && userInput_7ree.length < targetWord.length) {
+                                userInput_7ree += key
+                            }
+                        }
+                    }
+                },
+                onBackspace_7ree = {
+                    if (userInput_7ree.isNotEmpty()) {
+                        val newInput = userInput_7ree.dropLast(1)
                         userInput_7ree = newInput
                     }
                 },
-                focusRequester = focusRequester_7ree,
-                textColor = inputTextColor_7ree
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // 结果显示
-            SpellingResultDisplay_7ree(
-                showResult = showResult_7ree,
-                isCorrect = isCorrect_7ree
+                onSearch_7ree = {
+                    // 完成输入
+                    isInputFocused_7ree = false
+                    customKeyboardState_7ree.hide_7ree()
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                // 阻止键盘区域的点击事件冒泡到父级Box
+                            }
+                        )
+                    }
             )
         }
     }

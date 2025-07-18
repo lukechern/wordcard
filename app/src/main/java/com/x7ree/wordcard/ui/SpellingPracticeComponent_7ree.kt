@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 // 重新导出工具函数和常量
 // 从 SpellingUtils_7ree.kt 导入并重新导出
@@ -46,6 +47,7 @@ fun SpellingCard_7ree(
 fun SpellingPracticeDialog_7ree(
     targetWord: String,
     chineseMeaning: String,
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onSpellingSuccess: () -> Unit
@@ -53,6 +55,7 @@ fun SpellingPracticeDialog_7ree(
     com.x7ree.wordcard.ui.SpellingPractice.SpellingPracticeDialog_7ree(
         targetWord = targetWord,
         chineseMeaning = chineseMeaning,
+        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
         isVisible = isVisible,
         onDismiss = onDismiss,
         onSpellingSuccess = onSpellingSuccess
@@ -64,12 +67,14 @@ fun SpellingPracticeDialog_7ree(
 fun SpellingPracticeContent_7ree(
     targetWord: String,
     chineseMeaning: String,
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onDismiss: () -> Unit,
     onSpellingSuccess: () -> Unit
 ) {
     com.x7ree.wordcard.ui.SpellingPractice.SpellingPracticeContent_7ree(
         targetWord = targetWord,
         chineseMeaning = chineseMeaning,
+        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
         onDismiss = onDismiss,
         onSpellingSuccess = onSpellingSuccess
     )
@@ -82,14 +87,18 @@ fun LetterInputBoxes_7ree(
     userInput: String,
     onInputChange: (String) -> Unit,
     focusRequester: FocusRequester,
-    textColor: Color = Color.Unspecified
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
+    textColor: Color = Color.Unspecified,
+    onFocusChanged: (Boolean) -> Unit = {}
 ) {
     com.x7ree.wordcard.ui.SpellingPractice.LetterInputBoxes_7ree(
         targetWord = targetWord,
         userInput = userInput,
         onInputChange = onInputChange,
         focusRequester = focusRequester,
-        textColor = textColor
+        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+        textColor = textColor,
+        onFocusChanged = onFocusChanged
     )
 }
 

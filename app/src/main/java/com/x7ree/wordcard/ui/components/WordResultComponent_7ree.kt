@@ -253,6 +253,7 @@ fun WordResultComponent_7ree(
     SpellingPracticeDialog_7ree(
         targetWord = wordQueryViewModel.wordInput_7ree,
         chineseMeaning = chineseMeaning,
+        wordQueryViewModel_7ree = wordQueryViewModel,
         isVisible = showSpellingDialog,
         onDismiss = { onShowSpellingDialogChange(false) },
         onSpellingSuccess = {

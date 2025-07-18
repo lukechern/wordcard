@@ -142,16 +142,15 @@ fun CustomKeyboard_7ree(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 4.dp, vertical = 2.dp)
                 .shadow(
                     elevation = 8.dp,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(0.dp)
                 )
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() }
                 ) { /* 拦截点击事件，防止失去焦点 */ },
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(0.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface
             )
