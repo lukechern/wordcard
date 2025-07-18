@@ -8,7 +8,7 @@
     <!-- 主要内容区域 -->
     <FrameLayout
         android:id="@+id/widget_main_content_7ree"
-        android:layout_width="wrap_content"
+        android:layout_width="320dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
@@ -24,8 +24,8 @@
         android:paddingTop="24dp"
         android:paddingBottom="24dp"
         android:layout_marginTop="36dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:background="@drawable/widget_dialog_background_7ree">
 
         <LinearLayout
