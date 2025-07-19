@@ -19,14 +19,20 @@ import com.x7ree.wordcard.utils.ApiKeySecureStorage_7ree
 data class ApiConfig_7ree(
     val apiKey: String = "",
     val apiUrl: String = "https://api.openai.com/v1/chat/completions",
-    val modelName: String = "gpt-3.5-turbo"
+    val modelName: String = "gpt-3.5-turbo",
+    val azureRegion: String = "",
+    val azureApiKey: String = "",
+    val azureSpeechRegion: String = "",
+    val azureSpeechApiKey: String = "",
+    val azureSpeechEndpoint: String = ""
 )
 
 @Serializable
 data class GeneralConfig_7ree(
     val keyboardType: String = "system", // "system" 或 "custom"
     val autoReadAfterQuery: Boolean = false, // 单词查询完成是否自动朗读
-    val autoReadOnSpellingCard: Boolean = false // 拼写单词卡片打开是否自动朗读
+    val autoReadOnSpellingCard: Boolean = false, // 拼写单词卡片打开是否自动朗读
+    val ttsEngine: String = "google" // "google" 或 "azure"
 )
 
 class AppConfigManager_7ree(private val context: Context) {
@@ -52,10 +58,15 @@ class AppConfigManager_7ree(private val context: Context) {
     fun saveApiConfig_7ree(config: ApiConfig_7ree): Boolean {
         return try {
             // 使用安全存储保存敏感信息
-            val secureResult = secureStorage_7ree.storeApiConfig_7ree(
+            val secureResult = secureStorage_7ree.storeFullApiConfigWithSpeech_7ree(
                 config.apiKey,
                 config.apiUrl,
-                config.modelName
+                config.modelName,
+                config.azureRegion,
+                config.azureApiKey,
+                config.azureSpeechRegion,
+                config.azureSpeechApiKey,
+                config.azureSpeechEndpoint
             )
             
             if (secureResult) {
@@ -81,7 +92,12 @@ class AppConfigManager_7ree(private val context: Context) {
                 ApiConfig_7ree(
                     apiKey = secureStorage_7ree.getApiKey_7ree(),
                     apiUrl = secureStorage_7ree.getApiUrl_7ree(),
-                    modelName = secureStorage_7ree.getModelName_7ree()
+                    modelName = secureStorage_7ree.getModelName_7ree(),
+                    azureRegion = secureStorage_7ree.getAzureRegion_7ree(),
+                    azureApiKey = secureStorage_7ree.getAzureApiKey_7ree(),
+                    azureSpeechRegion = secureStorage_7ree.getAzureSpeechRegion_7ree(),
+                    azureSpeechApiKey = secureStorage_7ree.getAzureSpeechApiKey_7ree(),
+                    azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree()
                 )
             } else {
                 // 尝试从旧的明文存储迁移

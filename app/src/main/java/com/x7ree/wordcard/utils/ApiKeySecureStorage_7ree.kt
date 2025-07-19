@@ -27,6 +27,11 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         private const val ENCRYPTED_API_KEY = "encrypted_api_key_7ree"
         private const val API_URL = "api_url_7ree"
         private const val MODEL_NAME = "model_name_7ree"
+        private const val AZURE_REGION = "azure_region_7ree"
+        private const val ENCRYPTED_AZURE_API_KEY = "encrypted_azure_api_key_7ree"
+        private const val AZURE_SPEECH_REGION = "azure_speech_region_7ree"
+        private const val ENCRYPTED_AZURE_SPEECH_API_KEY = "encrypted_azure_speech_api_key_7ree"
+        private const val AZURE_SPEECH_ENDPOINT = "azure_speech_endpoint_7ree"
         private const val IV_SUFFIX = "_iv"
     }
     
@@ -215,6 +220,184 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     }
     
     /**
+     * 安全存储Azure API Key
+     */
+    fun storeAzureApiKey_7ree(azureApiKey: String): Boolean {
+        return try {
+            if (azureApiKey.isBlank()) {
+                clearAzureApiKey_7ree()
+                return true
+            }
+            
+            val (encryptedKey, iv) = encryptString_7ree(azureApiKey)
+            sharedPreferences.edit()
+                .putString(ENCRYPTED_AZURE_API_KEY, encryptedKey)
+                .putString(ENCRYPTED_AZURE_API_KEY + IV_SUFFIX, iv)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure API Key存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 安全读取Azure API Key
+     */
+    fun getAzureApiKey_7ree(): String {
+        return try {
+            val encryptedKey = sharedPreferences.getString(ENCRYPTED_AZURE_API_KEY, null)
+            val iv = sharedPreferences.getString(ENCRYPTED_AZURE_API_KEY + IV_SUFFIX, null)
+            
+            if (encryptedKey != null && iv != null) {
+                decryptString_7ree(encryptedKey, iv)
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            println("DEBUG: Azure API Key读取失败: ${e.message}")
+            ""
+        }
+    }
+    
+    /**
+     * 存储Azure区域（普通存储，无需加密）
+     */
+    fun storeAzureRegion_7ree(azureRegion: String): Boolean {
+        return try {
+            if (azureRegion.isBlank()) {
+                clearAzureRegion_7ree()
+                return true
+            }
+            
+            sharedPreferences.edit()
+                .putString(AZURE_REGION, azureRegion)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure区域存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 读取Azure区域（普通读取）
+     */
+    fun getAzureRegion_7ree(): String {
+        return try {
+            sharedPreferences.getString(AZURE_REGION, null) ?: ""
+        } catch (e: Exception) {
+            println("DEBUG: Azure区域读取失败: ${e.message}")
+            ""
+        }
+    }
+
+    /**
+     * 安全存储Azure Speech API Key
+     */
+    fun storeAzureSpeechApiKey_7ree(azureSpeechApiKey: String): Boolean {
+        return try {
+            if (azureSpeechApiKey.isBlank()) {
+                clearAzureSpeechApiKey_7ree()
+                return true
+            }
+            
+            val (encryptedKey, iv) = encryptString_7ree(azureSpeechApiKey)
+            sharedPreferences.edit()
+                .putString(ENCRYPTED_AZURE_SPEECH_API_KEY, encryptedKey)
+                .putString(ENCRYPTED_AZURE_SPEECH_API_KEY + IV_SUFFIX, iv)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech API Key存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 安全读取Azure Speech API Key
+     */
+    fun getAzureSpeechApiKey_7ree(): String {
+        return try {
+            val encryptedKey = sharedPreferences.getString(ENCRYPTED_AZURE_SPEECH_API_KEY, null)
+            val iv = sharedPreferences.getString(ENCRYPTED_AZURE_SPEECH_API_KEY + IV_SUFFIX, null)
+            
+            if (encryptedKey != null && iv != null) {
+                decryptString_7ree(encryptedKey, iv)
+            } else {
+                ""
+            }
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech API Key读取失败: ${e.message}")
+            ""
+        }
+    }
+    
+    /**
+     * 存储Azure Speech区域（普通存储，无需加密）
+     */
+    fun storeAzureSpeechRegion_7ree(azureSpeechRegion: String): Boolean {
+        return try {
+            if (azureSpeechRegion.isBlank()) {
+                clearAzureSpeechRegion_7ree()
+                return true
+            }
+            
+            sharedPreferences.edit()
+                .putString(AZURE_SPEECH_REGION, azureSpeechRegion)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech区域存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 读取Azure Speech区域（普通读取）
+     */
+    fun getAzureSpeechRegion_7ree(): String {
+        return try {
+            sharedPreferences.getString(AZURE_SPEECH_REGION, null) ?: ""
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech区域读取失败: ${e.message}")
+            ""
+        }
+    }
+
+    /**
+     * 存储Azure Speech终结点（普通存储，无需加密）
+     */
+    fun storeAzureSpeechEndpoint_7ree(azureSpeechEndpoint: String): Boolean {
+        return try {
+            if (azureSpeechEndpoint.isBlank()) {
+                clearAzureSpeechEndpoint_7ree()
+                return true
+            }
+            
+            sharedPreferences.edit()
+                .putString(AZURE_SPEECH_ENDPOINT, azureSpeechEndpoint)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech终结点存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 读取Azure Speech终结点（普通读取）
+     */
+    fun getAzureSpeechEndpoint_7ree(): String {
+        return try {
+            sharedPreferences.getString(AZURE_SPEECH_ENDPOINT, null) ?: ""
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech终结点读取失败: ${e.message}")
+            ""
+        }
+    }
+
+    /**
      * 批量存储API配置
      */
     fun storeApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String): Boolean {
@@ -226,6 +409,45 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             keyResult && urlResult && modelResult
         } catch (e: Exception) {
             println("DEBUG: API配置批量存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 批量存储完整API配置（包括Azure）
+     */
+    fun storeFullApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String, azureRegion: String, azureApiKey: String): Boolean {
+        return try {
+            val keyResult = storeApiKey_7ree(apiKey)
+            val urlResult = storeApiUrl_7ree(apiUrl)
+            val modelResult = storeModelName_7ree(modelName)
+            val azureRegionResult = storeAzureRegion_7ree(azureRegion)
+            val azureKeyResult = storeAzureApiKey_7ree(azureApiKey)
+            
+            keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult
+        } catch (e: Exception) {
+            println("DEBUG: 完整API配置批量存储失败: ${e.message}")
+            false
+        }
+    }
+
+    /**
+     * 批量存储完整API配置（包括Azure和Azure Speech）
+     */
+    fun storeFullApiConfigWithSpeech_7ree(apiKey: String, apiUrl: String, modelName: String, azureRegion: String, azureApiKey: String, azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String): Boolean {
+        return try {
+            val keyResult = storeApiKey_7ree(apiKey)
+            val urlResult = storeApiUrl_7ree(apiUrl)
+            val modelResult = storeModelName_7ree(modelName)
+            val azureRegionResult = storeAzureRegion_7ree(azureRegion)
+            val azureKeyResult = storeAzureApiKey_7ree(azureApiKey)
+            val azureSpeechRegionResult = storeAzureSpeechRegion_7ree(azureSpeechRegion)
+            val azureSpeechKeyResult = storeAzureSpeechApiKey_7ree(azureSpeechApiKey)
+            val azureSpeechEndpointResult = storeAzureSpeechEndpoint_7ree(azureSpeechEndpoint)
+            
+            keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult && azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult
+        } catch (e: Exception) {
+            println("DEBUG: 完整API配置（含Speech）批量存储失败: ${e.message}")
             false
         }
     }
@@ -268,12 +490,64 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     }
     
     /**
+     * 清除Azure API Key
+     */
+    fun clearAzureApiKey_7ree() {
+        sharedPreferences.edit()
+            .remove(ENCRYPTED_AZURE_API_KEY)
+            .remove(ENCRYPTED_AZURE_API_KEY + IV_SUFFIX)
+            .apply()
+    }
+    
+    /**
+     * 清除Azure区域
+     */
+    fun clearAzureRegion_7ree() {
+        sharedPreferences.edit()
+            .remove(AZURE_REGION)
+            .apply()
+    }
+
+    /**
+     * 清除Azure Speech API Key
+     */
+    fun clearAzureSpeechApiKey_7ree() {
+        sharedPreferences.edit()
+            .remove(ENCRYPTED_AZURE_SPEECH_API_KEY)
+            .remove(ENCRYPTED_AZURE_SPEECH_API_KEY + IV_SUFFIX)
+            .apply()
+    }
+    
+    /**
+     * 清除Azure Speech区域
+     */
+    fun clearAzureSpeechRegion_7ree() {
+        sharedPreferences.edit()
+            .remove(AZURE_SPEECH_REGION)
+            .apply()
+    }
+
+    /**
+     * 清除Azure Speech终结点
+     */
+    fun clearAzureSpeechEndpoint_7ree() {
+        sharedPreferences.edit()
+            .remove(AZURE_SPEECH_ENDPOINT)
+            .apply()
+    }
+
+    /**
      * 清除所有存储的API配置
      */
     fun clearAllApiConfig_7ree() {
         clearApiKey_7ree()
         clearApiUrl_7ree()
         clearModelName_7ree()
+        clearAzureApiKey_7ree()
+        clearAzureRegion_7ree()
+        clearAzureSpeechApiKey_7ree()
+        clearAzureSpeechRegion_7ree()
+        clearAzureSpeechEndpoint_7ree()
     }
     
     /**

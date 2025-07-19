@@ -15,6 +15,7 @@ import com.x7ree.wordcard.config.PromptConfig_7ree
 import com.x7ree.wordcard.data.DataExportImportManager_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
 import com.x7ree.wordcard.data.WordEntity_7ree
+import com.x7ree.wordcard.tts.TtsManager_7ree
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ class WordQueryViewModel_7ree(
     
     private val configManager_7ree = AppConfigManager_7ree(context)
     private val dataManager_7ree = DataExportImportManager_7ree(context, wordRepository_7ree)
+    private val ttsManager_7ree = TtsManager_7ree(context)
     
     // 配置状态
     private val _apiConfig_7ree = MutableStateFlow(ApiConfig_7ree())
@@ -142,6 +144,8 @@ class WordQueryViewModel_7ree(
         _exportPath_7ree.value = dataManager_7ree.getDefaultExportDirectory_7ree()
         // 加载通用配置
         loadGeneralConfig_7ree()
+        // 初始化TTS
+        initializeTts_7ree()
     }
     
     // 按需加载单词计数
@@ -605,13 +609,18 @@ class WordQueryViewModel_7ree(
     }
     
     // 保存API配置
-    fun saveApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String) {
+    fun saveApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String, azureSpeechRegion: String = "", azureSpeechApiKey: String = "", azureSpeechEndpoint: String = "") {
         viewModelScope.launch {
             try {
                 val config = ApiConfig_7ree(
                     apiKey = apiKey,
                     apiUrl = apiUrl,
-                    modelName = modelName
+                    modelName = modelName,
+                    azureRegion = _apiConfig_7ree.value.azureRegion,
+                    azureApiKey = _apiConfig_7ree.value.azureApiKey,
+                    azureSpeechRegion = azureSpeechRegion,
+                    azureSpeechApiKey = azureSpeechApiKey,
+                    azureSpeechEndpoint = azureSpeechEndpoint
                 )
                 
                 val success = configManager_7ree.saveApiConfig_7ree(config)
@@ -619,6 +628,8 @@ class WordQueryViewModel_7ree(
                     _apiConfig_7ree.value = config
                     // 更新API服务的配置
                     apiService_7ree.updateApiConfig_7ree(config)
+                    // 更新TTS管理器的API配置
+                    ttsManager_7ree.updateApiConfig(config)
                     _operationResult_7ree.value = "配置保存成功"
                     println("DEBUG: API配置保存成功")
                 } else {
@@ -660,18 +671,21 @@ class WordQueryViewModel_7ree(
     }
     
     // 保存通用配置
-    fun saveGeneralConfig_7ree(keyboardType: String, autoReadAfterQuery: Boolean, autoReadOnSpellingCard: Boolean) {
+    fun saveGeneralConfig_7ree(keyboardType: String, autoReadAfterQuery: Boolean, autoReadOnSpellingCard: Boolean, ttsEngine: String) {
         viewModelScope.launch {
             try {
                 val config = GeneralConfig_7ree(
                     keyboardType = keyboardType,
                     autoReadAfterQuery = autoReadAfterQuery,
-                    autoReadOnSpellingCard = autoReadOnSpellingCard
+                    autoReadOnSpellingCard = autoReadOnSpellingCard,
+                    ttsEngine = ttsEngine
                 )
                 
                 val success = configManager_7ree.saveGeneralConfig_7ree(config)
                 if (success) {
                     _generalConfig_7ree.value = config
+                    // 更新TTS管理器的配置
+                    ttsManager_7ree.updateGeneralConfig(config)
                     _operationResult_7ree.value = "通用配置保存成功"
                     println("DEBUG: 通用配置保存成功")
                 } else {
@@ -904,5 +918,95 @@ class WordQueryViewModel_7ree(
                 println("DEBUG: 刷新单词本失败: ${e.message}")
             }
         }
+    }
+    
+    // TTS相关方法
+    
+    /**
+     * 朗读单词
+     */
+    fun speakWord_7ree(word: String) {
+        viewModelScope.launch {
+            try {
+                // 更新TTS管理器的配置
+                ttsManager_7ree.updateGeneralConfig(generalConfig_7ree.value)
+                ttsManager_7ree.updateApiConfig(apiConfig_7ree.value)
+                
+                // 开始朗读
+                ttsManager_7ree.speak(
+                    text = word,
+                    onStart = {
+                        println("DEBUG: 开始朗读单词: $word")
+                    },
+                    onComplete = {
+                        println("DEBUG: 朗读完成: $word")
+                    },
+                    onError = { error ->
+                        println("DEBUG: 朗读失败: $error")
+                        _operationResult_7ree.value = "朗读失败: $error"
+                    }
+                )
+            } catch (e: Exception) {
+                println("DEBUG: 朗读异常: ${e.message}")
+                _operationResult_7ree.value = "朗读异常: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 停止朗读
+     */
+    fun stopSpeaking_7ree() {
+        ttsManager_7ree.stopSpeaking()
+    }
+    
+    /**
+     * 检查是否正在朗读
+
+    fun isSpeaking_7ree(): Boolean {
+        return ttsManager_7ree.isSpeaking()
+    }
+    */
+
+
+    /**
+     * 获取TTS引擎状态
+     */
+    fun getTtsEngineStatus_7ree(): String {
+        val status = ttsManager_7ree.getEngineStatus()
+        return when {
+            status.currentEngine == "google" && status.googleReady -> "Google TTS 已就绪"
+            status.currentEngine == "azure" && status.azureReady -> "Azure Speech 已就绪"
+            status.currentEngine == "google" && !status.googleReady -> "Google TTS 未就绪"
+            status.currentEngine == "azure" && !status.azureReady -> "Azure Speech 配置无效"
+            else -> "TTS 引擎未知状态"
+        }
+    }
+    
+    /**
+     * 初始化TTS配置
+     */
+    private fun initializeTts_7ree() {
+        // 设置TTS状态变化回调
+        ttsManager_7ree.onTtsStateChanged = { isReady, engine ->
+            println("DEBUG: TTS引擎状态变化 - $engine: ${if (isReady) "就绪" else "未就绪"}")
+        }
+        
+        ttsManager_7ree.onSpeakingStateChanged = { isSpeaking, engine ->
+            println("DEBUG: TTS朗读状态变化 - $engine: ${if (isSpeaking) "朗读中" else "停止"}")
+        }
+        
+        // 更新配置
+        ttsManager_7ree.updateGeneralConfig(generalConfig_7ree.value)
+        ttsManager_7ree.updateApiConfig(apiConfig_7ree.value)
+    }
+    
+    /**
+     * 释放TTS资源
+     */
+    override fun onCleared() {
+        super.onCleared()
+        ttsManager_7ree.release()
+        println("DEBUG: WordQueryViewModel已清理，TTS资源已释放")
     }
 }

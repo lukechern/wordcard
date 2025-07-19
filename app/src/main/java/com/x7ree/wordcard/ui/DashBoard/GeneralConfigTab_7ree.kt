@@ -2,9 +2,11 @@ package com.x7ree.wordcard.ui.DashBoard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,16 +27,20 @@ fun GeneralConfigTab_7ree(
     var selectedKeyboardType_7ree by remember { mutableStateOf(generalConfig_7ree.keyboardType) }
     var autoReadAfterQuery_7ree by remember { mutableStateOf(generalConfig_7ree.autoReadAfterQuery) }
     var autoReadOnSpellingCard_7ree by remember { mutableStateOf(generalConfig_7ree.autoReadOnSpellingCard) }
+    var selectedTtsEngine_7ree by remember { mutableStateOf(generalConfig_7ree.ttsEngine) }
     
     // 当配置更新时，同步到选择状态
     LaunchedEffect(generalConfig_7ree) {
         selectedKeyboardType_7ree = generalConfig_7ree.keyboardType
         autoReadAfterQuery_7ree = generalConfig_7ree.autoReadAfterQuery
         autoReadOnSpellingCard_7ree = generalConfig_7ree.autoReadOnSpellingCard
+        selectedTtsEngine_7ree = generalConfig_7ree.ttsEngine
     }
     
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
     ) {
         Text(
             text = "通用设置",
@@ -172,12 +178,89 @@ fun GeneralConfigTab_7ree(
             }
         }
         
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        // 朗读TTS引擎设置区域
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Gray.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp)
+                .padding(bottom = 0.dp)
+        ) {
+            Text(
+                text = "朗读TTS引擎",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup()
+                    .padding(vertical = 8.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (selectedTtsEngine_7ree == "google"),
+                            onClick = {
+                                selectedTtsEngine_7ree = "google"
+                            },
+                            role = Role.RadioButton
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (selectedTtsEngine_7ree == "google"),
+                        onClick = null
+                    )
+                    Text(
+                        text = "本手机Google TTS引擎",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = (selectedTtsEngine_7ree == "azure"),
+                            onClick = {
+                                selectedTtsEngine_7ree = "azure"
+                            },
+                            role = Role.RadioButton
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = (selectedTtsEngine_7ree == "azure"),
+                        onClick = null
+                    )
+                    Text(
+                        text = "微软Azure Speech API",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        }
+        
         Button(
             onClick = {
                 wordQueryViewModel_7ree.saveGeneralConfig_7ree(
                     selectedKeyboardType_7ree,
                     autoReadAfterQuery_7ree,
-                    autoReadOnSpellingCard_7ree
+                    autoReadOnSpellingCard_7ree,
+                    selectedTtsEngine_7ree
                 )
             },
             modifier = Modifier
