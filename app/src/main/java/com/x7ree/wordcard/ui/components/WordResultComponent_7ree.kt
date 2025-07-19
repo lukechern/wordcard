@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +41,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.LocalSwipeState_7ree
 import com.x7ree.wordcard.ui.ScrollIndicator_7ree
 import com.x7ree.wordcard.ui.SpellingCard_7ree
-import com.x7ree.wordcard.ui.SpellingPracticeDialog_7ree
+import com.x7ree.wordcard.ui.SpellingPractice.SpellingPracticeDialog_7ree
 import com.x7ree.wordcard.ui.SwipeArrowIndicator_7ree
 import com.x7ree.wordcard.ui.SwipeDirection_7ree
 import com.x7ree.wordcard.ui.SwipeNavigationComponent_7ree
@@ -59,6 +60,8 @@ fun WordResultComponent_7ree(
     onShowSpellingDialogChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 获取通用配置
+    val generalConfig_7ree by wordQueryViewModel.generalConfig_7ree.collectAsState()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -116,6 +119,18 @@ fun WordResultComponent_7ree(
                 // 给单词列表加载留出时间
                 delay(300)
                 canNavigate_7ree = wordQueryViewModel.canNavigate_7ree()
+            }
+            
+            // 自动朗读功能 - 当单词查询完成且配置启用时自动朗读
+            LaunchedEffect(wordQueryViewModel.queryResult_7ree, generalConfig_7ree.autoReadAfterQuery) {
+                if (generalConfig_7ree.autoReadAfterQuery && 
+                    wordQueryViewModel.queryResult_7ree.isNotBlank() && 
+                    wordQueryViewModel.wordInput_7ree.isNotBlank() &&
+                    wordQueryViewModel.isTtsReady_7ree) {
+                    // 延迟一小段时间确保页面完全加载
+                    delay(500)
+                    speak(wordQueryViewModel.getWordSpeechText_7ree(), "word")
+                }
             }
             
             // 创建滚动状态
@@ -270,6 +285,7 @@ fun WordResultComponent_7ree(
         onDismiss = { onShowSpellingDialogChange(false) },
         onSpellingSuccess = {
             wordQueryViewModel.onSpellingSuccess_7ree()
-        }
+        },
+        speak = speak
     )
 }

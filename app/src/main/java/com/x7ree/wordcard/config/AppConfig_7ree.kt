@@ -24,7 +24,9 @@ data class ApiConfig_7ree(
 
 @Serializable
 data class GeneralConfig_7ree(
-    val keyboardType: String = "system" // "system" 或 "custom"
+    val keyboardType: String = "system", // "system" 或 "custom"
+    val autoReadAfterQuery: Boolean = false, // 单词查询完成是否自动朗读
+    val autoReadOnSpellingCard: Boolean = false // 拼写单词卡片打开是否自动朗读
 )
 
 class AppConfigManager_7ree(private val context: Context) {

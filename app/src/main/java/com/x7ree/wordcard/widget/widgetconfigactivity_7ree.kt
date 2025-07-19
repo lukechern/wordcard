@@ -25,6 +25,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     private lateinit var wordRepository_7ree: WordRepository_7ree
     private lateinit var apiService_7ree: OpenAiApiService_7ree
     private var currentQueryWord_7ree = ""
+    private lateinit var generalConfig_7ree: com.x7ree.wordcard.config.GeneralConfig_7ree
     
     // 各种管理器
     private lateinit var buttonManager_7ree: WidgetButtonManager_7ree
@@ -67,6 +68,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         val configManager_7ree = AppConfigManager_7ree(this)
         val apiConfig_7ree = configManager_7ree.loadApiConfig_7ree()
         val promptConfig_7ree = configManager_7ree.loadPromptConfig_7ree()
+        generalConfig_7ree = configManager_7ree.loadGeneralConfig_7ree()
         apiService_7ree.updateApiConfig_7ree(apiConfig_7ree)
         apiService_7ree.updatePromptConfig_7ree(promptConfig_7ree)
         
@@ -187,9 +189,18 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                             )
                         }
                         
-                        // 如果搜索完成，保存当前查询的单词
+                        // 如果搜索完成，保存当前查询的单词并检查是否需要自动朗读
                         if (searchResult.isComplete) {
                             currentQueryWord_7ree = queryText
+                            
+                            // 自动朗读功能 - 当桌面小组件查询完成且配置启用时自动朗读单词
+                            if (generalConfig_7ree.autoReadAfterQuery && 
+                                queryText.isNotBlank() && 
+                                ttsManager_7ree.isTtsReady_7ree()) {
+                                // 延迟一小段时间确保结果完全显示
+                                kotlinx.coroutines.delay(500)
+                                ttsManager_7ree.speakWord_7ree(queryText)
+                            }
                         }
                     }
                 } catch (e: Exception) {

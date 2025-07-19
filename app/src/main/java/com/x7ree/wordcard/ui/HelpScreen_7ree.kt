@@ -1,7 +1,9 @@
 package com.x7ree.wordcard.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
@@ -15,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -95,198 +98,181 @@ fun HelpScreen_7ree() {
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Gray.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "🎯 小贴士",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "记住，学习语言最重要的是坚持！每天查几个生词，积少成多，你的词汇量会在不知不觉中突飞猛进。单词卡片WordCard 会一直陪伴你的学习之路，加油！💪",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
+            Text(
+                text = "🎯 小贴士",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "记住，学习语言最重要的是坚持！每天查几个生词，积少成多，你的词汇量会在不知不觉中突飞猛进。单词卡片WordCard 会一直陪伴你的学习之路，加油！💪",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
         
         // MIT 协议说明
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Gray.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "📜 开源协议",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Text(
-                    text = "本应用采用 MIT 开源协议 🎉 这意味着什么呢？简单来说就是：你可以随意使用、修改、分发这个应用，甚至用来做商业项目都没问题！唯一的要求就是保留原作者的版权声明。MIT 协议就像是软件界的 \"随便用\" 许可证，既保护了开发者的权益，又给了用户最大的自由度。开源让世界更美好！🌍✨",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    lineHeight = 20.sp
-                )
-            }
+            Text(
+                text = "📜 开源协议",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "本应用采用 MIT 开源协议 🎉 这意味着什么呢？简单来说就是：你可以随意使用、修改、分发这个应用，甚至用来做商业项目都没问题！唯一的要求就是保留原作者的版权声明。MIT 协议就像是软件界的 \"随便用\" 许可证，既保护了开发者的权益，又给了用户最大的自由度。开源让世界更美好！🌍✨",
+                style = MaterialTheme.typography.bodyMedium,
+                lineHeight = 20.sp
+            )
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         // 致谢部分
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Gray.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "🙏 特别致谢",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
-                Text(
-                    text = "感谢所有为这个项目提供帮助的 AI 大模型朋友们：",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Text(
-                    text = "🤖 OpenAI GPT 系列 - 提供强大的语言理解和生成能力，让单词解释更加准确生动\n" +
-                            "🧠 Claude 系列 - 在代码优化和逻辑梳理方面提供了宝贵建议\n" +
-                            "🌟 通义千问 - 在中文本地化和用户体验优化方面贡献良多\n" +
-                            "🚀 Gemini - 在技术架构和性能优化方面给出了专业指导\n" +
-                            "💎 deepseek - 在长文本处理和上下文理解方面表现出色",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    lineHeight = 18.sp,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
-                Text(
-                    text = "没有这些 AI 伙伴的帮助，WordCard 不可能达到今天的水平。人工智能与人类智慧的结合，创造出了更好的学习工具。向所有参与开源社区建设的开发者们致敬！🎊",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
+            Text(
+                text = "🙏 特别致谢",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            Text(
+                text = "感谢所有为这个项目提供帮助的 AI 大模型朋友们：",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = "🤖 OpenAI GPT 系列 - 提供强大的语言理解和生成能力，让单词解释更加准确生动\n" +
+                        "🧠 Claude 系列 - 在代码优化和逻辑梳理方面提供了宝贵建议\n" +
+                        "🌟 通义千问 - 在中文本地化和用户体验优化方面贡献良多\n" +
+                        "🚀 Gemini - 在技术架构和性能优化方面给出了专业指导\n" +
+                        "💎 deepseek - 在长文本处理和上下文理解方面表现出色",
+                style = MaterialTheme.typography.bodySmall,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            Text(
+                text = "没有这些 AI 伙伴的帮助，WordCard 不可能达到今天的水平。人工智能与人类智慧的结合，创造出了更好的学习工具。向所有参与开源社区建设的开发者们致敬！🎊",
+                style = MaterialTheme.typography.bodyMedium,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
         
         Spacer(modifier = Modifier.height(16.dp))
         
         // 联系我们部分
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.Gray.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "📞 联系我们",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                
-                Text(
-                    text = "欢迎来到 WordCard 的开源世界！🌟",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Text(
-                    text = "🔗 GitHub 仓库地址：",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                
-                val githubUrl = "https://github.com/lukechern/wordcard"
-                val annotatedString = buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Medium
-                        )
-                    ) {
-                        append(githubUrl)
-                    }
-                    addStringAnnotation(
-                        tag = "URL",
-                        annotation = githubUrl,
-                        start = 0,
-                        end = githubUrl.length
+            Text(
+                text = "📞 联系我们",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            
+            Text(
+                text = "欢迎来到 WordCard 的开源世界！🌟",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = "🔗 GitHub 仓库地址：",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            val githubUrl = "https://github.com/lukechern/wordcard"
+            val annotatedString = buildAnnotatedString {
+                withStyle(
+                    style = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                        fontWeight = FontWeight.Medium
                     )
+                ) {
+                    append(githubUrl)
                 }
-                
-                ClickableText(
-                    text = annotatedString,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 12.dp),
-                    onClick = { offset ->
-                        annotatedString.getStringAnnotations(
-                            tag = "URL",
-                            start = offset,
-                            end = offset
-                        ).firstOrNull()?.let { annotation ->
-                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
-                            context.startActivity(intent)
-                        }
-                    }
-                )
-                
-                Text(
-                    text = "在这里你可以：\n" +
-                            "⭐ 给项目点个星星，支持开发者\n" +
-                            "🐛 报告 Bug 或提出改进建议\n" +
-                            "🔧 参与代码贡献，一起完善项目\n" +
-                            "📖 查看详细的开发文档和更新日志\n" +
-                            "💬 与其他用户和开发者交流讨论",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 18.sp,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                Text(
-                    text = "开源项目的成长离不开每一位用户的支持！无论是使用反馈、Bug 报告还是代码贡献，都是对我们最大的鼓励。让我们一起打造更好的单词学习工具！🚀",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp,
-                    fontWeight = FontWeight.Medium
+                addStringAnnotation(
+                    tag = "URL",
+                    annotation = githubUrl,
+                    start = 0,
+                    end = githubUrl.length
                 )
             }
+            
+            ClickableText(
+                text = annotatedString,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(bottom = 12.dp),
+                onClick = { offset ->
+                    annotatedString.getStringAnnotations(
+                        tag = "URL",
+                        start = offset,
+                        end = offset
+                    ).firstOrNull()?.let { annotation ->
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(annotation.item))
+                        context.startActivity(intent)
+                    }
+                }
+            )
+            
+            Text(
+                text = "在这里你可以：\n" +
+                        "⭐ 给项目点个星星，支持开发者\n" +
+                        "🐛 报告 Bug 或提出改进建议\n" +
+                        "🔧 参与代码贡献，一起完善项目\n" +
+                        "📖 查看详细的开发文档和更新日志\n" +
+                        "� 与其他用户和开发者交流讨论出",
+                style = MaterialTheme.typography.bodySmall,
+                lineHeight = 18.sp,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                text = "开源项目的成长离不开每一位用户的支持！无论是使用反馈、Bug 报告还是代码贡献，都是对我们最大的鼓励。让我们一起打造更好的单词学习工具！🚀",
+                style = MaterialTheme.typography.bodyMedium,
+                lineHeight = 20.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
@@ -300,47 +286,49 @@ private fun HelpStep_7ree(
     title: String,
     description: String
 ) {
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            .background(
+                color = Color.Gray.copy(alpha = 0.1f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(16.dp)
+            .padding(bottom = 16.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(bottom = 12.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 12.dp)
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .padding(end = 8.dp)
-                )
-                Text(
-                    text = stepNumber,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(end = 8.dp)
+            )
             Text(
-                text = description,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 20.sp
+                text = stepNumber,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
             )
         }
+        
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            lineHeight = 20.sp
+        )
     }
+    
+    Spacer(modifier = Modifier.height(16.dp))
 }

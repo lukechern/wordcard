@@ -660,11 +660,13 @@ class WordQueryViewModel_7ree(
     }
     
     // 保存通用配置
-    fun saveGeneralConfig_7ree(keyboardType: String) {
+    fun saveGeneralConfig_7ree(keyboardType: String, autoReadAfterQuery: Boolean, autoReadOnSpellingCard: Boolean) {
         viewModelScope.launch {
             try {
                 val config = GeneralConfig_7ree(
-                    keyboardType = keyboardType
+                    keyboardType = keyboardType,
+                    autoReadAfterQuery = autoReadAfterQuery,
+                    autoReadOnSpellingCard = autoReadOnSpellingCard
                 )
                 
                 val success = configManager_7ree.saveGeneralConfig_7ree(config)

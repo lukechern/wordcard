@@ -32,7 +32,8 @@ fun SpellingPracticeContent_7ree(
     chineseMeaning: String,
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     onDismiss: () -> Unit,
-    onSpellingSuccess: () -> Unit
+    onSpellingSuccess: () -> Unit,
+    speak: (String, String) -> Unit = { _, _ -> }
 ) {
     Log.d("SpellingPractice_7ree", "拼写练习组件 - 单词: '$targetWord', 中文词义: '$chineseMeaning'")
     var userInput_7ree by remember { mutableStateOf("") }
@@ -48,6 +49,17 @@ fun SpellingPracticeContent_7ree(
     val customKeyboardState_7ree = rememberCustomKeyboardState_7ree()
     val keyboardController = LocalSoftwareKeyboardController.current
     var isInputFocused_7ree by remember { mutableStateOf(false) }
+    
+    // 自动朗读功能 - 当拼写卡片打开且配置启用时自动朗读单词
+    LaunchedEffect(targetWord, generalConfig_7ree.autoReadOnSpellingCard) {
+        if (generalConfig_7ree.autoReadOnSpellingCard && 
+            targetWord.isNotBlank() &&
+            wordQueryViewModel_7ree.isTtsReady_7ree) {
+            // 延迟一小段时间确保对话框完全显示
+            delay(800) // 稍微长一点的延迟，确保用户能看到界面
+            speak(targetWord, "word")
+        }
+    }
     
     // 检查拼写是否正确
     LaunchedEffect(userInput_7ree) {
