@@ -31,7 +31,7 @@ fun ApiConfigTab_7ree(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "API连接参数配置",
+            text = "AI大模型翻译API参数",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp)

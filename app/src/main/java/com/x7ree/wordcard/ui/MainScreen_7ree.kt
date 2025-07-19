@@ -71,6 +71,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -295,6 +296,8 @@ fun HistoryScreen_7ree(
     val showFavoritesOnly_7ree by wordQueryViewModel_7ree.showFavoritesOnly_7ree.collectAsState()
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isInitialLoading_7ree by remember { mutableStateOf(true) }
+    var isRefreshing_7ree by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     
     // 创建或获取保存的滚动状态
     val listState = rememberLazyListState(
@@ -333,6 +336,26 @@ fun HistoryScreen_7ree(
     // 只过滤掉已删除的单词，收藏过滤由ViewModel在数据库层面处理
     val filteredWords_7ree = remember(pagedWords_7ree, deletedWords_7ree) {
         pagedWords_7ree.filter { it.word !in deletedWords_7ree }
+    }
+    
+    // 下拉刷新逻辑
+    val handleRefresh: () -> Unit = {
+        coroutineScope.launch {
+            isRefreshing_7ree = true
+            try {
+                // 重置分页状态并重新加载数据
+                wordQueryViewModel_7ree.resetPagination_7ree()
+                wordQueryViewModel_7ree.loadInitialWords_7ree()
+                // 重新加载单词计数
+                wordQueryViewModel_7ree.loadWordCount_7ree()
+                // 清空已删除单词集合
+                deletedWords_7ree = emptySet()
+                // 稍微延迟以显示刷新动画
+                delay(500)
+            } finally {
+                isRefreshing_7ree = false
+            }
+        }
     }
     
     // 初始加载
@@ -438,7 +461,9 @@ fun HistoryScreen_7ree(
                 onWordSpeak = { word ->
                     speak_7ree(word, "word")
                 },
-                listState = listState
+                listState = listState,
+                isRefreshing = isRefreshing_7ree,
+                onRefresh = handleRefresh
             )
         }
     }
