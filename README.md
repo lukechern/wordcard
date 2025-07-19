@@ -8,13 +8,51 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-3.9-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-4.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
 ## 📱 应用简介
 
 WordCard单词卡片 是一款基于 AI 的智能单词学习安卓应用APP，集成了 OpenAI GPT 或兼容模型，为用户提供智能化的英语单词查询和学习体验。应用采用现代化的 Jetpack Compose UI 框架，提供流畅的用户界面和丰富的功能特性。
+
+## 🆕 版本 4.0 更新内容
+
+### 🔄 下拉刷新功能
+- **智能下拉刷新**: 在单词本页面新增下拉刷新功能，轻松刷新单词列表数据
+- **流畅刷新动画**: 提供平滑的下拉刷新动画效果，提升用户交互体验
+- **数据同步优化**: 刷新时自动重新加载单词计数和分页数据，确保数据的准确性
+- **状态保持**: 刷新过程中保持收藏过滤状态，避免用户设置丢失
+- **智能延迟**: 适当的刷新延迟确保用户能够看到刷新动画效果
+
+### 🏗️ 代码架构重构
+- **模块化设计**: 将复杂的 `MainScreen_7ree.kt` 文件拆分为多个独立的组件文件
+- **组件分离**: 创建了专门的 `MainScreen` 子目录，包含以下独立组件：
+  - `Screen_7ree.kt` - 屏幕枚举定义
+  - `CustomToast_7ree.kt` - 自定义提示条组件
+  - `HistoryWordItem_7ree.kt` - 历史单词列表项组件
+  - `HistoryScreen_7ree.kt` - 历史记录屏幕完整实现
+  - `MainScreen_7ree.kt` - 主屏幕核心逻辑
+- **向后兼容**: 保持原有 API 接口不变，确保现有代码无需修改
+- **代码复用**: 每个组件都可以独立使用和测试，提高代码复用性
+
+### 🔧 技术架构升级
+- **清晰的职责分离**: 每个文件都有明确的单一职责，便于维护和扩展
+- **改进的导入结构**: 优化了组件间的依赖关系，减少了循环依赖
+- **文档化**: 新增详细的重构说明文档，便于开发者理解新的代码结构
+- **测试友好**: 模块化的设计使得单元测试更加容易实现
+
+### 🎯 用户体验提升
+- 下拉刷新让数据更新变得更加直观和便捷
+- 代码重构提升了应用的稳定性和性能
+- 更好的错误处理和异常恢复机制
+- 为未来功能扩展奠定了坚实的架构基础
+
+### 📚 开发者体验改进
+- **易于维护**: 模块化的代码结构让功能修改和bug修复更加高效
+- **便于扩展**: 新功能可以轻松添加到对应的组件文件中
+- **团队协作**: 不同开发者可以同时工作在不同的组件上，减少代码冲突
+- **代码质量**: 单一职责原则的应用提升了整体代码质量
 
 ## 🆕 版本 3.9 更新内容
 
