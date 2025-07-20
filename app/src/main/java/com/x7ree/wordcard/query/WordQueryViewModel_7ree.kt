@@ -91,8 +91,12 @@ class WordQueryViewModel_7ree(
         configManagerService_7ree.loadPromptConfig_7ree()
         configManagerService_7ree.loadGeneralConfig_7ree()
         
-        // 初始化TTS
+        // 初始化TTS - 确保在配置加载后初始化
         ttsManagerService_7ree.initializeTts_7ree()
+        
+        // 确保TTS管理器使用最新的配置
+        coreTtsManager_7ree.updateGeneralConfig(configState_7ree.generalConfig_7ree.value)
+        coreTtsManager_7ree.updateApiConfig(configState_7ree.apiConfig_7ree.value)
         
         // 设置导出路径
         paginationState_7ree.updateExportPath_7ree(dataExportImportManager_7ree.getDefaultExportDirectory_7ree())

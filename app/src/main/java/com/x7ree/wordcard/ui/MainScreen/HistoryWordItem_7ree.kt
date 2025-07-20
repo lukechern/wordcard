@@ -138,8 +138,8 @@ fun HistoryWordItem_7ree(
                     ) {
                         Icon(
                             imageVector = Icons.Default.VolumeUp,
-                            contentDescription = "朗读单词",
-                            tint = Color.Gray
+                            contentDescription = "朗读单词 (使用配置的TTS引擎和音色)",
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }

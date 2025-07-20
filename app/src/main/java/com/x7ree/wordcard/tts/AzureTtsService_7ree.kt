@@ -59,7 +59,8 @@ class AzureTtsService_7ree(private val context: Context) {
      */
     fun isConfigValid(): Boolean {
         return apiConfig?.let { config ->
-            config.azureSpeechApiKey.isNotBlank() && 
+            val cleanApiKey = config.azureSpeechApiKey.trim().replace("\n", "").replace("\r", "")
+            cleanApiKey.isNotBlank() && 
             (config.azureSpeechEndpoint.isNotBlank() || config.azureSpeechRegion.isNotBlank())
         } ?: false
     }
@@ -76,9 +77,12 @@ class AzureTtsService_7ree(private val context: Context) {
                 "https://${config.azureSpeechRegion}.api.cognitive.microsoft.com/sts/v1.0/issueToken"
             }
             
+            // 清理API密钥，移除可能的换行符和空白字符
+            val cleanApiKey = config.azureSpeechApiKey.trim().replace("\n", "").replace("\r", "")
+            
             val response = client.post(tokenUrl) {
                 headers {
-                    append("Ocp-Apim-Subscription-Key", config.azureSpeechApiKey)
+                    append("Ocp-Apim-Subscription-Key", cleanApiKey)
                     append("Content-Type", "application/x-www-form-urlencoded")
                 }
             }
@@ -98,13 +102,13 @@ class AzureTtsService_7ree(private val context: Context) {
     /**
      * 文本转语音
      * @param text 要转换的文本
-     * @param voiceName 语音名称，默认使用英语女声
-     * @param language 语言代码，默认为en-US
+     * @param voiceName 语音名称，如果为空则使用配置中的音色
+     * @param language 语言代码，自动从音色名称推断
      */
     suspend fun textToSpeech(
         text: String, 
-        voiceName: String = "en-US-JennyNeural",
-        language: String = "en-US"
+        voiceName: String? = null,
+        language: String? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
             try {
@@ -120,19 +124,28 @@ class AzureTtsService_7ree(private val context: Context) {
                 }
                 
                 val config = apiConfig!!
-                val ttsUrl = if (config.azureSpeechEndpoint.isNotBlank()) {
-                    "${config.azureSpeechEndpoint.trimEnd('/')}/cognitiveservices/v1"
-                } else {
-                    "https://${config.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices/v1"
+                
+                // 使用配置中的音色，如果参数没有指定的话
+                val actualVoiceName = voiceName ?: config.azureSpeechVoice.ifBlank { "en-US-JennyNeural" }
+                
+                // 从音色名称自动推断语言
+                val actualLanguage = language ?: when {
+                    actualVoiceName.startsWith("zh-CN") -> "zh-CN"
+                    actualVoiceName.startsWith("en-US") -> "en-US"
+                    actualVoiceName.startsWith("en-GB") -> "en-GB"
+                    actualVoiceName.startsWith("en-AU") -> "en-AU"
+                    actualVoiceName.startsWith("ja-JP") -> "ja-JP"
+                    else -> "en-US"
                 }
                 
-                val ssmlText = String.format(
-                    SSML_TEMPLATE.replace("en-US-JennyNeural", voiceName)
-                        .replace("en-US", language),
-                    text
-                )
+                // 使用正确的Azure Speech Service URL格式
+                val ttsUrl = "https://${config.azureSpeechRegion}.tts.speech.microsoft.com/cognitiveservices/v1"
+                
+                // 构建正确的SSML
+                val ssmlText = buildSsmlRequest(text, actualVoiceName, actualLanguage)
                 
                 Log.d(TAG, "发送TTS请求到: $ttsUrl")
+                Log.d(TAG, "使用音色: $actualVoiceName, 语言: $actualLanguage")
                 
                 val response = client.post(ttsUrl) {
                     headers {
@@ -158,6 +171,18 @@ class AzureTtsService_7ree(private val context: Context) {
                 false
             }
         }
+    }
+    
+    /**
+     * 构建SSML请求
+     */
+    private fun buildSsmlRequest(text: String, voiceName: String, language: String): String {
+        return """<?xml version="1.0" encoding="UTF-8"?>
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="$language">
+    <voice name="$voiceName">
+        $text
+    </voice>
+</speak>""".trim()
     }
     
     /**

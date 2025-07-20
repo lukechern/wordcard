@@ -86,26 +86,25 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                         isInitializationComplete_7ree = isInitializationComplete_7ree,
                         speak_7ree = { text, utteranceId ->
-                            if (tts_7ree != null && wordQueryViewModel_7ree?.isTtsReady_7ree == true && text.isNotBlank()) {
-                                tts_7ree?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
-                                Log.d(TAG_7ree, "speak_7ree: Attempting to speak: \"$text\" with utteranceId: $utteranceId")
-                            } else {
-                                Log.e(TAG_7ree, "speak_7ree: TTS not ready or text is blank, cannot speak. isTtsReady_7ree: ${wordQueryViewModel_7ree?.isTtsReady_7ree}")
+                            // 使用升级后的TTS管理器，支持配置的引擎和音色
+                            wordQueryViewModel_7ree?.let { viewModel ->
+                                if (text.isNotBlank()) {
+                                    Log.d(TAG_7ree, "speak_7ree: 使用TTS管理器朗读: \"$text\" with utteranceId: $utteranceId")
+                                    viewModel.speakWord_7ree(text)
+                                } else {
+                                    Log.w(TAG_7ree, "speak_7ree: 文本为空，无法朗读")
+                                }
+                            } ?: run {
+                                Log.e(TAG_7ree, "speak_7ree: ViewModel未初始化，无法朗读")
                                 if (!isFinishing) {
-                                    if (tts_7ree == null) {
-                                        Toast.makeText(this, "语音服务正在初始化，请稍后再试", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        Toast.makeText(this, "语音服务未准备好，请检查设备设置。", Toast.LENGTH_SHORT).show()
-                                    }
+                                    Toast.makeText(this, "语音服务正在初始化，请稍后再试", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         },
-                        stopSpeaking_7ree = { // New lambda to stop speaking
-                            tts_7ree?.stop()
-                            wordQueryViewModel_7ree?.setIsSpeaking_7ree(false)
-                            wordQueryViewModel_7ree?.setIsSpeakingWord_7ree(false)
-                            wordQueryViewModel_7ree?.setIsSpeakingExamples_7ree(false)
-                            Log.d(TAG_7ree, "stopSpeaking_7ree: TTS stopped.")
+                        stopSpeaking_7ree = { 
+                            // 使用升级后的TTS管理器停止朗读
+                            wordQueryViewModel_7ree?.stopSpeaking_7ree()
+                            Log.d(TAG_7ree, "stopSpeaking_7ree: 使用TTS管理器停止朗读")
                         },
                         onImportFile_7ree = {
                             filePickerLauncher.launch("application/json")

@@ -1,101 +1,117 @@
 package com.x7ree.wordcard.widget
 
 import android.content.Context
-import android.speech.tts.TextToSpeech
 import android.util.Log
-import java.util.Locale
+import com.x7ree.wordcard.config.AppConfigManager_7ree
+import com.x7ree.wordcard.tts.TtsManager_7ree as CoreTtsManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
- * Widget TTS管理器
- * 负责处理语音朗读功能
+ * Widget TTS管理器 - 升级版
+ * 使用主应用的TTS管理器，支持配置的引擎和音色
  */
-class WidgetTTSManager_7ree(private val context: Context) : TextToSpeech.OnInitListener {
+class WidgetTTSManager_7ree(private val context: Context) {
     
-    private var tts_7ree: TextToSpeech? = null
-    private var isTtsReady_7ree = false
     private val TAG_7ree = "WidgetTTSManager_7ree"
+    private val coreTtsManager_7ree = CoreTtsManager(context)
+    private val configManager_7ree = AppConfigManager_7ree(context)
+    private val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     
     /**
      * 懒加载初始化TTS
      */
     fun initializeTtsLazy_7ree() {
-        if (tts_7ree != null) {
-            Log.d(TAG_7ree, "TTS已经初始化过，跳过重复初始化")
-            return // 已经初始化过，不再重复初始化
-        }
-        
         try {
-            Log.d(TAG_7ree, "开始懒加载初始化TTS")
-            tts_7ree = TextToSpeech(context, this)
-            Log.d(TAG_7ree, "TTS懒加载初始化请求已发送")
+            Log.d(TAG_7ree, "开始初始化升级版TTS管理器")
+            
+            // 加载配置
+            val apiConfig = configManager_7ree.loadApiConfig_7ree()
+            val generalConfig = configManager_7ree.loadGeneralConfig_7ree()
+            
+            // 更新TTS管理器配置
+            coreTtsManager_7ree.updateApiConfig(apiConfig)
+            coreTtsManager_7ree.updateGeneralConfig(generalConfig)
+            
+            Log.d(TAG_7ree, "TTS管理器配置已更新 - 引擎: ${generalConfig.ttsEngine}, 音色: ${apiConfig.azureSpeechVoice}")
+            
         } catch (e: Exception) {
-            Log.e(TAG_7ree, "TTS懒加载初始化失败: ${e.message}")
-        }
-    }
-    
-    override fun onInit(status: Int) {
-        Log.d(TAG_7ree, "onInit: Received status: $status")
-        if (status == TextToSpeech.SUCCESS) {
-            Log.d(TAG_7ree, "onInit: TextToSpeech initialized successfully.")
-            
-            val resultUs_7ree = tts_7ree?.setLanguage(Locale.US)
-            Log.d(TAG_7ree, "onInit: setLanguage(Locale.US) result: $resultUs_7ree")
-            
-            if (resultUs_7ree != null && resultUs_7ree >= TextToSpeech.LANG_AVAILABLE) {
-                isTtsReady_7ree = true
-                Log.d(TAG_7ree, "onInit: TTS is ready for English.")
-            } else {
-                Log.w(TAG_7ree, "onInit: English language not supported.")
-            }
-        } else {
-            Log.e(TAG_7ree, "onInit: TextToSpeech initialization failed with status: $status")
+            Log.e(TAG_7ree, "TTS管理器初始化失败: ${e.message}", e)
         }
     }
     
     /**
-     * 朗读单词
+     * 朗读单词 - 使用配置的TTS引擎和音色
      * @param word 要朗读的单词
      */
     fun speakWord_7ree(word: String) {
-        Log.d(TAG_7ree, "speakWord_7ree: 尝试朗读单词: \"$word\", TTS状态: tts_7ree=${tts_7ree != null}, isTtsReady_7ree=$isTtsReady_7ree")
+        Log.d(TAG_7ree, "speakWord_7ree: 使用升级版TTS管理器朗读单词: \"$word\"")
         
         if (word.isBlank()) {
             Log.w(TAG_7ree, "speakWord_7ree: 单词为空，无法朗读")
             return
         }
         
-        if (tts_7ree == null) {
-            Log.w(TAG_7ree, "speakWord_7ree: TTS未初始化，尝试立即初始化")
-            initializeTtsLazy_7ree()
-            // 初始化后需要等待onInit回调，此次朗读可能失败
-            Log.w(TAG_7ree, "speakWord_7ree: TTS正在初始化中，请稍后再试")
-            return
+        coroutineScope.launch {
+            try {
+                coreTtsManager_7ree.speak(
+                    text = word,
+                    onStart = {
+                        Log.d(TAG_7ree, "开始朗读单词: $word")
+                    },
+                    onComplete = {
+                        Log.d(TAG_7ree, "单词朗读完成: $word")
+                    },
+                    onError = { error ->
+                        Log.e(TAG_7ree, "单词朗读失败: $error")
+                    }
+                )
+            } catch (e: Exception) {
+                Log.e(TAG_7ree, "朗读单词异常: ${e.message}", e)
+            }
         }
-        
-        if (!isTtsReady_7ree) {
-            Log.w(TAG_7ree, "speakWord_7ree: TTS未准备好，可能还在初始化中")
-            return
-        }
-        
-        tts_7ree?.speak(word, TextToSpeech.QUEUE_FLUSH, null, "widget_word")
-        Log.d(TAG_7ree, "speakWord_7ree: 开始朗读单词: \"$word\"")
     }
     
     /**
      * 检查TTS是否准备就绪
      */
     fun isTtsReady_7ree(): Boolean {
-        return isTtsReady_7ree
+        return coreTtsManager_7ree.isCurrentEngineReady()
+    }
+    
+    /**
+     * 获取当前TTS引擎状态
+     */
+    fun getTtsEngineStatus_7ree(): String {
+        val status = coreTtsManager_7ree.getEngineStatus()
+        return when {
+            status.currentEngine == "google" && status.googleReady -> "Google TTS 已就绪"
+            status.currentEngine == "azure" && status.azureReady -> "Azure Speech 已就绪"
+            status.currentEngine == "google" && !status.googleReady -> "Google TTS 未就绪"
+            status.currentEngine == "azure" && !status.azureReady -> "Azure Speech 配置无效"
+            else -> "TTS 引擎未知状态"
+        }
+    }
+    
+    /**
+     * 停止朗读
+     */
+    fun stopSpeaking_7ree() {
+        coreTtsManager_7ree.stopSpeaking()
+        Log.d(TAG_7ree, "已停止朗读")
     }
     
     /**
      * 释放TTS资源
      */
     fun release_7ree() {
-        tts_7ree?.let {
-            it.stop()
-            it.shutdown()
+        try {
+            coreTtsManager_7ree.release()
+            Log.d(TAG_7ree, "TTS管理器资源已释放")
+        } catch (e: Exception) {
+            Log.e(TAG_7ree, "释放TTS资源异常: ${e.message}", e)
         }
-        Log.d(TAG_7ree, "release_7ree: TTS resources released")
     }
 }
