@@ -377,20 +377,36 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
             // 等待ViewModel初始化完成后执行查询并显示详情
             lifecycleScope.launch {
-                // 等待初始化完成
-                while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
+                // 等待初始化完成，添加超时机制
+                var waitTime = 0
+                val maxWaitTime = 10000 // 最多等待10秒
+                while ((!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) && waitTime < maxWaitTime) {
                     kotlinx.coroutines.delay(100)
+                    waitTime += 100
+                }
+                
+                if (waitTime >= maxWaitTime) {
+                    Log.e(TAG_7ree, "等待初始化超时，无法处理查看详情请求: $queryWord")
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "应用初始化超时，请重试", Toast.LENGTH_LONG).show()
+                    }
+                    return@launch
                 }
                 
                 // 在主线程执行查询并切换到查询页面
                 withContext(Dispatchers.Main) {
-                    // 设置查询文本
-                    wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryWord)
-                    // 先切换到查询页面
-                    wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
-                    // 然后加载单词详情
-                    wordQueryViewModel_7ree?.loadWordFromHistory_7ree(queryWord)
-                    Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
+                    try {
+                        // 设置查询文本
+                        wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryWord)
+                        // 先切换到查询页面
+                        wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
+                        // 然后加载单词详情
+                        wordQueryViewModel_7ree?.loadWordFromHistory_7ree(queryWord)
+                        Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
+                    } catch (e: Exception) {
+                        Log.e(TAG_7ree, "处理查看详情请求时出错: ${e.message}", e)
+                        Toast.makeText(this@MainActivity, "处理请求时出错，请重试", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             return
@@ -404,16 +420,32 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 if (!queryText.isNullOrBlank()) {
                     // 等待ViewModel初始化完成后执行查询
                     lifecycleScope.launch {
-                        // 等待初始化完成
-                        while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
+                        // 等待初始化完成，添加超时机制
+                        var waitTime = 0
+                        val maxWaitTime = 10000 // 最多等待10秒
+                        while ((!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) && waitTime < maxWaitTime) {
                             kotlinx.coroutines.delay(100)
+                            waitTime += 100
+                        }
+                        
+                        if (waitTime >= maxWaitTime) {
+                            Log.e(TAG_7ree, "等待初始化超时，无法处理小组件查询请求: $queryText")
+                            withContext(Dispatchers.Main) {
+                                Toast.makeText(this@MainActivity, "应用初始化超时，请重试", Toast.LENGTH_LONG).show()
+                            }
+                            return@launch
                         }
                         
                         // 在主线程执行查询
                         withContext(Dispatchers.Main) {
-                            wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryText)
-                            wordQueryViewModel_7ree?.queryWord_7ree()
-                            Log.d(TAG_7ree, "小组件查询已执行: $queryText")
+                            try {
+                                wordQueryViewModel_7ree?.onWordInputChanged_7ree(queryText)
+                                wordQueryViewModel_7ree?.queryWord_7ree()
+                                Log.d(TAG_7ree, "小组件查询已执行: $queryText")
+                            } catch (e: Exception) {
+                                Log.e(TAG_7ree, "处理小组件查询请求时出错: ${e.message}", e)
+                                Toast.makeText(this@MainActivity, "处理查询请求时出错，请重试", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }

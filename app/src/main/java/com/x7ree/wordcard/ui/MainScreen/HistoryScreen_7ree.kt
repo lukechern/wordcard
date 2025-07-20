@@ -30,7 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.x7ree.wordcard.query.ScrollPosition_7ree
+import com.x7ree.wordcard.query.state.ScrollPosition_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.PaginatedWordList_7ree
 import kotlinx.coroutines.delay
