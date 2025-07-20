@@ -21,7 +21,8 @@ fun SpeechApiSection_7ree(
     onApiKeyChange: (String) -> Unit,
     onVoiceChange: (String) -> Unit,
     apiConfig: ApiConfig_7ree,
-    onTestResult: (Boolean, String) -> Unit
+    onTestResult: (Boolean, String) -> Unit,
+    onAutoSave: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -78,7 +79,8 @@ fun SpeechApiSection_7ree(
         // Speech API测试按钮
         SpeechApiTestButton_7ree(
             apiConfig = apiConfig,
-            onResult = onTestResult
+            onResult = onTestResult,
+            onAutoSave = onAutoSave
         )
     }
 }

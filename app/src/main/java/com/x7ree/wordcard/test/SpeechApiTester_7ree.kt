@@ -385,6 +385,187 @@ class SpeechApiTester_7ree(private val context: Context) {
     }
     
     /**
+     * 使用Azure Speech API朗读测试文本
+     * 这样可以真正验证Speech API的工作效果
+     */
+    suspend fun speakTestResult(apiConfig: ApiConfig_7ree, success: Boolean) {
+        try {
+            if (success) {
+                Log.d(TAG, "测试成功，使用Azure Speech API朗读测试文本")
+                // 测试成功时，使用Azure Speech API朗读测试文本，展示实际效果
+                val result = testAndPlayAudio(apiConfig, TEST_TEXT)
+                if (!result.success) {
+                    Log.w(TAG, "朗读测试文本失败，回退到系统TTS: ${result.message}")
+                    fallbackToSystemTts("Speech API测试成功")
+                }
+            } else {
+                Log.d(TAG, "测试失败，使用系统TTS朗读结果")
+                // 测试失败时，使用系统TTS朗读失败信息
+                fallbackToSystemTts("Speech API测试失败")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "朗读测试结果异常: ${e.message}", e)
+            fallbackToSystemTts("测试异常")
+        }
+    }
+    
+    /**
+     * 测试并播放Azure Speech API生成的音频
+     */
+    private suspend fun testAndPlayAudio(apiConfig: ApiConfig_7ree, text: String): TestResult {
+        return withContext(Dispatchers.IO) {
+            try {
+                val possibleUrls = buildPossibleUrls(apiConfig.azureSpeechEndpoint, apiConfig.azureSpeechRegion)
+                
+                // 尝试获取音频数据并播放
+                for (urlString in possibleUrls) {
+                    val audioData = tryGetAudioData(urlString, apiConfig, text)
+                    if (audioData.isNotEmpty() && validateAudioData(audioData)) {
+                        // 播放音频
+                        val playResult = playAudioData(audioData)
+                        if (playResult) {
+                            return@withContext TestResult(true, "音频播放成功")
+                        }
+                    }
+                }
+                
+                TestResult(false, "无法获取或播放音频数据")
+            } catch (e: Exception) {
+                Log.e(TAG, "测试并播放音频异常: ${e.message}", e)
+                TestResult(false, "播放音频异常: ${e.message}")
+            }
+        }
+    }
+    
+    /**
+     * 尝试获取音频数据
+     */
+    private fun tryGetAudioData(urlString: String, apiConfig: ApiConfig_7ree, text: String): ByteArray {
+        return try {
+            val url = URL(urlString)
+            val connection = url.openConnection() as HttpsURLConnection
+            
+            // 设置请求头
+            connection.requestMethod = "POST"
+            connection.setRequestProperty("Ocp-Apim-Subscription-Key", apiConfig.azureSpeechApiKey)
+            connection.setRequestProperty("Content-Type", "application/ssml+xml")
+            connection.setRequestProperty("X-Microsoft-OutputFormat", "audio-16khz-128kbitrate-mono-mp3")
+            connection.setRequestProperty("User-Agent", "WordCard-Test")
+            connection.doOutput = true
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
+            
+            // 构建SSML请求体
+            val ssml = buildSsmlRequest(text, apiConfig.azureSpeechVoice)
+            
+            // 发送请求
+            connection.outputStream.use { outputStream ->
+                outputStream.write(ssml.toByteArray(Charsets.UTF_8))
+                outputStream.flush()
+            }
+            
+            // 检查响应并读取音频数据
+            if (connection.responseCode == HttpURLConnection.HTTP_OK) {
+                connection.inputStream.use { inputStream ->
+                    readInputStream(inputStream)
+                }
+            } else {
+                ByteArray(0)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "获取音频数据失败: ${e.message}", e)
+            ByteArray(0)
+        }
+    }
+    
+    /**
+     * 播放音频数据
+     */
+    private suspend fun playAudioData(audioData: ByteArray): Boolean {
+        return withContext(Dispatchers.Main) {
+            try {
+                Log.d(TAG, "开始播放音频数据，大小: ${audioData.size} 字节")
+                
+                // 使用MediaPlayer播放音频
+                val mediaPlayer = android.media.MediaPlayer()
+                
+                // 创建临时文件
+                val tempFile = java.io.File.createTempFile("speech_test", ".mp3", context.cacheDir)
+                tempFile.writeBytes(audioData)
+                
+                mediaPlayer.setDataSource(tempFile.absolutePath)
+                mediaPlayer.prepareAsync()
+                
+                var playbackCompleted = false
+                
+                mediaPlayer.setOnPreparedListener {
+                    Log.d(TAG, "音频准备完成，开始播放")
+                    mediaPlayer.start()
+                }
+                
+                mediaPlayer.setOnCompletionListener {
+                    Log.d(TAG, "音频播放完成")
+                    playbackCompleted = true
+                    mediaPlayer.release()
+                    tempFile.delete()
+                }
+                
+                mediaPlayer.setOnErrorListener { _, what, extra ->
+                    Log.e(TAG, "音频播放错误: what=$what, extra=$extra")
+                    playbackCompleted = true
+                    mediaPlayer.release()
+                    tempFile.delete()
+                    false
+                }
+                
+                // 等待播放完成或超时
+                var waitTime = 0
+                while (!playbackCompleted && waitTime < 10000) { // 最多等待10秒
+                    kotlinx.coroutines.delay(100)
+                    waitTime += 100
+                }
+                
+                if (!playbackCompleted) {
+                    mediaPlayer.release()
+                    tempFile.delete()
+                }
+                
+                true
+            } catch (e: Exception) {
+                Log.e(TAG, "播放音频异常: ${e.message}", e)
+                false
+            }
+        }
+    }
+    
+    /**
+     * 回退到系统TTS
+     */
+    private suspend fun fallbackToSystemTts(text: String) {
+        try {
+            Log.d(TAG, "使用系统TTS朗读: $text")
+            val ttsManager = com.x7ree.wordcard.tts.TtsManager_7ree(context)
+            
+            ttsManager.speak(
+                text = text,
+                onStart = {
+                    Log.d(TAG, "系统TTS开始朗读")
+                },
+                onComplete = {
+                    Log.d(TAG, "系统TTS朗读完成")
+                    ttsManager.release()
+                },
+                onError = { error ->
+                    Log.e(TAG, "系统TTS朗读失败: $error")
+                    ttsManager.release()
+                }
+            )
+        } catch (e: Exception) {
+            Log.e(TAG, "系统TTS异常: ${e.message}", e)
+        }
+    }
+    
+    /**
      * 测试结果数据类
      */
     private data class TestResult(

@@ -16,7 +16,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun SpeechApiTestButton_7ree(
     apiConfig: ApiConfig_7ree,
-    onResult: (Boolean, String) -> Unit
+    onResult: (Boolean, String) -> Unit,
+    onAutoSave: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -31,11 +32,20 @@ fun SpeechApiTestButton_7ree(
                     testResult = null
                     coroutineScope.launch {
                         try {
+                            // 自动保存配置
+                            onAutoSave()
+                            
                             val tester = SpeechApiTester_7ree(context)
                             tester.testSpeechApi(apiConfig) { success, message ->
                                 testResult = Pair(success, message)
                                 onResult(success, message)
                                 isLoading = false
+                                
+                                // 朗读测试结果 - 在新的协程中执行
+                                coroutineScope.launch {
+                                    // 使用Azure Speech API本身来朗读测试结果，展示实际效果
+                                    tester.speakTestResult(apiConfig, success)
+                                }
                             }
                         } catch (e: Exception) {
                             val errorMessage = "测试异常: ${e.message}"

@@ -85,6 +85,18 @@ fun ApiConfigTab_7ree(
                 wordQueryViewModel_7ree.setOperationResult_7ree(
                     if (success) "✅ Speech API测试: $message" else "❌ Speech API测试: $message"
                 )
+            },
+            onAutoSave = {
+                // 自动保存当前配置
+                wordQueryViewModel_7ree.saveApiConfig_7ree(
+                    apiKey_7ree, 
+                    apiUrl_7ree, 
+                    modelName_7ree,
+                    azureSpeechRegion_7ree,
+                    azureSpeechApiKey_7ree,
+                    azureSpeechEndpoint_7ree,
+                    azureSpeechVoice_7ree
+                )
             }
         )
         
