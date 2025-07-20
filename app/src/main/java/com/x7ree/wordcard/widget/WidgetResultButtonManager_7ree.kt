@@ -18,6 +18,19 @@ class WidgetResultButtonManager_7ree(
     private val touchFeedbackManager_7ree: WidgetTouchFeedbackManager_7ree
 ) {
     
+    // TTS按钮状态
+    private var currentTtsState = WidgetTtsButtonState.IDLE
+    private var currentSpeakingWord = ""
+    
+    /**
+     * Widget TTS按钮状态枚举
+     */
+    enum class WidgetTtsButtonState {
+        IDLE,       // 默认状态 - 三角形播放图标
+        LOADING,    // 加载状态 - 转圈载入图标
+        PLAYING     // 播放状态 - 暂停图标
+    }
+    
     /**
      * 设置结果按钮的点击事件
      * @param queryText 查询的单词
@@ -30,7 +43,7 @@ class WidgetResultButtonManager_7ree(
     }
     
     /**
-     * 设置朗读按钮
+     * 设置朗读按钮 - 支持状态切换
      */
     private fun setupSpeakButton_7ree(currentQueryWord: String) {
         val speakButton = activity.findViewById<ImageView>(R.id.widget_speak_button_7ree)
@@ -41,8 +54,88 @@ class WidgetResultButtonManager_7ree(
         touchFeedbackManager_7ree.addTouchFeedback_7ree(speakButton)
         touchFeedbackManager_7ree.addTextTouchFeedback_7ree(speakText, speakButton)
         
+        // 初始化按钮状态
+        updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+        
         speakContainer.setOnClickListener {
-            ttsManager_7ree.speakWord_7ree(currentQueryWord)
+            when (currentTtsState) {
+                WidgetTtsButtonState.IDLE -> {
+                    // 开始朗读
+                    currentSpeakingWord = currentQueryWord
+                    updateSpeakButtonState(speakButton, WidgetTtsButtonState.LOADING)
+                    currentTtsState = WidgetTtsButtonState.LOADING
+                    
+                    // 调用TTS朗读，使用真实的状态回调
+                    ttsManager_7ree.speakWord_7ree(
+                        word = currentQueryWord,
+                        onPlayStart = {
+                            // TTS音频开始播放时切换到播放状态
+                            updateSpeakButtonState(speakButton, WidgetTtsButtonState.PLAYING)
+                            currentTtsState = WidgetTtsButtonState.PLAYING
+                        },
+                        onPlayComplete = {
+                            // TTS音频播放完成时恢复空闲状态
+                            updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+                            currentTtsState = WidgetTtsButtonState.IDLE
+                            currentSpeakingWord = ""
+                        },
+                        onError = { error ->
+                            // TTS出错时恢复空闲状态
+                            updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+                            currentTtsState = WidgetTtsButtonState.IDLE
+                            currentSpeakingWord = ""
+                        }
+                    )
+                }
+                WidgetTtsButtonState.LOADING -> {
+                    // 加载中不响应点击
+                }
+                WidgetTtsButtonState.PLAYING -> {
+                    // 停止朗读
+                    ttsManager_7ree.stopSpeaking_7ree()
+                    updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+                    currentTtsState = WidgetTtsButtonState.IDLE
+                    currentSpeakingWord = ""
+                }
+            }
+        }
+    }
+    
+    /**
+     * 更新朗读按钮的状态显示
+     */
+    private fun updateSpeakButtonState(speakButton: ImageView, state: WidgetTtsButtonState) {
+        when (state) {
+            WidgetTtsButtonState.IDLE -> {
+                speakButton.clearAnimation()
+                speakButton.setImageResource(R.drawable.ic_speaker_7ree)
+                speakButton.alpha = 1.0f
+                speakButton.isEnabled = true
+            }
+            WidgetTtsButtonState.LOADING -> {
+                // 使用自定义的加载图标
+                speakButton.setImageResource(R.drawable.ic_loading_7ree)
+                speakButton.alpha = 0.8f
+                speakButton.isEnabled = false
+                
+                // 添加旋转动画
+                val rotateAnimation = android.view.animation.RotateAnimation(
+                    0f, 360f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f,
+                    android.view.animation.Animation.RELATIVE_TO_SELF, 0.5f
+                ).apply {
+                    duration = 1000
+                    repeatCount = android.view.animation.Animation.INFINITE
+                    interpolator = android.view.animation.LinearInterpolator()
+                }
+                speakButton.startAnimation(rotateAnimation)
+            }
+            WidgetTtsButtonState.PLAYING -> {
+                speakButton.clearAnimation()
+                speakButton.setImageResource(android.R.drawable.ic_media_pause)
+                speakButton.alpha = 1.0f
+                speakButton.isEnabled = true
+            }
         }
     }
     

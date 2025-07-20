@@ -45,12 +45,21 @@ class WidgetTTSManager_7ree(private val context: Context) {
     /**
      * 朗读单词 - 使用配置的TTS引擎和音色
      * @param word 要朗读的单词
+     * @param onPlayStart 播放开始回调
+     * @param onPlayComplete 播放完成回调
+     * @param onError 错误回调
      */
-    fun speakWord_7ree(word: String) {
+    fun speakWord_7ree(
+        word: String,
+        onPlayStart: (() -> Unit)? = null,
+        onPlayComplete: (() -> Unit)? = null,
+        onError: ((String) -> Unit)? = null
+    ) {
         Log.d(TAG_7ree, "speakWord_7ree: 使用升级版TTS管理器朗读单词: \"$word\"")
         
         if (word.isBlank()) {
             Log.w(TAG_7ree, "speakWord_7ree: 单词为空，无法朗读")
+            onError?.invoke("单词为空")
             return
         }
         
@@ -60,16 +69,20 @@ class WidgetTTSManager_7ree(private val context: Context) {
                     text = word,
                     onStart = {
                         Log.d(TAG_7ree, "开始朗读单词: $word")
+                        onPlayStart?.invoke()
                     },
                     onComplete = {
                         Log.d(TAG_7ree, "单词朗读完成: $word")
+                        onPlayComplete?.invoke()
                     },
                     onError = { error ->
                         Log.e(TAG_7ree, "单词朗读失败: $error")
+                        onError?.invoke(error)
                     }
                 )
             } catch (e: Exception) {
                 Log.e(TAG_7ree, "朗读单词异常: ${e.message}", e)
+                onError?.invoke("朗读异常: ${e.message}")
             }
         }
     }

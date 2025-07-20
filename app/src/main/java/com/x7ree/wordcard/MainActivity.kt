@@ -85,22 +85,6 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     MainScreen_7ree(
                         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                         isInitializationComplete_7ree = isInitializationComplete_7ree,
-                        speak_7ree = { text, utteranceId ->
-                            // 使用升级后的TTS管理器，支持配置的引擎和音色
-                            wordQueryViewModel_7ree?.let { viewModel ->
-                                if (text.isNotBlank()) {
-                                    Log.d(TAG_7ree, "speak_7ree: 使用TTS管理器朗读: \"$text\" with utteranceId: $utteranceId")
-                                    viewModel.speakWord_7ree(text)
-                                } else {
-                                    Log.w(TAG_7ree, "speak_7ree: 文本为空，无法朗读")
-                                }
-                            } ?: run {
-                                Log.e(TAG_7ree, "speak_7ree: ViewModel未初始化，无法朗读")
-                                if (!isFinishing) {
-                                    Toast.makeText(this, "语音服务正在初始化，请稍后再试", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        },
                         stopSpeaking_7ree = { 
                             // 使用升级后的TTS管理器停止朗读
                             wordQueryViewModel_7ree?.stopSpeaking_7ree()

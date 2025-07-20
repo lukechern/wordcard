@@ -16,8 +16,7 @@ fun SpellingPracticeDialog_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     isVisible: Boolean,
     onDismiss: () -> Unit,
-    onSpellingSuccess: () -> Unit,
-    speak: (String, String) -> Unit = { _, _ -> }
+    onSpellingSuccess: () -> Unit
 ) {
     if (isVisible) {
         Dialog(
@@ -33,8 +32,7 @@ fun SpellingPracticeDialog_7ree(
                 chineseMeaning = chineseMeaning,
                 wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                 onDismiss = onDismiss,
-                onSpellingSuccess = onSpellingSuccess,
-                speak = speak
+                onSpellingSuccess = onSpellingSuccess
             )
         }
     }

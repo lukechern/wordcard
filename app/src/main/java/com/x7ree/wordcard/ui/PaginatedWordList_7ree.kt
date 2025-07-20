@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.data.WordEntity_7ree
+import com.x7ree.wordcard.ui.MainScreen.HistoryWordItem_7ree
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
@@ -106,6 +107,9 @@ fun PaginatedWordList_7ree(
     onWordDelete: (WordEntity_7ree) -> Unit,
     onLoadMore: () -> Unit,
     onWordSpeak: (String) -> Unit = {},
+    onWordStopSpeak: () -> Unit = {},
+    ttsState: com.x7ree.wordcard.ui.components.TtsButtonState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE,
+    currentSpeakingWord: String = "",
     listState: LazyListState = rememberLazyListState(),
     modifier: Modifier = Modifier,
     isRefreshing: Boolean = false,
@@ -220,84 +224,87 @@ fun PaginatedWordList_7ree(
             state = listState
         ) {
             items(words) { wordEntity_7ree ->
-            HistoryWordItem_7ree(
-                wordEntity_7ree = wordEntity_7ree,
-                onWordClick_7ree = onWordClick,
-                onFavoriteToggle_7ree = onFavoriteToggle,
-                onDismiss_7ree = { onWordDelete(wordEntity_7ree) },
-                onWordSpeak_7ree = onWordSpeak
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        
-        // 加载更多指示器
-        if (isLoadingMore) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                HistoryWordItem_7ree(
+                    wordEntity_7ree = wordEntity_7ree,
+                    onWordClick_7ree = onWordClick,
+                    onFavoriteToggle_7ree = onFavoriteToggle,
+                    onDismiss_7ree = { onWordDelete(wordEntity_7ree) },
+                    onWordSpeak_7ree = onWordSpeak,
+                    onWordStopSpeak_7ree = onWordStopSpeak,
+                    ttsState_7ree = ttsState,
+                    currentSpeakingWord_7ree = currentSpeakingWord
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            
+            // 加载更多指示器
+            if (isLoadingMore) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "加载更多...",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "加载更多...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
-        }
-        
-        // 底部提示
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "向左滑动单词条目，然后点击",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = "删除",
-                    modifier = Modifier.size(16.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "图标可将其删除",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
             
-            // 如果没有更多数据，显示到底提示
-            if (!hasMoreData && words.isNotEmpty()) {
-                Text(
-                    text = "已显示全部单词",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
+            // 底部提示
+            item {
                 Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "向左滑动单词条目，然后点击",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "删除",
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "图标可将其删除",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                // 如果没有更多数据，显示到底提示
+                if (!hasMoreData && words.isNotEmpty()) {
+                    Text(
+                        text = "已显示全部单词",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
-        }
         }
     }
 }

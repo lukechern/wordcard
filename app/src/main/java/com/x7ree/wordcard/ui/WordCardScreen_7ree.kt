@@ -26,7 +26,6 @@ private const val TAG_7ree = "WordCardScreen_7ree"
 @Composable
 fun WordCardScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree, 
-    speak_7ree: (String, String) -> Unit, 
     stopSpeaking_7ree: () -> Unit
 ) {
     // 用于显示输入提示的状态
@@ -78,7 +77,6 @@ fun WordCardScreen_7ree(
                 else -> {
                     WordResultComponent_7ree(
                         wordQueryViewModel = wordQueryViewModel_7ree,
-                        speak = speak_7ree,
                         showSpellingDialog = showSpellingDialog_7ree,
                         onShowSpellingDialogChange = { showSpellingDialog_7ree = it }
                     )

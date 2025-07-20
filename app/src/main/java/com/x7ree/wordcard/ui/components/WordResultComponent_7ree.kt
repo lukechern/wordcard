@@ -28,6 +28,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +58,6 @@ private const val TAG_7ree = "WordResultComponent_7ree"
 @Composable
 fun WordResultComponent_7ree(
     wordQueryViewModel: WordQueryViewModel_7ree,
-    speak: (String, String) -> Unit,
     showSpellingDialog: Boolean,
     onShowSpellingDialogChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier
@@ -129,7 +131,7 @@ fun WordResultComponent_7ree(
                     wordQueryViewModel.isTtsReady_7ree) {
                     // 延迟一小段时间确保页面完全加载
                     delay(500)
-                    speak(wordQueryViewModel.getWordSpeechText_7ree(), "word")
+                    wordQueryViewModel.speakWord_7ree(wordQueryViewModel.getWordSpeechText_7ree())
                 }
             }
             
@@ -155,14 +157,97 @@ fun WordResultComponent_7ree(
                             )
                             .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
                     ) {
+                        // TTS状态管理 - 独立管理音标和例句按钮状态
+                        val isSpeaking_7ree = wordQueryViewModel.isSpeaking_7ree
+                        val isSpeakingWord_7ree = wordQueryViewModel.isSpeakingWord_7ree
+                        val isSpeakingExamples_7ree = wordQueryViewModel.isSpeakingExamples_7ree
+                        
+                        // 独立的状态管理
+                        var wordTtsState_7ree by remember { mutableStateOf(com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE) }
+                        var examplesTtsState_7ree by remember { mutableStateOf(com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE) }
+                        
+                        // 获取协程作用域
+                        val coroutineScope = rememberCoroutineScope()
+                        
+                        // 调试日志
+                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前状态 - isSpeaking: $isSpeaking_7ree, isSpeakingWord: $isSpeakingWord_7ree, isSpeakingExamples: $isSpeakingExamples_7ree")
+                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前按钮状态 - wordTtsState: $wordTtsState_7ree, examplesTtsState: $examplesTtsState_7ree")
+                        
+                        // 监听音标朗读状态变化
+                        LaunchedEffect(isSpeakingWord_7ree) {
+                            if (isSpeakingWord_7ree) {
+                                // 当开始播放时，如果当前是LOADING状态，延迟一下再切换到PLAYING，让用户看到加载动画
+                                if (wordTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
+                                    delay(500) // 延迟500ms让用户看到加载动画
+                                }
+                                wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.PLAYING
+                            } else {
+                                wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                            }
+                        }
+                        
+                        // 监听例句朗读状态变化
+                        LaunchedEffect(isSpeakingExamples_7ree) {
+                            if (isSpeakingExamples_7ree) {
+                                // 当开始播放时，如果当前是LOADING状态，延迟一下再切换到PLAYING，让用户看到加载动画
+                                if (examplesTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
+                                    delay(500) // 延迟500ms让用户看到加载动画
+                                }
+                                examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.PLAYING
+                            } else {
+                                examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                            }
+                        }
+                        
                         // 使用新的MarkdownRenderer_7ree组件来处理Markdown内容
                         MarkdownRenderer_7ree(
                             queryResult = wordQueryViewModel.queryResult_7ree,
-                            onWordSpeak = { speak(wordQueryViewModel.getWordSpeechText_7ree(), "word") },
-                            onExamplesSpeak = { speak(wordQueryViewModel.getExamplesSpeechText_7ree(), "examples") },
-                            isSpeakingWord = wordQueryViewModel.isSpeakingWord_7ree,
-                            isSpeakingExamples = wordQueryViewModel.isSpeakingExamples_7ree,
-                            isTtsReady = wordQueryViewModel.isTtsReady_7ree
+                            onWordSpeak = { 
+                                // 设置音标按钮为加载状态
+                                android.util.Log.d("TTS_WORD_DEBUG", "点击音标朗读，设置为LOADING状态")
+                                wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING
+                                
+                                // 启动超时处理协程
+                                coroutineScope.launch {
+                                    delay(5000) // 5秒超时
+                                    if (wordTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
+                                        android.util.Log.d("TTS_WORD_DEBUG", "音标朗读超时，切换回IDLE状态")
+                                        wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                                    }
+                                }
+                                
+                                // 直接调用单词朗读方法，状态变化由LaunchedEffect监听处理
+                                wordQueryViewModel.speakWord_7ree(wordQueryViewModel.wordInput_7ree) 
+                            },
+                            onExamplesSpeak = { 
+                                // 设置例句按钮为加载状态
+                                android.util.Log.d("TTS_EXAMPLES_DEBUG", "点击例句朗读，设置为LOADING状态")
+                                examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING
+                                
+                                // 启动超时处理协程
+                                coroutineScope.launch {
+                                    delay(5000) // 5秒超时
+                                    if (examplesTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
+                                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "例句朗读超时，切换回IDLE状态")
+                                        examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                                    }
+                                }
+                                
+                                // 直接调用例句朗读方法，状态变化由LaunchedEffect监听处理
+                                wordQueryViewModel.speakExamples_7ree() 
+                            },
+                            onWordStopSpeak = { 
+                                android.util.Log.d("TTS_WORD_DEBUG", "手动停止音标朗读，设置为IDLE状态")
+                                wordQueryViewModel.stopSpeaking_7ree()
+                                wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                            },
+                            onExamplesStopSpeak = { 
+                                android.util.Log.d("TTS_EXAMPLES_DEBUG", "手动停止例句朗读，设置为IDLE状态")
+                                wordQueryViewModel.stopSpeaking_7ree()
+                                examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
+                            },
+                            wordTtsState = wordTtsState_7ree,
+                            examplesTtsState = examplesTtsState_7ree
                         )
                     }
                     
@@ -285,7 +370,6 @@ fun WordResultComponent_7ree(
         onDismiss = { onShowSpellingDialogChange(false) },
         onSpellingSuccess = {
             wordQueryViewModel.onSpellingSuccess_7ree()
-        },
-        speak = speak
+        }
     )
 }

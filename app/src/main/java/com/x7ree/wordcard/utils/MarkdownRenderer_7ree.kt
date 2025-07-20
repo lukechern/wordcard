@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.x7ree.wordcard.R
+import com.x7ree.wordcard.ui.components.TtsButton_7ree
+import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
 import io.noties.markwon.Markwon
 import android.util.Log
 
@@ -245,9 +247,10 @@ fun MarkdownRenderer_7ree(
     queryResult: String,
     onWordSpeak: () -> Unit = {},
     onExamplesSpeak: () -> Unit = {},
-    isSpeakingWord: Boolean = false,
-    isSpeakingExamples: Boolean = false,
-    isTtsReady: Boolean = true,
+    onWordStopSpeak: () -> Unit = {},
+    onExamplesStopSpeak: () -> Unit = {},
+    wordTtsState: TtsButtonState_7ree = TtsButtonState_7ree.IDLE,
+    examplesTtsState: TtsButtonState_7ree = TtsButtonState_7ree.IDLE,
     modifier: Modifier = Modifier
 ) {
     val content = remember(queryResult) {
@@ -302,17 +305,13 @@ fun MarkdownRenderer_7ree(
                     }
                 )
                 
-                // 单词朗读按钮
-                IconButton(
-                    onClick = onWordSpeak,
-                    enabled = isTtsReady
-                ) {
-                    if (isSpeakingWord) {
-                        Icon(Icons.Filled.Pause, contentDescription = "暂停朗读单词")
-                    } else {
-                        Icon(Icons.Filled.VolumeUp, contentDescription = "开始朗读单词")
-                    }
-                }
+                // 单词朗读按钮（带状态切换）
+                TtsButton_7ree(
+                    state = wordTtsState,
+                    onPlayClick = onWordSpeak,
+                    onPauseClick = onWordStopSpeak,
+                    contentDescription = "朗读单词"
+                )
             }
             
             // 显示音标标题之后的内容
@@ -351,17 +350,13 @@ fun MarkdownRenderer_7ree(
                     }
                 )
                 
-                // 例句朗读按钮
-                IconButton(
-                    onClick = onExamplesSpeak,
-                    enabled = isTtsReady
-                ) {
-                    if (isSpeakingExamples) {
-                        Icon(Icons.Filled.Pause, contentDescription = "暂停朗读例句")
-                    } else {
-                        Icon(Icons.Filled.VolumeUp, contentDescription = "开始朗读例句")
-                    }
-                }
+                // 例句朗读按钮（带状态切换）
+                TtsButton_7ree(
+                    state = examplesTtsState,
+                    onPlayClick = onExamplesSpeak,
+                    onPauseClick = onExamplesStopSpeak,
+                    contentDescription = "朗读例句"
+                )
             }
             
             // 显示英文例句标题之后的内容

@@ -381,7 +381,12 @@ class WordQueryViewModel_7ree(
     fun speakWord_7ree(word: String) {
         ttsManagerService_7ree.speakWord_7ree(word)
     }
-    
+
+    fun speakExamples_7ree() {
+        val examplesText = getExamplesSpeechText_7ree()
+        ttsManagerService_7ree.speakExamples_7ree(examplesText)
+    }
+
     fun stopSpeaking_7ree() {
         ttsManagerService_7ree.stopSpeaking_7ree()
     }

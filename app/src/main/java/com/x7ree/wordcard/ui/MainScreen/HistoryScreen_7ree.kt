@@ -33,23 +33,49 @@ import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.query.state.ScrollPosition_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.PaginatedWordList_7ree
+import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun HistoryScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onWordClick_7ree: (String) -> Unit,
-    speak_7ree: (String, String) -> Unit = { _, _ -> }
+    onWordClick_7ree: (String) -> Unit
 ) {
     val pagedWords_7ree by wordQueryViewModel_7ree.pagedWords_7ree.collectAsState()
     val isLoadingMore_7ree by wordQueryViewModel_7ree.isLoadingMore_7ree.collectAsState()
     val hasMoreData_7ree by wordQueryViewModel_7ree.hasMoreData_7ree.collectAsState()
     val showFavoritesOnly_7ree by wordQueryViewModel_7ree.showFavoritesOnly_7ree.collectAsState()
+    val isSpeaking_7ree = wordQueryViewModel_7ree.isSpeaking_7ree
+    val isSpeakingWord_7ree = wordQueryViewModel_7ree.isSpeakingWord_7ree
+    
     var deletedWords_7ree by remember { mutableStateOf<Set<String>>(emptySet()) }
     var isInitialLoading_7ree by remember { mutableStateOf(true) }
     var isRefreshing_7ree by remember { mutableStateOf(false) }
+    var currentSpeakingWord_7ree by remember { mutableStateOf("") }
+    var ttsState_7ree by remember { mutableStateOf(TtsButtonState_7ree.IDLE) }
     val coroutineScope = rememberCoroutineScope()
+    
+    // 监听TTS状态变化 - 简化的状态管理，避免重复触发
+    LaunchedEffect(isSpeakingWord_7ree) {
+        if (isSpeakingWord_7ree && currentSpeakingWord_7ree.isNotEmpty()) {
+            // 延迟一下确保载入状态能被看到，然后切换到播放状态
+            delay(600) // 确保载入图标显示足够长时间
+            if (isSpeakingWord_7ree && currentSpeakingWord_7ree.isNotEmpty()) {
+                ttsState_7ree = TtsButtonState_7ree.PLAYING
+            }
+        }
+    }
+    
+    // 监听播放结束 - 移除currentSpeakingWord_7ree依赖，避免重复触发
+    LaunchedEffect(isSpeaking_7ree, isSpeakingWord_7ree) {
+        // 当TTS完全停止时，立即恢复到默认状态
+        if (!isSpeaking_7ree && !isSpeakingWord_7ree && currentSpeakingWord_7ree.isNotEmpty()) {
+            // 立即重置状态，不要延迟
+            currentSpeakingWord_7ree = ""
+            ttsState_7ree = TtsButtonState_7ree.IDLE
+        }
+    }
     
     // 创建或获取保存的滚动状态
     val listState = rememberLazyListState(
@@ -211,8 +237,23 @@ fun HistoryScreen_7ree(
                     wordQueryViewModel_7ree.loadMoreWords_7ree()
                 },
                 onWordSpeak = { word ->
-                    speak_7ree(word, "word")
+                    // 防止重复点击
+                    if (currentSpeakingWord_7ree.isEmpty() || currentSpeakingWord_7ree != word) {
+                        currentSpeakingWord_7ree = word
+                        // 立即设置为加载状态
+                        ttsState_7ree = TtsButtonState_7ree.LOADING
+                        
+                        // 调用TTS播放
+                        wordQueryViewModel_7ree.speakWord_7ree(word)
+                    }
                 },
+                onWordStopSpeak = {
+                    wordQueryViewModel_7ree.stopSpeaking_7ree()
+                    currentSpeakingWord_7ree = ""
+                    ttsState_7ree = TtsButtonState_7ree.IDLE
+                },
+                ttsState = ttsState_7ree,
+                currentSpeakingWord = currentSpeakingWord_7ree,
                 listState = listState,
                 isRefreshing = isRefreshing_7ree,
                 onRefresh = handleRefresh

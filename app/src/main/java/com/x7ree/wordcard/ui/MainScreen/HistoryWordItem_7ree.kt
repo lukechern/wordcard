@@ -20,8 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.data.WordEntity_7ree
 import com.x7ree.wordcard.ui.SwipeableRevealItem_7ree
+import com.x7ree.wordcard.ui.components.TtsButtonIcon_7ree
+import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -39,7 +40,10 @@ fun HistoryWordItem_7ree(
     onWordClick_7ree: (String) -> Unit,
     onFavoriteToggle_7ree: (WordEntity_7ree) -> Unit,
     onDismiss_7ree: () -> Unit,
-    onWordSpeak_7ree: (String) -> Unit = {}
+    onWordSpeak_7ree: (String) -> Unit = {},
+    onWordStopSpeak_7ree: () -> Unit = {},
+    ttsState_7ree: TtsButtonState_7ree = TtsButtonState_7ree.IDLE,
+    currentSpeakingWord_7ree: String = ""
 ) {
     val dateFormat_7ree = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
     val dateStr_7ree = dateFormat_7ree.format(Date(wordEntity_7ree.queryTimestamp))
@@ -132,14 +136,29 @@ fun HistoryWordItem_7ree(
                         }
                     }
 
-                    // 朗读按钮（喇叭图标）
+                    // 朗读按钮（带状态切换）
+                    val currentTtsState = if (currentSpeakingWord_7ree == wordEntity_7ree.word) {
+                        ttsState_7ree
+                    } else {
+                        TtsButtonState_7ree.IDLE
+                    }
+                    
+                    // 调试日志 - 帮助验证状态切换
+                    android.util.Log.d("TTS_DEBUG", "单词: ${wordEntity_7ree.word}, 当前朗读: $currentSpeakingWord_7ree, 状态: $currentTtsState")
+                    
                     IconButton(
-                        onClick = { onWordSpeak_7ree(wordEntity_7ree.word) }
+                        onClick = {
+                            when (currentTtsState) {
+                                TtsButtonState_7ree.IDLE -> onWordSpeak_7ree(wordEntity_7ree.word)
+                                TtsButtonState_7ree.LOADING -> { /* 加载中不响应 */ }
+                                TtsButtonState_7ree.PLAYING -> onWordStopSpeak_7ree()
+                            }
+                        },
+                        enabled = currentTtsState != TtsButtonState_7ree.LOADING
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.VolumeUp,
-                            contentDescription = "朗读单词 (使用配置的TTS引擎和音色)",
-                            tint = MaterialTheme.colorScheme.primary
+                        TtsButtonIcon_7ree(
+                            state = currentTtsState,
+                            contentDescription = "朗读单词 (使用配置的TTS引擎和音色)"
                         )
                     }
                 }

@@ -104,11 +104,15 @@ class AzureTtsService_7ree(private val context: Context) {
      * @param text 要转换的文本
      * @param voiceName 语音名称，如果为空则使用配置中的音色
      * @param language 语言代码，自动从音色名称推断
+     * @param onPlayStart 播放开始回调
+     * @param onPlayComplete 播放完成回调
      */
     suspend fun textToSpeech(
         text: String, 
         voiceName: String? = null,
-        language: String? = null
+        language: String? = null,
+        onPlayStart: (() -> Unit)? = null,
+        onPlayComplete: (() -> Unit)? = null
     ): Boolean {
         return withContext(Dispatchers.IO) {
             try {
@@ -159,7 +163,7 @@ class AzureTtsService_7ree(private val context: Context) {
                 
                 if (response.status == HttpStatusCode.OK) {
                     val audioData = response.body<ByteArray>()
-                    playAudio(audioData)
+                    playAudio(audioData, onPlayStart, onPlayComplete)
                     true
                 } else {
                     Log.e(TAG, "TTS请求失败: ${response.status}")
@@ -188,7 +192,11 @@ class AzureTtsService_7ree(private val context: Context) {
     /**
      * 播放音频数据
      */
-    private suspend fun playAudio(audioData: ByteArray) {
+    private suspend fun playAudio(
+        audioData: ByteArray,
+        onPlayStart: (() -> Unit)? = null,
+        onPlayComplete: (() -> Unit)? = null
+    ) {
         withContext(Dispatchers.Main) {
             try {
                 // 停止当前播放
@@ -207,6 +215,7 @@ class AzureTtsService_7ree(private val context: Context) {
                         mp.release()
                         tempFile.delete()
                         mediaPlayer = null
+                        onPlayComplete?.invoke()
                     }
                     setOnErrorListener { mp, what, extra ->
                         Log.e(TAG, "MediaPlayer错误: what=$what, extra=$extra")
@@ -219,6 +228,7 @@ class AzureTtsService_7ree(private val context: Context) {
                     setOnPreparedListener { mp ->
                         mp.start()
                         Log.d(TAG, "开始播放TTS音频")
+                        onPlayStart?.invoke()
                     }
                 }
                 

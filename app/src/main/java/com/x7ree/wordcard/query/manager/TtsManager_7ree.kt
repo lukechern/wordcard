@@ -20,6 +20,7 @@ class TtsManager_7ree(
                 // 开始朗读
                 coreTtsManager_7ree.speak(
                     text = word,
+                    utteranceId = "word",
                     onStart = {
                         println("DEBUG: 开始朗读单词: $word")
                         queryState_7ree.updateSpeakingWordState_7ree(true)
@@ -48,6 +49,7 @@ class TtsManager_7ree(
                 // 开始朗读例句
                 coreTtsManager_7ree.speak(
                     text = examplesText,
+                    utteranceId = "examples",
                     onStart = {
                         println("DEBUG: 开始朗读例句")
                         queryState_7ree.updateSpeakingExamplesState_7ree(true)

@@ -31,13 +31,11 @@ typealias Screen_7ree = ScreenImpl
 fun MainScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
     isInitializationComplete_7ree: Boolean = false,
-    speak_7ree: (String, String) -> Unit,
     stopSpeaking_7ree: () -> Unit,
     onImportFile_7ree: () -> Unit = {}
 ) = MainScreenImpl(
     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
     isInitializationComplete_7ree = isInitializationComplete_7ree,
-    speak_7ree = speak_7ree,
     stopSpeaking_7ree = stopSpeaking_7ree,
     onImportFile_7ree = onImportFile_7ree
 )
@@ -56,12 +54,10 @@ fun CustomToast_7ree(
 @Composable
 fun HistoryScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onWordClick_7ree: (String) -> Unit,
-    speak_7ree: (String, String) -> Unit = { _, _ -> }
+    onWordClick_7ree: (String) -> Unit
 ) = HistoryScreenImpl(
     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-    onWordClick_7ree = onWordClick_7ree,
-    speak_7ree = speak_7ree
+    onWordClick_7ree = onWordClick_7ree
 )
 
 @Composable

@@ -108,15 +108,33 @@ class TtsManager_7ree(private val context: Context) {
         onComplete: (() -> Unit)? = null,
         onError: ((String) -> Unit)? = null
     ) {
+        speak(text, null, onStart, onComplete, onError)
+    }
+    
+    /**
+     * 朗读文本（支持自定义utteranceId）
+     * @param text 要朗读的文本
+     * @param utteranceId 自定义的utteranceId，如果为null则自动生成
+     * @param onStart 开始朗读回调
+     * @param onComplete 完成朗读回调
+     * @param onError 错误回调
+     */
+    suspend fun speak(
+        text: String,
+        utteranceId: String?,
+        onStart: (() -> Unit)? = null,
+        onComplete: (() -> Unit)? = null,
+        onError: ((String) -> Unit)? = null
+    ) {
         if (text.isBlank()) {
             onError?.invoke("文本为空")
             return
         }
         
         when (generalConfig.ttsEngine) {
-            "google" -> speakWithGoogle(text, onStart, onComplete, onError)
+            "google" -> speakWithGoogle(text, utteranceId, onStart, onComplete, onError)
             "azure" -> speakWithAzure(text, onStart, onComplete, onError)
-            else -> speakWithGoogle(text, onStart, onComplete, onError)
+            else -> speakWithGoogle(text, utteranceId, onStart, onComplete, onError)
         }
     }
     
@@ -125,6 +143,7 @@ class TtsManager_7ree(private val context: Context) {
      */
     private suspend fun speakWithGoogle(
         text: String,
+        utteranceId: String?,
         onStart: (() -> Unit)?,
         onComplete: (() -> Unit)?,
         onError: ((String) -> Unit)?
@@ -139,7 +158,7 @@ class TtsManager_7ree(private val context: Context) {
                 onStart?.invoke()
                 onSpeakingStateChanged?.invoke(true, "google")
                 
-                val utteranceId = "tts_${System.currentTimeMillis()}"
+                val finalUtteranceId = utteranceId ?: "tts_${System.currentTimeMillis()}"
                 
                 googleTts?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
@@ -159,7 +178,7 @@ class TtsManager_7ree(private val context: Context) {
                     }
                 })
                 
-                val result = googleTts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, utteranceId)
+                val result = googleTts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, finalUtteranceId)
                 if (result != TextToSpeech.SUCCESS) {
                     onSpeakingStateChanged?.invoke(false, "google")
                     onError?.invoke("Google TTS朗读启动失败")
@@ -189,19 +208,23 @@ class TtsManager_7ree(private val context: Context) {
                 return
             }
             
-            onStart?.invoke()
-            onSpeakingStateChanged?.invoke(true, "azure")
-            
             Log.d(TAG, "开始使用Azure TTS朗读: $text")
             
-            val success = azureService.textToSpeech(text)
+            val success = azureService.textToSpeech(
+                text = text,
+                onPlayStart = {
+                    Log.d(TAG, "Azure TTS音频开始播放")
+                    onStart?.invoke()
+                    onSpeakingStateChanged?.invoke(true, "azure")
+                },
+                onPlayComplete = {
+                    Log.d(TAG, "Azure TTS音频播放完成")
+                    onSpeakingStateChanged?.invoke(false, "azure")
+                    onComplete?.invoke()
+                }
+            )
             
-            onSpeakingStateChanged?.invoke(false, "azure")
-            
-            if (success) {
-                Log.d(TAG, "Azure TTS朗读成功")
-                onComplete?.invoke()
-            } else {
+            if (!success) {
                 Log.e(TAG, "Azure TTS朗读失败")
                 onError?.invoke("Azure TTS朗读失败")
             }
