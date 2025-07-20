@@ -32,6 +32,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         private const val AZURE_SPEECH_REGION = "azure_speech_region_7ree"
         private const val ENCRYPTED_AZURE_SPEECH_API_KEY = "encrypted_azure_speech_api_key_7ree"
         private const val AZURE_SPEECH_ENDPOINT = "azure_speech_endpoint_7ree"
+        private const val AZURE_SPEECH_VOICE = "azure_speech_voice_7ree"
         private const val IV_SUFFIX = "_iv"
     }
     
@@ -398,6 +399,38 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     }
 
     /**
+     * 存储Azure Speech音色（普通存储，无需加密）
+     */
+    fun storeAzureSpeechVoice_7ree(azureSpeechVoice: String): Boolean {
+        return try {
+            if (azureSpeechVoice.isBlank()) {
+                clearAzureSpeechVoice_7ree()
+                return true
+            }
+            
+            sharedPreferences.edit()
+                .putString(AZURE_SPEECH_VOICE, azureSpeechVoice)
+                .apply()
+            true
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech音色存储失败: ${e.message}")
+            false
+        }
+    }
+    
+    /**
+     * 读取Azure Speech音色（普通读取）
+     */
+    fun getAzureSpeechVoice_7ree(): String {
+        return try {
+            sharedPreferences.getString(AZURE_SPEECH_VOICE, null) ?: "en-US-JennyNeural"
+        } catch (e: Exception) {
+            println("DEBUG: Azure Speech音色读取失败: ${e.message}")
+            "en-US-JennyNeural"
+        }
+    }
+
+    /**
      * 批量存储API配置
      */
     fun storeApiConfig_7ree(apiKey: String, apiUrl: String, modelName: String): Boolean {
@@ -434,7 +467,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     /**
      * 批量存储完整API配置（包括Azure和Azure Speech）
      */
-    fun storeFullApiConfigWithSpeech_7ree(apiKey: String, apiUrl: String, modelName: String, azureRegion: String, azureApiKey: String, azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String): Boolean {
+    fun storeFullApiConfigWithSpeech_7ree(apiKey: String, apiUrl: String, modelName: String, azureRegion: String, azureApiKey: String, azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String, azureSpeechVoice: String): Boolean {
         return try {
             val keyResult = storeApiKey_7ree(apiKey)
             val urlResult = storeApiUrl_7ree(apiUrl)
@@ -444,8 +477,9 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             val azureSpeechRegionResult = storeAzureSpeechRegion_7ree(azureSpeechRegion)
             val azureSpeechKeyResult = storeAzureSpeechApiKey_7ree(azureSpeechApiKey)
             val azureSpeechEndpointResult = storeAzureSpeechEndpoint_7ree(azureSpeechEndpoint)
+            val azureSpeechVoiceResult = storeAzureSpeechVoice_7ree(azureSpeechVoice)
             
-            keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult && azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult
+            keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult && azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult && azureSpeechVoiceResult
         } catch (e: Exception) {
             println("DEBUG: 完整API配置（含Speech）批量存储失败: ${e.message}")
             false
@@ -533,6 +567,15 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     fun clearAzureSpeechEndpoint_7ree() {
         sharedPreferences.edit()
             .remove(AZURE_SPEECH_ENDPOINT)
+            .apply()
+    }
+
+    /**
+     * 清除Azure Speech音色
+     */
+    fun clearAzureSpeechVoice_7ree() {
+        sharedPreferences.edit()
+            .remove(AZURE_SPEECH_VOICE)
             .apply()
     }
 

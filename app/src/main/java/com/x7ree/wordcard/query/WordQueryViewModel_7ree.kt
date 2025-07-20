@@ -277,10 +277,11 @@ class WordQueryViewModel_7ree(
         modelName: String, 
         azureSpeechRegion: String = "", 
         azureSpeechApiKey: String = "", 
-        azureSpeechEndpoint: String = ""
+        azureSpeechEndpoint: String = "",
+        azureSpeechVoice: String = "en-US-JennyNeural"
     ) {
         configManagerService_7ree.saveApiConfig_7ree(
-            apiKey, apiUrl, modelName, azureSpeechRegion, azureSpeechApiKey, azureSpeechEndpoint
+            apiKey, apiUrl, modelName, azureSpeechRegion, azureSpeechApiKey, azureSpeechEndpoint, azureSpeechVoice
         )
     }
     

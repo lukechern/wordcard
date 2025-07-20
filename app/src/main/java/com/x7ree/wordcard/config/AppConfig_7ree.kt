@@ -24,7 +24,8 @@ data class ApiConfig_7ree(
     val azureApiKey: String = "",
     val azureSpeechRegion: String = "",
     val azureSpeechApiKey: String = "",
-    val azureSpeechEndpoint: String = ""
+    val azureSpeechEndpoint: String = "",
+    val azureSpeechVoice: String = "en-US-JennyNeural" // 默认音色：女性-美式
 )
 
 @Serializable
@@ -66,7 +67,8 @@ class AppConfigManager_7ree(private val context: Context) {
                 config.azureApiKey,
                 config.azureSpeechRegion,
                 config.azureSpeechApiKey,
-                config.azureSpeechEndpoint
+                config.azureSpeechEndpoint,
+                config.azureSpeechVoice
             )
             
             if (secureResult) {
@@ -97,7 +99,8 @@ class AppConfigManager_7ree(private val context: Context) {
                     azureApiKey = secureStorage_7ree.getAzureApiKey_7ree(),
                     azureSpeechRegion = secureStorage_7ree.getAzureSpeechRegion_7ree(),
                     azureSpeechApiKey = secureStorage_7ree.getAzureSpeechApiKey_7ree(),
-                    azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree()
+                    azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
+                    azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
                 )
             } else {
                 // 尝试从旧的明文存储迁移

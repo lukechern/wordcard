@@ -49,7 +49,8 @@ class ConfigManager_7ree(
         modelName: String, 
         azureSpeechRegion: String = "", 
         azureSpeechApiKey: String = "", 
-        azureSpeechEndpoint: String = ""
+        azureSpeechEndpoint: String = "",
+        azureSpeechVoice: String = "en-US-JennyNeural"
     ) {
         coroutineScope.launch {
             try {
@@ -62,7 +63,8 @@ class ConfigManager_7ree(
                     azureApiKey = currentConfig.azureApiKey,
                     azureSpeechRegion = azureSpeechRegion,
                     azureSpeechApiKey = azureSpeechApiKey,
-                    azureSpeechEndpoint = azureSpeechEndpoint
+                    azureSpeechEndpoint = azureSpeechEndpoint,
+                    azureSpeechVoice = azureSpeechVoice
                 )
                 
                 val success = appConfigManager_7ree.saveApiConfig_7ree(config)
