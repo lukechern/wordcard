@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -64,6 +65,19 @@ fun WordResultComponent_7ree(
 ) {
     // 获取通用配置
     val generalConfig_7ree by wordQueryViewModel.generalConfig_7ree.collectAsState()
+    
+    // 监听当前单词信息的变化，确保收藏状态能够及时更新UI
+    val currentWordInfo by remember { 
+        derivedStateOf { wordQueryViewModel.currentWordInfo_7ree }
+    }
+    
+    // 添加调试日志来跟踪收藏状态变化
+    LaunchedEffect(currentWordInfo?.isFavorite) {
+        currentWordInfo?.let { wordInfo ->
+            Log.d(TAG_7ree, "当前单词收藏状态: ${wordInfo.word} -> ${wordInfo.isFavorite}")
+        }
+    }
+    
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -86,14 +100,18 @@ fun WordResultComponent_7ree(
             
             // 右上角收藏桃心图标
             if (wordQueryViewModel.currentWordInfo_7ree != null) {
+                val currentWordInfo = wordQueryViewModel.currentWordInfo_7ree!!
                 IconButton(
-                    onClick = { wordQueryViewModel.toggleFavorite_7ree() }
+                    onClick = { 
+                        Log.d(TAG_7ree, "收藏按钮被点击，当前状态: ${currentWordInfo.isFavorite}")
+                        wordQueryViewModel.toggleFavorite_7ree() 
+                    }
                 ) {
                     Icon(
-                        imageVector = if (wordQueryViewModel.currentWordInfo_7ree!!.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (wordQueryViewModel.currentWordInfo_7ree!!.isFavorite) "取消收藏" else "收藏",
+                        imageVector = if (currentWordInfo.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (currentWordInfo.isFavorite) "取消收藏" else "收藏",
                         modifier = Modifier.size(24.dp),
-                        tint = if (wordQueryViewModel.currentWordInfo_7ree!!.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = if (currentWordInfo.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

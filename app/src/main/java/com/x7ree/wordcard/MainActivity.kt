@@ -20,6 +20,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +48,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private val TAG_7ree = "MainActivity_7ree"
     
     // 初始化状态跟踪
-    private var isInitializationComplete_7ree = false
+    private var isInitializationComplete_7ree by mutableStateOf(false)
     private var isTtsInitialized_7ree = false
     private var isDatabaseInitialized_7ree = false
     
@@ -59,7 +62,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     // 创建数据库和仓库实例 - 改为异步初始化
     private var database_7ree: WordDatabase_7ree? = null
     private var wordRepository_7ree: WordRepository_7ree? = null
-    private var wordQueryViewModel_7ree: WordQueryViewModel_7ree? = null
+    private var wordQueryViewModel_7ree: WordQueryViewModel_7ree? by mutableStateOf(null)
     
     // 文件选择器
     private val filePickerLauncher = registerForActivityResult(
@@ -73,6 +76,10 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 记录启动intent的详细信息
+        Log.d(TAG_7ree, "onCreate called with intent action: ${intent?.action}")
+        Log.d(TAG_7ree, "onCreate intent extras: query_word=${intent?.getStringExtra("query_word")}, show_detail=${intent?.getBooleanExtra("show_detail", false)}")
         
         // 立即显示UI，不等待初始化
         enableEdgeToEdge()
@@ -119,26 +126,37 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 // 初始化ViewModel
                 initializeViewModel_7ree()
                 
-                // 标记初始化完成
+                // 标记初始化完成 - 只有在ViewModel真正初始化成功后才标记完成
                 withContext(Dispatchers.Main) {
-                    isInitializationComplete_7ree = true
-                    
-                    // 计算并记录启动时间
-                    val endTime = System.currentTimeMillis()
-                    val startupTime = endTime - startTime
-                    Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
-                    
-                    // 在初始化完成后处理小组件Intent
-                    handleWidgetIntent_7ree(intent)
+                    if (wordQueryViewModel_7ree != null) {
+                        isInitializationComplete_7ree = true
+                        
+                        // 计算并记录启动时间
+                        val endTime = System.currentTimeMillis()
+                        val startupTime = endTime - startTime
+                        Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
+                        
+                        // 在初始化完成后处理小组件Intent
+                        Log.d(TAG_7ree, "初始化完成，准备处理Intent: action=${intent?.action}, extras=${intent?.extras}")
+                        handleWidgetIntent_7ree(intent)
+                    } else {
+                        Log.e(TAG_7ree, "ViewModel初始化失败，无法标记初始化完成")
+                        Toast.makeText(this@MainActivity, "应用初始化失败，请重新启动", Toast.LENGTH_LONG).show()
+                        
+                        // 计算并记录启动时间
+                        val endTime = System.currentTimeMillis()
+                        val startupTime = endTime - startTime
+                        Log.e(TAG_7ree, "应用初始化失败，耗时: ${startupTime}ms")
+                    }
                 }
                 
             } catch (e: Exception) {
                 Log.e(TAG_7ree, "异步初始化失败: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainActivity, "应用初始化失败，部分功能可能不可用", Toast.LENGTH_LONG).show()
-                    isInitializationComplete_7ree = true // 即使失败也要完成初始化流程
+                    Toast.makeText(this@MainActivity, "应用初始化失败，请重新启动应用", Toast.LENGTH_LONG).show()
+                    // 不设置isInitializationComplete_7ree = true，让UI显示错误状态
                     
-                    // 即使失败也记录启动时间
+                    // 记录启动失败时间
                     val endTime = System.currentTimeMillis()
                     val startupTime = endTime - startTime
                     Log.e(TAG_7ree, "应用初始化失败，耗时: ${startupTime}ms")
@@ -360,18 +378,29 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
             // 等待ViewModel初始化完成后执行查询并显示详情
             lifecycleScope.launch {
-                // 等待初始化完成，添加超时机制
+                // 等待初始化完成，改进超时机制
                 var waitTime = 0
-                val maxWaitTime = 10000 // 最多等待10秒
+                val maxWaitTime = 15000 // 增加到15秒
+                val checkInterval = 50 // 减少检查间隔到50ms，提高响应性
+                
                 while ((!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) && waitTime < maxWaitTime) {
-                    kotlinx.coroutines.delay(100)
-                    waitTime += 100
+                    kotlinx.coroutines.delay(checkInterval.toLong())
+                    waitTime += checkInterval
+                    
+                    // 每秒记录一次等待状态
+                    if (waitTime % 1000 == 0) {
+                        Log.d(TAG_7ree, "等待初始化中... ${waitTime/1000}s, isComplete: $isInitializationComplete_7ree, viewModel: ${wordQueryViewModel_7ree != null}")
+                    }
                 }
                 
                 if (waitTime >= maxWaitTime) {
                     Log.e(TAG_7ree, "等待初始化超时，无法处理查看详情请求: $queryWord")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@MainActivity, "应用初始化超时，请重试", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@MainActivity, "应用启动中，请稍后重试", Toast.LENGTH_LONG).show()
+                        // 尝试重新初始化
+                        if (!isInitializationComplete_7ree) {
+                            initializeAppAsync_7ree(intent)
+                        }
                     }
                     return@launch
                 }
@@ -403,18 +432,29 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 if (!queryText.isNullOrBlank()) {
                     // 等待ViewModel初始化完成后执行查询
                     lifecycleScope.launch {
-                        // 等待初始化完成，添加超时机制
+                        // 等待初始化完成，改进超时机制
                         var waitTime = 0
-                        val maxWaitTime = 10000 // 最多等待10秒
+                        val maxWaitTime = 15000 // 增加到15秒
+                        val checkInterval = 50 // 减少检查间隔到50ms
+                        
                         while ((!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) && waitTime < maxWaitTime) {
-                            kotlinx.coroutines.delay(100)
-                            waitTime += 100
+                            kotlinx.coroutines.delay(checkInterval.toLong())
+                            waitTime += checkInterval
+                            
+                            // 每秒记录一次等待状态
+                            if (waitTime % 1000 == 0) {
+                                Log.d(TAG_7ree, "等待初始化中... ${waitTime/1000}s, isComplete: $isInitializationComplete_7ree, viewModel: ${wordQueryViewModel_7ree != null}")
+                            }
                         }
                         
                         if (waitTime >= maxWaitTime) {
                             Log.e(TAG_7ree, "等待初始化超时，无法处理小组件查询请求: $queryText")
                             withContext(Dispatchers.Main) {
-                                Toast.makeText(this@MainActivity, "应用初始化超时，请重试", Toast.LENGTH_LONG).show()
+                                Toast.makeText(this@MainActivity, "应用启动中，请稍后重试", Toast.LENGTH_LONG).show()
+                                // 尝试重新初始化
+                                if (!isInitializationComplete_7ree) {
+                                    initializeAppAsync_7ree(intent)
+                                }
                             }
                             return@launch
                         }
@@ -435,22 +475,39 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             }
             WordQueryWidgetProvider_7ree.ACTION_WIDGET_WORDBOOK_7ree -> {
                 Log.d(TAG_7ree, "收到小组件单词本请求")
-                try {
+                lifecycleScope.launch {
                     // 等待ViewModel初始化完成后切换到单词本页面
-                    lifecycleScope.launch {
-                        // 等待初始化完成
-                        while (!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) {
-                            kotlinx.coroutines.delay(100)
-                        }
+                    var waitTime = 0
+                    val maxWaitTime = 15000 // 增加到15秒
+                    val checkInterval = 50
+                    
+                    while ((!isInitializationComplete_7ree || wordQueryViewModel_7ree == null) && waitTime < maxWaitTime) {
+                        kotlinx.coroutines.delay(checkInterval.toLong())
+                        waitTime += checkInterval
                         
-                        // 在主线程切换到单词本页面
-                        withContext(Dispatchers.Main) {
-                            wordQueryViewModel_7ree?.setCurrentScreen_7ree("HISTORY")
-                            Log.d(TAG_7ree, "已切换到单词本页面")
+                        if (waitTime % 1000 == 0) {
+                            Log.d(TAG_7ree, "等待初始化中... ${waitTime/1000}s")
                         }
                     }
-                } catch (e: Exception) {
-                    Log.e(TAG_7ree, "处理单词本请求时出错: ${e.message}", e)
+                    
+                    if (waitTime >= maxWaitTime) {
+                        Log.e(TAG_7ree, "等待初始化超时，无法处理单词本请求")
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(this@MainActivity, "应用启动中，请稍后重试", Toast.LENGTH_LONG).show()
+                        }
+                        return@launch
+                    }
+                    
+                    // 在主线程切换到单词本页面
+                    withContext(Dispatchers.Main) {
+                        try {
+                            wordQueryViewModel_7ree?.setCurrentScreen_7ree("HISTORY")
+                            Log.d(TAG_7ree, "已切换到单词本页面")
+                        } catch (e: Exception) {
+                            Log.e(TAG_7ree, "处理单词本请求时出错: ${e.message}", e)
+                            Toast.makeText(this@MainActivity, "处理请求时出错，请重试", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.x7ree.wordcard.ui.MainScreen
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -53,7 +54,7 @@ fun MainScreen_7ree(
         }
     }
 
-    // 智能启动画面控制 - 并行执行，不增加总等待时间
+    // 智能启动画面控制 - 改进逻辑，确保不会卡住
     LaunchedEffect(isInitializationComplete_7ree) {
         if (isInitializationComplete_7ree) {
             // 如果初始化已完成，只显示500毫秒启动画面给用户视觉反馈
@@ -62,11 +63,23 @@ fun MainScreen_7ree(
         }
     }
     
-    // 如果初始化时间过长，确保启动画面不会无限显示
+    // 强制超时机制 - 确保启动画面不会无限显示
     LaunchedEffect(Unit) {
-        delay(3000) // 最多显示3秒启动画面
+        delay(5000) // 最多显示5秒启动画面，给冷启动更多时间
         if (showSplash_7ree) {
+            Log.d("MainScreen_7ree", "启动画面超时，强制关闭")
             showSplash_7ree = false
+        }
+    }
+    
+    // 额外的安全机制 - 如果ViewModel可用但初始化标志未设置，也关闭启动画面
+    LaunchedEffect(wordQueryViewModel_7ree) {
+        if (wordQueryViewModel_7ree != null && showSplash_7ree) {
+            delay(1000) // 给一点时间让初始化标志更新
+            if (showSplash_7ree) {
+                Log.d("MainScreen_7ree", "ViewModel已可用，关闭启动画面")
+                showSplash_7ree = false
+            }
         }
     }
 
@@ -124,16 +137,35 @@ fun MainScreen_7ree(
                             }
                         }
                     } else {
-                        // 如果ViewModel还未初始化完成，显示加载状态
+                        // 如果ViewModel还未初始化完成，显示加载状态，但添加超时保护
+                        var showLoadingTimeout by remember { mutableStateOf(false) }
+                        
+                        // 超时保护机制 - 如果10秒后ViewModel还是null，显示错误信息
+                        LaunchedEffect(Unit) {
+                            delay(10000) // 10秒超时
+                            if (wordQueryViewModel_7ree == null) {
+                                Log.e("MainScreen_7ree", "ViewModel初始化超时")
+                                showLoadingTimeout = true
+                            }
+                        }
+                        
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = "正在加载...",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            if (showLoadingTimeout) {
+                                Text(
+                                    text = "应用启动异常，请重新打开应用",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            } else {
+                                Text(
+                                    text = "正在加载...",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }

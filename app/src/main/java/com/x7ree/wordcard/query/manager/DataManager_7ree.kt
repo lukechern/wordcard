@@ -122,10 +122,19 @@ class DataManager_7ree(
                 // 切换收藏状态
                 wordRepository_7ree.toggleFavorite_7ree(word)
                 
+                // 重新获取更新后的单词信息并更新UI状态
+                val updatedWord = wordRepository_7ree.getWord_7ree(word)
+                if (updatedWord != null) {
+                    queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
+                    println("DEBUG: 收藏状态已更新，UI状态已刷新: ${updatedWord.isFavorite}")
+                }
+                
                 // 设置操作结果提示
                 queryState_7ree.updateOperationResult_7ree(
                     if (wasAlreadyFavorite) "已取消收藏" else "已添加收藏"
                 )
+                
+                println("DEBUG: 收藏操作成功: $word, 原状态: $wasAlreadyFavorite, 新状态: ${updatedWord?.isFavorite}")
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("收藏操作失败: ${e.message}")
                 println("DEBUG: 收藏操作失败: ${e.message}")
@@ -135,7 +144,21 @@ class DataManager_7ree(
 
     fun setFavorite_7ree(word: String, isFavorite: Boolean) {
         coroutineScope.launch {
-            wordRepository_7ree.setFavorite_7ree(word, isFavorite)
+            try {
+                // 设置收藏状态
+                wordRepository_7ree.setFavorite_7ree(word, isFavorite)
+                
+                // 重新获取更新后的单词信息并更新UI状态
+                val updatedWord = wordRepository_7ree.getWord_7ree(word)
+                if (updatedWord != null) {
+                    queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
+                    println("DEBUG: 收藏状态已设置，UI状态已刷新: ${updatedWord.isFavorite}")
+                }
+                
+                println("DEBUG: 设置收藏状态成功: $word, 新状态: $isFavorite")
+            } catch (e: Exception) {
+                println("DEBUG: 设置收藏状态失败: ${e.message}")
+            }
         }
     }
     
