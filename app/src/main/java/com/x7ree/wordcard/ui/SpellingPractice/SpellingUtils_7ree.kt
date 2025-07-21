@@ -27,7 +27,7 @@ object SpellingColors_7ree {
 // 拼写练习相关的常量
 object SpellingConstants_7ree {
     const val RESULT_DISPLAY_DELAY = 100L // 结果显示延迟
-    const val SUCCESS_AUTO_CLOSE_DELAY = 3000L // 成功后自动关闭延迟
-    const val ERROR_RESET_DELAY = 3000L // 错误后重置延迟
-    const val FOCUS_REQUEST_DELAY = 500L // 聚焦请求延迟
+    const val SUCCESS_AUTO_CLOSE_DELAY = 1500L // 成功后自动关闭延迟
+    const val ERROR_RESET_DELAY = 1500L // 错误后重置延迟
+    const val FOCUS_REQUEST_DELAY = 300L // 聚焦请求延迟
 }
