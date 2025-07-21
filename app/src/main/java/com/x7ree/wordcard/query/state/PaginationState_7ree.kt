@@ -23,6 +23,13 @@ class PaginationState_7ree {
     private val _showFavoritesOnly_7ree = MutableStateFlow(false)
     val showFavoritesOnly_7ree: StateFlow<Boolean> = _showFavoritesOnly_7ree
     
+    // 搜索状态
+    private val _searchQuery_7ree = MutableStateFlow("")
+    val searchQuery_7ree: StateFlow<String> = _searchQuery_7ree
+    
+    private val _isSearchMode_7ree = MutableStateFlow(false)
+    val isSearchMode_7ree: StateFlow<Boolean> = _isSearchMode_7ree
+    
     var currentPage_7ree = 0
         private set
     val pageSize_7ree = 10 // 每页10个项目
@@ -101,5 +108,22 @@ class PaginationState_7ree {
 
     fun updateExportPath_7ree(path: String) {
         _exportPath_7ree.value = path
+    }
+
+    fun updateSearchQuery_7ree(query: String) {
+        _searchQuery_7ree.value = query
+    }
+
+    fun updateSearchMode_7ree(isSearchMode: Boolean) {
+        _isSearchMode_7ree.value = isSearchMode
+    }
+
+    fun toggleSearchMode_7ree() {
+        _isSearchMode_7ree.value = !_isSearchMode_7ree.value
+    }
+
+    fun clearSearch_7ree() {
+        _searchQuery_7ree.value = ""
+        _isSearchMode_7ree.value = false
     }
 }

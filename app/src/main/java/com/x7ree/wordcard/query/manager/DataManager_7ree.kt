@@ -73,6 +73,29 @@ class DataManager_7ree(
             }
         }
     }
+
+    fun searchWords_7ree(query: String) {
+        if (query.isBlank()) {
+            // 如果搜索查询为空，加载初始单词
+            loadInitialWords_7ree()
+            return
+        }
+        
+        coroutineScope.launch {
+            try {
+                wordRepository_7ree.searchWords_7ree(query).collect { words ->
+                    withContext(Dispatchers.Main) {
+                        // 搜索结果不需要分页，直接显示所有结果
+                        paginationState_7ree.updatePagedWords_7ree(words)
+                        paginationState_7ree.updateHasMoreData_7ree(false) // 搜索结果不支持分页加载
+                        println("DEBUG: 搜索完成，找到${words.size}个匹配的单词")
+                    }
+                }
+            } catch (e: Exception) {
+                println("DEBUG: 搜索失败: ${e.message}")
+            }
+        }
+    }
     
     fun loadMoreWords_7ree() {
         if (paginationState_7ree.isLoadingMore_7ree.value || !paginationState_7ree.hasMoreData_7ree.value) {

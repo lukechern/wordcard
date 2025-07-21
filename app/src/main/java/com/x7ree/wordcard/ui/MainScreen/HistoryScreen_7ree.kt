@@ -1,5 +1,6 @@
 package com.x7ree.wordcard.ui.MainScreen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,12 +9,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +40,10 @@ import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.query.state.ScrollPosition_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.PaginatedWordList_7ree
+import com.x7ree.wordcard.ui.components.SearchBarComponent_7ree
 import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
+import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -46,6 +56,8 @@ fun HistoryScreen_7ree(
     val isLoadingMore_7ree by wordQueryViewModel_7ree.isLoadingMore_7ree.collectAsState()
     val hasMoreData_7ree by wordQueryViewModel_7ree.hasMoreData_7ree.collectAsState()
     val showFavoritesOnly_7ree by wordQueryViewModel_7ree.showFavoritesOnly_7ree.collectAsState()
+    val searchQuery_7ree by wordQueryViewModel_7ree.searchQuery_7ree.collectAsState()
+    val isSearchMode_7ree by wordQueryViewModel_7ree.isSearchMode_7ree.collectAsState()
     val isSpeaking_7ree = wordQueryViewModel_7ree.isSpeaking_7ree
     val isSpeakingWord_7ree = wordQueryViewModel_7ree.isSpeakingWord_7ree
     
@@ -152,35 +164,54 @@ fun HistoryScreen_7ree(
         isInitialLoading_7ree = false
     }
     
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        // 标题行，包含标题和收藏过滤按钮
-        Row(
+    // 自定义键盘状态
+    val customKeyboardState_7ree = rememberCustomKeyboardState_7ree()
+    val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
+    val useCustomKeyboard = generalConfig_7ree.keyboardType == "custom"
+    var showCustomKeyboard_7ree by remember { mutableStateOf(false) }
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Text(
-                text = "单词本",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            IconButton(
-                onClick = { wordQueryViewModel_7ree.toggleFavoriteFilter_7ree() }
-            ) {
-                Icon(
-                    imageVector = if (showFavoritesOnly_7ree) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    contentDescription = if (showFavoritesOnly_7ree) "显示全部单词" else "只显示收藏单词",
-                    tint = if (showFavoritesOnly_7ree) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+        // 搜索栏组件，包含标题、搜索功能和收藏过滤按钮
+        SearchBarComponent_7ree(
+            title = "单词本",
+            searchQuery = searchQuery_7ree,
+            isSearchMode = isSearchMode_7ree,
+            onSearchQueryChange = { query ->
+                wordQueryViewModel_7ree.updateSearchQuery_7ree(query)
+            },
+            onSearchModeToggle = { isSearchMode ->
+                wordQueryViewModel_7ree.setSearchMode_7ree(isSearchMode)
+                if (!isSearchMode && useCustomKeyboard) {
+                    showCustomKeyboard_7ree = false
+                    customKeyboardState_7ree.hide_7ree()
+                }
+            },
+            trailingIcon = {
+                IconButton(
+                    onClick = { wordQueryViewModel_7ree.toggleFavoriteFilter_7ree() }
+                ) {
+                    Icon(
+                        imageVector = if (showFavoritesOnly_7ree) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (showFavoritesOnly_7ree) "显示全部单词" else "只显示收藏单词",
+                        tint = if (showFavoritesOnly_7ree) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            },
+            wordQueryViewModel = wordQueryViewModel_7ree,
+            onCustomKeyboardStateChange = { shouldShow ->
+                showCustomKeyboard_7ree = shouldShow
+                if (shouldShow) {
+                    // 确保键盘状态同步
+                    customKeyboardState_7ree.show_7ree()
+                }
+            },
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
         
         if (isInitialLoading_7ree) {
             // 显示初始加载状态
@@ -258,6 +289,71 @@ fun HistoryScreen_7ree(
                 isRefreshing = isRefreshing_7ree,
                 onRefresh = handleRefresh
             )
+        }
+        }
+        
+        // 自定义键盘 - 固定在屏幕底部，全屏宽度
+        if (useCustomKeyboard && showCustomKeyboard_7ree && isSearchMode_7ree) {
+            CustomKeyboard_7ree(
+                onKeyPress_7ree = { key ->
+                    when (key) {
+                        "BACKSPACE" -> {
+                            if (searchQuery_7ree.isNotEmpty()) {
+                                wordQueryViewModel_7ree.updateSearchQuery_7ree(searchQuery_7ree.dropLast(1))
+                            }
+                        }
+                        "SEARCH" -> {
+                            // 搜索功能 - 在搜索模式下不需要特殊处理，实时搜索已经在进行
+                        }
+                        else -> {
+                            // 添加字母
+                            wordQueryViewModel_7ree.updateSearchQuery_7ree(searchQuery_7ree + key)
+                        }
+                    }
+                },
+                onBackspace_7ree = {
+                    if (searchQuery_7ree.isNotEmpty()) {
+                        wordQueryViewModel_7ree.updateSearchQuery_7ree(searchQuery_7ree.dropLast(1))
+                    }
+                },
+                onSearch_7ree = {
+                    // 搜索功能 - 在搜索模式下不需要特殊处理，实时搜索已经在进行
+                },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+        
+        // 键盘控制按钮 - 在搜索模式下显示，根据键盘状态切换图标
+        if (useCustomKeyboard && isSearchMode_7ree) {
+            FloatingActionButton(
+                onClick = {
+                    if (showCustomKeyboard_7ree) {
+                        // 收起键盘
+                        showCustomKeyboard_7ree = false
+                        customKeyboardState_7ree.hide_7ree()
+                    } else {
+                        // 展开键盘
+                        showCustomKeyboard_7ree = true
+                        customKeyboardState_7ree.show_7ree()
+                    }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .offset(
+                        x = (-16).dp, 
+                        y = if (showCustomKeyboard_7ree) (-228).dp else (-32).dp // 展开图标向下移动48.dp (一个按钮直径)
+                    )
+                    .size(48.dp),
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.surface, // 移除透明背景
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+            ) {
+                Icon(
+                    imageVector = if (showCustomKeyboard_7ree) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp,
+                    contentDescription = if (showCustomKeyboard_7ree) "收起键盘" else "展开键盘",
+                    modifier = Modifier.size(36.dp) // 图标加大50% (24.dp * 1.5 = 36.dp)
+                )
+            }
         }
     }
 }

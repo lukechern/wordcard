@@ -134,6 +134,8 @@ class WordQueryViewModel_7ree(
     val isLoadingMore_7ree: StateFlow<Boolean> get() = paginationState_7ree.isLoadingMore_7ree
     val hasMoreData_7ree: StateFlow<Boolean> get() = paginationState_7ree.hasMoreData_7ree
     val showFavoritesOnly_7ree: StateFlow<Boolean> get() = paginationState_7ree.showFavoritesOnly_7ree
+    val searchQuery_7ree: StateFlow<String> get() = paginationState_7ree.searchQuery_7ree
+    val isSearchMode_7ree: StateFlow<Boolean> get() = paginationState_7ree.isSearchMode_7ree
     
     // 单词本状态保存
     var savedWordBookScrollPosition_7ree: ScrollPosition_7ree
@@ -364,6 +366,38 @@ class WordQueryViewModel_7ree(
         loadInitialWords_7ree()
         val filterType = if (showFavoritesOnly_7ree.value) "收藏" else "全部"
         println("DEBUG: 切换到${filterType}单词过滤")
+    }
+    
+    // 搜索功能
+    fun updateSearchQuery_7ree(query: String) {
+        paginationState_7ree.updateSearchQuery_7ree(query)
+        dataManagerService_7ree.searchWords_7ree(query)
+    }
+    
+    fun toggleSearchMode_7ree() {
+        paginationState_7ree.toggleSearchMode_7ree()
+        if (!isSearchMode_7ree.value) {
+            // 退出搜索模式时清空搜索查询并重新加载初始数据
+            paginationState_7ree.updateSearchQuery_7ree("")
+            resetPagination_7ree()
+            loadInitialWords_7ree()
+        }
+    }
+    
+    fun setSearchMode_7ree(isSearchMode: Boolean) {
+        paginationState_7ree.updateSearchMode_7ree(isSearchMode)
+        if (!isSearchMode) {
+            // 退出搜索模式时清空搜索查询并重新加载初始数据
+            paginationState_7ree.updateSearchQuery_7ree("")
+            resetPagination_7ree()
+            loadInitialWords_7ree()
+        }
+    }
+    
+    fun clearSearch_7ree() {
+        paginationState_7ree.clearSearch_7ree()
+        resetPagination_7ree()
+        loadInitialWords_7ree()
     }
     
     // 拼写练习

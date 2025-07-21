@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,7 +31,7 @@ import androidx.compose.ui.unit.dp
 
 /**
  * 自定义键盘组件
- * 包含26个英文字母、退格删除按钮和查找按钮
+ * 包含26个英文字母、退格删除按钮、查找按钮和收起按钮
  * 具有美观的3D效果
  */
 @Composable
@@ -34,6 +39,7 @@ fun CustomKeyboard_7ree(
     onKeyPress_7ree: (String) -> Unit,
     onBackspace_7ree: () -> Unit,
     onSearch_7ree: () -> Unit,
+    onDismiss_7ree: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val keyboardRows_7ree = listOf(
@@ -69,13 +75,15 @@ fun CustomKeyboard_7ree(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(vertical = 8.dp), // 只保留上下边距，移除左右边距
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             // 字母键盘行
             keyboardRows_7ree.forEach { row ->
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp), // 添加左右边距
                     horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)
                 ) {
                     row.forEach { key ->
@@ -95,7 +103,9 @@ fun CustomKeyboard_7ree(
             }            
             // 第三行：退格 + 字母键 + 回车
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp), // 添加左右边距
                 horizontalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterHorizontally)
             ) {
                 // 退格按钮
