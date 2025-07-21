@@ -11,12 +11,19 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     
     // 保存单词记录
     suspend fun saveWord_7ree(word: String, apiResult: String) {
+        // 解析Markdown格式的API结果
+        val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(apiResult)
+        
         val wordEntity_7ree = WordEntity_7ree(
             word = word,
             apiResult = apiResult,
             queryTimestamp = System.currentTimeMillis(),
             viewCount = 1, // 首次保存时浏览次数为1
-            isFavorite = false
+            isFavorite = false,
+            spellingCount = 0,
+            chineseDefinition = wordInfo.chineseDefinition,
+            phonetic = wordInfo.phonetic,
+            partOfSpeech = wordInfo.partOfSpeech
         )
         wordDao_7ree.insertWord_7ree(wordEntity_7ree)
     }
@@ -105,4 +112,25 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     suspend fun getFavoriteWordsPaged_7ree(limit: Int, offset: Int): List<WordEntity_7ree> {
         return wordDao_7ree.getFavoriteWordsPaged_7ree(limit, offset)
     }
+    
+    // 根据词性搜索单词
+    fun getWordsByPartOfSpeech_7ree(partOfSpeech: String): Flow<List<WordEntity_7ree>> {
+        return wordDao_7ree.getWordsByPartOfSpeech_7ree(partOfSpeech)
+    }
+    
+    // 搜索中文释义
+    fun searchByChineseDefinition_7ree(keyword: String): Flow<List<WordEntity_7ree>> {
+        return wordDao_7ree.searchByChineseDefinition_7ree(keyword)
+    }
+    
+    // 获取所有不同的词性
+    fun getAllPartOfSpeech_7ree(): Flow<List<String>> {
+        return wordDao_7ree.getAllPartOfSpeech_7ree()
+    }
+    
+    // 获取有音标的单词数量
+    val wordsWithPhoneticCount_7ree: Flow<Int> = wordDao_7ree.countWordsWithPhonetic_7ree()
+    
+    // 获取有中文释义的单词数量
+    val wordsWithDefinitionCount_7ree: Flow<Int> = wordDao_7ree.countWordsWithDefinition_7ree()
 }

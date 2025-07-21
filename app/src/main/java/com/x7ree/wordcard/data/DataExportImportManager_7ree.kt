@@ -102,14 +102,42 @@ class DataExportImportManager_7ree(
                     // 检查是否已存在
                     val existingWord = wordRepository_7ree.getWord_7ree(wordEntity_7ree.word)
                     if (existingWord == null) {
-                        // 插入新记录
-                        wordRepository_7ree.insertWord_7ree(wordEntity_7ree)
+                        // 插入新记录，如果导入的数据缺少新字段，则从API结果中解析
+                        val wordToInsert = if (wordEntity_7ree.chineseDefinition.isEmpty() && 
+                                              wordEntity_7ree.phonetic.isEmpty() && 
+                                              wordEntity_7ree.partOfSpeech.isEmpty()) {
+                            // 从API结果中解析新字段
+                            val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(wordEntity_7ree.apiResult)
+                            wordEntity_7ree.copy(
+                                chineseDefinition = wordInfo.chineseDefinition,
+                                phonetic = wordInfo.phonetic,
+                                partOfSpeech = wordInfo.partOfSpeech
+                            )
+                        } else {
+                            wordEntity_7ree
+                        }
+                        wordRepository_7ree.insertWord_7ree(wordToInsert)
                         importedCount++
                     } else {
                         // 更新现有记录（保留原有的浏览次数和收藏状态）
+                        val wordInfo = if (wordEntity_7ree.chineseDefinition.isEmpty() && 
+                                          wordEntity_7ree.phonetic.isEmpty() && 
+                                          wordEntity_7ree.partOfSpeech.isEmpty()) {
+                            com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(wordEntity_7ree.apiResult)
+                        } else {
+                            com.x7ree.wordcard.utils.MarkdownParser_7ree.WordInfo(
+                                wordEntity_7ree.chineseDefinition,
+                                wordEntity_7ree.phonetic,
+                                wordEntity_7ree.partOfSpeech
+                            )
+                        }
+                        
                         val updatedWord = existingWord.copy(
                             apiResult = wordEntity_7ree.apiResult,
-                            queryTimestamp = wordEntity_7ree.queryTimestamp
+                            queryTimestamp = wordEntity_7ree.queryTimestamp,
+                            chineseDefinition = wordInfo.chineseDefinition,
+                            phonetic = wordInfo.phonetic,
+                            partOfSpeech = wordInfo.partOfSpeech
                         )
                         wordRepository_7ree.updateWord_7ree(updatedWord)
                         importedCount++

@@ -59,7 +59,10 @@ class DataManager_7ree(
                 } else {
                     wordRepository_7ree.getWordsPaged_7ree(paginationState_7ree.pageSize_7ree, 0)
                 }
-                paginationState_7ree.updatePagedWords_7ree(words)
+                
+                // 检查并自动补充缺失的字段信息
+                val updatedWords = checkAndUpdateMissingFieldsForWords_7ree(words)
+                paginationState_7ree.updatePagedWords_7ree(updatedWords)
                 
                 // 如果返回的数据少于页面大小，说明没有更多数据了
                 if (words.size < paginationState_7ree.pageSize_7ree) {
@@ -85,8 +88,10 @@ class DataManager_7ree(
             try {
                 wordRepository_7ree.searchWords_7ree(query).collect { words ->
                     withContext(Dispatchers.Main) {
+                        // 检查并自动补充缺失的字段信息
+                        val updatedWords = checkAndUpdateMissingFieldsForWords_7ree(words)
                         // 搜索结果不需要分页，直接显示所有结果
-                        paginationState_7ree.updatePagedWords_7ree(words)
+                        paginationState_7ree.updatePagedWords_7ree(updatedWords)
                         paginationState_7ree.updateHasMoreData_7ree(false) // 搜索结果不支持分页加载
                         println("DEBUG: 搜索完成，找到${words.size}个匹配的单词")
                     }
@@ -114,7 +119,9 @@ class DataManager_7ree(
                 }
                 
                 if (newWords.isNotEmpty()) {
-                    paginationState_7ree.addMoreWords_7ree(newWords)
+                    // 检查并自动补充缺失的字段信息
+                    val updatedNewWords = checkAndUpdateMissingFieldsForWords_7ree(newWords)
+                    paginationState_7ree.addMoreWords_7ree(updatedNewWords)
                     
                     // 如果返回的数据少于页面大小，说明没有更多数据了
                     if (newWords.size < paginationState_7ree.pageSize_7ree) {
@@ -281,5 +288,59 @@ class DataManager_7ree(
                 println("DEBUG: 数据导入异常: ${e.message}")
             }
         }
+    }
+    
+    /**
+     * 检查并自动补充单词列表中缺失的字段信息
+     * 如果中文释义、音标、词性字段为空，则从API结果中解析并更新到数据库
+     */
+    private suspend fun checkAndUpdateMissingFieldsForWords_7ree(words: List<com.x7ree.wordcard.data.WordEntity_7ree>): List<com.x7ree.wordcard.data.WordEntity_7ree> {
+        val updatedWords = mutableListOf<com.x7ree.wordcard.data.WordEntity_7ree>()
+        
+        for (word in words) {
+            // 检查是否需要更新（任一字段为空）
+            val needsUpdate = word.chineseDefinition.isEmpty() || 
+                             word.phonetic.isEmpty() || 
+                             word.partOfSpeech.isEmpty()
+            
+            if (needsUpdate) {
+                try {
+                    println("DEBUG: 检测到单词 '${word.word}' 缺失字段，开始自动补充")
+                    
+                    // 从API结果中解析信息
+                    val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(word.apiResult)
+                    
+                    // 只有解析出有效信息才更新
+                    if (wordInfo.chineseDefinition.isNotEmpty() || 
+                        wordInfo.phonetic.isNotEmpty() || 
+                        wordInfo.partOfSpeech.isNotEmpty()) {
+                        
+                        val updatedWord = word.copy(
+                            chineseDefinition = if (word.chineseDefinition.isEmpty()) wordInfo.chineseDefinition else word.chineseDefinition,
+                            phonetic = if (word.phonetic.isEmpty()) wordInfo.phonetic else word.phonetic,
+                            partOfSpeech = if (word.partOfSpeech.isEmpty()) wordInfo.partOfSpeech else word.partOfSpeech
+                        )
+                        
+                        // 更新到数据库
+                        wordRepository_7ree.updateWord_7ree(updatedWord)
+                        updatedWords.add(updatedWord)
+                        
+                        println("DEBUG: 单词 '${word.word}' 字段补充完成")
+                        println("DEBUG: 中文释义: '${updatedWord.chineseDefinition}', 音标: '${updatedWord.phonetic}', 词性: '${updatedWord.partOfSpeech}'")
+                    } else {
+                        println("DEBUG: 未能从API结果中解析出有效的字段信息")
+                        updatedWords.add(word)
+                    }
+                } catch (e: Exception) {
+                    println("DEBUG: 补充单词 '${word.word}' 字段信息时发生错误: ${e.message}")
+                    updatedWords.add(word)
+                }
+            } else {
+                // 字段信息完整，无需补充
+                updatedWords.add(word)
+            }
+        }
+        
+        return updatedWords
     }
 }

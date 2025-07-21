@@ -49,6 +49,9 @@ class WordQueryManager_7ree(
                     queryState_7ree.updateQueryResult_7ree(cachedWord_7ree.apiResult)
                     queryState_7ree.updateFromCache_7ree(true)
                     
+                    // 检查并自动补充缺失的字段信息
+                    checkAndUpdateMissingFields_7ree(cachedWord_7ree)
+                    
                     // 增加浏览次数
                     val viewCountStartTime = System.currentTimeMillis()
                     wordRepository_7ree.incrementViewCount_7ree(wordInput)
@@ -132,6 +135,10 @@ class WordQueryManager_7ree(
                 if (cachedWord_7ree != null) {
                     queryState_7ree.updateQueryResult_7ree(cachedWord_7ree.apiResult)
                     queryState_7ree.updateFromCache_7ree(true)
+                    
+                    // 检查并自动补充缺失的字段信息
+                    checkAndUpdateMissingFields_7ree(cachedWord_7ree)
+                    
                     // 增加浏览次数
                     wordRepository_7ree.incrementViewCount_7ree(word)
                     // 更新当前单词信息
@@ -216,5 +223,51 @@ class WordQueryManager_7ree(
         println("DEBUG: 找到的例句数量: $exampleCount_7ree")
 
         return result_7ree
+    }
+    
+    /**
+     * 检查并自动补充缺失的字段信息
+     * 如果中文释义、音标、词性字段为空，则从API结果中解析并更新到数据库
+     */
+    private suspend fun checkAndUpdateMissingFields_7ree(wordEntity: com.x7ree.wordcard.data.WordEntity_7ree) {
+        // 检查是否需要更新（任一字段为空）
+        val needsUpdate = wordEntity.chineseDefinition.isEmpty() || 
+                         wordEntity.phonetic.isEmpty() || 
+                         wordEntity.partOfSpeech.isEmpty()
+        
+        if (needsUpdate) {
+            println("DEBUG: 检测到缺失字段，开始自动补充")
+            println("DEBUG: 当前字段状态 - 中文释义: '${wordEntity.chineseDefinition}', 音标: '${wordEntity.phonetic}', 词性: '${wordEntity.partOfSpeech}'")
+            
+            try {
+                // 从API结果中解析信息
+                val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(wordEntity.apiResult)
+                
+                // 只有解析出有效信息才更新
+                if (wordInfo.chineseDefinition.isNotEmpty() || 
+                    wordInfo.phonetic.isNotEmpty() || 
+                    wordInfo.partOfSpeech.isNotEmpty()) {
+                    
+                    val updatedWord = wordEntity.copy(
+                        chineseDefinition = if (wordEntity.chineseDefinition.isEmpty()) wordInfo.chineseDefinition else wordEntity.chineseDefinition,
+                        phonetic = if (wordEntity.phonetic.isEmpty()) wordInfo.phonetic else wordEntity.phonetic,
+                        partOfSpeech = if (wordEntity.partOfSpeech.isEmpty()) wordInfo.partOfSpeech else wordEntity.partOfSpeech
+                    )
+                    
+                    // 更新到数据库
+                    wordRepository_7ree.updateWord_7ree(updatedWord)
+                    
+                    println("DEBUG: 字段补充完成")
+                    println("DEBUG: 更新后字段 - 中文释义: '${updatedWord.chineseDefinition}', 音标: '${updatedWord.phonetic}', 词性: '${updatedWord.partOfSpeech}'")
+                } else {
+                    println("DEBUG: 未能从API结果中解析出有效的字段信息")
+                }
+            } catch (e: Exception) {
+                println("DEBUG: 补充字段信息时发生错误: ${e.message}")
+                e.printStackTrace()
+            }
+        } else {
+            println("DEBUG: 字段信息完整，无需补充")
+        }
     }
 }

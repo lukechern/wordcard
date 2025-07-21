@@ -45,8 +45,19 @@ fun HistoryWordItem_7ree(
     ttsState_7ree: TtsButtonState_7ree = TtsButtonState_7ree.IDLE,
     currentSpeakingWord_7ree: String = ""
 ) {
-    val dateFormat_7ree = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    // 简化的时间格式：2025.07.21
+    val dateFormat_7ree = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
     val dateStr_7ree = dateFormat_7ree.format(Date(wordEntity_7ree.queryTimestamp))
+    
+    // 获取中文释义，如果为空则不显示
+    val chineseDefinition_7ree = wordEntity_7ree.chineseDefinition.trim()
+    
+    // 构建第二行显示内容：中文释义 + 时间
+    val secondLineText_7ree = if (chineseDefinition_7ree.isNotEmpty()) {
+        "$chineseDefinition_7ree • $dateStr_7ree"
+    } else {
+        dateStr_7ree
+    }
 
     SwipeableRevealItem_7ree(
         onDeleteClick = onDismiss_7ree,
@@ -85,19 +96,32 @@ fun HistoryWordItem_7ree(
                             }
                         }
                         Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // 时间显示 - 固定宽度
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            // 第一列：中文释义 - 固定35%宽度
+                            Text(
+                                text = if (chineseDefinition_7ree.isNotEmpty()) chineseDefinition_7ree else "",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray,
+                                modifier = Modifier.weight(0.35f),
+                                maxLines = 1,
+                                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                            )
+                            
+                            // 第二列：日期 - 固定宽度，可以完整显示日期文本
                             Text(
                                 text = dateStr_7ree,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray,
-                                modifier = Modifier.width(120.dp)
+                                modifier = Modifier.width(80.dp)
                             )
                             
-                            // 查看次数 - 固定宽度
+                            // 第三列：查看次数 - 固定宽度，可以显示5位数字
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.width(50.dp)
+                                modifier = Modifier.width(65.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Filled.Visibility,
@@ -105,19 +129,19 @@ fun HistoryWordItem_7ree(
                                     modifier = Modifier.size(16.dp),
                                     tint = Color.Gray
                                 )
-                                Spacer(modifier = Modifier.width(2.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = if (wordEntity_7ree.viewCount > 99) "99+" else "${wordEntity_7ree.viewCount}",
+                                    text = if (wordEntity_7ree.viewCount > 99999) "99999+" else "${wordEntity_7ree.viewCount}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = Color.Gray
                                 )
                             }
                             
-                            // 拼写练习次数 - 固定宽度（如果大于0才显示）
+                            // 第四列：拼写练习次数 - 如果有则显示，如果没有则不显示
                             if (wordEntity_7ree.spellingCount > 0) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.width(60.dp)
+                                    modifier = Modifier.width(40.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.Keyboard,
@@ -125,13 +149,16 @@ fun HistoryWordItem_7ree(
                                         modifier = Modifier.size(16.dp),
                                         tint = Color.Gray
                                     )
-                                    Spacer(modifier = Modifier.width(2.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
                                     Text(
                                         text = if (wordEntity_7ree.spellingCount > 99) "99+" else "${wordEntity_7ree.spellingCount}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.Gray
                                     )
                                 }
+                            } else {
+                                // 如果没有拼写练习次数，占位空白区域保持布局一致
+                                Spacer(modifier = Modifier.width(40.dp))
                             }
                         }
                     }
