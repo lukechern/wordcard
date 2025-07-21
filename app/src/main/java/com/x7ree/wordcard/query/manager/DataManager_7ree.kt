@@ -207,6 +207,14 @@ class DataManager_7ree(
             try {
                 if (word.isNotBlank()) {
                     wordRepository_7ree.incrementSpellingCount_7ree(word)
+                    
+                    // 重新获取更新后的单词信息并更新UI状态
+                    val updatedWord = wordRepository_7ree.getWord_7ree(word)
+                    if (updatedWord != null) {
+                        queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
+                        println("DEBUG: 拼写练习成功，UI状态已刷新: ${updatedWord.spellingCount}")
+                    }
+                    
                     println("DEBUG: 拼写练习成功，单词: $word")
                 }
             } catch (e: Exception) {
