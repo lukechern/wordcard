@@ -278,8 +278,15 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
      * 处理搜索键
      */
     private fun handleSearch_7ree() {
-        hideCustomKeyboard_7ree()
-        onSearchAction_7ree?.invoke()
+        currentInputText_7ree?.let { inputText ->
+            val currentText = inputText.text.toString().trim()
+            // 只有当输入文本长度大于等于3个字符时才执行搜索并关闭键盘
+            if (currentText.length >= 3) {
+                hideCustomKeyboard_7ree()
+                onSearchAction_7ree?.invoke()
+            }
+            // 如果文本不足3个字符，不执行任何操作，键盘保持显示状态
+        }
     }
     
     /**

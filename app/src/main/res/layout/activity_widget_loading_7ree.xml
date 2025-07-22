@@ -2,24 +2,41 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#80000000"
-    android:gravity="center">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
-    <!-- 主要内容区域 - 与查询界面保持相同大小 -->
+    <!-- 主要内容区域 - 与查询界面完全一致 -->
     <FrameLayout
-        android:id="@+id/widget_loading_content_7ree"
+        android:id="@+id/widget_loading_main_content_7ree"
         android:layout_width="320dp"
-        android:layout_height="200dp"
-        android:layout_centerInParent="true"
-        android:background="@drawable/widget_dialog_background_7ree"
-        android:padding="20dp">
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="100dp"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
-        <!-- 加载动画容器 -->
+    <LinearLayout
+        android:id="@+id/widget_loading_dialog_container_7ree"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="24dp"
+        android:paddingBottom="24dp"
+        android:layout_marginTop="36dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/widget_dialog_background_7ree">
+
+        <!-- 加载动画容器 - 与查询界面内部结构保持一致 -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:gravity="center">
+            android:paddingLeft="24dp"
+            android:paddingRight="24dp"
+            android:gravity="center"
+            android:minHeight="120dp">
 
             <!-- 进度条 -->
             <ProgressBar
@@ -53,18 +70,20 @@
 
         </LinearLayout>
 
-    </FrameLayout>
+    </LinearLayout>
 
-    <!-- 应用图标 - 与查询界面保持一致 -->
+    <!-- 应用图标 - 与查询界面完全一致的位置 -->
     <ImageView
         android:id="@+id/widget_loading_icon_7ree"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/widget_loading_content_7ree"
-        android:layout_marginBottom="16dp"
-        android:src="@mipmap/ic_launcher"
-        android:background="@drawable/widget_icon_background_7ree"
-        android:padding="8dp" />
+        android:layout_gravity="center_horizontal|top"
+        android:layout_marginTop="2dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/wordcardicon"
+        android:contentDescription="WordCard图标"
+        android:elevation="8dp" />
+
+    </FrameLayout>
 
 </RelativeLayout>
