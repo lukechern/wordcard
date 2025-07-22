@@ -34,8 +34,8 @@ class WordQueryWidgetProvider_7ree : AppWidgetProvider() {
     ) {
         val views = RemoteViews(context.packageName, R.layout.widget_word_query_7ree)
 
-        // 设置查询按钮的Intent
-        val queryIntent = Intent(context, WidgetConfigActivity_7ree::class.java).apply {
+        // 设置查询按钮的Intent - 先启动加载Activity
+        val queryIntent = Intent(context, WidgetLoadingActivity_7ree::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
 

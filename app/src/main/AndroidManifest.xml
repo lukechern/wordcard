@@ -32,6 +32,16 @@
         </activity>
         
         <activity
+            android:name=".widget.WidgetLoadingActivity_7ree"
+            android:exported="true"
+            android:label=" "
+            android:theme="@style/Theme.WidgetConfig_7ree"
+            android:windowSoftInputMode="adjustNothing"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
+        
+        <activity
             android:name=".widget.WidgetConfigActivity_7ree"
             android:exported="true"
             android:label=" "

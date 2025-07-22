@@ -16,6 +16,8 @@ import com.x7ree.wordcard.data.WordRepository_7ree
 import com.x7ree.wordcard.data.WordDatabase_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import com.x7ree.wordcard.utils.showKeyboardWithDelay_7ree
 import com.x7ree.wordcard.utils.hideKeyboard_7ree
 import android.view.MotionEvent
@@ -47,61 +49,102 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         
         setContentView(R.layout.activity_widget_config_7ree)
         
-        // 初始化管理器
-        initializeManagers_7ree()
+        // 先设置基础UI，让界面立即可见
+        setupBasicUI_7ree()
         
-        
-        // 设置UI
-        setupUI_7ree()
+        // 在后台异步初始化管理器，避免阻塞UI
+        lifecycleScope.launch {
+            initializeManagers_7ree()
+            // 初始化完成后设置完整UI功能
+            setupAdvancedUI_7ree()
+        }
     }
     
     /**
-     * 初始化各种管理器
+     * 初始化各种管理器 - 优化版本，利用预加载的资源
      */
-    private fun initializeManagers_7ree() {
-        // 初始化依赖
-        val database = WordDatabase_7ree.getDatabase_7ree(this)
-        wordRepository_7ree = WordRepository_7ree(database.wordDao_7ree())
+    private suspend fun initializeManagers_7ree() {
+        withContext(Dispatchers.IO) {
+            // 初始化依赖 - 如果已预加载则会很快
+            val database = WordDatabase_7ree.getDatabase_7ree(this@WidgetConfigActivity_7ree)
+            wordRepository_7ree = WordRepository_7ree(database.wordDao_7ree())
+            
+            // 初始化API服务并加载用户配置
+            apiService_7ree = OpenAiApiService_7ree()
+            val configManager_7ree = AppConfigManager_7ree(this@WidgetConfigActivity_7ree)
+            val apiConfig_7ree = configManager_7ree.loadApiConfig_7ree()
+            val promptConfig_7ree = configManager_7ree.loadPromptConfig_7ree()
+            generalConfig_7ree = configManager_7ree.loadGeneralConfig_7ree()
+            apiService_7ree.updateApiConfig_7ree(apiConfig_7ree)
+            apiService_7ree.updatePromptConfig_7ree(promptConfig_7ree)
+        }
         
-        // 初始化API服务并加载用户配置
-        apiService_7ree = OpenAiApiService_7ree()
-        val configManager_7ree = AppConfigManager_7ree(this)
-        val apiConfig_7ree = configManager_7ree.loadApiConfig_7ree()
-        val promptConfig_7ree = configManager_7ree.loadPromptConfig_7ree()
-        generalConfig_7ree = configManager_7ree.loadGeneralConfig_7ree()
-        apiService_7ree.updateApiConfig_7ree(apiConfig_7ree)
-        apiService_7ree.updatePromptConfig_7ree(promptConfig_7ree)
-        
-        // 初始化各种管理器
-        buttonManager_7ree = WidgetButtonManager_7ree(this)
-        inputValidator_7ree = WidgetInputValidator_7ree(buttonManager_7ree)
-        uiStateManager_7ree = WidgetUIStateManager_7ree()
-        searchManager_7ree = WidgetSearchManager_7ree(wordRepository_7ree, apiService_7ree)
-        ttsManager_7ree = WidgetTTSManager_7ree(this)
-        touchFeedbackManager_7ree = WidgetTouchFeedbackManager_7ree()
-        resultButtonManager_7ree = WidgetResultButtonManager_7ree(this, ttsManager_7ree, touchFeedbackManager_7ree)
-        
-        // 初始化键盘管理器
-        keyboardManager_7ree = WidgetKeyboardManager_7ree(this)
-        keyboardManager_7ree.initialize_7ree()
-        
-        // 提前初始化TTS，确保朗读功能可用
-        ttsManager_7ree.initializeTtsLazy_7ree()
+        // 在主线程初始化UI相关的管理器
+        withContext(Dispatchers.Main) {
+            // 初始化各种管理器
+            buttonManager_7ree = WidgetButtonManager_7ree(this@WidgetConfigActivity_7ree)
+            inputValidator_7ree = WidgetInputValidator_7ree(buttonManager_7ree)
+            uiStateManager_7ree = WidgetUIStateManager_7ree()
+            searchManager_7ree = WidgetSearchManager_7ree(wordRepository_7ree, apiService_7ree)
+            ttsManager_7ree = WidgetTTSManager_7ree(this@WidgetConfigActivity_7ree)
+            touchFeedbackManager_7ree = WidgetTouchFeedbackManager_7ree()
+            resultButtonManager_7ree = WidgetResultButtonManager_7ree(this@WidgetConfigActivity_7ree, ttsManager_7ree, touchFeedbackManager_7ree)
+            
+            // 初始化键盘管理器
+            keyboardManager_7ree = WidgetKeyboardManager_7ree(this@WidgetConfigActivity_7ree)
+            keyboardManager_7ree.initialize_7ree()
+            
+            // 提前初始化TTS，确保朗读功能可用
+            ttsManager_7ree.initializeTtsLazy_7ree()
+        }
     }
     
     /**
-     * 设置UI
+     * 设置基础UI - 立即显示界面，提供基本交互
      */
-    private fun setupUI_7ree() {
+    private fun setupBasicUI_7ree() {
+        val inputText = findViewById<EditText>(R.id.widget_input_config_7ree)
+        val queryButton = findViewById<Button>(R.id.widget_query_button_config_7ree)
+        val closeButton = findViewById<ImageView>(R.id.widget_close_button_7ree)
+
+        // 设置关闭按钮点击事件 - 这个不依赖管理器，可以立即设置
+        closeButton.setOnClickListener {
+            finish()
+        }
+        
+        // 设置输入框基本状态
+        inputText.requestFocus()
+        
+        // 初始状态按钮为灰色无效
+        queryButton.isEnabled = false
+        queryButton.alpha = 0.5f
+        
+        // 设置基本的按钮点击事件（暂时禁用，等待初始化完成）
+        queryButton.setOnClickListener {
+            // 如果管理器还未初始化，显示提示
+            if (!::inputValidator_7ree.isInitialized) {
+                // 可以显示一个简单的提示，或者什么都不做
+                return@setOnClickListener
+            }
+            performSearch_7ree(inputText, queryButton)
+        }
+    }
+    
+    /**
+     * 设置高级UI功能 - 在管理器初始化完成后调用
+     */
+    private fun setupAdvancedUI_7ree() {
         val inputText = findViewById<EditText>(R.id.widget_input_config_7ree)
         val queryButton = findViewById<Button>(R.id.widget_query_button_config_7ree)
         val customKeyboardContainer = findViewById<LinearLayout>(R.id.widget_custom_keyboard_container_7ree)
         val closeButton = findViewById<ImageView>(R.id.widget_close_button_7ree)
 
-        // 设置关闭按钮点击事件
+        // 更新关闭按钮点击事件，现在可以使用管理器了
         closeButton.setOnClickListener {
             // 隐藏键盘
-            keyboardManager_7ree.hideKeyboard_7ree()
+            if (::keyboardManager_7ree.isInitialized) {
+                keyboardManager_7ree.hideKeyboard_7ree()
+            }
             inputText.hideKeyboard_7ree()
             // 关闭Activity
             finish()
@@ -124,17 +167,17 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             }, 100)
         }
         
-        // 2. 初始状态按钮为灰色无效
+        // 设置按钮状态管理
         buttonManager_7ree.updateButtonState_7ree(queryButton, false)
         
-        // 3. 设置输入验证
+        // 设置输入验证
         inputValidator_7ree.setupInputFilter_7ree(inputText)
         inputValidator_7ree.setupTextWatcher_7ree(inputText, queryButton)
         inputValidator_7ree.setupEnterKeyListener_7ree(inputText) {
             performSearch_7ree(inputText, queryButton)
         }
         
-        // 按钮点击事件
+        // 更新按钮点击事件，现在所有管理器都已初始化
         queryButton.setOnClickListener {
             performSearch_7ree(inputText, queryButton)
         }
