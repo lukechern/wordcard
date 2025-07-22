@@ -146,6 +146,17 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
     }
     
     /**
+     * 设置自定义光标组件
+     */
+    fun setCustomCursor_7ree(cursor: WidgetCustomCursor_7ree) {
+        customCursor_7ree = cursor
+        // 如果已经有绑定的输入框，重新绑定光标
+        currentInputText_7ree?.let { inputText ->
+            customCursor_7ree?.bindEditText_7ree(inputText)
+        }
+    }
+    
+    /**
      * 绑定输入框
      */
     fun bindInputText_7ree(

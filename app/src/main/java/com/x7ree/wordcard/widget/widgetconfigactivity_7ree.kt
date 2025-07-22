@@ -138,6 +138,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         val inputText = findViewById<EditText>(R.id.widget_input_config_7ree)
         val queryButton = findViewById<Button>(R.id.widget_query_button_config_7ree)
         val customKeyboardContainer = findViewById<LinearLayout>(R.id.widget_custom_keyboard_container_7ree)
+        val customCursor = findViewById<com.x7ree.wordcard.widget.WidgetCustomCursor_7ree>(R.id.widget_custom_cursor_7ree)
         val closeButton = findViewById<ImageView>(R.id.widget_close_button_7ree)
 
         // 更新关闭按钮点击事件，现在可以使用管理器了
@@ -154,6 +155,9 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         // 设置自定义键盘容器
         keyboardManager_7ree.setCustomKeyboardContainer_7ree(customKeyboardContainer)
         
+        // 手动设置自定义光标组件到键盘管理器
+        keyboardManager_7ree.setCustomCursor_7ree(customCursor)
+        
         // 绑定键盘管理器到输入框
         keyboardManager_7ree.bindInputText_7ree(inputText, { _ -> }, {
             performSearch_7ree(inputText, queryButton)
@@ -165,6 +169,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             // 再次延迟确保键盘状态正确初始化
             inputText.postDelayed({
                 keyboardManager_7ree.showCustomKeyboard_7ree()
+                // 确保自定义光标在使用自定义键盘时显示
+                if (keyboardManager_7ree.getCurrentKeyboardType_7ree() == "custom") {
+                    customCursor.showCursor_7ree()
+                }
             }, 100)
         }
         
