@@ -55,7 +55,7 @@
         android:textSize="14sp"
         android:textColor="#666666"
         android:gravity="center"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="4dp"
         android:visibility="gone" />
 
     <!-- 输入框容器 -->
@@ -105,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone" />
 
     <TextView
@@ -123,7 +123,7 @@
         android:id="@+id/widget_result_text_7ree"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="2dp"
         android:textSize="12sp"
         android:textColor="#333333"
         android:lineSpacingExtra="2dp"
@@ -140,7 +140,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:gravity="center"
         android:visibility="gone">
 

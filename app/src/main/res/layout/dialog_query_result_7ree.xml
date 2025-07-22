@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:textColor="@color/green_700_7ree"
         android:gravity="center"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
 
     <!-- 加载进度条 -->
     <ProgressBar
@@ -23,8 +23,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:visibility="visible" />
 
     <!-- 查询结果文本 -->

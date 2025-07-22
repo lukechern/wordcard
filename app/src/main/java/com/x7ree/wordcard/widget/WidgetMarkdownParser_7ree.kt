@@ -19,24 +19,33 @@ class WidgetMarkdownParser_7ree {
          * 解析基本信息，使用正则表达式提取各个部分的内容
          */
         fun parseBasicInfo_7ree(fullResult: String): WidgetMarkdownContent_7ree {
+            android.util.Log.d("WidgetMarkdownParser", "开始解析API返回内容，长度: ${fullResult.length}")
+            android.util.Log.d("WidgetMarkdownParser", "API返回内容: $fullResult")
+            
             if (fullResult.isBlank()) {
+                android.util.Log.d("WidgetMarkdownParser", "API返回内容为空")
                 return WidgetMarkdownContent_7ree("", "", "", "", "", "")
             }
             
             // 使用正则表达式提取各个部分
             val wordRegex = Regex("### 查询单词\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
-            val definitionRegex = Regex("### 查询单词\\s*\\n[^\\n]*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
+            val chineseMeaningRegex = Regex("### 中文词义\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             val phoneticRegex = Regex("### 音标\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             val partOfSpeechRegex = Regex("### 词性\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             val examplesRegex = Regex("### 英文例句\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             val translationsRegex = Regex("### 例句中文翻译\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             
             val word = wordRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
-            val chineseMeaning = definitionRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
+            val chineseMeaning = chineseMeaningRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val phonetic = phoneticRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val partOfSpeech = partOfSpeechRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val englishExamples = examplesRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val chineseTranslations = translationsRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
+            
+            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 单词: '$word'")
+            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 中文意思: '$chineseMeaning'")
+            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 音标: '$phonetic'")
+            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 词性: '$partOfSpeech'")
             
             return WidgetMarkdownContent_7ree(word, chineseMeaning, phonetic, partOfSpeech, englishExamples, chineseTranslations)
         }
@@ -50,8 +59,8 @@ class WidgetMarkdownParser_7ree {
                 return
             }
             
-            // 过滤掉"查询单词"标题和单词内容
-            val filteredContent = filterQueryWordSection_7ree(markdownContent)
+            // 过滤掉"查询单词"和"中文词义"标题和内容
+            val filteredContent = filterQueryWordAndChineseMeaningSection_7ree(markdownContent)
             
             // 使用Markwon进行基本的Markdown渲染
             val markwon = Markwon.builder(textView.context).build()
@@ -62,12 +71,21 @@ class WidgetMarkdownParser_7ree {
         }
         
         /**
-         * 过滤掉"查询单词"部分的内容
+         * 过滤掉"查询单词"和"中文词义"部分的内容
+         * 针对流式输出，确保在完整接收后再进行过滤
          */
-        private fun filterQueryWordSection_7ree(content: String): String {
+        private fun filterQueryWordAndChineseMeaningSection_7ree(content: String): String {
+            var filteredContent = content
+            
             // 使用正则表达式移除"查询单词"标题和其内容
-            val regex = Regex("### 查询单词\\s*\\n[^#]*?(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
-            return regex.replace(content, "").trim()
+            val queryWordRegex = Regex("### 查询单词\\s*\\n[^#]*?(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
+            filteredContent = queryWordRegex.replace(filteredContent, "")
+            
+            // 使用正则表达式移除"中文词义"标题和其内容
+            val chineseMeaningRegex = Regex("### 中文词义\\s*\\n[^#]*?(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
+            filteredContent = chineseMeaningRegex.replace(filteredContent, "")
+            
+            return filteredContent.trim()
         }
         
         /**

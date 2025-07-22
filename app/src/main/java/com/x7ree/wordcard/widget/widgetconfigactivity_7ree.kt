@@ -2,7 +2,8 @@ package com.x7ree.wordcard.widget
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
+import android.util.Log
+import android.view.ViewTreeObserver
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -215,6 +216,9 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                 chineseMeaning, loadingText, resultButtons, queryText
             )
             
+            // 添加查询状态下的UI坐标和间距日志输出
+            logSearchStateUICoordinates_7ree(progressBar, loadingText, wordTitle)
+            
             // 禁用查询按钮防止重复查询
             queryButton.isEnabled = false
             
@@ -299,6 +303,16 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             // 使用解析出的单词或查询文本作为朗读内容
             val wordToSpeak = if (parsedContent.word.isNotEmpty()) parsedContent.word else queryText
             resultButtonManager_7ree.setupResultButtons_7ree(queryText, wordToSpeak)
+            
+            // 在按钮设置完成后，延迟记录UI坐标以确保布局完成
+            resultButtons.post {
+                logResultStateUICoordinates_7ree(wordTitle, chineseMeaning, resultText, resultButtons)
+            }
+        } else {
+            // 即使不显示按钮，也记录UI坐标用于调试
+            resultText.post {
+                logResultStateUICoordinates_7ree(wordTitle, chineseMeaning, resultText, resultButtons)
+            }
         }
     }
     
@@ -309,6 +323,107 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     
 
     
+    /**
+     * 记录查询状态下UI元素的坐标和间距信息
+     */
+    private fun logSearchStateUICoordinates_7ree(progressBar: ProgressBar, loadingText: TextView, wordTitle: TextView) {
+        // 使用ViewTreeObserver确保布局完成后再获取坐标
+        progressBar.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                progressBar.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                
+                val TAG = "WidgetQueryUI_7ree"
+                Log.d(TAG, "=== 查询状态页面 UI 坐标和间距信息 ===")
+                
+                // 获取WordTitle的位置和尺寸
+                val wordTitleLocation = IntArray(2)
+                wordTitle.getLocationOnScreen(wordTitleLocation)
+                Log.d(TAG, "WordTitle - X: ${wordTitleLocation[0]}, Y: ${wordTitleLocation[1]}, Width: ${wordTitle.width}, Height: ${wordTitle.height}")
+                Log.d(TAG, "WordTitle - MarginTop: ${(wordTitle.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "WordTitle - MarginBottom: ${(wordTitle.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 获取ProgressBar的位置和尺寸
+                val progressBarLocation = IntArray(2)
+                progressBar.getLocationOnScreen(progressBarLocation)
+                Log.d(TAG, "ProgressBar - X: ${progressBarLocation[0]}, Y: ${progressBarLocation[1]}, Width: ${progressBar.width}, Height: ${progressBar.height}")
+                Log.d(TAG, "ProgressBar - MarginTop: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "ProgressBar - MarginBottom: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 获取LoadingText的位置和尺寸
+                val loadingTextLocation = IntArray(2)
+                loadingText.getLocationOnScreen(loadingTextLocation)
+                Log.d(TAG, "LoadingText - X: ${loadingTextLocation[0]}, Y: ${loadingTextLocation[1]}, Width: ${loadingText.width}, Height: ${loadingText.height}")
+                Log.d(TAG, "LoadingText - MarginTop: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "LoadingText - MarginBottom: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 计算WordTitle和ProgressBar之间的距离
+                val distanceTitleToProgress = progressBarLocation[1] - (wordTitleLocation[1] + wordTitle.height)
+                Log.d(TAG, "WordTitle与ProgressBar之间的距离: ${distanceTitleToProgress}px")
+                
+                // 计算ProgressBar和LoadingText之间的距离
+                val distanceProgressToText = loadingTextLocation[1] - (progressBarLocation[1] + progressBar.height)
+                Log.d(TAG, "ProgressBar与LoadingText之间的距离: ${distanceProgressToText}px")
+                
+                Log.d(TAG, "=== 查询状态 UI 坐标和间距信息记录完成 ===")
+            }
+        })
+    }
+    
+    /**
+     * 记录结果状态下UI元素的坐标和间距信息
+     */
+    private fun logResultStateUICoordinates_7ree(wordTitle: TextView, chineseMeaning: TextView, resultText: TextView, resultButtons: LinearLayout) {
+        // 使用ViewTreeObserver确保布局完成后再获取坐标
+        wordTitle.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                wordTitle.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                
+                val TAG = "WidgetResultUI_7ree"
+                Log.d(TAG, "=== 查询结果页面 UI 坐标和间距信息 ===")
+                
+                // 获取WordTitle的位置和尺寸
+                val wordTitleLocation = IntArray(2)
+                wordTitle.getLocationOnScreen(wordTitleLocation)
+                Log.d(TAG, "WordTitle - X: ${wordTitleLocation[0]}, Y: ${wordTitleLocation[1]}, Width: ${wordTitle.width}, Height: ${wordTitle.height}")
+                Log.d(TAG, "WordTitle - MarginTop: ${(wordTitle.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "WordTitle - MarginBottom: ${(wordTitle.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 获取ChineseMeaning的位置和尺寸
+                val chineseMeaningLocation = IntArray(2)
+                chineseMeaning.getLocationOnScreen(chineseMeaningLocation)
+                Log.d(TAG, "ChineseMeaning - X: ${chineseMeaningLocation[0]}, Y: ${chineseMeaningLocation[1]}, Width: ${chineseMeaning.width}, Height: ${chineseMeaning.height}")
+                Log.d(TAG, "ChineseMeaning - MarginTop: ${(chineseMeaning.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "ChineseMeaning - MarginBottom: ${(chineseMeaning.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 获取ResultText的位置和尺寸
+                val resultTextLocation = IntArray(2)
+                resultText.getLocationOnScreen(resultTextLocation)
+                Log.d(TAG, "ResultText - X: ${resultTextLocation[0]}, Y: ${resultTextLocation[1]}, Width: ${resultText.width}, Height: ${resultText.height}")
+                Log.d(TAG, "ResultText - MarginTop: ${(resultText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "ResultText - MarginBottom: ${(resultText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 获取ResultButtons的位置和尺寸
+                val resultButtonsLocation = IntArray(2)
+                resultButtons.getLocationOnScreen(resultButtonsLocation)
+                Log.d(TAG, "ResultButtons - X: ${resultButtonsLocation[0]}, Y: ${resultButtonsLocation[1]}, Width: ${resultButtons.width}, Height: ${resultButtons.height}")
+                Log.d(TAG, "ResultButtons - MarginTop: ${(resultButtons.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                Log.d(TAG, "ResultButtons - MarginBottom: ${(resultButtons.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                
+                // 计算各元素之间的距离
+                val distanceTitleToMeaning = chineseMeaningLocation[1] - (wordTitleLocation[1] + wordTitle.height)
+                Log.d(TAG, "WordTitle与ChineseMeaning之间的距离: ${distanceTitleToMeaning}px")
+                
+                val distanceMeaningToResult = resultTextLocation[1] - (chineseMeaningLocation[1] + chineseMeaning.height)
+                Log.d(TAG, "ChineseMeaning与ResultText之间的距离: ${distanceMeaningToResult}px")
+                
+                val distanceResultToButtons = resultButtonsLocation[1] - (resultTextLocation[1] + resultText.height)
+                Log.d(TAG, "ResultText与ResultButtons之间的距离: ${distanceResultToButtons}px")
+                
+                Log.d(TAG, "=== 查询结果 UI 坐标和间距信息记录完成 ===")
+            }
+        })
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         ttsManager_7ree.release_7ree()

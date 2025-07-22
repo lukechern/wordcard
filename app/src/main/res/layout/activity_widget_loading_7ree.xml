@@ -43,7 +43,7 @@
                 android:id="@+id/widget_loading_progress_7ree"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:indeterminateTint="#4CAF50" />
 
             <!-- 加载文本 -->

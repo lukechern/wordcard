@@ -114,7 +114,7 @@ class MarkdownRenderer_7ree {
                 filteredLines_7ree.add(line_7ree)
             }
             
-            // 第一遍：查找音标标题，同时排除中文词义内容
+            // 第一遍：查找音标标题，同时完全排除中文词义内容
             var inChineseMeaningSection_7ree = false
             for (line_7ree in filteredLines_7ree) {
                 val trimmedLine_7ree = line_7ree.trim()
@@ -128,6 +128,9 @@ class MarkdownRenderer_7ree {
                     continue
                 } else if (inChineseMeaningSection_7ree && trimmedLine_7ree.matches(Regex("^#+\\s+.+$"))) {
                     inChineseMeaningSection_7ree = false
+                    continue
+                } else if (inChineseMeaningSection_7ree) {
+                    // 跳过中文词义段落中的所有内容行
                     continue
                 }
 
@@ -288,7 +291,7 @@ fun MarkdownRenderer_7ree(
         
         // 显示音标标题行（带单词朗读喇叭按钮）
         if (content.foundPhoneticSection) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,

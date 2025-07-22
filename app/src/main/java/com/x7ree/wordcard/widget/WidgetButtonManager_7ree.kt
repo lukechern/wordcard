@@ -23,8 +23,10 @@ class WidgetButtonManager_7ree(private val context: Context) {
         button.isEnabled = enabled
         if (enabled) {
             button.background = ContextCompat.getDrawable(context, R.drawable.widget_green_button_background_7ree)
+            button.alpha = 1.0f // 确保启用状态下完全不透明
         } else {
             button.background = ContextCompat.getDrawable(context, R.drawable.widget_gray_button_background_7ree)
+            button.alpha = 0.5f // 禁用状态下半透明
         }
         
         // 创建带图标的文字
