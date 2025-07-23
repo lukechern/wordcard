@@ -206,7 +206,7 @@ fun CustomCursor_7ree(
         // 光标线条
         Box(
             modifier = Modifier
-                .offset(x = textWidth / 2 + 4.dp) // 定位到文本末尾并右移4dp避免重叠
+                .offset(x = textWidth / 2 + 5.dp) // 定位到文本末尾并右移4dp避免重叠
                 .width(2.dp)
                 .height(textStyle.fontSize.value.dp * 1.2f)
                 .alpha(alpha)
