@@ -135,6 +135,7 @@ class HtmlPageProvider_7ree {
 <body>
     <div class="container">
         <h1>WordCard 数据管理</h1>
+        <p id="wordCountSubtitle" style="text-align: center; color: #666; margin-bottom: 20px;">正在加载单词记录数量...</p>
         
         <!-- Tab导航 -->
         <div class="tab-nav">
@@ -288,6 +289,24 @@ class HtmlPageProvider_7ree {
             await performImport(jsonText, 'textImportMessage', 'textImportLoading');
         }
         
+        // 页面加载时获取单词数量
+        async function loadWordCount() {
+            try {
+                const response = await fetch('/wordcount');
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('wordCountSubtitle').textContent = 'APP共存储了' + result.count + '条单词记录';
+                } else {
+                    document.getElementById('wordCountSubtitle').textContent = 'APP共存储了--条单词记录';
+                }
+            } catch (error) {
+                document.getElementById('wordCountSubtitle').textContent = 'APP共存储了--条单词记录';
+            }
+        }
+        
+        // 页面加载完成后获取单词数量
+        window.addEventListener('load', loadWordCount);
+        
         async function performImport(jsonText, messageElementId, loadingElementId) {
             try {
                 // 验证JSON格式
@@ -306,6 +325,14 @@ class HtmlPageProvider_7ree {
                     
                     if (result.success) {
                         showMessage(messageElementId, result.message);
+                        // 清空文件选择字段
+                        if (messageElementId === 'importMessage') {
+                            document.getElementById('importFile').value = '';
+                        } else if (messageElementId === 'textImportMessage') {
+                            document.getElementById('jsonInput').value = '';
+                        }
+                        // 导入成功后刷新单词数量
+                        loadWordCount();
                     } else {
                         showMessage(messageElementId, result.message, true);
                     }

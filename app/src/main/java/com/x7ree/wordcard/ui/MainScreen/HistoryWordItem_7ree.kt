@@ -171,7 +171,7 @@ fun HistoryWordItem_7ree(
                     }
                     
                     // 调试日志 - 帮助验证状态切换
-                    android.util.Log.d("TTS_DEBUG", "单词: ${wordEntity_7ree.word}, 当前朗读: $currentSpeakingWord_7ree, 状态: $currentTtsState")
+                    // android.util.Log.d("TTS_DEBUG", "单词: ${wordEntity_7ree.word}, 当前朗读: $currentSpeakingWord_7ree, 状态: $currentTtsState")
                     
                     IconButton(
                         onClick = {

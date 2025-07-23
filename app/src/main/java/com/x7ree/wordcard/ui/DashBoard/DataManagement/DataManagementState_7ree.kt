@@ -27,6 +27,11 @@ fun rememberDataManagementState_7ree(
     var serverUrl by remember { mutableStateOf<String?>(null) }
     var httpServerManager by remember { mutableStateOf<HttpServerManager_7ree?>(null) }
     
+    // 手机操作开关状态
+    var isPhoneOperationEnabled by remember { 
+        mutableStateOf(sharedPrefs.getBoolean("phone_operation_enabled", true)) // 默认开启
+    }
+    
     // 初始化HTTP服务器管理器（使用全局实例）
     LaunchedEffect(Unit) {
         Log.d("DataManagement", "=== 进入页面，开始初始化 ===")
@@ -142,13 +147,42 @@ fun rememberDataManagementState_7ree(
         serverUrl = serverUrl,
         httpServerManager = httpServerManager,
         onServerToggle = { newState ->
-            Log.d("DataManagement", "=== 用户点击开关 ===")
+            Log.d("DataManagement", "=== 用户点击电脑操作开关 ===")
             Log.d("DataManagement", "开关从 $isServerEnabled 切换到 $newState")
+            
+            // 如果开启电脑操作，先关闭手机操作
+            if (newState && isPhoneOperationEnabled) {
+                isPhoneOperationEnabled = false
+                sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
+                Log.d("DataManagement", "电脑操作开启，自动关闭手机操作")
+            }
+            
+            // 然后设置电脑操作状态
             isServerEnabled = newState
+            
             // 保存状态到SharedPreferences
             val saveResult = sharedPrefs.edit().putBoolean("server_enabled", newState).commit()
             Log.d("DataManagement", "保存到SharedPreferences结果: $saveResult")
             Log.d("DataManagement", "验证保存结果: ${sharedPrefs.getBoolean("server_enabled", false)}")
+        },
+        isPhoneOperationEnabled = isPhoneOperationEnabled,
+        onPhoneOperationToggle = { newState ->
+            Log.d("DataManagement", "=== 用户点击手机操作开关 ===")
+            Log.d("DataManagement", "手机操作开关从 $isPhoneOperationEnabled 切换到 $newState")
+            
+            // 如果开启手机操作，先关闭电脑操作
+            if (newState && isServerEnabled) {
+                isServerEnabled = false
+                sharedPrefs.edit().putBoolean("server_enabled", false).apply()
+                Log.d("DataManagement", "手机操作开启，自动关闭电脑操作")
+            }
+            
+            // 然后设置手机操作状态
+            isPhoneOperationEnabled = newState
+            
+            // 保存手机操作状态到SharedPreferences
+            val saveResult = sharedPrefs.edit().putBoolean("phone_operation_enabled", newState).commit()
+            Log.d("DataManagement", "保存手机操作状态结果: $saveResult")
         }
     )
 }
@@ -160,5 +194,7 @@ data class DataManagementState_7ree(
     val isServerEnabled: Boolean,
     val serverUrl: String?,
     val httpServerManager: HttpServerManager_7ree?,
-    val onServerToggle: (Boolean) -> Unit
+    val onServerToggle: (Boolean) -> Unit,
+    val isPhoneOperationEnabled: Boolean,
+    val onPhoneOperationToggle: (Boolean) -> Unit
 )

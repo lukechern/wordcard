@@ -22,7 +22,9 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 @Composable
 fun PhoneOperationSection_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit
+    onImportFile_7ree: () -> Unit,
+    isPhoneOperationEnabled: Boolean,
+    onPhoneOperationToggle: (Boolean) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -34,34 +36,50 @@ fun PhoneOperationSection_7ree(
             .padding(16.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Filled.PhoneAndroid,
-                contentDescription = "手机操作",
-                modifier = Modifier.padding(end = 8.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = "从手机操作",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PhoneAndroid,
+                    contentDescription = "手机操作",
+                    modifier = Modifier.padding(end = 8.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "从手机操作",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Switch(
+                checked = isPhoneOperationEnabled,
+                onCheckedChange = onPhoneOperationToggle
             )
         }
         
-        // 数据导出部分
-        DataExportSection_7ree(wordQueryViewModel_7ree)
         
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // 数据导入部分
-        DataImportSection_7ree(onImportFile_7ree)
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // 存储路径信息
-        StoragePathSection_7ree(wordQueryViewModel_7ree)
+        // 只有当手机操作开关开启时才显示内容
+        if (isPhoneOperationEnabled) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 数据导出部分
+            DataExportSection_7ree(wordQueryViewModel_7ree)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 数据导入部分
+            DataImportSection_7ree(onImportFile_7ree)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 存储路径信息
+            StoragePathSection_7ree(wordQueryViewModel_7ree)
+        }
     }
 }
 

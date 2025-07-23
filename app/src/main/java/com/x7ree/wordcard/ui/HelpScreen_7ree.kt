@@ -29,10 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import android.content.Intent
 import android.net.Uri
+import com.x7ree.wordcard.utils.AppVersionUtils_7ree
 
 @Composable
 fun HelpScreen_7ree() {
     val context = LocalContext.current
+    val currentVersion = AppVersionUtils_7ree.getFormattedVersion(context)
     
     Column(
         modifier = Modifier
@@ -306,7 +308,7 @@ fun HelpScreen_7ree() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "v4.2",
+                        text = currentVersion,
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -322,7 +324,7 @@ fun HelpScreen_7ree() {
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = "2025-07-21",
+                        text = "2025-07-23",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -333,7 +335,11 @@ fun HelpScreen_7ree() {
             Spacer(modifier = Modifier.height(8.dp))
             
             Text(
-                text = "🎉 本版本新增了智能搜索功能，让单词查找更加便捷高效！",
+                text = "🎉 本版本更新内容：\n" +
+                        "💻 新增电脑操作功能 - 通过局域网在PC端导入导出数据，操作更便捷\n" +
+                        "📱 优化前台查询卡片 - 界面更美观，响应更流畅\n" +
+                        "🔄 智能操作模式切换 - 手机操作与电脑操作互斥，避免冲突\n" +
+                        "📊 实时数据统计 - 动态显示单词记录数量，学习进度一目了然",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 lineHeight = 18.sp
