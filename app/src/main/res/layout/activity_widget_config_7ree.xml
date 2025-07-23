@@ -26,7 +26,8 @@
         android:layout_marginTop="36dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/widget_dialog_background_7ree">
+        android:background="@drawable/widget_dialog_background_7ree"
+        android:elevation="12dp">
 
         <LinearLayout
             android:layout_width="match_parent"

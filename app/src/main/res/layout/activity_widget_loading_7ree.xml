@@ -26,7 +26,8 @@
         android:layout_marginTop="36dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/widget_dialog_background_7ree">
+        android:background="@drawable/widget_dialog_background_7ree"
+        android:elevation="12dp">
 
         <!-- 加载动画容器 - 与查询界面内部结构保持一致 -->
         <LinearLayout

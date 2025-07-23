@@ -290,7 +290,7 @@ fun WordInputComponent_7ree(
                 modifier = Modifier.padding(end = 8.dp)
             )
             Text(
-                text = "开始查",
+                text = "用AI查询",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Medium
             )
