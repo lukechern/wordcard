@@ -164,25 +164,33 @@ class HttpServerManager_7ree(
         try {
             val contentLength = headers["content-length"]?.toIntOrNull() ?: 0
             if (contentLength > 0) {
-                val buffer = CharArray(contentLength)
-                input.read(buffer, 0, contentLength)
-                val body = String(buffer)
+                // 使用StringBuilder来读取数据，避免编码问题
+                val jsonData = StringBuilder()
+                var line: String?
+                while (input.readLine().also { line = it } != null) {
+                    jsonData.append(line).append("\n")
+                }
                 
-                // 直接使用body作为JSON数据，因为前端发送的就是纯JSON
-                val jsonData = body.trim()
+                val jsonString = jsonData.toString().trim()
                 
-                if (jsonData.isNotEmpty()) {
-                    // 验证JSON格式
+                if (jsonString.isNotEmpty()) {
+                    // 验证JSON格式 - 使用标准JSON解析器
                     try {
-                        json.parseToJsonElement(jsonData)
+                        // 先用标准JSON解析器验证
+                        org.json.JSONObject(jsonString)
                     } catch (e: Exception) {
-                        sendErrorResponse(output, "无效的JSON格式: ${e.message}")
-                        return
+                        try {
+                            // 如果不是JSONObject，尝试JSONArray
+                            org.json.JSONArray(jsonString)
+                        } catch (e2: Exception) {
+                            sendErrorResponse(output, "无效的JSON格式，请确保文件内容是有效的JSON")
+                            return
+                        }
                     }
                     
-                    // 创建临时文件
+                    // 创建临时文件，使用UTF-8编码
                     val tempFile = File.createTempFile("import_", ".json", context.cacheDir)
-                    tempFile.writeText(jsonData)
+                    tempFile.writeText(jsonString, Charsets.UTF_8)
                     
                     val uri = android.net.Uri.fromFile(tempFile)
                     val result = dataExportImportManager.importData_7ree(uri)
@@ -193,13 +201,14 @@ class HttpServerManager_7ree(
                         val count = result.getOrNull() ?: 0
                         sendJsonResponse(output, """{"success": true, "message": "成功导入 $count 条记录"}""")
                     } else {
-                        sendErrorResponse(output, "导入失败: ${result.exceptionOrNull()?.message}")
+                        val errorMsg = result.exceptionOrNull()?.message ?: "未知错误"
+                        sendErrorResponse(output, "导入失败: $errorMsg")
                     }
                 } else {
-                    sendErrorResponse(output, "没有数据")
+                    sendErrorResponse(output, "没有接收到数据")
                 }
             } else {
-                sendErrorResponse(output, "没有数据")
+                sendErrorResponse(output, "请求中没有数据")
             }
         } catch (e: Exception) {
             sendErrorResponse(output, "导入异常: ${e.message}")
