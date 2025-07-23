@@ -43,6 +43,42 @@ class WidgetResultButtonManager_7ree(
     }
     
     /**
+     * 外部调用的自动朗读方法 - 用于自动朗读时更新按钮状态
+     * @param word 要朗读的单词
+     */
+    fun autoSpeakWord_7ree(word: String) {
+        val speakButton = activity.findViewById<ImageView>(R.id.widget_speak_button_7ree)
+        
+        if (currentTtsState == WidgetTtsButtonState.IDLE) {
+            currentSpeakingWord = word
+            updateSpeakButtonState(speakButton, WidgetTtsButtonState.LOADING)
+            currentTtsState = WidgetTtsButtonState.LOADING
+            
+            // 调用TTS朗读，使用真实的状态回调
+            ttsManager_7ree.speakWord_7ree(
+                word = word,
+                onPlayStart = {
+                    // TTS音频开始播放时切换到播放状态
+                    updateSpeakButtonState(speakButton, WidgetTtsButtonState.PLAYING)
+                    currentTtsState = WidgetTtsButtonState.PLAYING
+                },
+                onPlayComplete = {
+                    // TTS音频播放完成时恢复空闲状态
+                    updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+                    currentTtsState = WidgetTtsButtonState.IDLE
+                    currentSpeakingWord = ""
+                },
+                onError = { error ->
+                    // TTS出错时恢复空闲状态
+                    updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
+                    currentTtsState = WidgetTtsButtonState.IDLE
+                    currentSpeakingWord = ""
+                }
+            )
+        }
+    }
+    
+    /**
      * 设置朗读按钮 - 支持状态切换
      */
     private fun setupSpeakButton_7ree(currentQueryWord: String) {

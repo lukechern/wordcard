@@ -183,11 +183,20 @@ fun CustomCursor_7ree(
         label = "cursor_alpha"
     )
     
-    // 计算文本宽度和光标位置
-    val textWidth = with(density) {
-        // 估算文本宽度，每个字符大约占用textStyle.fontSize * 0.6的宽度
-        val charWidth = textStyle.fontSize.toPx() * 0.6f
-        (text.length * charWidth).toDp()
+    // 使用TextMeasurer精确计算文本宽度，参考单词查询页面的实现
+    val textMeasurer = androidx.compose.ui.text.rememberTextMeasurer()
+    val textWidth = remember(text, textStyle) {
+        if (text.isEmpty()) {
+            0.dp
+        } else {
+            val textLayoutResult = textMeasurer.measure(
+                text = androidx.compose.ui.text.AnnotatedString(text),
+                style = textStyle
+            )
+            with(density) {
+                textLayoutResult.size.width.toDp()
+            }
+        }
     }
     
     Box(
@@ -197,7 +206,7 @@ fun CustomCursor_7ree(
         // 光标线条
         Box(
             modifier = Modifier
-                .offset(x = textWidth / 2) // 定位到文本末尾
+                .offset(x = textWidth / 2 + 4.dp) // 定位到文本末尾并右移4dp避免重叠
                 .width(2.dp)
                 .height(textStyle.fontSize.value.dp * 1.2f)
                 .alpha(alpha)
