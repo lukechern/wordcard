@@ -313,6 +313,10 @@ class WordQueryViewModel_7ree(
         dataManagerService_7ree.importHistoryData_7ree(uri)
     }
     
+    fun getDataExportImportManager(): DataExportImportManager_7ree {
+        return dataExportImportManager_7ree
+    }
+    
     // 操作结果管理
     fun clearOperationResult_7ree() {
         queryState_7ree.clearOperationResult_7ree()
