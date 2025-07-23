@@ -48,8 +48,11 @@ class WidgetResultButtonManager_7ree(
      */
     fun autoSpeakWord_7ree(word: String) {
         val speakButton = activity.findViewById<ImageView>(R.id.widget_speak_button_7ree)
+        val speakText = activity.findViewById<TextView>(R.id.widget_speak_text_7ree)
+        val speakContainer = activity.findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
         
         if (currentTtsState == WidgetTtsButtonState.IDLE) {
+            // 开始朗读
             currentSpeakingWord = word
             updateSpeakButtonState(speakButton, WidgetTtsButtonState.LOADING)
             currentTtsState = WidgetTtsButtonState.LOADING
@@ -168,7 +171,7 @@ class WidgetResultButtonManager_7ree(
             }
             WidgetTtsButtonState.PLAYING -> {
                 speakButton.clearAnimation()
-                speakButton.setImageResource(android.R.drawable.ic_media_pause)
+                speakButton.setImageResource(R.drawable.ic_pause_custom_7ree)
                 speakButton.alpha = 1.0f
                 speakButton.isEnabled = true
             }

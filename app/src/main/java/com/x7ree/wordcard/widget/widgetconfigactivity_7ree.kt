@@ -254,7 +254,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                                 ttsManager_7ree.isTtsReady_7ree()) {
                                 // 延迟一小段时间确保结果完全显示
                                 kotlinx.coroutines.delay(500)
-                                ttsManager_7ree.speakWord_7ree(queryText)
+                                resultButtonManager_7ree.autoSpeakWord_7ree(queryText)
                             }
                         }
                     }
