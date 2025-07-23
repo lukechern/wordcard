@@ -236,7 +236,7 @@
         android:background="@android:color/transparent"
         android:src="@drawable/wordcardicon"
         android:contentDescription="WordCard图标"
-        android:elevation="8dp" />
+        android:elevation="16dp" />
 
     </FrameLayout>
 
