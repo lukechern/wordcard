@@ -17,15 +17,20 @@ class WidgetMarkdownParser_7ree {
         
         /**
          * 解析基本信息，使用正则表达式提取各个部分的内容
+         * 针对流式输出优化：在检测到"音标"两个字之前不解析中文词义
          */
         fun parseBasicInfo_7ree(fullResult: String): WidgetMarkdownContent_7ree {
-            android.util.Log.d("WidgetMarkdownParser", "开始解析API返回内容，长度: ${fullResult.length}")
-            android.util.Log.d("WidgetMarkdownParser", "API返回内容: $fullResult")
+            // android.util.Log.d("WidgetMarkdownParser", "开始解析API返回内容，长度: ${fullResult.length}")
+            // android.util.Log.d("WidgetMarkdownParser", "API返回内容: $fullResult")
             
             if (fullResult.isBlank()) {
-                android.util.Log.d("WidgetMarkdownParser", "API返回内容为空")
+                // android.util.Log.d("WidgetMarkdownParser", "API返回内容为空")
                 return WidgetMarkdownContent_7ree("", "", "", "", "", "")
             }
+            
+            // 检查是否包含"音标"关键字，用于判断流式输出是否足够完整
+            val hasPhoneticSection = fullResult.contains("音标")
+            // android.util.Log.d("WidgetMarkdownParser", "是否检测到音标关键字: $hasPhoneticSection")
             
             // 使用正则表达式提取各个部分
             val wordRegex = Regex("### 查询单词\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
@@ -36,16 +41,24 @@ class WidgetMarkdownParser_7ree {
             val translationsRegex = Regex("### 例句中文翻译\\s*\\n([^#]+?)(?=\\n###|$)", RegexOption.DOT_MATCHES_ALL)
             
             val word = wordRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
-            val chineseMeaning = chineseMeaningRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
+            
+            // 只有在检测到"音标"关键字后才解析中文词义，避免流式输出时内容不完整
+            val chineseMeaning = if (hasPhoneticSection) {
+                chineseMeaningRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
+            } else {
+                // android.util.Log.d("WidgetMarkdownParser", "未检测到音标关键字，跳过中文词义解析")
+                ""
+            }
+            
             val phonetic = phoneticRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val partOfSpeech = partOfSpeechRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val englishExamples = examplesRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             val chineseTranslations = translationsRegex.find(fullResult)?.groupValues?.get(1)?.trim() ?: ""
             
-            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 单词: '$word'")
-            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 中文意思: '$chineseMeaning'")
-            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 音标: '$phonetic'")
-            android.util.Log.d("WidgetMarkdownParser", "解析结果 - 词性: '$partOfSpeech'")
+            // android.util.Log.d("WidgetMarkdownParser", "解析结果 - 单词: '$word'")
+            // android.util.Log.d("WidgetMarkdownParser", "解析结果 - 中文意思: '$chineseMeaning'")
+            // android.util.Log.d("WidgetMarkdownParser", "解析结果 - 音标: '$phonetic'")
+            // android.util.Log.d("WidgetMarkdownParser", "解析结果 - 词性: '$partOfSpeech'")
             
             return WidgetMarkdownContent_7ree(word, chineseMeaning, phonetic, partOfSpeech, englishExamples, chineseTranslations)
         }

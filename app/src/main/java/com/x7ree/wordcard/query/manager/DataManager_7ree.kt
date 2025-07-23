@@ -30,7 +30,7 @@ class DataManager_7ree(
                     paginationState_7ree.updateWordCount_7ree(count)
                     val endTime = System.currentTimeMillis()
                     val duration = endTime - startTime
-                    println("DEBUG: 加载单词计数完成，耗时: ${duration}ms")
+                    // println("DEBUG: 加载单词计数完成，耗时: ${duration}ms")
                 }
             }
         }
@@ -44,7 +44,7 @@ class DataManager_7ree(
                     paginationState_7ree.updateTotalViews_7ree(totalViews)
                     val endTime = System.currentTimeMillis()
                     val duration = endTime - startTime
-                    println("DEBUG: 加载总查阅次数完成，耗时: ${duration}ms")
+                    // println("DEBUG: 加载总查阅次数完成，耗时: ${duration}ms")
                 }
             }
         }
@@ -70,9 +70,9 @@ class DataManager_7ree(
                 }
                 
                 val filterType = if (paginationState_7ree.showFavoritesOnly_7ree.value) "收藏" else "全部"
-                println("DEBUG: 初始加载完成，共${words.size}个${filterType}单词")
+                // println("DEBUG: 初始加载完成，共${words.size}个${filterType}单词")
             } catch (e: Exception) {
-                println("DEBUG: 初始加载失败: ${e.message}")
+                // println("DEBUG: 初始加载失败: ${e.message}")
             }
         }
     }
@@ -93,11 +93,11 @@ class DataManager_7ree(
                         // 搜索结果不需要分页，直接显示所有结果
                         paginationState_7ree.updatePagedWords_7ree(updatedWords)
                         paginationState_7ree.updateHasMoreData_7ree(false) // 搜索结果不支持分页加载
-                        println("DEBUG: 搜索完成，找到${words.size}个匹配的单词")
+                        // println("DEBUG: 搜索完成，找到${words.size}个匹配的单词")
                     }
                 }
             } catch (e: Exception) {
-                println("DEBUG: 搜索失败: ${e.message}")
+                // println("DEBUG: 搜索失败: ${e.message}")
             }
         }
     }
@@ -129,13 +129,13 @@ class DataManager_7ree(
                     }
                     
                     val filterType = if (paginationState_7ree.showFavoritesOnly_7ree.value) "收藏" else "全部"
-                    println("DEBUG: 加载更多完成，新增${newWords.size}个${filterType}单词")
+                    // println("DEBUG: 加载更多完成，新增${newWords.size}个${filterType}单词")
                 } else {
                     paginationState_7ree.updateHasMoreData_7ree(false)
-                    println("DEBUG: 没有更多数据")
+                    // println("DEBUG: 没有更多数据")
                 }
             } catch (e: Exception) {
-                println("DEBUG: 加载更多失败: ${e.message}")
+                // println("DEBUG: 加载更多失败: ${e.message}")
             } finally {
                 paginationState_7ree.updateLoadingMore_7ree(false)
             }
@@ -156,7 +156,7 @@ class DataManager_7ree(
                 val updatedWord = wordRepository_7ree.getWord_7ree(word)
                 if (updatedWord != null) {
                     queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
-                    println("DEBUG: 收藏状态已更新，UI状态已刷新: ${updatedWord.isFavorite}")
+                    // println("DEBUG: 收藏状态已更新，UI状态已刷新: ${updatedWord.isFavorite}")
                 }
                 
                 // 设置操作结果提示
@@ -164,10 +164,10 @@ class DataManager_7ree(
                     if (wasAlreadyFavorite) "已取消收藏" else "已添加收藏"
                 )
                 
-                println("DEBUG: 收藏操作成功: $word, 原状态: $wasAlreadyFavorite, 新状态: ${updatedWord?.isFavorite}")
+                // println("DEBUG: 收藏操作成功: $word, 原状态: $wasAlreadyFavorite, 新状态: ${updatedWord?.isFavorite}")
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("收藏操作失败: ${e.message}")
-                println("DEBUG: 收藏操作失败: ${e.message}")
+                // println("DEBUG: 收藏操作失败: ${e.message}")
             }
         }
     }
@@ -182,12 +182,12 @@ class DataManager_7ree(
                 val updatedWord = wordRepository_7ree.getWord_7ree(word)
                 if (updatedWord != null) {
                     queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
-                    println("DEBUG: 收藏状态已设置，UI状态已刷新: ${updatedWord.isFavorite}")
+                    // println("DEBUG: 收藏状态已设置，UI状态已刷新: ${updatedWord.isFavorite}")
                 }
                 
-                println("DEBUG: 设置收藏状态成功: $word, 新状态: $isFavorite")
+                // println("DEBUG: 设置收藏状态成功: $word, 新状态: $isFavorite")
             } catch (e: Exception) {
-                println("DEBUG: 设置收藏状态失败: ${e.message}")
+                // println("DEBUG: 设置收藏状态失败: ${e.message}")
             }
         }
     }
@@ -201,10 +201,10 @@ class DataManager_7ree(
                 paginationState_7ree.removeWord_7ree(word)
                 
                 queryState_7ree.updateOperationResult_7ree("删除成功")
-                println("DEBUG: 单词删除成功: $word")
+                // println("DEBUG: 单词删除成功: $word")
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("删除失败: ${e.message}")
-                println("DEBUG: 单词删除失败: ${e.message}")
+                // println("DEBUG: 单词删除失败: ${e.message}")
             }
         }
     }
@@ -219,13 +219,13 @@ class DataManager_7ree(
                     val updatedWord = wordRepository_7ree.getWord_7ree(word)
                     if (updatedWord != null) {
                         queryState_7ree.updateCurrentWordInfo_7ree(updatedWord)
-                        println("DEBUG: 拼写练习成功，UI状态已刷新: ${updatedWord.spellingCount}")
+                        // println("DEBUG: 拼写练习成功，UI状态已刷新: ${updatedWord.spellingCount}")
                     }
                     
-                    println("DEBUG: 拼写练习成功，单词: $word")
+                    // println("DEBUG: 拼写练习成功，单词: $word")
                 }
             } catch (e: Exception) {
-                println("DEBUG: 更新拼写次数失败: ${e.message}")
+                // println("DEBUG: 更新拼写次数失败: ${e.message}")
             }
         }
     }
@@ -237,10 +237,10 @@ class DataManager_7ree(
                 val newWordEntity = wordRepository_7ree.getWord_7ree(newWord)
                 if (newWordEntity != null) {
                     paginationState_7ree.addNewWordToTop_7ree(newWordEntity)
-                    println("DEBUG: 单词本已刷新，新增/更新单词: $newWord")
+                    // println("DEBUG: 单词本已刷新，新增/更新单词: $newWord")
                 }
             } catch (e: Exception) {
-                println("DEBUG: 刷新单词本失败: ${e.message}")
+                // println("DEBUG: 刷新单词本失败: ${e.message}")
             }
         }
     }
@@ -255,16 +255,16 @@ class DataManager_7ree(
                         queryState_7ree.updateOperationResult_7ree(
                             "数据导出成功！文件: $fileName\n位置: Android/data/com.x7ree.wordcard/files/Downloads/"
                         )
-                        println("DEBUG: 数据导出成功: $filePath")
+                        // println("DEBUG: 数据导出成功: $filePath")
                     },
                     onFailure = { exception ->
                         queryState_7ree.updateOperationResult_7ree("数据导出失败: ${exception.message}")
-                        println("DEBUG: 数据导出失败: ${exception.message}")
+                        // println("DEBUG: 数据导出失败: ${exception.message}")
                     }
                 )
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("数据导出失败: ${e.message}")
-                println("DEBUG: 数据导出异常: ${e.message}")
+                // println("DEBUG: 数据导出异常: ${e.message}")
             }
         }
     }
@@ -276,16 +276,16 @@ class DataManager_7ree(
                 result.fold(
                     onSuccess = { count ->
                         queryState_7ree.updateOperationResult_7ree("数据导入成功，共导入 $count 条记录")
-                        println("DEBUG: 数据导入成功，共导入 $count 条记录")
+                        // println("DEBUG: 数据导入成功，共导入 $count 条记录")
                     },
                     onFailure = { exception ->
                         queryState_7ree.updateOperationResult_7ree("数据导入失败: ${exception.message}")
-                        println("DEBUG: 数据导入失败: ${exception.message}")
+                        // println("DEBUG: 数据导入失败: ${exception.message}")
                     }
                 )
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("数据导入失败: ${e.message}")
-                println("DEBUG: 数据导入异常: ${e.message}")
+                // println("DEBUG: 数据导入异常: ${e.message}")
             }
         }
     }
@@ -305,7 +305,7 @@ class DataManager_7ree(
             
             if (needsUpdate) {
                 try {
-                    println("DEBUG: 检测到单词 '${word.word}' 缺失字段，开始自动补充")
+                    // println("DEBUG: 检测到单词 '${word.word}' 缺失字段，开始自动补充")
                     
                     // 从API结果中解析信息
                     val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(word.apiResult)
@@ -325,14 +325,14 @@ class DataManager_7ree(
                         wordRepository_7ree.updateWord_7ree(updatedWord)
                         updatedWords.add(updatedWord)
                         
-                        println("DEBUG: 单词 '${word.word}' 字段补充完成")
-                        println("DEBUG: 中文释义: '${updatedWord.chineseDefinition}', 音标: '${updatedWord.phonetic}', 词性: '${updatedWord.partOfSpeech}'")
+                        // println("DEBUG: 单词 '${word.word}' 字段补充完成")
+                        // println("DEBUG: 中文释义: '${updatedWord.chineseDefinition}', 音标: '${updatedWord.phonetic}', 词性: '${updatedWord.partOfSpeech}'")
                     } else {
-                        println("DEBUG: 未能从API结果中解析出有效的字段信息")
+                        // println("DEBUG: 未能从API结果中解析出有效的字段信息")
                         updatedWords.add(word)
                     }
                 } catch (e: Exception) {
-                    println("DEBUG: 补充单词 '${word.word}' 字段信息时发生错误: ${e.message}")
+                    // println("DEBUG: 补充单词 '${word.word}' 字段信息时发生错误: ${e.message}")
                     updatedWords.add(word)
                 }
             } else {

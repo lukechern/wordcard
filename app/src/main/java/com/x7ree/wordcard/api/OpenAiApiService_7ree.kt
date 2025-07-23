@@ -128,8 +128,8 @@ ${getOutputTemplate_7ree()}
                 messages = listOf(Message_7ree(role = "user", content = prompt_7ree))
             )
 
-            println("DEBUG: 发送请求到: ${apiConfig_7ree.apiUrl}")
-            println("DEBUG: 请求内容: $request_7ree")
+            // println("DEBUG: 发送请求到: ${apiConfig_7ree.apiUrl}")
+            // println("DEBUG: 请求内容: $request_7ree")
 
             val response_7ree: ChatCompletionResponse_7ree = client_7ree.post(apiConfig_7ree.apiUrl) {
                 header(HttpHeaders.Authorization, "Bearer ${apiConfig_7ree.apiKey}")
@@ -137,18 +137,18 @@ ${getOutputTemplate_7ree()}
                 setBody(request_7ree)
             }.body()
 
-            println("DEBUG: 收到响应: $response_7ree")
+            // println("DEBUG: 收到响应: $response_7ree")
 
             val result_7ree = response_7ree.choices.firstOrNull()?.message?.content
             if (result_7ree != null) {
-                println("DEBUG: 解析成功，内容长度: ${result_7ree.length}")
+                // println("DEBUG: 解析成功，内容长度: ${result_7ree.length}")
                 Result.success(result_7ree)
             } else {
-                println("DEBUG: 响应中没有内容")
+                // println("DEBUG: 响应中没有内容")
                 Result.failure(Exception("API 请求失败: No content in response."))
             }
         } catch (e: Exception) {
-            println("DEBUG: API调用异常: ${e.message}")
+            // println("DEBUG: API调用异常: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }
@@ -177,17 +177,17 @@ ${getOutputTemplate_7ree()}
 
             // 先尝试获取完整的响应文本进行调试
             val responseText_7ree = response_7ree.bodyAsText()
-            println("DEBUG: 完整响应: $responseText_7ree")
+            // println("DEBUG: 完整响应: $responseText_7ree")
             
             val lines_7ree = responseText_7ree.split("\n")
             var hasContent_7ree = false
             
             for (line_7ree in lines_7ree) {
-                println("DEBUG: 处理行: $line_7ree")
+                // println("DEBUG: 处理行: $line_7ree")
                 if (line_7ree.startsWith("data: ")) {
                     val data_7ree = line_7ree.substring(6)
                     if (data_7ree == "[DONE]") {
-                        println("DEBUG: 收到结束标记")
+                        // println("DEBUG: 收到结束标记")
                         break
                     }
                     
@@ -195,12 +195,12 @@ ${getOutputTemplate_7ree()}
                         val streamResponse_7ree = Json.decodeFromString<ChatCompletionStreamResponse_7ree>(data_7ree)
                         val content_7ree = streamResponse_7ree.choices.firstOrNull()?.delta?.content
                         if (content_7ree != null) {
-                            println("DEBUG: 发送内容: $content_7ree")
+                            // println("DEBUG: 发送内容: $content_7ree")
                             emit(content_7ree)
                             hasContent_7ree = true
                         }
                     } catch (e: Exception) {
-                        println("DEBUG: 解析错误: ${e.message}")
+                        // println("DEBUG: 解析错误: ${e.message}")
                         // 忽略解析错误，继续处理下一行
                         continue
                     }
@@ -208,7 +208,7 @@ ${getOutputTemplate_7ree()}
             }
             
             if (!hasContent_7ree) {
-                println("DEBUG: 没有收到任何内容，尝试非流式解析")
+                // println("DEBUG: 没有收到任何内容，尝试非流式解析")
                 // 如果没有收到流式内容，尝试解析完整响应
                 try {
                     val fullResponse_7ree = Json.decodeFromString<ChatCompletionResponse_7ree>(responseText_7ree)
@@ -223,19 +223,19 @@ ${getOutputTemplate_7ree()}
                 }
             }
         } catch (e: Exception) {
-            println("DEBUG: 流式查询异常: ${e.message}")
+            // println("DEBUG: 流式查询异常: ${e.message}")
             emit("错误: ${e.localizedMessage}")
         }
     }
 
     suspend fun queryWordStreamTest_7ree(word: String): Flow<String> = flow {
         try {
-            println("DEBUG: 开始测试流式查询")
+            // println("DEBUG: 开始测试流式查询")
             
             // 先尝试非流式查询确保API正常工作
             val nonStreamResult_7ree = queryWord_7ree(word)
             nonStreamResult_7ree.onSuccess { content_7ree ->
-                println("DEBUG: 非流式查询成功，内容长度: ${content_7ree.length}")
+                // println("DEBUG: 非流式查询成功，内容长度: ${content_7ree.length}")
                 // 将内容分块模拟流式输出
                 val chunks_7ree = content_7ree.chunked(10)
                 for (chunk_7ree in chunks_7ree) {
@@ -243,23 +243,23 @@ ${getOutputTemplate_7ree()}
                     kotlinx.coroutines.delay(100) // 模拟网络延迟
                 }
             }.onFailure { error_7ree ->
-                println("DEBUG: 非流式查询失败: ${error_7ree.message}")
+                // println("DEBUG: 非流式查询失败: ${error_7ree.message}")
                 emit("错误: ${error_7ree.localizedMessage}")
             }
         } catch (e: Exception) {
-            println("DEBUG: 测试流式查询异常: ${e.message}")
+            // println("DEBUG: 测试流式查询异常: ${e.message}")
             emit("错误: ${e.localizedMessage}")
         }
     }
 
     suspend fun queryWordStreamSimple_7ree(word: String): Flow<String> = flow {
         try {
-            println("DEBUG: 开始简单流式查询")
+            // println("DEBUG: 开始简单流式查询")
             
             // 使用非流式查询获取完整内容
             val result_7ree = queryWord_7ree(word)
             result_7ree.onSuccess { content_7ree ->
-                println("DEBUG: 获取到完整内容，长度: ${content_7ree.length}")
+                // println("DEBUG: 获取到完整内容，长度: ${content_7ree.length}")
                 
                 // 将内容按字符分块，模拟真正的流式输出
                 val chunks_7ree = content_7ree.chunked(5) // 每次发送5个字符
@@ -268,18 +268,18 @@ ${getOutputTemplate_7ree()}
                     kotlinx.coroutines.delay(50) // 50ms延迟，模拟网络传输
                 }
             }.onFailure { error_7ree ->
-                println("DEBUG: 查询失败: ${error_7ree.message}")
+                // println("DEBUG: 查询失败: ${error_7ree.message}")
                 emit("错误: ${error_7ree.localizedMessage}")
             }
         } catch (e: Exception) {
-            println("DEBUG: 简单流式查询异常: ${e.message}")
+            // println("DEBUG: 简单流式查询异常: ${e.message}")
             emit("错误: ${e.localizedMessage}")
         }
     }
 
     suspend fun testApiConnection_7ree(): Result<String> {
         return try {
-            println("DEBUG: 测试API连接")
+            // println("DEBUG: 测试API连接")
             val testRequest_7ree = ChatCompletionRequest_7ree(
                 model = apiConfig_7ree.modelName,
                 messages = listOf(Message_7ree(role = "user", content = "Hello"))
@@ -291,10 +291,10 @@ ${getOutputTemplate_7ree()}
                 setBody(testRequest_7ree)
             }.body()
 
-            println("DEBUG: 测试响应: $response_7ree")
+            // println("DEBUG: 测试响应: $response_7ree")
             Result.success("API连接成功")
         } catch (e: Exception) {
-            println("DEBUG: API连接测试失败: ${e.message}")
+            // println("DEBUG: API连接测试失败: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }

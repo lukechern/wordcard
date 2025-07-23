@@ -66,12 +66,12 @@ class DataExportImportManager_7ree(
             val file = File(downloadsDir, fileName)
             file.writeText(jsonString)
             
-            println("DEBUG: 数据导出成功，文件: ${file.absolutePath}")
-            println("DEBUG: 文件大小: ${file.length()} bytes")
-            println("DEBUG: 文件是否存在: ${file.exists()}")
+            // println("DEBUG: 数据导出成功，文件: ${file.absolutePath}")
+            // println("DEBUG: 文件大小: ${file.length()} bytes")
+            // println("DEBUG: 文件是否存在: ${file.exists()}")
             Result.success(file.absolutePath)
         } catch (e: Exception) {
-            println("DEBUG: 数据导出失败: ${e.message}")
+            // println("DEBUG: 数据导出失败: ${e.message}")
             e.printStackTrace()
             Result.failure(e)
         }
@@ -143,14 +143,14 @@ class DataExportImportManager_7ree(
                         importedCount++
                     }
                 } catch (e: Exception) {
-                    println("DEBUG: 导入单词 ${wordEntity_7ree.word} 失败: ${e.message}")
+                    // println("DEBUG: 导入单词 ${wordEntity_7ree.word} 失败: ${e.message}")
                 }
             }
             
-            println("DEBUG: 数据导入成功，共导入 $importedCount 条记录")
+            // println("DEBUG: 数据导入成功，共导入 $importedCount 条记录")
             Result.success(importedCount)
         } catch (e: Exception) {
-            println("DEBUG: 数据导入失败: ${e.message}")
+            // println("DEBUG: 数据导入失败: ${e.message}")
             Result.failure(e)
         }
     }
@@ -162,7 +162,7 @@ class DataExportImportManager_7ree(
                 file.name.startsWith("wordcard_export_") && file.name.endsWith(".json")
             }?.sortedByDescending { it.lastModified() } ?: emptyList()
         } catch (e: Exception) {
-            println("DEBUG: 获取导出文件列表失败: ${e.message}")
+            // println("DEBUG: 获取导出文件列表失败: ${e.message}")
             emptyList()
         }
     }
@@ -176,7 +176,7 @@ class DataExportImportManager_7ree(
             }
             true
         } catch (e: Exception) {
-            println("DEBUG: 删除文件失败: ${e.message}")
+            // println("DEBUG: 删除文件失败: ${e.message}")
             false
         }
     }

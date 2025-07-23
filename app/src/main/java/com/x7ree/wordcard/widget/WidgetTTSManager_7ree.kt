@@ -25,7 +25,7 @@ class WidgetTTSManager_7ree(private val context: Context) {
      */
     fun initializeTtsLazy_7ree() {
         try {
-            Log.d(TAG_7ree, "开始初始化升级版TTS管理器")
+            // Log.d(TAG_7ree, "开始初始化升级版TTS管理器")
             
             // 加载配置
             val apiConfig = configManager_7ree.loadApiConfig_7ree()
@@ -35,10 +35,10 @@ class WidgetTTSManager_7ree(private val context: Context) {
             coreTtsManager_7ree.updateApiConfig(apiConfig)
             coreTtsManager_7ree.updateGeneralConfig(generalConfig)
             
-            Log.d(TAG_7ree, "TTS管理器配置已更新 - 引擎: ${generalConfig.ttsEngine}, 音色: ${apiConfig.azureSpeechVoice}")
+            // Log.d(TAG_7ree, "TTS管理器配置已更新 - 引擎: ${generalConfig.ttsEngine}, 音色: ${apiConfig.azureSpeechVoice}")
             
         } catch (e: Exception) {
-            Log.e(TAG_7ree, "TTS管理器初始化失败: ${e.message}", e)
+            // Log.e(TAG_7ree, "TTS管理器初始化失败: ${e.message}", e)
         }
     }
     
@@ -55,10 +55,10 @@ class WidgetTTSManager_7ree(private val context: Context) {
         onPlayComplete: (() -> Unit)? = null,
         onError: ((String) -> Unit)? = null
     ) {
-        Log.d(TAG_7ree, "speakWord_7ree: 使用升级版TTS管理器朗读单词: \"$word\"")
+        // Log.d(TAG_7ree, "speakWord_7ree: 使用升级版TTS管理器朗读单词: \"$word\"")
         
         if (word.isBlank()) {
-            Log.w(TAG_7ree, "speakWord_7ree: 单词为空，无法朗读")
+            // Log.w(TAG_7ree, "speakWord_7ree: 单词为空，无法朗读")
             onError?.invoke("单词为空")
             return
         }
@@ -68,20 +68,20 @@ class WidgetTTSManager_7ree(private val context: Context) {
                 coreTtsManager_7ree.speak(
                     text = word,
                     onStart = {
-                        Log.d(TAG_7ree, "开始朗读单词: $word")
+                        // Log.d(TAG_7ree, "开始朗读单词: $word")
                         onPlayStart?.invoke()
                     },
                     onComplete = {
-                        Log.d(TAG_7ree, "单词朗读完成: $word")
+                        // Log.d(TAG_7ree, "单词朗读完成: $word")
                         onPlayComplete?.invoke()
                     },
                     onError = { error ->
-                        Log.e(TAG_7ree, "单词朗读失败: $error")
+                        // Log.e(TAG_7ree, "单词朗读失败: $error")
                         onError?.invoke(error)
                     }
                 )
             } catch (e: Exception) {
-                Log.e(TAG_7ree, "朗读单词异常: ${e.message}", e)
+                // Log.e(TAG_7ree, "朗读单词异常: ${e.message}", e)
                 onError?.invoke("朗读异常: ${e.message}")
             }
         }
@@ -113,7 +113,7 @@ class WidgetTTSManager_7ree(private val context: Context) {
      */
     fun stopSpeaking_7ree() {
         coreTtsManager_7ree.stopSpeaking()
-        Log.d(TAG_7ree, "已停止朗读")
+        // Log.d(TAG_7ree, "已停止朗读")
     }
     
     /**
@@ -122,9 +122,9 @@ class WidgetTTSManager_7ree(private val context: Context) {
     fun release_7ree() {
         try {
             coreTtsManager_7ree.release()
-            Log.d(TAG_7ree, "TTS管理器资源已释放")
+            // Log.d(TAG_7ree, "TTS管理器资源已释放")
         } catch (e: Exception) {
-            Log.e(TAG_7ree, "释放TTS资源异常: ${e.message}", e)
+            // Log.e(TAG_7ree, "释放TTS资源异常: ${e.message}", e)
         }
     }
 }

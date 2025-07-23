@@ -135,41 +135,38 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
             override fun onGlobalLayout() {
                 progressBar.viewTreeObserver.removeOnGlobalLayoutListener(this)
                 
-                val TAG = "WidgetLoadingUI_7ree"
-                Log.d(TAG, "=== 查询等待页面 UI 坐标和间距信息 ===")
+                // Log.d("WidgetLoadingUI_7ree", "=== 查询等待页面 UI 坐标和间距信息 ===")
                 
                 // 获取ProgressBar的位置和尺寸
                 val progressBarLocation = IntArray(2)
                 progressBar.getLocationOnScreen(progressBarLocation)
-                Log.d(TAG, "ProgressBar - X: ${progressBarLocation[0]}, Y: ${progressBarLocation[1]}, Width: ${progressBar.width}, Height: ${progressBar.height}")
-                Log.d(TAG, "ProgressBar - MarginTop: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
-                Log.d(TAG, "ProgressBar - MarginBottom: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                // Log.d(TAG, "ProgressBar - X: ${progressBarLocation[0]}, Y: ${progressBarLocation[1]}, Width: ${progressBar.width}, Height: ${progressBar.height}")
+                // Log.d(TAG, "ProgressBar - MarginTop: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                // Log.d(TAG, "ProgressBar - MarginBottom: ${(progressBar.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
                 
                 // 获取LoadingText的位置和尺寸
                 val loadingTextLocation = IntArray(2)
                 loadingText.getLocationOnScreen(loadingTextLocation)
-                Log.d(TAG, "LoadingText - X: ${loadingTextLocation[0]}, Y: ${loadingTextLocation[1]}, Width: ${loadingText.width}, Height: ${loadingText.height}")
-                Log.d(TAG, "LoadingText - MarginTop: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
-                Log.d(TAG, "LoadingText - MarginBottom: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                // Log.d(TAG, "LoadingText - X: ${loadingTextLocation[0]}, Y: ${loadingTextLocation[1]}, Width: ${loadingText.width}, Height: ${loadingText.height}")
+                // Log.d(TAG, "LoadingText - MarginTop: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                // Log.d(TAG, "LoadingText - MarginBottom: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
                 
                 // 计算ProgressBar和LoadingText之间的距离
-                val distanceBetween = loadingTextLocation[1] - (progressBarLocation[1] + progressBar.height)
-                Log.d(TAG, "ProgressBar与LoadingText之间的距离: ${distanceBetween}px")
+                // Log.d("WidgetLoadingUI_7ree", "ProgressBar与LoadingText之间的距离计算")
                 
                 // 获取LoadingHint的位置和尺寸（如果可见）
                 if (loadingHint.visibility == android.view.View.VISIBLE) {
                     val loadingHintLocation = IntArray(2)
                     loadingHint.getLocationOnScreen(loadingHintLocation)
-                    Log.d(TAG, "LoadingHint - X: ${loadingHintLocation[0]}, Y: ${loadingHintLocation[1]}, Width: ${loadingHint.width}, Height: ${loadingHint.height}")
-                    Log.d(TAG, "LoadingHint - MarginTop: ${(loadingHint.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
-                    Log.d(TAG, "LoadingHint - MarginBottom: ${(loadingHint.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
+                    // Log.d(TAG, "LoadingHint - X: ${loadingHintLocation[0]}, Y: ${loadingHintLocation[1]}, Width: ${loadingHint.width}, Height: ${loadingHint.height}")
+                    // Log.d(TAG, "LoadingHint - MarginTop: ${(loadingHint.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.topMargin ?: 0}")
+                    // Log.d(TAG, "LoadingHint - MarginBottom: ${(loadingHint.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
                     
                     // 计算LoadingText和LoadingHint之间的距离
-                    val distanceToHint = loadingHintLocation[1] - (loadingTextLocation[1] + loadingText.height)
-                    Log.d(TAG, "LoadingText与LoadingHint之间的距离: ${distanceToHint}px")
+                    // Log.d("WidgetLoadingUI_7ree", "LoadingText与LoadingHint之间的距离计算")
                 }
                 
-                Log.d(TAG, "=== UI 坐标和间距信息记录完成 ===")
+                // Log.d(TAG, "=== UI 坐标和间距信息记录完成 ===")
             }
         })
     }

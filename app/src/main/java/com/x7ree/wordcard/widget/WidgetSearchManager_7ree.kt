@@ -74,7 +74,7 @@ class WidgetSearchManager_7ree(
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG_7ree, "搜索失败: ${e.message}", e)
+            // Log.e(TAG_7ree, "搜索失败: ${e.message}", e)
             emit(SearchResult_7ree(
                 isFromCache = false,
                 content = "查询失败: ${e.localizedMessage}",

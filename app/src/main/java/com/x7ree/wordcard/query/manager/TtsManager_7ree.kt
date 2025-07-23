@@ -22,21 +22,21 @@ class TtsManager_7ree(
                     text = word,
                     utteranceId = "word",
                     onStart = {
-                        println("DEBUG: 开始朗读单词: $word")
+                        // println("DEBUG: 开始朗读单词: $word")
                         queryState_7ree.updateSpeakingWordState_7ree(true)
                     },
                     onComplete = {
-                        println("DEBUG: 朗读完成: $word")
+                        // println("DEBUG: 朗读完成: $word")
                         queryState_7ree.updateSpeakingWordState_7ree(false)
                     },
                     onError = { error ->
-                        println("DEBUG: 朗读失败: $error")
+                        // println("DEBUG: 朗读失败: $error")
                         queryState_7ree.updateOperationResult_7ree("朗读失败: $error")
                         queryState_7ree.updateSpeakingWordState_7ree(false)
                     }
                 )
             } catch (e: Exception) {
-                println("DEBUG: 朗读异常: ${e.message}")
+                // println("DEBUG: 朗读异常: ${e.message}")
                 queryState_7ree.updateOperationResult_7ree("朗读异常: ${e.message}")
                 queryState_7ree.updateSpeakingWordState_7ree(false)
             }
@@ -51,21 +51,21 @@ class TtsManager_7ree(
                     text = examplesText,
                     utteranceId = "examples",
                     onStart = {
-                        println("DEBUG: 开始朗读例句")
+                        // println("DEBUG: 开始朗读例句")
                         queryState_7ree.updateSpeakingExamplesState_7ree(true)
                     },
                     onComplete = {
-                        println("DEBUG: 例句朗读完成")
+                        // println("DEBUG: 例句朗读完成")
                         queryState_7ree.updateSpeakingExamplesState_7ree(false)
                     },
                     onError = { error ->
-                        println("DEBUG: 例句朗读失败: $error")
+                        // println("DEBUG: 例句朗读失败: $error")
                         queryState_7ree.updateOperationResult_7ree("例句朗读失败: $error")
                         queryState_7ree.updateSpeakingExamplesState_7ree(false)
                     }
                 )
             } catch (e: Exception) {
-                println("DEBUG: 例句朗读异常: ${e.message}")
+                // println("DEBUG: 例句朗读异常: ${e.message}")
                 queryState_7ree.updateOperationResult_7ree("例句朗读异常: ${e.message}")
                 queryState_7ree.updateSpeakingExamplesState_7ree(false)
             }
@@ -92,18 +92,18 @@ class TtsManager_7ree(
 
     fun initializeTts_7ree() {
         // 设置TTS状态变化回调
-        coreTtsManager_7ree.onTtsStateChanged = { isReady, engine ->
-            println("DEBUG: TTS引擎状态变化 - $engine: ${if (isReady) "就绪" else "未就绪"}")
+        coreTtsManager_7ree.onTtsStateChanged = { _, _ ->
+            // println("DEBUG: TTS引擎状态变化")
         }
         
-        coreTtsManager_7ree.onSpeakingStateChanged = { isSpeaking, engine ->
-            println("DEBUG: TTS朗读状态变化 - $engine: ${if (isSpeaking) "朗读中" else "停止"}")
+        coreTtsManager_7ree.onSpeakingStateChanged = { isSpeaking, _ ->
+            // println("DEBUG: TTS朗读状态变化")
             queryState_7ree.updateSpeakingState_7ree(isSpeaking)
         }
     }
 
     fun release_7ree() {
         coreTtsManager_7ree.release()
-        println("DEBUG: TTS资源已释放")
+        // println("DEBUG: TTS资源已释放")
     }
 }

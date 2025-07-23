@@ -70,10 +70,10 @@ class MarkdownRenderer_7ree {
          * 解析Markdown内容并提取各个部分
          */
         fun parseMarkdownContent_7ree(queryResult: String): MarkdownContent_7ree {
-            Log.d(TAG_7ree, "开始解析Markdown内容，输入长度: ${queryResult.length}")
-            Log.d(TAG_7ree, "输入内容前200字符: ${queryResult.take(200)}")
+            // Log.d(TAG_7ree, "开始解析Markdown内容，输入长度: ${queryResult.length}")
+            // Log.d(TAG_7ree, "输入内容前200字符: ${queryResult.take(200)}")
             val lines_7ree = queryResult.split("\n")
-            Log.d(TAG_7ree, "分割后行数: ${lines_7ree.size}")
+            // Log.d(TAG_7ree, "分割后行数: ${lines_7ree.size}")
             
             val beforePhonetic_7ree = StringBuilder()
             val afterPhonetic_7ree = StringBuilder()
@@ -167,14 +167,14 @@ class MarkdownRenderer_7ree {
                         // 只保留第一个非空行（标题后的第一行内容）
                         if (chineseMeaningLineCount_7ree == 1) {
                             chineseMeaning_7ree.append(line_7ree.trimStart()).append("\n")
-                            Log.d(TAG_7ree, "提取到中文词义内容: ${line_7ree.trimStart()}")
+                            // Log.d(TAG_7ree, "提取到中文词义内容: ${line_7ree.trimStart()}")
                             break // 提前终止
                         }
                     }
                 }
 
                 if (trimmedLine_7ree.matches(Regex("^#+\\s*中文词义.*$"))) {
-                    Log.d(TAG_7ree, "找到中文词义标题行: $trimmedLine_7ree")
+                    // Log.d(TAG_7ree, "找到中文词义标题行: $trimmedLine_7ree")
                     foundChineseMeaningStarted_7ree = true
                     foundChineseMeaningSection_7ree = true
                 }
@@ -208,7 +208,7 @@ class MarkdownRenderer_7ree {
                 }
             }
             
-            Log.d(TAG_7ree, "解析完成 - 中文词义: '${chineseMeaning_7ree.toString()}', 找到中文词义段落: $foundChineseMeaningSection_7ree")
+            // Log.d(TAG_7ree, "解析完成 - 中文词义: '${chineseMeaning_7ree.toString()}', 找到中文词义段落: $foundChineseMeaningSection_7ree")
             
             return MarkdownContent_7ree(
                 beforePhonetic = beforePhonetic_7ree.toString(),

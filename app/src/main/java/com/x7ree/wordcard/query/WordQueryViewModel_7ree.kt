@@ -172,43 +172,41 @@ class WordQueryViewModel_7ree(
             try {
                 wordRepository_7ree.getAllWords_7ree().collect { words ->
                     navigationState_7ree.updateAllWords_7ree(words)
-                    val endTime = System.currentTimeMillis()
-                    val duration = endTime - startTime
-                    println("DEBUG: 加载所有单词列表完成，共${words.size}个单词，耗时: ${duration}ms")
+                    // println("DEBUG: 加载所有单词列表完成，共${words.size}个单词")
                 }
             } catch (e: Exception) {
-                println("DEBUG: 加载单词列表失败: ${e.message}")
+                // println("DEBUG: 加载单词列表失败: ${e.message}")
             }
         }
     }
     
     fun navigateToPreviousWord_7ree() {
-        println("DEBUG: navigateToPreviousWord_7ree - 开始切换到上一个单词")
+        // println("DEBUG: navigateToPreviousWord_7ree - 开始切换到上一个单词")
         
         // 确保单词列表已加载
         ensureWordsLoaded_7ree()
         
         val previousWord = navigationState_7ree.getPreviousWord_7ree(wordInput_7ree)
         if (previousWord != null) {
-            println("DEBUG: 切换到上一个单词: ${previousWord.word}")
+            // println("DEBUG: 切换到上一个单词: ${previousWord.word}")
             loadWordFromHistory_7ree(previousWord.word)
         } else {
-            println("DEBUG: 无法导航到上一个单词")
+            // println("DEBUG: 无法导航到上一个单词")
         }
     }
     
     fun navigateToNextWord_7ree() {
-        println("DEBUG: navigateToNextWord_7ree - 开始切换到下一个单词")
+        // println("DEBUG: navigateToNextWord_7ree - 开始切换到下一个单词")
         
         // 确保单词列表已加载
         ensureWordsLoaded_7ree()
         
         val nextWord = navigationState_7ree.getNextWord_7ree(wordInput_7ree)
         if (nextWord != null) {
-            println("DEBUG: 切换到下一个单词: ${nextWord.word}")
+            // println("DEBUG: 切换到下一个单词: ${nextWord.word}")
             loadWordFromHistory_7ree(nextWord.word)
         } else {
-            println("DEBUG: 无法导航到下一个单词")
+            // println("DEBUG: 无法导航到下一个单词")
         }
     }
     
@@ -217,7 +215,7 @@ class WordQueryViewModel_7ree(
         ensureWordsLoaded_7ree()
         
         val canNavigate = navigationState_7ree.canNavigate_7ree(wordInput_7ree)
-        println("DEBUG: canNavigate_7ree - wordInput='${wordInput_7ree}', canNavigate=$canNavigate")
+        // println("DEBUG: canNavigate_7ree - wordInput='${wordInput_7ree}', canNavigate=$canNavigate")
         return canNavigate
     }
     
@@ -364,8 +362,7 @@ class WordQueryViewModel_7ree(
         paginationState_7ree.toggleFavoriteFilter_7ree()
         resetPagination_7ree()
         loadInitialWords_7ree()
-        val filterType = if (showFavoritesOnly_7ree.value) "收藏" else "全部"
-        println("DEBUG: 切换到${filterType}单词过滤")
+        // println("DEBUG: 切换单词过滤")
     }
     
     // 搜索功能
@@ -433,6 +430,6 @@ class WordQueryViewModel_7ree(
     override fun onCleared() {
         super.onCleared()
         ttsManagerService_7ree.release_7ree()
-        println("DEBUG: WordQueryViewModel已清理，TTS资源已释放")
+        // println("DEBUG: WordQueryViewModel已清理，TTS资源已释放")
     }
 }

@@ -130,7 +130,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: API Key存储失败: ${e.message}")
+            // println("DEBUG: API Key存储失败: ${e.message}")
             false
         }
     }
@@ -149,7 +149,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ""
             }
         } catch (e: Exception) {
-            println("DEBUG: API Key读取失败: ${e.message}")
+            // println("DEBUG: API Key读取失败: ${e.message}")
             ""
         }
     }
@@ -169,7 +169,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: API URL存储失败: ${e.message}")
+            // println("DEBUG: API URL存储失败: ${e.message}")
             false
         }
     }
@@ -182,7 +182,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             sharedPreferences.getString(API_URL, null) 
                 ?: "https://api.openai.com/v1/chat/completions" // 默认值
         } catch (e: Exception) {
-            println("DEBUG: API URL读取失败: ${e.message}")
+            // println("DEBUG: API URL读取失败: ${e.message}")
             "https://api.openai.com/v1/chat/completions"
         }
     }
@@ -202,7 +202,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: 模型名称存储失败: ${e.message}")
+            // println("DEBUG: 模型名称存储失败: ${e.message}")
             false
         }
     }
@@ -215,7 +215,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             sharedPreferences.getString(MODEL_NAME, null) 
                 ?: "gpt-3.5-turbo" // 默认值
         } catch (e: Exception) {
-            println("DEBUG: 模型名称读取失败: ${e.message}")
+            // println("DEBUG: 模型名称读取失败: ${e.message}")
             "gpt-3.5-turbo"
         }
     }
@@ -237,7 +237,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure API Key存储失败: ${e.message}")
+            // println("DEBUG: Azure API Key存储失败: ${e.message}")
             false
         }
     }
@@ -256,7 +256,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ""
             }
         } catch (e: Exception) {
-            println("DEBUG: Azure API Key读取失败: ${e.message}")
+            // println("DEBUG: Azure API Key读取失败: ${e.message}")
             ""
         }
     }
@@ -276,7 +276,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure区域存储失败: ${e.message}")
+            // println("DEBUG: Azure区域存储失败: ${e.message}")
             false
         }
     }
@@ -288,7 +288,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         return try {
             sharedPreferences.getString(AZURE_REGION, null) ?: ""
         } catch (e: Exception) {
-            println("DEBUG: Azure区域读取失败: ${e.message}")
+            // println("DEBUG: Azure区域读取失败: ${e.message}")
             ""
         }
     }
@@ -310,7 +310,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech API Key存储失败: ${e.message}")
+            // println("DEBUG: Azure Speech API Key存储失败: ${e.message}")
             false
         }
     }
@@ -329,7 +329,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ""
             }
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech API Key读取失败: ${e.message}")
+            // println("DEBUG: Azure Speech API Key读取失败: ${e.message}")
             ""
         }
     }
@@ -349,7 +349,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech区域存储失败: ${e.message}")
+            // println("DEBUG: Azure Speech区域存储失败: ${e.message}")
             false
         }
     }
@@ -361,7 +361,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         return try {
             sharedPreferences.getString(AZURE_SPEECH_REGION, null) ?: ""
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech区域读取失败: ${e.message}")
+            // println("DEBUG: Azure Speech区域读取失败: ${e.message}")
             ""
         }
     }
@@ -381,7 +381,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech终结点存储失败: ${e.message}")
+            // println("DEBUG: Azure Speech终结点存储失败: ${e.message}")
             false
         }
     }
@@ -393,7 +393,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         return try {
             sharedPreferences.getString(AZURE_SPEECH_ENDPOINT, null) ?: ""
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech终结点读取失败: ${e.message}")
+            // println("DEBUG: Azure Speech终结点读取失败: ${e.message}")
             ""
         }
     }
@@ -413,7 +413,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech音色存储失败: ${e.message}")
+            // println("DEBUG: Azure Speech音色存储失败: ${e.message}")
             false
         }
     }
@@ -425,7 +425,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         return try {
             sharedPreferences.getString(AZURE_SPEECH_VOICE, null) ?: "en-US-JennyNeural"
         } catch (e: Exception) {
-            println("DEBUG: Azure Speech音色读取失败: ${e.message}")
+            // println("DEBUG: Azure Speech音色读取失败: ${e.message}")
             "en-US-JennyNeural"
         }
     }
@@ -441,7 +441,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             
             keyResult && urlResult && modelResult
         } catch (e: Exception) {
-            println("DEBUG: API配置批量存储失败: ${e.message}")
+            // println("DEBUG: API配置批量存储失败: ${e.message}")
             false
         }
     }
@@ -459,7 +459,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             
             keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult
         } catch (e: Exception) {
-            println("DEBUG: 完整API配置批量存储失败: ${e.message}")
+            // println("DEBUG: 完整API配置批量存储失败: ${e.message}")
             false
         }
     }
@@ -481,7 +481,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             
             keyResult && urlResult && modelResult && azureRegionResult && azureKeyResult && azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult && azureSpeechVoiceResult
         } catch (e: Exception) {
-            println("DEBUG: 完整API配置（含Speech）批量存储失败: ${e.message}")
+            // println("DEBUG: 完整API配置（含Speech）批量存储失败: ${e.message}")
             false
         }
     }
@@ -604,7 +604,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             getModelName_7ree() // 普通存储
             true
         } catch (e: Exception) {
-            println("DEBUG: 存储验证失败: ${e.message}")
+            // println("DEBUG: 存储验证失败: ${e.message}")
             false
         }
     }

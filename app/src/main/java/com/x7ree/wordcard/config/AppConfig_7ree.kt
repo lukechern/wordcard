@@ -81,7 +81,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 false
             }
         } catch (e: Exception) {
-            println("DEBUG: 保存API配置失败: ${e.message}")
+            // println("DEBUG: 保存API配置失败: ${e.message}")
             false
         }
     }
@@ -107,7 +107,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 migrateFromLegacyStorage_7ree()
             }
         } catch (e: Exception) {
-            println("DEBUG: 读取API配置失败: ${e.message}")
+            // println("DEBUG: 读取API配置失败: ${e.message}")
             ApiConfig_7ree()
         }
     }
@@ -127,7 +127,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: 保存提示词配置失败: ${e.message}")
+            // println("DEBUG: 保存提示词配置失败: ${e.message}")
             false
         }
     }
@@ -142,7 +142,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 PromptConfig_7ree()
             }
         } catch (e: Exception) {
-            println("DEBUG: 读取提示词配置失败: ${e.message}")
+            // println("DEBUG: 读取提示词配置失败: ${e.message}")
             PromptConfig_7ree()
         }
     }
@@ -161,7 +161,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 .apply()
             true
         } catch (e: Exception) {
-            println("DEBUG: 保存通用配置失败: ${e.message}")
+            // println("DEBUG: 保存通用配置失败: ${e.message}")
             false
         }
     }
@@ -176,7 +176,7 @@ class AppConfigManager_7ree(private val context: Context) {
                 GeneralConfig_7ree()
             }
         } catch (e: Exception) {
-            println("DEBUG: 读取通用配置失败: ${e.message}")
+            // println("DEBUG: 读取通用配置失败: ${e.message}")
             GeneralConfig_7ree()
         }
     }
@@ -210,17 +210,17 @@ class AppConfigManager_7ree(private val context: Context) {
                         .putBoolean(KEY_API_CONFIG, true) // 标记已迁移
                         .apply()
                     
-                    println("DEBUG: API配置已成功迁移到安全存储")
+                    // println("DEBUG: API配置已成功迁移到安全存储")
                     oldConfig
                 } else {
-                    println("DEBUG: API配置迁移失败，返回默认配置")
+                    // println("DEBUG: API配置迁移失败，返回默认配置")
                     ApiConfig_7ree()
                 }
             } else {
                 ApiConfig_7ree()
             }
         } catch (e: Exception) {
-            println("DEBUG: API配置迁移异常: ${e.message}")
+            // println("DEBUG: API配置迁移异常: ${e.message}")
             ApiConfig_7ree()
         }
     }
@@ -240,7 +240,7 @@ class AppConfigManager_7ree(private val context: Context) {
             
             true
         } catch (e: Exception) {
-            println("DEBUG: 清除API配置失败: ${e.message}")
+            // println("DEBUG: 清除API配置失败: ${e.message}")
             false
         }
     }

@@ -59,7 +59,7 @@ class KeyboardFeedbackManager_7ree(private val context: Context) {
             // 这里我们使用一个简单的方法来模拟按键音效
             // 实际项目中可以添加自定义音效文件到res/raw目录
         } catch (e: Exception) {
-            Log.e("KeyboardFeedback", "Failed to load click sound", e)
+            // Log.e("KeyboardFeedback", "Failed to load click sound", e)
         }
     }
     
