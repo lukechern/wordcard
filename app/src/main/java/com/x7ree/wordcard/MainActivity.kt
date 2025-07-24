@@ -206,7 +206,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 if (isTtsInitialized_7ree && tts_7ree != null) {
                     // 检查TTS是否真正可用
                     val isTtsReady = try {
-                        tts_7ree?.language != null
+                        tts_7ree?.isLanguageAvailable(Locale.getDefault()) == TextToSpeech.LANG_AVAILABLE
                     } catch (e: Exception) {
                         false
                     }
@@ -352,7 +352,8 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         } else {
             // 第二次按返回键，退出应用
             exitToast_7ree?.cancel()
-            super.onBackPressed()
+            // 使用OnBackPressedDispatcher替代已弃用的super.onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
         }
     }
 

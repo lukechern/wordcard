@@ -23,7 +23,6 @@ fun DataManagementTab_7ree(
     onImportFile_7ree: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val operationResult_7ree by wordQueryViewModel_7ree.operationResult_7ree.collectAsState()
     
     // 获取单词记录数量 - 使用状态来存储
     var wordCount by remember { mutableStateOf(0) }

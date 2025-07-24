@@ -23,26 +23,20 @@ class DataManager_7ree(
 ) {
 
     fun loadWordCount_7ree() {
-        val startTime = System.currentTimeMillis()
         coroutineScope.launch(Dispatchers.IO) {
             wordRepository_7ree.wordCount_7ree.collect { count ->
                 withContext(Dispatchers.Main) {
                     paginationState_7ree.updateWordCount_7ree(count)
-                    val endTime = System.currentTimeMillis()
-                    // println("DEBUG: 加载单词计数完成，耗时: ${endTime - startTime}ms")
                 }
             }
         }
     }
     
     fun loadTotalViews_7ree() {
-        val startTime = System.currentTimeMillis()
         coroutineScope.launch(Dispatchers.IO) {
             wordRepository_7ree.getTotalViews_7ree.collect { totalViews ->
                 withContext(Dispatchers.Main) {
                     paginationState_7ree.updateTotalViews_7ree(totalViews)
-                    val endTime = System.currentTimeMillis()
-                    // println("DEBUG: 加载总查阅次数完成，耗时: ${endTime - startTime}ms")
                 }
             }
         }

@@ -285,13 +285,13 @@ ${getOutputTemplate_7ree()}
                 messages = listOf(Message_7ree(role = "user", content = "Hello"))
             )
 
-            val response_7ree: ChatCompletionResponse_7ree = client_7ree.post(apiConfig_7ree.apiUrl) {
+            client_7ree.post(apiConfig_7ree.apiUrl) {
                 header(HttpHeaders.Authorization, "Bearer ${apiConfig_7ree.apiKey}")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(testRequest_7ree)
-            }.body()
+            }.body<ChatCompletionResponse_7ree>()
 
-            // println("DEBUG: 测试响应: $response_7ree")
+            // println("DEBUG: 测试响应成功")
             Result.success("API连接成功")
         } catch (e: Exception) {
             // println("DEBUG: API连接测试失败: ${e.message}")
@@ -299,4 +299,4 @@ ${getOutputTemplate_7ree()}
             Result.failure(e)
         }
     }
-} 
+}
