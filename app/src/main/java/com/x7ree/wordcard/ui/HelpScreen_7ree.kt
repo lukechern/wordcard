@@ -298,10 +298,12 @@ fun HelpScreen_7ree() {
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
                         text = "当前版本",
                         style = MaterialTheme.typography.bodyMedium,
@@ -314,34 +316,7 @@ fun HelpScreen_7ree() {
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                
-                Column(
-                    horizontalAlignment = Alignment.End
-                ) {
-                    Text(
-                        text = "更新日期",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "2025-07-23",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
             }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Text(
-                text = "🎉 本版本更新内容：\n" +
-                        "💻 新增电脑操作功能 - 通过局域网在PC端导入导出数据，操作更便捷\n" +
-                        "📱 优化前台查询卡片 - 界面更美观，响应更流畅\n",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 18.sp
-            )
         }
         
         Spacer(modifier = Modifier.height(24.dp))
