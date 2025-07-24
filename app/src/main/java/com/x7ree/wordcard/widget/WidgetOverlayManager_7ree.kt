@@ -39,18 +39,15 @@ class WidgetOverlayManager_7ree(private val activity: Activity) {
         
         if (overlayView_7ree == null && targetContainer != null) {
             // 获取真实屏幕尺寸
-            val displayMetrics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val windowMetrics = activity.windowManager.currentWindowMetrics
-                val displayMetrics = DisplayMetrics()
-                windowMetrics.bounds
-                displayMetrics
+            val displayMetrics = DisplayMetrics()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                val display = activity.display
+                display?.getRealMetrics(displayMetrics)
             } else {
                 @Suppress("DEPRECATION")
-                val displayMetrics = DisplayMetrics()
-                @Suppress("DEPRECATION")
                 activity.windowManager.defaultDisplay.getRealMetrics(displayMetrics)
-                displayMetrics
             }
+            
             val screenWidth = displayMetrics.widthPixels
             val screenHeight = displayMetrics.heightPixels
             

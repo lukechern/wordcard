@@ -77,7 +77,10 @@ class WidgetConfigUIHelper_7ree(private val activity: WidgetConfigBaseActivity_7
         })
         
         // 显示蒙版，为查询卡片提供视觉聚焦
-        activity.getOverlayManager_7reeInstance().showOverlay_7ree()
+        // 延迟显示蒙版，确保Activity完全加载
+        inputText.post {
+            activity.getOverlayManager_7reeInstance().showOverlay_7ree()
+        }
         
         // 延迟自动弹出键盘，确保UI完全加载
         inputText.post {
