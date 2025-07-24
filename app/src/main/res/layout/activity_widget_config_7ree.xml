@@ -250,7 +250,7 @@
         android:layout_marginTop="24dp"
         android:padding="8dp"
         android:src="@drawable/ic_close_7ree"
-        android:background="@android:color/transparent"
+        android:background="@drawable/widget_close_button_background_7ree"
         android:contentDescription="关闭"
         android:clickable="true"
         android:focusable="true" />
