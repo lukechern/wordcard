@@ -83,7 +83,6 @@ fun SpellingPracticeContent_7ree(
 // 重新导出字母输入框组件
 @Composable
 fun LetterInputBoxes_7ree(
-    targetWord: String,
     userInput: String,
     onInputChange: (String) -> Unit,
     focusRequester: FocusRequester,
@@ -92,7 +91,6 @@ fun LetterInputBoxes_7ree(
     onFocusChanged: (Boolean) -> Unit = {}
 ) {
     com.x7ree.wordcard.ui.SpellingPractice.LetterInputBoxes_7ree(
-        targetWord = targetWord,
         userInput = userInput,
         onInputChange = onInputChange,
         focusRequester = focusRequester,

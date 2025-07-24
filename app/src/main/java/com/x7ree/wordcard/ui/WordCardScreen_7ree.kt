@@ -25,8 +25,7 @@ private const val TAG_7ree = "WordCardScreen_7ree"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordCardScreen_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree, 
-    stopSpeaking_7ree: () -> Unit
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree
 ) {
     // 用于显示输入提示的状态
     var showInputWarning_7ree by remember { mutableStateOf(false) }

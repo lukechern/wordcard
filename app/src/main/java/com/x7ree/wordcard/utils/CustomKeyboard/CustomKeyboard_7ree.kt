@@ -39,7 +39,6 @@ fun CustomKeyboard_7ree(
     onKeyPress_7ree: (String) -> Unit,
     onBackspace_7ree: () -> Unit,
     onSearch_7ree: () -> Unit,
-    onDismiss_7ree: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val keyboardRows_7ree = listOf(

@@ -116,8 +116,7 @@ fun MainScreen_7ree(
                         when (currentScreen_7ree) {
                             Screen_7ree.SEARCH -> {
                                 WordCardScreen_7ree(
-                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                                    stopSpeaking_7ree = stopSpeaking_7ree
+                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree
                                 )
                             }
                             Screen_7ree.HISTORY -> {

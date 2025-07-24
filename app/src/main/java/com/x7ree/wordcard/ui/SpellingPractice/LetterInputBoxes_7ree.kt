@@ -39,7 +39,6 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
  */
 @Composable
 fun LetterInputBoxes_7ree(
-    targetWord: String,
     userInput: String,
     onInputChange: (String) -> Unit,
     focusRequester: FocusRequester,

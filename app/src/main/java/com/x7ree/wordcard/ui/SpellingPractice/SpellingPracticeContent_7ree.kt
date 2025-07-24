@@ -40,7 +40,6 @@ fun SpellingPracticeContent_7ree(
     var isCorrect_7ree by remember { mutableStateOf(false) }
     var inputTextColor_7ree by remember { mutableStateOf(Color.Unspecified) }
     val focusRequester_7ree = remember { FocusRequester() }
-    val view = LocalView.current
     
     // 自定义键盘状态管理
     val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
@@ -178,7 +177,6 @@ fun SpellingPracticeContent_7ree(
                 
                 // 字母输入框
                  LetterInputBoxes_7ree(
-                     targetWord = targetWord,
                      userInput = userInput_7ree,
                      onInputChange = { newInput ->
                          if (newInput.length <= targetWord.length && newInput.all { it.isLetter() }) {
