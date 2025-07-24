@@ -29,8 +29,7 @@ class DataManager_7ree(
                 withContext(Dispatchers.Main) {
                     paginationState_7ree.updateWordCount_7ree(count)
                     val endTime = System.currentTimeMillis()
-                    val duration = endTime - startTime
-                    // println("DEBUG: 加载单词计数完成，耗时: ${duration}ms")
+                    // println("DEBUG: 加载单词计数完成，耗时: ${endTime - startTime}ms")
                 }
             }
         }
@@ -43,8 +42,7 @@ class DataManager_7ree(
                 withContext(Dispatchers.Main) {
                     paginationState_7ree.updateTotalViews_7ree(totalViews)
                     val endTime = System.currentTimeMillis()
-                    val duration = endTime - startTime
-                    // println("DEBUG: 加载总查阅次数完成，耗时: ${duration}ms")
+                    // println("DEBUG: 加载总查阅次数完成，耗时: ${endTime - startTime}ms")
                 }
             }
         }
@@ -69,8 +67,7 @@ class DataManager_7ree(
                     paginationState_7ree.updateHasMoreData_7ree(false)
                 }
                 
-                val filterType = if (paginationState_7ree.showFavoritesOnly_7ree.value) "收藏" else "全部"
-                // println("DEBUG: 初始加载完成，共${words.size}个${filterType}单词")
+                // println("DEBUG: 初始加载完成，共${words.size}个单词")
             } catch (e: Exception) {
                 // println("DEBUG: 初始加载失败: ${e.message}")
             }
@@ -128,8 +125,7 @@ class DataManager_7ree(
                         paginationState_7ree.updateHasMoreData_7ree(false)
                     }
                     
-                    val filterType = if (paginationState_7ree.showFavoritesOnly_7ree.value) "收藏" else "全部"
-                    // println("DEBUG: 加载更多完成，新增${newWords.size}个${filterType}单词")
+                    // println("DEBUG: 加载更多完成，新增${newWords.size}个单词")
                 } else {
                     paginationState_7ree.updateHasMoreData_7ree(false)
                     // println("DEBUG: 没有更多数据")

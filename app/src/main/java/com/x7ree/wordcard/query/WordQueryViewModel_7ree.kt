@@ -165,7 +165,6 @@ class WordQueryViewModel_7ree(
             return
         }
         
-        val startTime = System.currentTimeMillis()
         println("DEBUG: 开始加载所有单词列表")
         
         viewModelScope.launch {
