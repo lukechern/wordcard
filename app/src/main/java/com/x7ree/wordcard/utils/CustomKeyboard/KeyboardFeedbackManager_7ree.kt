@@ -98,9 +98,9 @@ class KeyboardFeedbackManager_7ree(private val context: Context) {
                 
                 // 检查各种音量
                 val systemVolume = audioManager.getStreamVolume(AudioManager.STREAM_SYSTEM)
-                val maxSystemVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM)
+                // val maxSystemVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_SYSTEM)
                 val mediaVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
-                val notificationVolume = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)
+                // val notificationVolume = audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)
                 
                 
                 

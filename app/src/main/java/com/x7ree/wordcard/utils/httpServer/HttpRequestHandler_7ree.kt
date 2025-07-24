@@ -107,7 +107,7 @@ class HttpRequestHandler_7ree(
             
             Log.d("HttpServer", "开始读取请求体数据...")
             
-            var finalJsonString = ""
+            val finalJsonString: String
             
             try {
                 // 不依赖Content-Length，直接读取所有可用数据

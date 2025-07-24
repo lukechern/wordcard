@@ -42,6 +42,7 @@ class NetworkUtils_7ree {
         /**
          * 通过WiFi管理器获取IP地址（备用方法）
          */
+        @Suppress("DEPRECATION")
         fun getWifiIpAddress(context: Context): String? {
             try {
                 val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager

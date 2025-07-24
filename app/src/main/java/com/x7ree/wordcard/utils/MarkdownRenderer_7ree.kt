@@ -77,7 +77,6 @@ class MarkdownRenderer_7ree {
             
             val beforePhonetic_7ree = StringBuilder()
             val afterPhonetic_7ree = StringBuilder()
-            val beforeExamples_7ree = StringBuilder()
             val afterExamples_7ree = StringBuilder()
             val chineseMeaning_7ree = StringBuilder()
             var foundPhoneticSection_7ree = false
