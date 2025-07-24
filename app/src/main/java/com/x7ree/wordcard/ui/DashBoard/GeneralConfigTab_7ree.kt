@@ -22,7 +22,6 @@ fun GeneralConfigTab_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree
 ) {
     val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
-    val operationResult_7ree by wordQueryViewModel_7ree.operationResult_7ree.collectAsState()
     
     var selectedKeyboardType_7ree by remember { mutableStateOf(generalConfig_7ree.keyboardType) }
     var autoReadAfterQuery_7ree by remember { mutableStateOf(generalConfig_7ree.autoReadAfterQuery) }

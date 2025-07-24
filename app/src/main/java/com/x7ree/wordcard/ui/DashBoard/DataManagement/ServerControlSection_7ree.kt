@@ -25,12 +25,10 @@ import com.x7ree.wordcard.utils.HttpServerManager_7ree
  */
 @Composable
 fun ServerControlSection_7ree(
-    context: Context,
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     isServerEnabled: Boolean,
     onServerToggle: (Boolean) -> Unit,
-    serverUrl: String?,
-    httpServerManager: HttpServerManager_7ree?
+    serverUrl: String?
 ) {
     Column(
         modifier = Modifier

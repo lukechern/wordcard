@@ -14,7 +14,6 @@ fun PromptConfigTab_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree
 ) {
     val promptConfig_7ree by wordQueryViewModel_7ree.promptConfig_7ree.collectAsState()
-    val operationResult_7ree by wordQueryViewModel_7ree.operationResult_7ree.collectAsState()
     
     var queryPrompt_7ree by remember { mutableStateOf(promptConfig_7ree.queryPrompt_7ree) }
     var outputTemplate_7ree by remember { mutableStateOf(promptConfig_7ree.outputTemplate_7ree) }

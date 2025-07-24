@@ -81,12 +81,10 @@ fun DataManagementTab_7ree(
         
         // 从电脑操作区域
         ServerControlSection_7ree(
-            context = context,
             wordQueryViewModel_7ree = wordQueryViewModel_7ree,
             isServerEnabled = dataManagementState.isServerEnabled,
             onServerToggle = dataManagementState.onServerToggle,
-            serverUrl = dataManagementState.serverUrl,
-            httpServerManager = dataManagementState.httpServerManager
+            serverUrl = dataManagementState.serverUrl
         )
         
         Spacer(modifier = Modifier.height(20.dp))
