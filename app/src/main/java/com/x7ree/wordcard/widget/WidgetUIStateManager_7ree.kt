@@ -136,20 +136,34 @@ class WidgetUIStateManager_7ree {
     
     /**
      * 更新中文意思显示
+     * 优化流式输出时机：只有在检测到完整内容后才显示中文释义或错误提示
      */
     fun updateChineseMeaning_7ree(
         chineseMeaning: TextView,
-        meaning: String
+        meaning: String,
+        isStreamingComplete: Boolean = true
     ) {
         if (meaning.isNotEmpty()) {
             chineseMeaning.text = meaning
             chineseMeaning.gravity = android.view.Gravity.CENTER
             chineseMeaning.visibility = View.VISIBLE
-        } else {
-            // 当没有中文意思时，显示提示信息而不是隐藏
+        } else if (isStreamingComplete) {
+            // 只有在流式输出完成后才显示"无法解析"提示
             chineseMeaning.text = "(无法解析中文释义)"
             chineseMeaning.gravity = android.view.Gravity.CENTER
             chineseMeaning.visibility = View.VISIBLE
+        } else {
+            // 流式输出进行中时隐藏中文释义区域
+            chineseMeaning.visibility = View.GONE
         }
+    }
+    
+    /**
+     * 检查内容是否包含完整的结构标识
+     * 用于判断流式输出是否已经输出完成
+     */
+    fun isContentComplete_7ree(content: String): Boolean {
+        // 检测是否包含"音标"关键词，表示释义部分已经完成
+        return content.contains("音标") || content.contains("### 音标")
     }
 }

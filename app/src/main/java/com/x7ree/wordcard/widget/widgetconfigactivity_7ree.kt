@@ -255,7 +255,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                             displayResult_7ree(
                                 extractedInfo, queryText, progressBar, resultText, 
                                 wordTitle, chineseMeaning, inputText, queryButton, 
-                                searchResult.isComplete
+                                searchResult.isComplete, searchResult.content
                             )
                         }
                         
@@ -295,7 +295,8 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         chineseMeaning: TextView,
         inputText: EditText,
         queryButton: Button,
-        showButtons: Boolean = true // 新增参数控制是否显示按钮
+        showButtons: Boolean = true, // 新增参数控制是否显示按钮
+        fullContent: String = "" // 新增参数传递完整内容用于判断流式状态
     ) {
         val loadingText = findViewById<TextView>(R.id.widget_loading_text_7ree)
         val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
@@ -315,8 +316,11 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         // 显示单词标题
         wordTitle.text = if (parsedContent.word.isNotEmpty()) parsedContent.word else queryText
         
-        // 更新中文意思显示
-        uiStateManager_7ree.updateChineseMeaning_7ree(chineseMeaning, parsedContent.chineseMeaning)
+        // 检查流式输出是否完成
+        val isStreamingComplete = uiStateManager_7ree.isContentComplete_7ree(fullContent)
+        
+        // 更新中文意思显示，传递流式输出状态
+        uiStateManager_7ree.updateChineseMeaning_7ree(chineseMeaning, parsedContent.chineseMeaning, isStreamingComplete)
         
         // 使用完整的模板格式显示内容
         WidgetMarkdownParser_7ree.renderToTextView_7ree(resultText, detailInfo)
