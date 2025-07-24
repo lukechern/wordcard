@@ -637,7 +637,7 @@ private fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List
         
         val wordCount = dayWords.size
         val viewCount = dayWords.sumOf { it.viewCount } / 10
-        val spellingCount = dayWords.sumOf { it.spellingCount ?: 0 }
+        val spellingCount = dayWords.sumOf { it.spellingCount }
         
         result.add(DailyData_7ree(dateStr, wordCount, viewCount, spellingCount))
         

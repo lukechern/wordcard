@@ -171,6 +171,7 @@ class TtsManager_7ree(private val context: Context) {
                         onComplete?.invoke()
                     }
                     
+                    @Suppress("DEPRECATION")
                     override fun onError(utteranceId: String?) {
                         Log.e(TAG, "Google TTS朗读错误")
                         onSpeakingStateChanged?.invoke(false, "google")
