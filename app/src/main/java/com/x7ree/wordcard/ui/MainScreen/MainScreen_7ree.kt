@@ -66,7 +66,7 @@ fun MainScreen_7ree(
     LaunchedEffect(Unit) {
         delay(5000) // 最多显示5秒启动画面，给冷启动更多时间
         if (showSplash_7ree) {
-            Log.d("MainScreen_7ree", "启动画面超时，强制关闭")
+            // Log.d("MainScreen_7ree", "启动画面超时，强制关闭")
             showSplash_7ree = false
         }
     }
@@ -76,7 +76,7 @@ fun MainScreen_7ree(
         if (wordQueryViewModel_7ree != null && showSplash_7ree) {
             delay(1000) // 给一点时间让初始化标志更新
             if (showSplash_7ree) {
-                Log.d("MainScreen_7ree", "ViewModel已可用，关闭启动画面")
+                // Log.d("MainScreen_7ree", "ViewModel已可用，关闭启动画面")
                 showSplash_7ree = false
             }
         }

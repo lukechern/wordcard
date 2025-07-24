@@ -34,7 +34,7 @@ fun SpellingPracticeContent_7ree(
     onDismiss: () -> Unit,
     onSpellingSuccess: () -> Unit
 ) {
-    Log.d("SpellingPractice_7ree", "拼写练习组件 - 单词: '$targetWord', 中文词义: '$chineseMeaning'")
+    // Log.d("SpellingPractice_7ree", "拼写练习组件 - 单词: '$targetWord', 中文词义: '$chineseMeaning'")
     var userInput_7ree by remember { mutableStateOf("") }
     var showResult_7ree by remember { mutableStateOf(false) }
     var isCorrect_7ree by remember { mutableStateOf(false) }
@@ -168,7 +168,7 @@ fun SpellingPracticeContent_7ree(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Log.d("SpellingPractice_7ree", "显示中文词义: '$displayMeaning_7ree'（原始: '$chineseMeaning'）")
+                    // Log.d("SpellingPractice_7ree", "显示中文词义: '$displayMeaning_7ree'（原始: '$chineseMeaning'）")
                 } else {
                     Log.w("SpellingPractice_7ree", "中文词义为空，未显示")
                 }

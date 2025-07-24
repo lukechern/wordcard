@@ -51,7 +51,7 @@ class AzureTtsService_7ree(private val context: Context) {
      */
     fun updateConfig(config: ApiConfig_7ree) {
         this.apiConfig = config
-        Log.d(TAG, "Azure TTS配置已更新")
+        // Log.d(TAG, "Azure TTS配置已更新")
     }
     
     /**

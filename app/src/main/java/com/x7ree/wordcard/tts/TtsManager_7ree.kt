@@ -44,7 +44,7 @@ class TtsManager_7ree(private val context: Context) {
             isGoogleTtsReady = (status == TextToSpeech.SUCCESS)
             if (isGoogleTtsReady) {
                 googleTts?.language = Locale.US
-                Log.d(TAG, "Google TTS初始化成功")
+                // Log.d(TAG, "Google TTS初始化成功")
             } else {
                 Log.e(TAG, "Google TTS初始化失败")
             }
@@ -53,7 +53,7 @@ class TtsManager_7ree(private val context: Context) {
         
         // 初始化Azure TTS
         azureTts = AzureTtsService_7ree(context)
-        Log.d(TAG, "Azure TTS服务已创建")
+        // Log.d(TAG, "Azure TTS服务已创建")
     }
     
     /**
@@ -61,7 +61,7 @@ class TtsManager_7ree(private val context: Context) {
      */
     fun updateGeneralConfig(config: GeneralConfig_7ree) {
         this.generalConfig = config
-        Log.d(TAG, "TTS引擎配置更新为: ${config.ttsEngine}")
+        // Log.d(TAG, "TTS引擎配置更新为: ${config.ttsEngine}")
     }
     
     /**
@@ -70,7 +70,7 @@ class TtsManager_7ree(private val context: Context) {
     fun updateApiConfig(config: ApiConfig_7ree) {
         this.apiConfig = config
         azureTts?.updateConfig(config)
-        Log.d(TAG, "Azure TTS API配置已更新")
+        // Log.d(TAG, "Azure TTS API配置已更新")
     }
     
     /**
@@ -162,11 +162,11 @@ class TtsManager_7ree(private val context: Context) {
                 
                 googleTts?.setOnUtteranceProgressListener(object : android.speech.tts.UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {
-                        Log.d(TAG, "Google TTS开始朗读")
+                        // Log.d(TAG, "Google TTS开始朗读")
                     }
                     
                     override fun onDone(utteranceId: String?) {
-                        Log.d(TAG, "Google TTS朗读完成")
+                        // Log.d(TAG, "Google TTS朗读完成")
                         onSpeakingStateChanged?.invoke(false, "google")
                         onComplete?.invoke()
                     }
@@ -210,17 +210,17 @@ class TtsManager_7ree(private val context: Context) {
                 return
             }
             
-            Log.d(TAG, "开始使用Azure TTS朗读: $text")
+            // Log.d(TAG, "开始使用Azure TTS朗读: $text")
             
             val success = azureService.textToSpeech(
                 text = text,
                 onPlayStart = {
-                    Log.d(TAG, "Azure TTS音频开始播放")
+                    // Log.d(TAG, "Azure TTS音频开始播放")
                     onStart?.invoke()
                     onSpeakingStateChanged?.invoke(true, "azure")
                 },
                 onPlayComplete = {
-                    Log.d(TAG, "Azure TTS音频播放完成")
+                    // Log.d(TAG, "Azure TTS音频播放完成")
                     onSpeakingStateChanged?.invoke(false, "azure")
                     onComplete?.invoke()
                 }
@@ -246,7 +246,7 @@ class TtsManager_7ree(private val context: Context) {
             googleTts?.stop()
             azureTts?.stopPlaying()
             onSpeakingStateChanged?.invoke(false, getCurrentEngineName())
-            Log.d(TAG, "已停止所有TTS朗读")
+            // Log.d(TAG, "已停止所有TTS朗读")
         } catch (e: Exception) {
             Log.e(TAG, "停止朗读异常: ${e.message}", e)
         }
@@ -275,7 +275,7 @@ class TtsManager_7ree(private val context: Context) {
             azureTts?.release()
             azureTts = null
             
-            Log.d(TAG, "TTS管理器资源已释放")
+            // Log.d(TAG, "TTS管理器资源已释放")
         } catch (e: Exception) {
             Log.e(TAG, "释放TTS资源异常: ${e.message}", e)
         }
