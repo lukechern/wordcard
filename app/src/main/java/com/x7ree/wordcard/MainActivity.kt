@@ -113,7 +113,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                Log.d(TAG_7ree, "开始异步初始化应用组件")
+                // Log.d(TAG_7ree, "开始异步初始化应用组件")
                 
                 // 只初始化数据库，TTS改为懒加载
                 initializeDatabaseAsync_7ree()
@@ -128,11 +128,12 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         
                         // 计算并记录启动时间
                         val endTime = System.currentTimeMillis()
+                        @Suppress("UNUSED_VARIABLE")
                         val startupTime = endTime - startTime
-                        Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
+                        // Log.d(TAG_7ree, "应用初始化完成，耗时: ${startupTime}ms")
                         
                         // 在初始化完成后处理小组件Intent
-                        Log.d(TAG_7ree, "初始化完成，准备处理Intent: action=${intent?.action}, extras=${intent?.extras}")
+                        // Log.d(TAG_7ree, "初始化完成，准备处理Intent: action=${intent?.action}, extras=${intent?.extras}")
                         handleWidgetIntent_7ree(intent)
                     } else {
                         Log.e(TAG_7ree, "ViewModel初始化失败，无法标记初始化完成")
@@ -168,9 +169,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         ttsInitStartTime_7ree = System.currentTimeMillis()
         
         try {
-            Log.d(TAG_7ree, "开始懒加载初始化TTS")
+            // Log.d(TAG_7ree, "开始懒加载初始化TTS")
             tts_7ree = TextToSpeech(this@MainActivity, this@MainActivity)
-            Log.d(TAG_7ree, "TTS懒加载初始化请求已发送，开始时间: ${ttsInitStartTime_7ree}ms")
+            // Log.d(TAG_7ree, "TTS懒加载初始化请求已发送，开始时间: ${ttsInitStartTime_7ree}ms")
         } catch (e: Exception) {
             Log.e(TAG_7ree, "TTS懒加载初始化失败: ${e.message}", e)
             if (!isFinishing) {
@@ -186,11 +187,11 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     
     private suspend fun initializeDatabaseAsync_7ree() {
         try {
-            Log.d(TAG_7ree, "开始异步初始化数据库")
+            // Log.d(TAG_7ree, "开始异步初始化数据库")
             database_7ree = WordDatabase_7ree.getDatabase_7ree(this@MainActivity)
             wordRepository_7ree = WordRepository_7ree(database_7ree!!.wordDao_7ree())
             isDatabaseInitialized_7ree = true
-            Log.d(TAG_7ree, "数据库初始化完成")
+            // Log.d(TAG_7ree, "数据库初始化完成")
         } catch (e: Exception) {
             Log.e(TAG_7ree, "数据库异步初始化失败: ${e.message}", e)
         }
@@ -198,7 +199,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     
     private suspend fun initializeViewModel_7ree() {
         try {
-            Log.d(TAG_7ree, "开始初始化ViewModel")
+            // Log.d(TAG_7ree, "开始初始化ViewModel")
             if (wordRepository_7ree != null) {
                 wordQueryViewModel_7ree = WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree!!, this@MainActivity)
                 
@@ -211,9 +212,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         false
                     }
                     wordQueryViewModel_7ree?.isTtsReady_7ree = isTtsReady
-                    Log.d(TAG_7ree, "ViewModel初始化完成，TTS状态已同步: isTtsReady_7ree = $isTtsReady")
+                    // Log.d(TAG_7ree, "ViewModel初始化完成，TTS状态已同步: isTtsReady_7ree = $isTtsReady")
                 } else {
-                    Log.d(TAG_7ree, "ViewModel初始化完成，TTS尚未初始化")
+                    // Log.d(TAG_7ree, "ViewModel初始化完成，TTS尚未初始化")
                 }
             } else {
                 Log.e(TAG_7ree, "WordRepository未初始化，无法创建ViewModel")
@@ -227,26 +228,26 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         // 记录TTS初始化完成时间
         val ttsEndTime = System.currentTimeMillis()
         
-        Log.d(TAG_7ree, "onInit: Received status: $status")
+        // Log.d(TAG_7ree, "onInit: Received status: $status")
         if (status == TextToSpeech.SUCCESS) {
-            Log.d(TAG_7ree, "onInit: TextToSpeech initialized successfully.")
+            // Log.d(TAG_7ree, "onInit: TextToSpeech initialized successfully.")
 
             var isAnyLanguageSupported_7ree = false
 
             val resultUs_7ree = tts_7ree?.setLanguage(Locale.US)
-            Log.d(TAG_7ree, "onInit: setLanguage(Locale.US) result: $resultUs_7ree")
+            // Log.d(TAG_7ree, "onInit: setLanguage(Locale.US) result: $resultUs_7ree")
 
             if (resultUs_7ree != null && resultUs_7ree >= TextToSpeech.LANG_AVAILABLE) {
                 isAnyLanguageSupported_7ree = true
-                Log.d(TAG_7ree, "onInit: Language set to US locale successfully.")
+                // Log.d(TAG_7ree, "onInit: Language set to US locale successfully.")
             } else {
                 Log.w(TAG_7ree, "onInit: US English language not supported or data missing (${resultUs_7ree}). Trying Chinese.")
                 val resultChinese_7ree = tts_7ree?.setLanguage(Locale.CHINESE)
-                Log.d(TAG_7ree, "onInit: setLanguage(Locale.CHINESE) result: $resultChinese_7ree")
+                // Log.d(TAG_7ree, "onInit: setLanguage(Locale.CHINESE) result: $resultChinese_7ree")
 
                 if (resultChinese_7ree != null && resultChinese_7ree >= TextToSpeech.LANG_AVAILABLE) {
                     isAnyLanguageSupported_7ree = true
-                    Log.d(TAG_7ree, "onInit: Language set to Chinese successfully.")
+                    // Log.d(TAG_7ree, "onInit: Language set to Chinese successfully.")
                 } else {
                     Log.e(TAG_7ree, "onInit: Chinese language also not supported or data missing (${resultChinese_7ree}).")
                 }
@@ -255,7 +256,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             // 确保ViewModel存在后再设置TTS状态
             if (wordQueryViewModel_7ree != null) {
                 wordQueryViewModel_7ree?.isTtsReady_7ree = isAnyLanguageSupported_7ree
-                Log.d(TAG_7ree, "onInit: TTS状态已设置到ViewModel，isTtsReady_7ree = $isAnyLanguageSupported_7ree")
+                // Log.d(TAG_7ree, "onInit: TTS状态已设置到ViewModel，isTtsReady_7ree = $isAnyLanguageSupported_7ree")
             } else {
                 Log.w(TAG_7ree, "onInit: ViewModel尚未初始化，将在ViewModel初始化后设置TTS状态")
                 // 如果ViewModel还没初始化，我们需要在其他地方设置这个状态
@@ -263,8 +264,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             isTtsInitialized_7ree = true
             
             // 计算TTS初始化总耗时
+            @Suppress("UNUSED_VARIABLE")
             val ttsDuration = ttsEndTime - ttsInitStartTime_7ree
-            Log.d(TAG_7ree, "TTS初始化成功完成，耗时: ${ttsDuration}ms")
+            // Log.d(TAG_7ree, "TTS初始化成功完成，耗时: ${ttsDuration}ms")
             
             if (!isAnyLanguageSupported_7ree && !isFinishing) {
                 Toast.makeText(this, "文本转语音：所需语言数据不可用，请前往设置下载。", Toast.LENGTH_LONG).show()
@@ -314,7 +316,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
             // 确保ViewModel存在后再设置TTS状态
             if (wordQueryViewModel_7ree != null) {
                 wordQueryViewModel_7ree?.isTtsReady_7ree = false
-                Log.d(TAG_7ree, "onInit: TTS失败状态已设置到ViewModel，isTtsReady_7ree = false")
+                // Log.d(TAG_7ree, "onInit: TTS失败状态已设置到ViewModel，isTtsReady_7ree = false")
             } else {
                 Log.w(TAG_7ree, "onInit: ViewModel尚未初始化，TTS失败状态无法设置")
             }
@@ -364,14 +366,14 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     }
     
     private fun handleWidgetIntent_7ree(intent: Intent?) {
-        Log.d(TAG_7ree, "handleWidgetIntent_7ree called with action: ${intent?.action}")
+        // Log.d(TAG_7ree, "handleWidgetIntent_7ree called with action: ${intent?.action}")
         
         // 处理来自WidgetConfigActivity_7ree的查看详情请求
         val queryWord = intent?.getStringExtra("query_word")
         val showDetail = intent?.getBooleanExtra("show_detail", false)
         
         if (!queryWord.isNullOrBlank() && (showDetail == true)) {
-            Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
+            // Log.d(TAG_7ree, "收到查看详情请求: $queryWord")
             // 等待ViewModel初始化完成后执行查询并显示详情
             lifecycleScope.launch {
                 // 等待初始化完成，改进超时机制
@@ -410,7 +412,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                         wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
                         // 然后加载单词详情
                         wordQueryViewModel_7ree?.loadWordFromHistory_7ree(queryWord)
-                        Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
+                        // Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
                     } catch (e: Exception) {
                         Log.e(TAG_7ree, "处理查看详情请求时出错: ${e.message}", e)
                         Toast.makeText(this@MainActivity, "处理请求时出错，请重试", Toast.LENGTH_SHORT).show()

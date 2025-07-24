@@ -73,8 +73,8 @@ fun WordResultComponent_7ree(
     
     // 添加调试日志来跟踪收藏状态变化
     LaunchedEffect(currentWordInfo?.isFavorite) {
-        currentWordInfo?.let { wordInfo ->
-            Log.d(TAG_7ree, "当前单词收藏状态: ${wordInfo.word} -> ${wordInfo.isFavorite}")
+        currentWordInfo?.let { _ ->
+            // Log.d(TAG_7ree, "当前单词收藏状态: ${wordInfo.word} -> ${wordInfo.isFavorite}")
         }
     }
     
