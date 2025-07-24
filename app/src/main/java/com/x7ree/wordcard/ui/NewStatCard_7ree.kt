@@ -101,7 +101,6 @@ fun NewStatCard_7ree(
     modifier: Modifier = Modifier,
     value: String,
     label: String,
-    gradient: Brush,
     numberColor: Color = Color(0xFF333333),
     labelColor: Color = Color(0xFF666666)
 ) {
@@ -232,9 +231,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.totalWords.toString(),
                 label = "单词总数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF1976D2),
                 labelColor = Color(0xFF1976D2)
             )
@@ -243,9 +239,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.studyDays.toString(),
                 label = "学习天数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF1976D2),
                 labelColor = Color(0xFF1976D2)
             )
@@ -254,9 +247,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.favoriteWords.toString(),
                 label = "收藏总数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF1976D2),
                 labelColor = Color(0xFF1976D2)
             )
@@ -271,9 +261,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.totalViews.toString(),
                 label = "查阅总数",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -282,9 +269,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatReviewRatio_7ree(stats_7ree.reviewRatio),
                 label = "查阅倍率",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -293,9 +277,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatDailyStudy_7ree(stats_7ree.dailyStudy),
                 label = "每日查阅",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -310,9 +291,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.totalSpelling.toString(),
                 label = "拼写练习",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF2E7D32),
                 labelColor = Color(0xFF2E7C32)
             )
@@ -321,9 +299,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatSpellingRatio_7ree(stats_7ree.spellingRatio),
                 label = "拼写倍率",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF2E7D32),
                 labelColor = Color(0xFF2E7C32)
             )
@@ -332,9 +307,6 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatDailySpelling_7ree(stats_7ree.dailySpelling),
                 label = "每日拼写",
-                gradient = Brush.linearGradient(
-                    colors = listOf(Color.Transparent, Color.Transparent)
-                ),
                 numberColor = Color(0xFF2E7D32),
                 labelColor = Color(0xFF2E7C32)
             )

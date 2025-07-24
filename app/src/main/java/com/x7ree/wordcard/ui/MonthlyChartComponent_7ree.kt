@@ -174,7 +174,7 @@ private fun MonthlyChartCanvas_7ree(
                 )
                 
                 // 绘制图例（传递选中状态）
-                drawLegend_7ree(width, height, padding, selectedLegend)
+                drawLegend_7ree(height, padding, selectedLegend)
             }
         } else {
             // 如果没有数据，显示占位符
@@ -272,8 +272,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBars_7ree(
     val monthWidth = chartWidth / data.size
     // 每个柱子的宽度（各占33.3%的x轴格子）
     val barWidth = monthWidth / 3f
-    // 柱子间距（贴在一起，无间距）
-    val barSpacing = 0f
     
     // 绘制每个月的数据
     for (i in data.indices) {
@@ -456,7 +454,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAxes_7ree(
 }
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
-    width: Float,
     height: Float,
     padding: Float,
     selectedLegend: String? = null
@@ -562,8 +559,6 @@ private fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): Li
     // 设置到今年1月1日
     calendar.set(currentYear, Calendar.JANUARY, 1, 0, 0, 0)
     calendar.set(Calendar.MILLISECOND, 0)
-    
-    val yearStart = calendar.timeInMillis
     
     // 年度开始时间计算完成
     
