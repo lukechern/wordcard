@@ -472,7 +472,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                 }
             }
             WordQueryWidgetProvider_7ree.ACTION_WIDGET_WORDBOOK_7ree -> {
-                Log.d(TAG_7ree, "收到小组件单词本请求")
+                // Log.d(TAG_7ree, "收到小组件单词本请求")
                 lifecycleScope.launch {
                     // 等待ViewModel初始化完成后切换到单词本页面
                     var waitTime = 0
@@ -500,7 +500,7 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     withContext(Dispatchers.Main) {
                         try {
                             wordQueryViewModel_7ree?.setCurrentScreen_7ree("HISTORY")
-                            Log.d(TAG_7ree, "已切换到单词本页面")
+                            // Log.d(TAG_7ree, "已切换到单词本页面")
                         } catch (e: Exception) {
                             Log.e(TAG_7ree, "处理单词本请求时出错: ${e.message}", e)
                             Toast.makeText(this@MainActivity, "处理请求时出错，请重试", Toast.LENGTH_SHORT).show()

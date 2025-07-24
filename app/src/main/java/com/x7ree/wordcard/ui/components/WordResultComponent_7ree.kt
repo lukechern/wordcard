@@ -103,7 +103,7 @@ fun WordResultComponent_7ree(
                 val wordInfo = wordQueryViewModel.currentWordInfo_7ree!!
                 IconButton(
                     onClick = { 
-                        Log.d(TAG_7ree, "收藏按钮被点击，当前状态: ${wordInfo.isFavorite}")
+                        // Log.d(TAG_7ree, "收藏按钮被点击，当前状态: ${wordInfo.isFavorite}")
                         wordQueryViewModel.toggleFavorite_7ree() 
                     }
                 ) {
