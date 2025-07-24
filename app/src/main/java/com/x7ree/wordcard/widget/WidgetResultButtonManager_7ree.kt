@@ -48,8 +48,8 @@ class WidgetResultButtonManager_7ree(
      */
     fun autoSpeakWord_7ree(word: String) {
         val speakButton = activity.findViewById<ImageView>(R.id.widget_speak_button_7ree)
-        val speakText = activity.findViewById<TextView>(R.id.widget_speak_text_7ree)
-        val speakContainer = activity.findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
+        // val speakText = activity.findViewById<TextView>(R.id.widget_speak_text_7ree)
+        // val speakContainer = activity.findViewById<LinearLayout>(R.id.widget_speak_container_7ree)
         
         if (currentTtsState == WidgetTtsButtonState.IDLE) {
             // 开始朗读
@@ -71,7 +71,7 @@ class WidgetResultButtonManager_7ree(
                     currentTtsState = WidgetTtsButtonState.IDLE
                     currentSpeakingWord = ""
                 },
-                onError = { error ->
+                onError = { _ ->
                     // TTS出错时恢复空闲状态
                     updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
                     currentTtsState = WidgetTtsButtonState.IDLE
@@ -118,7 +118,7 @@ class WidgetResultButtonManager_7ree(
                             currentTtsState = WidgetTtsButtonState.IDLE
                             currentSpeakingWord = ""
                         },
-                        onError = { error ->
+                        onError = { _ ->
                             // TTS出错时恢复空闲状态
                             updateSpeakButtonState(speakButton, WidgetTtsButtonState.IDLE)
                             currentTtsState = WidgetTtsButtonState.IDLE

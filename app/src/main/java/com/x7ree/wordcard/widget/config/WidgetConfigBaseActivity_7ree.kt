@@ -138,11 +138,11 @@ open class WidgetConfigBaseActivity_7ree : AppCompatActivity() {
                 // Log.d("WidgetQueryUI_7ree", "LoadingText - MarginBottom: ${(loadingText.layoutParams as? android.view.ViewGroup.MarginLayoutParams)?.bottomMargin ?: 0}")
                 
                 // 计算WordTitle和ProgressBar之间的距离
-                val distanceTitleToProgress = progressBarLocation[1] - (wordTitleLocation[1] + wordTitle.height)
+                // val distanceTitleToProgress = progressBarLocation[1] - (wordTitleLocation[1] + wordTitle.height)
                 // Log.d("WidgetQueryUI_7ree", "WordTitle与ProgressBar之间的距离: ${distanceTitleToProgress}px")
                 
                 // 计算ProgressBar和LoadingText之间的距离
-                val distanceProgressToText = loadingTextLocation[1] - (progressBarLocation[1] + progressBar.height)
+                // val distanceProgressToText = loadingTextLocation[1] - (progressBarLocation[1] + progressBar.height)
                 // Log.d("WidgetQueryUI_7ree", "ProgressBar与LoadingText之间的距离: ${distanceProgressToText}px")
                 
                 // Log.d("WidgetQueryUI_7ree", "=== 查询状态 UI 坐标和间距信息记录完成 ===")
