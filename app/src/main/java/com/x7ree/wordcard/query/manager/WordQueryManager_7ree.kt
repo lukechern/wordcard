@@ -31,7 +31,7 @@ class WordQueryManager_7ree(
         queryState_7ree.updateFromCache_7ree(false)
         
         // 记录查询开始时间
-        val queryStartTime = System.currentTimeMillis()
+        // val queryStartTime = System.currentTimeMillis()
         // println("DEBUG: 开始查询单词: ${wordInput}, 时间: ${queryStartTime}ms")
         
         coroutineScope.launch {

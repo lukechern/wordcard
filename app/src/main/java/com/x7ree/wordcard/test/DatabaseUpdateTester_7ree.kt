@@ -132,13 +132,13 @@ This is a good example.
         try {
             // 测试按词性查询
             result.appendLine("1. 测试按词性查询:")
-            val allPartOfSpeech = wordRepository_7ree.getAllPartOfSpeech_7ree()
+            wordRepository_7ree.getAllPartOfSpeech_7ree()
             // 这里只是演示，实际使用时需要collect Flow
             result.appendLine("   获取所有词性的Flow已创建")
             
             // 测试中文释义搜索
             result.appendLine("\n2. 测试中文释义搜索:")
-            val searchResults = wordRepository_7ree.searchByChineseDefinition_7ree("测试")
+            wordRepository_7ree.searchByChineseDefinition_7ree("测试")
             result.appendLine("   中文释义搜索的Flow已创建")
             
             // 测试统计功能
