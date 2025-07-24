@@ -245,6 +245,10 @@ class DataManager_7ree(
                         queryState_7ree.updateOperationResult_7ree(
                             "数据导出成功！文件: $fileName\n位置: Android/data/com.x7ree.wordcard/files/Downloads/"
                         )
+                        // 更新存储路径显示为实际的导出文件路径
+                        paginationState_7ree.updateExportPath_7ree(filePath)
+                        // 更新导出数据状态，标记为已导出
+                        queryState_7ree.updateHasExportedData_7ree(true)
                         // println("DEBUG: 数据导出成功: $filePath")
                     },
                     onFailure = { exception ->

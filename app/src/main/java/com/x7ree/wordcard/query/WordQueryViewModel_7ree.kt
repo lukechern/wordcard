@@ -119,6 +119,7 @@ class WordQueryViewModel_7ree(
     val isSpeakingExamples_7ree get() = queryState_7ree.isSpeakingExamples_7ree
     
     val operationResult_7ree: StateFlow<String?> get() = queryState_7ree.operationResult_7ree
+    val hasExportedData_7ree: StateFlow<Boolean> get() = queryState_7ree.hasExportedData_7ree
     val currentScreen_7ree: StateFlow<String> get() = navigationState_7ree.currentScreen_7ree
     val isFromWordBook_7ree: StateFlow<Boolean> get() = navigationState_7ree.isFromWordBook_7ree
     

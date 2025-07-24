@@ -72,13 +72,15 @@ fun PhoneOperationSection_7ree(
             
             Spacer(modifier = Modifier.height(16.dp))
             
+            // 存储路径信息
+            StoragePathSection_7ree(wordQueryViewModel_7ree)
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             // 数据导入部分
             DataImportSection_7ree(onImportFile_7ree)
             
             Spacer(modifier = Modifier.height(16.dp))
-            
-            // 存储路径信息
-            StoragePathSection_7ree(wordQueryViewModel_7ree)
         }
     }
 }
@@ -155,24 +157,35 @@ private fun DataImportSection_7ree(onImportFile_7ree: () -> Unit) {
 @Composable
 private fun StoragePathSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
     val exportPath_7ree by wordQueryViewModel_7ree.exportPath_7ree.collectAsState()
+    val hasExportedData_7ree by wordQueryViewModel_7ree.hasExportedData_7ree.collectAsState()
     
-    Text(
-        text = "存储路径",
-        style = MaterialTheme.typography.titleSmall,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(bottom = 4.dp)
-    )
-    
-    Text(
-        text = "数据将默认导出到：\n$exportPath_7ree",
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = Color.White.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(4.dp)
+    // 只有在成功导出数据后才显示存储路径区域，并且一直显示直到APP重启
+    if (hasExportedData_7ree) {
+        val textColor = Color(0xFF2E7D32) // green_500_7ree的颜色值
+        
+        // 将标题移到路径显示区域内部
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "单词数据已经导出到：",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = textColor,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
-            .padding(8.dp)
-    )
+            
+            Text(
+                text = exportPath_7ree,
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor
+            )
+        }
+    }
 }

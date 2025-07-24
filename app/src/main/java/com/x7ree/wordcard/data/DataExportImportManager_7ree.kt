@@ -12,6 +12,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 /**
 语言包定义
@@ -54,8 +55,9 @@ class DataExportImportManager_7ree(
             
             // 生成文件名
             val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getDefault() // 显式设置为系统默认时区
             val timestamp = dateFormat.format(Date())
-            val fileName = "wordcard_export_${timestamp}.json"
+            val fileName = "WordCard_7ree_Data_Export_${timestamp}.json"
             
             // 保存到外部存储的Downloads目录
             val downloadsDir = File(context.getExternalFilesDir(null), "Downloads")
@@ -159,7 +161,7 @@ class DataExportImportManager_7ree(
     fun getExportFiles_7ree(): List<File> {
         return try {
             context.filesDir.listFiles { file ->
-                file.name.startsWith("wordcard_export_") && file.name.endsWith(".json")
+                file.name.startsWith("WordCard_7ree_Data_Export_") && file.name.endsWith(".json")
             }?.sortedByDescending { it.lastModified() } ?: emptyList()
         } catch (e: Exception) {
             // println("DEBUG: 获取导出文件列表失败: ${e.message}")
@@ -186,4 +188,4 @@ class DataExportImportManager_7ree(
         val downloadsDir = File(context.getExternalFilesDir(null), "Downloads")
         return downloadsDir.absolutePath
     }
-} 
+}

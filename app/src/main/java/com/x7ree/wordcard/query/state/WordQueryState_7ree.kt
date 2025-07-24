@@ -56,6 +56,10 @@ class WordQueryState_7ree {
     private val _operationResult_7ree = MutableStateFlow<String?>(null)
     val operationResult_7ree: StateFlow<String?> = _operationResult_7ree
 
+    // 数据导出状态 - 用于跟踪是否已经成功导出过数据
+    private val _hasExportedData_7ree = MutableStateFlow<Boolean>(false)
+    val hasExportedData_7ree: StateFlow<Boolean> = _hasExportedData_7ree
+
     // 更新方法
     fun updateWordInput_7ree(newInput: String) {
         wordInput_7ree = newInput
@@ -101,6 +105,10 @@ class WordQueryState_7ree {
 
     fun clearOperationResult_7ree() {
         _operationResult_7ree.value = null
+    }
+
+    fun updateHasExportedData_7ree(hasExported: Boolean) {
+        _hasExportedData_7ree.value = hasExported
     }
 
     fun resetQueryState_7ree() {

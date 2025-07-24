@@ -236,7 +236,15 @@ class HtmlPageProvider_7ree {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = 'wordcard_export_' + new Date().toISOString().slice(0,19).replace(/:/g, '-') + '.json';
+                    // 生成手机所在时区的时间格式：WordCard_7ree_Data_Export_20250724_164139.json
+                    const now = new Date();
+                    const dateStr = now.getFullYear() + 
+                                  String(now.getMonth() + 1).padStart(2, '0') + 
+                                  String(now.getDate()).padStart(2, '0');
+                    const timeStr = String(now.getHours()).padStart(2, '0') + 
+                                  String(now.getMinutes()).padStart(2, '0') + 
+                                  String(now.getSeconds()).padStart(2, '0');
+                    a.download = 'WordCard_7ree_Data_Export_' + dateStr + '_' + timeStr + '.json';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
