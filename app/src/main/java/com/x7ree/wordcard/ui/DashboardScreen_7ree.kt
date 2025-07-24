@@ -40,7 +40,8 @@ fun DashboardScreen_7ree(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .height(72.dp) // 与SearchBarComponent保持一致的高度
+                .padding(horizontal = 16.dp, vertical = 8.dp), // 与SearchBarComponent保持一致的内部边距
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
