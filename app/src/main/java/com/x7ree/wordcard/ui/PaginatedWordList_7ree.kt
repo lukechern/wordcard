@@ -103,7 +103,6 @@ fun PaginatedWordList_7ree(
     isLoadingMore: Boolean,
     hasMoreData: Boolean,
     onWordClick: (String) -> Unit,
-    onFavoriteToggle: (WordEntity_7ree) -> Unit,
     onWordDelete: (WordEntity_7ree) -> Unit,
     onLoadMore: () -> Unit,
     onWordSpeak: (String) -> Unit = {},
@@ -227,7 +226,6 @@ fun PaginatedWordList_7ree(
                 HistoryWordItem_7ree(
                     wordEntity_7ree = wordEntity_7ree,
                     onWordClick_7ree = onWordClick,
-                    onFavoriteToggle_7ree = onFavoriteToggle,
                     onDismiss_7ree = { onWordDelete(wordEntity_7ree) },
                     onWordSpeak_7ree = onWordSpeak,
                     onWordStopSpeak_7ree = onWordStopSpeak,

@@ -29,7 +29,6 @@ import kotlinx.coroutines.delay
 fun MainScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
     isInitializationComplete_7ree: Boolean = false,
-    stopSpeaking_7ree: () -> Unit,
     onImportFile_7ree: () -> Unit = {}
 ) {
     // 从ViewModel获取当前屏幕状态

@@ -247,14 +247,6 @@ fun HistoryScreen_7ree(
                 isLoadingMore = isLoadingMore_7ree,
                 hasMoreData = hasMoreData_7ree,
                 onWordClick = onWordClick_7ree,
-                onFavoriteToggle = { entity ->
-                    wordQueryViewModel_7ree.setFavorite_7ree(entity.word, !entity.isFavorite)
-                    // 如果当前在收藏过滤模式下，需要重新加载数据
-                    if (showFavoritesOnly_7ree) {
-                        wordQueryViewModel_7ree.resetPagination_7ree()
-                        wordQueryViewModel_7ree.loadInitialWords_7ree()
-                    }
-                },
                 onWordDelete = { wordEntity_7ree ->
                     // 立即添加到删除集合，从UI中移除
                     deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word

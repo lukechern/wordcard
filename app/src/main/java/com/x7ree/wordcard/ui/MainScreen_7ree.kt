@@ -31,12 +31,10 @@ typealias Screen_7ree = ScreenImpl
 fun MainScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
     isInitializationComplete_7ree: Boolean = false,
-    stopSpeaking_7ree: () -> Unit,
     onImportFile_7ree: () -> Unit = {}
 ) = MainScreenImpl(
     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
     isInitializationComplete_7ree = isInitializationComplete_7ree,
-    stopSpeaking_7ree = stopSpeaking_7ree,
     onImportFile_7ree = onImportFile_7ree
 )
 
@@ -64,13 +62,11 @@ fun HistoryScreen_7ree(
 fun HistoryWordItem_7ree(
     wordEntity_7ree: WordEntity_7ree,
     onWordClick_7ree: (String) -> Unit,
-    onFavoriteToggle_7ree: (WordEntity_7ree) -> Unit,
     onDismiss_7ree: () -> Unit,
     onWordSpeak_7ree: (String) -> Unit = {}
 ) = HistoryWordItemImpl(
     wordEntity_7ree = wordEntity_7ree,
     onWordClick_7ree = onWordClick_7ree,
-    onFavoriteToggle_7ree = onFavoriteToggle_7ree,
     onDismiss_7ree = onDismiss_7ree,
     onWordSpeak_7ree = onWordSpeak_7ree
 )

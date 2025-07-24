@@ -176,7 +176,6 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFF191970),
-                            "单词",
                             animationProgress
                         )
                     }
@@ -189,7 +188,6 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFFD2691E),
-                            "查阅",
                             animationProgress
                         )
                     }
@@ -202,7 +200,6 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFF228B22),
-                            "拼写",
                             animationProgress
                         )
                     }
@@ -215,7 +212,6 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFF191970),
-                            "单词",
                             animationProgress
                         )
                         
@@ -226,7 +222,6 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFFD2691E),
-                            "查阅",
                             animationProgress
                         )
                         
@@ -237,14 +232,13 @@ private fun DailyChartCanvas_7ree(
                             chartHeight,
                             padding,
                             Color(0xFF228B22),
-                            "拼写",
                             animationProgress
                         )
                     }
                 }
                 
                 // 绘制图例（传递选中状态）
-                drawLegend_7ree(width, height, padding, selectedLegend)
+                drawLegend_7ree(height, padding, selectedLegend)
             }
         } else {
             // 如果没有数据，显示占位符
@@ -333,7 +327,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLine_7ree(
     chartHeight: Float,
     padding: Float,
     color: Color,
-    label: String,
     animationProgress: Float
 ) {
     if (data.isEmpty()) return
@@ -489,7 +482,6 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawAxes_7ree(
 }
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLegend_7ree(
-    width: Float,
     height: Float,
     padding: Float,
     selectedLegend: String? = null

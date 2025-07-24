@@ -92,11 +92,6 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
                     MainScreen_7ree(
                         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                         isInitializationComplete_7ree = isInitializationComplete_7ree,
-                        stopSpeaking_7ree = { 
-                            // 使用升级后的TTS管理器停止朗读
-                            wordQueryViewModel_7ree?.stopSpeaking_7ree()
-                            Log.d(TAG_7ree, "stopSpeaking_7ree: 使用TTS管理器停止朗读")
-                        },
                         onImportFile_7ree = {
                             filePickerLauncher.launch("application/json")
                         }

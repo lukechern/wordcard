@@ -38,7 +38,6 @@ import java.util.Locale
 fun HistoryWordItem_7ree(
     wordEntity_7ree: WordEntity_7ree,
     onWordClick_7ree: (String) -> Unit,
-    onFavoriteToggle_7ree: (WordEntity_7ree) -> Unit,
     onDismiss_7ree: () -> Unit,
     onWordSpeak_7ree: (String) -> Unit = {},
     onWordStopSpeak_7ree: () -> Unit = {},
@@ -51,13 +50,6 @@ fun HistoryWordItem_7ree(
     
     // 获取中文释义，如果为空则不显示
     val chineseDefinition_7ree = wordEntity_7ree.chineseDefinition.trim()
-    
-    // 构建第二行显示内容：中文释义 + 时间
-    val secondLineText_7ree = if (chineseDefinition_7ree.isNotEmpty()) {
-        "$chineseDefinition_7ree • $dateStr_7ree"
-    } else {
-        dateStr_7ree
-    }
 
     SwipeableRevealItem_7ree(
         onDeleteClick = onDismiss_7ree,
