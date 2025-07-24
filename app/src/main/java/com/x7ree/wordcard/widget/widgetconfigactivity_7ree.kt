@@ -39,6 +39,7 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
     private lateinit var touchFeedbackManager_7ree: WidgetTouchFeedbackManager_7ree
     private lateinit var resultButtonManager_7ree: WidgetResultButtonManager_7ree
     private lateinit var keyboardManager_7ree: WidgetKeyboardManager_7ree
+    private lateinit var overlayManager_7ree: WidgetOverlayManager_7ree
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,6 +96,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
             keyboardManager_7ree = WidgetKeyboardManager_7ree(this@WidgetConfigActivity_7ree)
             keyboardManager_7ree.initialize_7ree()
             
+            // 初始化蒙版管理器
+            overlayManager_7ree = WidgetOverlayManager_7ree(this@WidgetConfigActivity_7ree)
+            overlayManager_7ree.initialize_7ree()
+            
             // 提前初始化TTS，确保朗读功能可用
             ttsManager_7ree.initializeTtsLazy_7ree()
         }
@@ -148,6 +153,10 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
                 keyboardManager_7ree.hideKeyboard_7ree()
             }
             inputText.hideKeyboard_7ree()
+            // 隐藏蒙版
+            if (::overlayManager_7ree.isInitialized) {
+                overlayManager_7ree.hideOverlay_7ree()
+            }
             // 关闭Activity
             finish()
         }
@@ -158,10 +167,16 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         // 手动设置自定义光标组件到键盘管理器
         keyboardManager_7ree.setCustomCursor_7ree(customCursor)
         
+        // 设置蒙版管理器到键盘管理器
+        keyboardManager_7ree.setOverlayManager_7ree(overlayManager_7ree)
+        
         // 绑定键盘管理器到输入框
         keyboardManager_7ree.bindInputText_7ree(inputText, { _ -> }, {
             performSearch_7ree(inputText, queryButton)
         })
+        
+        // 显示蒙版，为查询卡片提供视觉聚焦
+        overlayManager_7ree.showOverlay_7ree()
         
         // 延迟自动弹出键盘，确保UI完全加载
         inputText.post {
@@ -436,5 +451,8 @@ class WidgetConfigActivity_7ree : AppCompatActivity() {
         super.onDestroy()
         ttsManager_7ree.release_7ree()
         keyboardManager_7ree.release_7ree()
+        if (::overlayManager_7ree.isInitialized) {
+            overlayManager_7ree.release_7ree()
+        }
     }
 }

@@ -36,6 +36,7 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
     private var composeView_7ree: ComposeView? = null
     private val inputMethodManager_7ree = activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
     private var customCursor_7ree: WidgetCustomCursor_7ree? = null
+    private var overlayManager_7ree: WidgetOverlayManager_7ree? = null
     
     // 当前输入框和回调
     private var currentInputText_7ree: EditText? = null
@@ -157,6 +158,13 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
     }
     
     /**
+     * 设置蒙版管理器
+     */
+    fun setOverlayManager_7ree(overlayManager: WidgetOverlayManager_7ree) {
+        overlayManager_7ree = overlayManager
+    }
+    
+    /**
      * 绑定输入框
      */
     fun bindInputText_7ree(
@@ -235,6 +243,8 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
         if (shouldUseCustomKeyboard_7ree()) {
             customKeyboardState_7ree?.show_7ree()
             customKeyboardContainer_7ree?.visibility = View.VISIBLE
+            // 当显示自定义键盘时，确保蒙版也显示
+            overlayManager_7ree?.showOverlay_7ree()
         }
     }
     
@@ -244,6 +254,8 @@ class WidgetKeyboardManager_7ree(private val activity: Activity) {
     private fun hideCustomKeyboard_7ree() {
         customKeyboardState_7ree?.hide_7ree()
         customKeyboardContainer_7ree?.visibility = View.GONE
+        // 当隐藏自定义键盘时，保持蒙版显示（因为查询卡片仍然需要聚焦效果）
+        // 蒙版的隐藏由主Activity在关闭时控制
     }
     
     /**
