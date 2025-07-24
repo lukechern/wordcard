@@ -95,9 +95,9 @@ fun MainScreen_7ree(
                                 Screen_7ree.SETTINGS -> "SETTINGS"
                                 else -> "SEARCH"
                             }
-                            wordQueryViewModel_7ree?.setCurrentScreen_7ree(screenString)
+                            wordQueryViewModel_7ree.setCurrentScreen_7ree(screenString)
                         },
-                        onSearchReset_7ree = { wordQueryViewModel_7ree?.resetQueryState_7ree() }
+                        onSearchReset_7ree = { wordQueryViewModel_7ree.resetQueryState_7ree() }
                     )
                 }
             }
@@ -138,13 +138,11 @@ fun MainScreen_7ree(
                         // 如果ViewModel还未初始化完成，显示加载状态，但添加超时保护
                         var showLoadingTimeout by remember { mutableStateOf(false) }
                         
-                        // 超时保护机制 - 如果10秒后ViewModel还是null，显示错误信息
+                        // 超时保护机制 - 如果10秒后还在加载状态，显示错误信息
                         LaunchedEffect(Unit) {
                             delay(10000) // 10秒超时
-                            if (wordQueryViewModel_7ree == null) {
-                                Log.e("MainScreen_7ree", "ViewModel初始化超时")
-                                showLoadingTimeout = true
-                            }
+                            Log.e("MainScreen_7ree", "应用初始化超时")
+                            showLoadingTimeout = true
                         }
                         
                         Box(

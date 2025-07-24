@@ -587,7 +587,7 @@ private fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): Li
         
         val wordCount = monthWords.size
         val viewCount = monthWords.sumOf { it.viewCount } / 10
-        val spellingCount = monthWords.sumOf { it.spellingCount ?: 0 }
+        val spellingCount = monthWords.sumOf { it.spellingCount }
         
         result.add(MonthlyData_7ree(monthStr, wordCount, viewCount, spellingCount))
         
