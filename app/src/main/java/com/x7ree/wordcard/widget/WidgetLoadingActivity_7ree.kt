@@ -184,8 +184,8 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
         intent.putExtras(getIntent().extras ?: Bundle())
         
         // 设置Activity转场动画为淡入淡出，提供流畅的过渡效果
-        startActivity(intent)
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        val options = android.app.ActivityOptions.makeCustomAnimation(this, android.R.anim.fade_in, android.R.anim.fade_out)
+        startActivity(intent, options.toBundle())
         
         // 关闭加载Activity
         finish()
@@ -198,7 +198,7 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
     
     override fun onBackPressed() {
         // 允许用户取消加载
-        super.onBackPressed()
+        onBackPressedDispatcher.onBackPressed()
         initializationJob?.cancel()
     }
 }

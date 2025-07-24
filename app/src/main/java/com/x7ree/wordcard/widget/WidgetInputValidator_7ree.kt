@@ -19,7 +19,7 @@ class WidgetInputValidator_7ree(private val buttonManager_7ree: WidgetButtonMana
      * 设置输入框过滤器，只允许英文字母
      */
     fun setupInputFilter_7ree(inputText: EditText) {
-        inputText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+        inputText.filters = arrayOf(InputFilter { source, start, end, _, _, _ ->
             val filtered = StringBuilder()
             for (i in start until end) {
                 val char = source[i]
