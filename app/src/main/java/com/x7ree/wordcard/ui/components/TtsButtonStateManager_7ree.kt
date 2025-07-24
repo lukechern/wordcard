@@ -3,8 +3,8 @@ package com.x7ree.wordcard.ui.components
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,7 +50,7 @@ fun TtsButton_7ree(
         when (state) {
             TtsButtonState_7ree.IDLE -> {
                 Icon(
-                    imageVector = Icons.Default.VolumeUp,
+                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                     contentDescription = contentDescription,
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -86,7 +86,7 @@ fun TtsButtonIcon_7ree(
     when (state) {
         TtsButtonState_7ree.IDLE -> {
             Icon(
-                imageVector = Icons.Default.VolumeUp,
+                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                 contentDescription = contentDescription,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = modifier

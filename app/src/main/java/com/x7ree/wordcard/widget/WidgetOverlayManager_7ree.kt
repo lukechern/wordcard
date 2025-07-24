@@ -42,6 +42,7 @@ class WidgetOverlayManager_7ree(private val activity: Activity) {
             val displayMetrics = DisplayMetrics()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val display = activity.display
+                @Suppress("DEPRECATION")
                 display?.getRealMetrics(displayMetrics)
             } else {
                 @Suppress("DEPRECATION")

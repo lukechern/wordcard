@@ -100,18 +100,18 @@ fun WordResultComponent_7ree(
             
             // 右上角收藏桃心图标
             if (wordQueryViewModel.currentWordInfo_7ree != null) {
-                val currentWordInfo = wordQueryViewModel.currentWordInfo_7ree!!
+                val wordInfo = wordQueryViewModel.currentWordInfo_7ree!!
                 IconButton(
                     onClick = { 
-                        Log.d(TAG_7ree, "收藏按钮被点击，当前状态: ${currentWordInfo.isFavorite}")
+                        Log.d(TAG_7ree, "收藏按钮被点击，当前状态: ${wordInfo.isFavorite}")
                         wordQueryViewModel.toggleFavorite_7ree() 
                     }
                 ) {
                     Icon(
-                        imageVector = if (currentWordInfo.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (currentWordInfo.isFavorite) "取消收藏" else "收藏",
+                        imageVector = if (wordInfo.isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (wordInfo.isFavorite) "取消收藏" else "收藏",
                         modifier = Modifier.size(24.dp),
-                        tint = if (currentWordInfo.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = if (wordInfo.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
