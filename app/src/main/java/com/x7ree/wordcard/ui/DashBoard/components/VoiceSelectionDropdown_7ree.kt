@@ -46,7 +46,7 @@ fun VoiceSelectionDropdown_7ree(
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor()
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
         )
         
         ExposedDropdownMenu(

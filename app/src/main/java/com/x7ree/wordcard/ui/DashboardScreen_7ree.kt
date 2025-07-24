@@ -2,7 +2,7 @@ package com.x7ree.wordcard.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,7 +29,6 @@ fun DashboardScreen_7ree(
     onImportFile_7ree: () -> Unit = {}
 ) {
     var showConfigPage_7ree by remember { mutableStateOf(false) }
-    var selectedTab_7ree by remember { mutableStateOf(SettingsTab_7ree.API_CONFIG) }
     
     Column(
         modifier = Modifier
@@ -62,7 +61,7 @@ fun DashboardScreen_7ree(
                 }
             ) {
                 Icon(
-                    imageVector = if (showConfigPage_7ree) Icons.Filled.ArrowBack else Icons.Filled.Settings,
+                    imageVector = if (showConfigPage_7ree) Icons.AutoMirrored.Filled.ArrowBack else Icons.Filled.Settings,
                     contentDescription = if (showConfigPage_7ree) "返回" else "配置",
                     modifier = Modifier.size(24.dp),
                     tint = MaterialTheme.colorScheme.primary
