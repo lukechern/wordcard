@@ -161,7 +161,7 @@ fun rememberDataManagementState_7ree(
             isServerEnabled = newState
             
             // 保存状态到SharedPreferences
-            val saveResult = sharedPrefs.edit().putBoolean("server_enabled", newState).commit()
+            sharedPrefs.edit().putBoolean("server_enabled", newState).commit()
             // Log.d("DataManagement", "保存到SharedPreferences结果: $saveResult")
             // Log.d("DataManagement", "验证保存结果: ${sharedPrefs.getBoolean("server_enabled", false)}")
         },
@@ -181,7 +181,7 @@ fun rememberDataManagementState_7ree(
             isPhoneOperationEnabled = newState
             
             // 保存手机操作状态到SharedPreferences
-            val saveResult = sharedPrefs.edit().putBoolean("phone_operation_enabled", newState).commit()
+            sharedPrefs.edit().putBoolean("phone_operation_enabled", newState).commit()
             // Log.d("DataManagement", "保存手机操作状态结果: $saveResult")
         }
     )

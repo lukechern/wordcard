@@ -176,7 +176,6 @@ fun WordResultComponent_7ree(
                             .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
                     ) {
                         // TTS状态管理 - 独立管理音标和例句按钮状态
-                        val isSpeaking_7ree = wordQueryViewModel.isSpeaking_7ree
                         val isSpeakingWord_7ree = wordQueryViewModel.isSpeakingWord_7ree
                         val isSpeakingExamples_7ree = wordQueryViewModel.isSpeakingExamples_7ree
                         
@@ -188,8 +187,8 @@ fun WordResultComponent_7ree(
                         val coroutineScope = rememberCoroutineScope()
                         
                         // 调试日志
-                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前状态 - isSpeaking: $isSpeaking_7ree, isSpeakingWord: $isSpeakingWord_7ree, isSpeakingExamples: $isSpeakingExamples_7ree")
-                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前按钮状态 - wordTtsState: $wordTtsState_7ree, examplesTtsState: $examplesTtsState_7ree")
+                        // android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前状态 - isSpeaking: $isSpeaking_7ree, isSpeakingWord: $isSpeakingWord_7ree, isSpeakingExamples: $isSpeakingExamples_7ree")
+                        // android.util.Log.d("TTS_EXAMPLES_DEBUG", "当前按钮状态 - wordTtsState: $wordTtsState_7ree, examplesTtsState: $examplesTtsState_7ree")
                         
                         // 监听音标朗读状态变化
                         LaunchedEffect(isSpeakingWord_7ree) {
@@ -222,14 +221,14 @@ fun WordResultComponent_7ree(
                             queryResult = wordQueryViewModel.queryResult_7ree,
                             onWordSpeak = { 
                                 // 设置音标按钮为加载状态
-                                android.util.Log.d("TTS_WORD_DEBUG", "点击音标朗读，设置为LOADING状态")
+                                // android.util.Log.d("TTS_WORD_DEBUG", "点击音标朗读，设置为LOADING状态")
                                 wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING
                                 
                                 // 启动超时处理协程
                                 coroutineScope.launch {
                                     delay(5000) // 5秒超时
                                     if (wordTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
-                                        android.util.Log.d("TTS_WORD_DEBUG", "音标朗读超时，切换回IDLE状态")
+                                        // android.util.Log.d("TTS_WORD_DEBUG", "音标朗读超时，切换回IDLE状态")
                                         wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
                                     }
                                 }
@@ -239,14 +238,14 @@ fun WordResultComponent_7ree(
                             },
                             onExamplesSpeak = { 
                                 // 设置例句按钮为加载状态
-                                android.util.Log.d("TTS_EXAMPLES_DEBUG", "点击例句朗读，设置为LOADING状态")
+                                // android.util.Log.d("TTS_EXAMPLES_DEBUG", "点击例句朗读，设置为LOADING状态")
                                 examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING
                                 
                                 // 启动超时处理协程
                                 coroutineScope.launch {
                                     delay(5000) // 5秒超时
                                     if (examplesTtsState_7ree == com.x7ree.wordcard.ui.components.TtsButtonState_7ree.LOADING) {
-                                        android.util.Log.d("TTS_EXAMPLES_DEBUG", "例句朗读超时，切换回IDLE状态")
+                                        // android.util.Log.d("TTS_EXAMPLES_DEBUG", "例句朗读超时，切换回IDLE状态")
                                         examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
                                     }
                                 }
@@ -255,12 +254,12 @@ fun WordResultComponent_7ree(
                                 wordQueryViewModel.speakExamples_7ree() 
                             },
                             onWordStopSpeak = { 
-                                android.util.Log.d("TTS_WORD_DEBUG", "手动停止音标朗读，设置为IDLE状态")
+                                // android.util.Log.d("TTS_WORD_DEBUG", "手动停止音标朗读，设置为IDLE状态")
                                 wordQueryViewModel.stopSpeaking_7ree()
                                 wordTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
                             },
                             onExamplesStopSpeak = { 
-                                android.util.Log.d("TTS_EXAMPLES_DEBUG", "手动停止例句朗读，设置为IDLE状态")
+                                // android.util.Log.d("TTS_EXAMPLES_DEBUG", "手动停止例句朗读，设置为IDLE状态")
                                 wordQueryViewModel.stopSpeaking_7ree()
                                 examplesTtsState_7ree = com.x7ree.wordcard.ui.components.TtsButtonState_7ree.IDLE
                             },
@@ -378,7 +377,7 @@ fun WordResultComponent_7ree(
     } else {
         ""
     }
-    Log.d(TAG_7ree, "拼写练习对话框 - 获取到的中文词义: '$chineseMeaning'")
+    // Log.d(TAG_7ree, "拼写练习对话框 - 获取到的中文词义: '$chineseMeaning'")
     
     SpellingPracticeDialog_7ree(
         targetWord = wordQueryViewModel.wordInput_7ree,

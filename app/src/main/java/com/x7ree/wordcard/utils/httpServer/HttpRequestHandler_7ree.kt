@@ -98,7 +98,7 @@ class HttpRequestHandler_7ree(
         try {
             // 打印所有请求头
             // Log.d("HttpServer", "请求头信息:")
-            headers.forEach { (key, value) ->
+            headers.forEach { (_, _) ->
                 // Log.d("HttpServer", "  $key: $value")
             }
             
