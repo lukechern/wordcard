@@ -69,7 +69,7 @@ class SpeechApiTester_7ree(private val context: Context) {
                 
                 
                 // 依次尝试每个可能的URL
-                for ((index, urlString) in possibleUrls.withIndex()) {
+                for ((_, urlString) in possibleUrls.withIndex()) {
                     
                     val result = tryAzureSpeechRequest(urlString, apiConfig)
                     if (result.success) {
@@ -199,12 +199,6 @@ class SpeechApiTester_7ree(private val context: Context) {
             
             when (responseCode) {
                 HttpURLConnection.HTTP_OK -> {
-                    // 获取响应头信息
-                    val contentType = connection.getHeaderField("Content-Type")
-                    val contentLength = connection.getHeaderField("Content-Length")
-                    val transferEncoding = connection.getHeaderField("Transfer-Encoding")
-                    
-                    
                     // 读取响应数据
                     val audioData = try {
                         connection.inputStream.use { inputStream ->
@@ -471,7 +465,7 @@ class SpeechApiTester_7ree(private val context: Context) {
                     tempFile.delete()
                 }
                 
-                mediaPlayer.setOnErrorListener { _, what, extra ->
+                mediaPlayer.setOnErrorListener { _, _, _ ->
                     playbackCompleted = true
                     mediaPlayer.release()
                     tempFile.delete()
@@ -511,7 +505,7 @@ class SpeechApiTester_7ree(private val context: Context) {
                 onComplete = {
                     ttsManager.release()
                 },
-                onError = { error ->
+                onError = { _ ->
                     ttsManager.release()
                 }
             )
