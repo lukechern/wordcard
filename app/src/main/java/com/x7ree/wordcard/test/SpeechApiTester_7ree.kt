@@ -32,7 +32,6 @@ class SpeechApiTester_7ree(private val context: Context) {
         apiConfig: ApiConfig_7ree,
         onResult: (Boolean, String) -> Unit
     ) {
-        Log.d(TAG, "开始测试Speech API")
         
         try {
             // 验证配置完整性
@@ -42,7 +41,6 @@ class SpeechApiTester_7ree(private val context: Context) {
                 return
             }
             
-            Log.d(TAG, "配置验证通过，开始API调用测试")
             
             // 执行测试，带超时控制
             val result = withTimeoutOrNull(TIMEOUT_MS) {
@@ -50,15 +48,12 @@ class SpeechApiTester_7ree(private val context: Context) {
             }
             
             if (result == null) {
-                Log.w(TAG, "Speech API测试超时")
                 onResult(false, "Speech API测试超时（${TIMEOUT_MS/1000}秒），请检查网络连接和API配置")
             } else {
-                Log.d(TAG, "Speech API测试完成: ${result.success}, ${result.message}")
                 onResult(result.success, result.message)
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "Speech API测试失败: ${e.message}", e)
             onResult(false, "测试失败: ${e.localizedMessage ?: e.message ?: "未知错误"}")
         }
     }
@@ -72,22 +67,14 @@ class SpeechApiTester_7ree(private val context: Context) {
                 // 尝试多种可能的 Azure Speech API 端点格式
                 val possibleUrls = buildPossibleUrls(apiConfig.azureSpeechEndpoint, apiConfig.azureSpeechRegion)
                 
-                Log.d(TAG, "原始终结点: ${apiConfig.azureSpeechEndpoint}")
-                Log.d(TAG, "将尝试以下URL:")
-                possibleUrls.forEachIndexed { index, url ->
-                    Log.d(TAG, "  ${index + 1}. $url")
-                }
                 
                 // 依次尝试每个可能的URL
                 for ((index, urlString) in possibleUrls.withIndex()) {
-                    Log.d(TAG, "尝试URL ${index + 1}: $urlString")
                     
                     val result = tryAzureSpeechRequest(urlString, apiConfig)
                     if (result.success) {
-                        Log.d(TAG, "URL ${index + 1} 测试成功")
                         return@withContext result
                     } else {
-                        Log.d(TAG, "URL ${index + 1} 测试失败: ${result.message}")
                         // 如果不是404错误，直接返回错误（可能是认证或其他问题）
                         if (!result.message.contains("404") && !result.message.contains("Not Found")) {
                             return@withContext result
@@ -99,7 +86,6 @@ class SpeechApiTester_7ree(private val context: Context) {
                 TestResult(false, "所有可能的API端点都返回404错误，请检查终结点配置是否正确")
                 
             } catch (e: Exception) {
-                Log.e(TAG, "Azure Speech API调用异常: ${e.message}", e)
                 TestResult(false, "API调用异常: ${e.localizedMessage ?: e.message}")
             }
         }
@@ -120,7 +106,6 @@ class SpeechApiTester_7ree(private val context: Context) {
         if (region.isNotBlank()) {
             val standardEndpoint = "https://$region.tts.speech.microsoft.com/cognitiveservices/v1"
             urls.add(standardEndpoint)
-            Log.d(TAG, "根据区域 '$region' 自动生成标准终结点: $standardEndpoint")
         }
         
         // 优先级2: 如果用户提供了终结点，尝试各种可能的格式
@@ -202,7 +187,6 @@ class SpeechApiTester_7ree(private val context: Context) {
             // 构建SSML请求体
             val ssml = buildSsmlRequest(TEST_TEXT, apiConfig.azureSpeechVoice)
             
-            Log.d(TAG, "发送SSML请求到 $urlString: $ssml")
             
             // 发送请求
             connection.outputStream.use { outputStream ->
@@ -212,7 +196,6 @@ class SpeechApiTester_7ree(private val context: Context) {
             
             // 检查响应
             val responseCode = connection.responseCode
-            Log.d(TAG, "URL: $urlString, 响应代码: $responseCode")
             
             when (responseCode) {
                 HttpURLConnection.HTTP_OK -> {
@@ -221,28 +204,20 @@ class SpeechApiTester_7ree(private val context: Context) {
                     val contentLength = connection.getHeaderField("Content-Length")
                     val transferEncoding = connection.getHeaderField("Transfer-Encoding")
                     
-                    Log.d(TAG, "响应头信息:")
-                    Log.d(TAG, "  Content-Type: $contentType")
-                    Log.d(TAG, "  Content-Length: $contentLength")
-                    Log.d(TAG, "  Transfer-Encoding: $transferEncoding")
                     
                     // 读取响应数据
                     val audioData = try {
                         connection.inputStream.use { inputStream ->
-                            Log.d(TAG, "开始读取响应数据...")
                             val data = readInputStream(inputStream)
-                            Log.d(TAG, "读取完成，数据大小: ${data.size} 字节")
                             data
                         }
                     } catch (e: Exception) {
-                        Log.e(TAG, "读取响应数据时出错: ${e.message}", e)
                         ByteArray(0)
                     }
                     
                     if (audioData.isNotEmpty()) {
                         // 验证音频数据格式
                         val isValidAudio = validateAudioData(audioData)
-                        Log.d(TAG, "音频数据验证结果: $isValidAudio")
                         
                         if (isValidAudio) {
                             TestResult(true, "Speech API测试成功！获得有效音频数据 ${audioData.size} 字节")
@@ -288,7 +263,6 @@ class SpeechApiTester_7ree(private val context: Context) {
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "Azure Speech API调用异常: ${e.message}", e)
             TestResult(false, "API调用异常: ${e.localizedMessage ?: e.message}")
         }
     }
@@ -307,7 +281,6 @@ class SpeechApiTester_7ree(private val context: Context) {
             else -> "en-US" // 默认语言
         }
         
-        Log.d(TAG, "使用配置的语音: $voiceName, 语言: $lang")
         
         return """<?xml version="1.0" encoding="UTF-8"?>
 <speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="$lang">
@@ -360,11 +333,7 @@ class SpeechApiTester_7ree(private val context: Context) {
         
         val result = isMP3 || isWAV || isOGG
         
-        Log.d(TAG, "音频格式验证: MP3=$isMP3, WAV=$isWAV, OGG=$isOGG, 总体有效=$result")
-        if (audioData.size >= 10) {
-            val headerHex = audioData.take(10).joinToString(" ") { "%02X".format(it) }
-            Log.d(TAG, "音频文件头 (前10字节): $headerHex")
-        }
+        
         
         return result
     }
@@ -391,20 +360,16 @@ class SpeechApiTester_7ree(private val context: Context) {
     suspend fun speakTestResult(apiConfig: ApiConfig_7ree, success: Boolean) {
         try {
             if (success) {
-                Log.d(TAG, "测试成功，使用Azure Speech API朗读测试文本")
                 // 测试成功时，使用Azure Speech API朗读测试文本，展示实际效果
                 val result = testAndPlayAudio(apiConfig, TEST_TEXT)
                 if (!result.success) {
-                    Log.w(TAG, "朗读测试文本失败，回退到系统TTS: ${result.message}")
                     fallbackToSystemTts("Speech API测试成功")
                 }
             } else {
-                Log.d(TAG, "测试失败，使用系统TTS朗读结果")
                 // 测试失败时，使用系统TTS朗读失败信息
                 fallbackToSystemTts("Speech API测试失败")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "朗读测试结果异常: ${e.message}", e)
             fallbackToSystemTts("测试异常")
         }
     }
@@ -431,7 +396,6 @@ class SpeechApiTester_7ree(private val context: Context) {
                 
                 TestResult(false, "无法获取或播放音频数据")
             } catch (e: Exception) {
-                Log.e(TAG, "测试并播放音频异常: ${e.message}", e)
                 TestResult(false, "播放音频异常: ${e.message}")
             }
         }
@@ -484,7 +448,6 @@ class SpeechApiTester_7ree(private val context: Context) {
     private suspend fun playAudioData(audioData: ByteArray): Boolean {
         return withContext(Dispatchers.Main) {
             try {
-                Log.d(TAG, "开始播放音频数据，大小: ${audioData.size} 字节")
                 
                 // 使用MediaPlayer播放音频
                 val mediaPlayer = android.media.MediaPlayer()
@@ -499,19 +462,16 @@ class SpeechApiTester_7ree(private val context: Context) {
                 var playbackCompleted = false
                 
                 mediaPlayer.setOnPreparedListener {
-                    Log.d(TAG, "音频准备完成，开始播放")
                     mediaPlayer.start()
                 }
                 
                 mediaPlayer.setOnCompletionListener {
-                    Log.d(TAG, "音频播放完成")
                     playbackCompleted = true
                     mediaPlayer.release()
                     tempFile.delete()
                 }
                 
                 mediaPlayer.setOnErrorListener { _, what, extra ->
-                    Log.e(TAG, "音频播放错误: what=$what, extra=$extra")
                     playbackCompleted = true
                     mediaPlayer.release()
                     tempFile.delete()
@@ -532,7 +492,6 @@ class SpeechApiTester_7ree(private val context: Context) {
                 
                 true
             } catch (e: Exception) {
-                Log.e(TAG, "播放音频异常: ${e.message}", e)
                 false
             }
         }
@@ -543,25 +502,20 @@ class SpeechApiTester_7ree(private val context: Context) {
      */
     private suspend fun fallbackToSystemTts(text: String) {
         try {
-            Log.d(TAG, "使用系统TTS朗读: $text")
             val ttsManager = com.x7ree.wordcard.tts.TtsManager_7ree(context)
             
             ttsManager.speak(
                 text = text,
                 onStart = {
-                    Log.d(TAG, "系统TTS开始朗读")
                 },
                 onComplete = {
-                    Log.d(TAG, "系统TTS朗读完成")
                     ttsManager.release()
                 },
                 onError = { error ->
-                    Log.e(TAG, "系统TTS朗读失败: $error")
                     ttsManager.release()
                 }
             )
         } catch (e: Exception) {
-            Log.e(TAG, "系统TTS异常: ${e.message}", e)
         }
     }
     

@@ -28,7 +28,6 @@ class TranslationApiTester_7ree {
         apiConfig: ApiConfig_7ree,
         onResult: (Boolean, String) -> Unit
     ) {
-        Log.d(TAG, "开始测试翻译API")
         
         try {
             // 验证配置完整性
@@ -52,7 +51,6 @@ class TranslationApiTester_7ree {
             val apiService = OpenAiApiService_7ree()
             apiService.updateApiConfig_7ree(apiConfig)
             
-            Log.d(TAG, "配置验证通过，开始API调用测试")
             
             // 执行测试查询，带超时控制
             val result = withTimeoutOrNull(TIMEOUT_MS) {
@@ -63,23 +61,19 @@ class TranslationApiTester_7ree {
                 try {
                     apiService.queryWordStreamSimple_7ree(TEST_WORD)
                         .catch { exception ->
-                            Log.e(TAG, "API调用异常: ${exception.message}", exception)
                             hasError = true
                             errorMessage = "API调用失败: ${exception.message}"
                         }
                         .onCompletion { exception ->
                             if (exception != null) {
-                                Log.e(TAG, "流处理异常: ${exception.message}", exception)
                                 hasError = true
                                 errorMessage = "数据流处理失败: ${exception.message}"
                             }
                         }
                         .collect { chunk ->
                             testResult += chunk
-                            Log.d(TAG, "收到响应数据块: $chunk")
                         }
                 } catch (e: Exception) {
-                    Log.e(TAG, "测试过程中发生异常: ${e.message}", e)
                     hasError = true
                     errorMessage = "测试异常: ${e.message}"
                 }
@@ -94,15 +88,12 @@ class TranslationApiTester_7ree {
             }
             
             if (result == null) {
-                Log.w(TAG, "API测试超时")
                 onResult(false, "API测试超时（${TIMEOUT_MS/1000}秒），请检查网络连接和API配置")
             } else {
-                Log.d(TAG, "API测试完成: ${result.success}, ${result.message}")
                 onResult(result.success, result.message)
             }
             
         } catch (e: Exception) {
-            Log.e(TAG, "翻译API测试失败: ${e.message}", e)
             onResult(false, "测试失败: ${e.localizedMessage ?: e.message ?: "未知错误"}")
         }
     }

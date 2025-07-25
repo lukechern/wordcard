@@ -124,9 +124,6 @@ class ConfigManager_7ree(
                     azureSpeechVoice = currentConfig.azureSpeechVoice
                 )
                 
-                Log.d("ConfigManager_7ree", "DEBUG: 保存翻译API配置")
-                Log.d("ConfigManager_7ree", "DEBUG: API1配置 - 名称: $api1Name, URL: $api1Url, 模型: $api1Model, 启用: $api1Enabled")
-                Log.d("ConfigManager_7ree", "DEBUG: API2配置 - 名称: $api2Name, URL: $api2Url, 模型: $api2Model, 启用: $api2Enabled")
                 
                 val success = appConfigManager_7ree.saveApiConfig_7ree(config)
                 if (success) {
@@ -136,14 +133,11 @@ class ConfigManager_7ree(
                     // 更新TTS管理器的API配置
                     ttsManager_7ree.updateApiConfig(config)
                     queryState_7ree.updateOperationResult_7ree("翻译API配置保存成功")
-                    Log.d("ConfigManager_7ree", "DEBUG: 翻译API配置保存成功")
                 } else {
                     queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败")
-                    Log.e("ConfigManager_7ree", "DEBUG: 翻译API配置保存失败")
                 }
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败: ${e.message}")
-                Log.e("ConfigManager_7ree", "DEBUG: 翻译API配置保存异常: ${e.message}", e)
             }
         }
     }

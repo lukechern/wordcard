@@ -710,7 +710,6 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ?: "gpt-3.5-turbo"
             val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API1_ENABLED, true)
             
-            Log.d("ApiKeySecureStorage_7ree", "DEBUG: API1配置 - API Key长度: ${apiKey.length}, URL: $apiUrl, 模型: $modelName, 启用: $isEnabled")
             
             Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
         } catch (e: Exception) {
@@ -738,7 +737,6 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ?: "gpt-4"
             val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API2_ENABLED, false)
             
-            Log.d("ApiKeySecureStorage_7ree", "DEBUG: API2配置 - API Key长度: ${apiKey.length}, URL: $apiUrl, 模型: $modelName, 启用: $isEnabled")
             
             Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
         } catch (e: Exception) {
