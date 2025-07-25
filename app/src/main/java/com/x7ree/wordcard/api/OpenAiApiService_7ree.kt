@@ -359,7 +359,7 @@ ${getOutputTemplate_7ree()}
                 val chunks_7ree = content_7ree.chunked(5) // 每次发送5个字符
                 for (chunk_7ree in chunks_7ree) {
                     emit(chunk_7ree)
-                    kotlinx.coroutines.delay(50) // 50ms延迟，模拟网络传输
+                    kotlinx.coroutines.delay(20) // 20ms延迟，提高响应速度
                 }
             }.onFailure { error_7ree ->
                 emit("错误: ${error_7ree.localizedMessage}")

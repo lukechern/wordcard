@@ -52,9 +52,7 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
     private fun showLoadingAnimation() {
         progressBar.visibility = android.view.View.VISIBLE
         loadingText.visibility = android.view.View.VISIBLE
-        // 获取当前启用的API名称
-        val activeApiName = getActiveApiName()
-        loadingText.text = "正在问AI$activeApiName,请稍候…"
+        loadingText.text = "载入中…"
         
         // 添加UI坐标和间距日志输出
         logUICoordinatesAndSpacing_7ree()
