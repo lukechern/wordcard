@@ -175,7 +175,7 @@ ${getOutputTemplate_7ree()}
             val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val fixedApiUrl = validateAndFixApiUrl_7ree(activeApi.apiUrl)
             // 根据API类型创建不同的请求
-            val request_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
+            val request_7ree: ChatCompletionRequest_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
                 activeApi.apiUrl.contains("modelscope.cn", ignoreCase = true)) {
                 // 通义千问API需要特殊参数
                 ChatCompletionRequest_7ree(
@@ -256,7 +256,8 @@ ${getOutputTemplate_7ree()}
             val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val fixedApiUrl = validateAndFixApiUrl_7ree(activeApi.apiUrl)
             // 根据API类型创建不同的请求
-            val request_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
+            // 根据API类型创建不同的请求
+            val request_7ree: ChatCompletionRequest_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
                 activeApi.apiUrl.contains("modelscope.cn", ignoreCase = true)) {
                 // 通义千问API需要特殊参数
                 ChatCompletionRequest_7ree(
@@ -266,8 +267,8 @@ ${getOutputTemplate_7ree()}
                     enable_thinking = false
                 )
             } else {
-                // 其他API使用默认请求
-                ChatCompletionStreamRequest_7ree(
+                // 其他API使用默认请求，但需要转换为ChatCompletionRequest_7ree类型以匹配变量类型
+                ChatCompletionRequest_7ree(
                     model = activeApi.modelName,
                     messages = listOf(Message_7ree(role = "user", content = prompt_7ree)),
                     stream = true
@@ -374,7 +375,7 @@ ${getOutputTemplate_7ree()}
             val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val fixedApiUrl = validateAndFixApiUrl_7ree(activeApi.apiUrl)
             // 根据API类型创建不同的请求
-            val request_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
+            val request_7ree: ChatCompletionRequest_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
                 activeApi.apiUrl.contains("modelscope.cn", ignoreCase = true)) {
                 // 通义千问API需要特殊参数
                 ChatCompletionRequest_7ree(

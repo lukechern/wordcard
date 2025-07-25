@@ -137,10 +137,11 @@ fun ApiConfigTab_7ree(
             },
             onAutoSave = {
                 // 自动保存当前配置
+                val activeApi = apiConfig_7ree.getActiveTranslationApi()
                 wordQueryViewModel_7ree.saveApiConfig_7ree(
-                    apiConfig_7ree.getActiveTranslationApi().apiKey, 
-                    apiConfig_7ree.getActiveTranslationApi().apiUrl, 
-                    apiConfig_7ree.getActiveTranslationApi().modelName,
+                    activeApi.apiKey, 
+                    activeApi.apiUrl, 
+                    activeApi.modelName,
                     azureSpeechRegion_7ree,
                     azureSpeechApiKey_7ree,
                     azureSpeechEndpoint_7ree,

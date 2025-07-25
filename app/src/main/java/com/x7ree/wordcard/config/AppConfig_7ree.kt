@@ -299,11 +299,11 @@ class AppConfigManager_7ree(private val context: Context) {
                 // 解析旧配置
                 val oldConfig = json.decodeFromString<ApiConfig_7ree>(configJson)
                 
-                // 迁移到安全存储
+                // 迁移到安全存储，使用translationApi1的属性而不是弃用的属性
                 val migrationSuccess = secureStorage_7ree.storeApiConfig_7ree(
-                    oldConfig.apiKey,
-                    oldConfig.apiUrl,
-                    oldConfig.modelName
+                    oldConfig.translationApi1.apiKey,
+                    oldConfig.translationApi1.apiUrl,
+                    oldConfig.translationApi1.modelName
                 )
                 
                 if (migrationSuccess) {
