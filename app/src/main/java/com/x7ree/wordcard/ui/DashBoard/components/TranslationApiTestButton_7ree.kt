@@ -15,7 +15,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun TranslationApiTestButton_7ree(
     apiConfig: ApiConfig_7ree,
-    onResult: (Boolean, String) -> Unit
+    onResult: (Boolean, String) -> Unit,
+    buttonText: String = "测试翻译API"
 ) {
     val coroutineScope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(false) }
@@ -65,7 +66,7 @@ fun TranslationApiTestButton_7ree(
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("测试翻译API")
+                    Text(buttonText)
                 }
             }
         }

@@ -21,89 +21,16 @@ fun DualTranslationApiSection_7ree(
     onApi2Change: (String, String, String, Boolean) -> Unit,
     onTestResult: (Boolean, String) -> Unit
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Text(
-            text = "AI大模型翻译API配置",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        
-        // 根据启用状态动态排序卡片
-        val api1Config = apiConfig.translationApi1
-        val api2Config = apiConfig.translationApi2
-        
-        // 确保至少有一个API是启用的
-        val actualApi1Enabled = api1Config.isEnabled || !api2Config.isEnabled
-        val actualApi2Enabled = api2Config.isEnabled && !actualApi1Enabled
-        
-        // 创建卡片数据列表，启用的排在前面
-        val cardData = listOf(
-            Triple("AI大模型翻译API(一)", api1Config.copy(isEnabled = actualApi1Enabled), true),
-            Triple("AI大模型翻译API(二)", api2Config.copy(isEnabled = actualApi2Enabled), false)
-        ).sortedByDescending { it.second.isEnabled }
-        
-        // 渲染排序后的卡片
-        cardData.forEachIndexed { index, (title, config, isApi1) ->
-            TranslationApiCard_7ree(
-                title = title,
-                config = config,
-                onConfigChange = { key, url, model, enabled ->
-                    if (isApi1) {
-                        // 如果是API1的变更
-                        if (enabled) {
-                            // 启用API1，自动禁用API2
-                            onApi1Change(key, url, model, true)
-                            onApi2Change(api2Config.apiKey, api2Config.apiUrl, api2Config.modelName, false)
-                        } else {
-                            // 禁用API1，自动启用API2
-                            onApi1Change(key, url, model, false)
-                            onApi2Change(api2Config.apiKey, api2Config.apiUrl, api2Config.modelName, true)
-                        }
-                    } else {
-                        // 如果是API2的变更
-                        if (enabled) {
-                            // 启用API2，自动禁用API1
-                            onApi2Change(key, url, model, true)
-                            onApi1Change(api1Config.apiKey, api1Config.apiUrl, api1Config.modelName, false)
-                        } else {
-                            // 禁用API2，自动启用API1
-                            onApi2Change(key, url, model, false)
-                            onApi1Change(api1Config.apiKey, api1Config.apiUrl, api1Config.modelName, true)
-                        }
-                    }
-                },
-                onTestResult = onTestResult
-            )
-            
-            // 在卡片之间添加间距，但不在最后一个卡片后添加
-            if (index < cardData.size - 1) {
-                Spacer(modifier = Modifier.height(16.dp))
+    // 使用remember和mutableStateOf来管理选中状态，确保UI能正确响应状态变化
+    var selectedApi by remember(apiConfig.translationApi1.isEnabled, apiConfig.translationApi2.isEnabled) {
+        mutableStateOf(
+            when {
+                apiConfig.translationApi1.isEnabled && !apiConfig.translationApi2.isEnabled -> 1
+                !apiConfig.translationApi1.isEnabled && apiConfig.translationApi2.isEnabled -> 2
+                apiConfig.translationApi1.isEnabled && apiConfig.translationApi2.isEnabled -> 1 // 两个都启用时优先选择API1
+                else -> 1 // 两个都禁用时默认选择API1
             }
-        }
-    }
-}
-
-@Composable
-private fun TranslationApiCard_7ree(
-    title: String,
-    config: TranslationApiConfig_7ree,
-    onConfigChange: (String, String, String, Boolean) -> Unit,
-    onTestResult: (Boolean, String) -> Unit
-) {
-    var apiKey by remember { mutableStateOf(config.apiKey) }
-    var apiUrl by remember { mutableStateOf(config.apiUrl) }
-    var modelName by remember { mutableStateOf(config.modelName) }
-    var isEnabled by remember { mutableStateOf(config.isEnabled) }
-    
-    // 当配置更新时，同步到输入框
-    LaunchedEffect(config) {
-        apiKey = config.apiKey
-        apiUrl = config.apiUrl
-        modelName = config.modelName
-        isEnabled = config.isEnabled
+        )
     }
     
     Card(
@@ -116,91 +43,178 @@ private fun TranslationApiCard_7ree(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // 标题和启用开关
+            Text(
+                text = "AI大模型翻译API配置",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            
+            // Radio选择区域
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                
+                // 翻译API(一)选项
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "启用",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                    Switch(
-                        checked = isEnabled,
-                        onCheckedChange = { enabled ->
-                            isEnabled = enabled
-                            onConfigChange(apiKey, apiUrl, modelName, enabled)
+                    RadioButton(
+                        selected = selectedApi == 1,
+                        onClick = {
+                            // 立即更新本地状态
+                            selectedApi = 1
+                            // 执行切换到API1的操作
+                            onApi1Change(
+                                apiConfig.translationApi1.apiKey,
+                                apiConfig.translationApi1.apiUrl,
+                                apiConfig.translationApi1.modelName,
+                                true
+                            )
+                            onApi2Change(
+                                apiConfig.translationApi2.apiKey,
+                                apiConfig.translationApi2.apiUrl,
+                                apiConfig.translationApi2.modelName,
+                                false
+                            )
                         }
+                    )
+                    Text(
+                        text = "翻译API(一)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                }
+                
+                // 翻译API(二)选项
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = selectedApi == 2,
+                        onClick = {
+                            // 立即更新本地状态
+                            selectedApi = 2
+                            // 执行切换到API2的操作
+                            onApi1Change(
+                                apiConfig.translationApi1.apiKey,
+                                apiConfig.translationApi1.apiUrl,
+                                apiConfig.translationApi1.modelName,
+                                false
+                            )
+                            onApi2Change(
+                                apiConfig.translationApi2.apiKey,
+                                apiConfig.translationApi2.apiUrl,
+                                apiConfig.translationApi2.modelName,
+                                true
+                            )
+                        }
+                    )
+                    Text(
+                        text = "翻译API(二)",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(start = 4.dp)
                     )
                 }
             }
             
-            // 只有启用时才显示参数配置项目
-            if (isEnabled) {
-                Spacer(modifier = Modifier.height(12.dp))
-                
-                // API配置输入框
-                OutlinedTextField(
-                    value = apiUrl,
-                    onValueChange = { 
-                        apiUrl = it
-                        onConfigChange(apiKey, it, modelName, isEnabled)
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // 根据选择显示对应的API配置
+            if (selectedApi == 1) {
+                TranslationApiConfigSection_7ree(
+                    config = apiConfig.translationApi1,
+                    onConfigChange = { key, url, model ->
+                        onApi1Change(key, url, model, true)
                     },
-                    label = { Text("API URL") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp),
-                    singleLine = true
+                    onTestResult = onTestResult,
+                    apiLabel = "(一)"
                 )
-                
-                OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { 
-                        apiKey = it
-                        onConfigChange(it, apiUrl, modelName, isEnabled)
+            } else {
+                TranslationApiConfigSection_7ree(
+                    config = apiConfig.translationApi2,
+                    onConfigChange = { key, url, model ->
+                        onApi2Change(key, url, model, true)
                     },
-                    label = { Text("API Key") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.sp)
-                )
-                
-                OutlinedTextField(
-                    value = modelName,
-                    onValueChange = { 
-                        modelName = it
-                        onConfigChange(apiKey, apiUrl, it, isEnabled)
-                    },
-                    label = { Text("模型名称") },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    singleLine = true
-                )
-                
-                // 测试按钮
-                TranslationApiTestButton_7ree(
-                    apiConfig = ApiConfig_7ree(
-                        translationApi1 = TranslationApiConfig_7ree(
-                            apiKey = apiKey,
-                            apiUrl = apiUrl,
-                            modelName = modelName,
-                            isEnabled = true
-                        )
-                    ),
-                    onResult = onTestResult
+                    onTestResult = onTestResult,
+                    apiLabel = "(二)"
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun TranslationApiConfigSection_7ree(
+    config: TranslationApiConfig_7ree,
+    onConfigChange: (String, String, String) -> Unit,
+    onTestResult: (Boolean, String) -> Unit,
+    apiLabel: String
+) {
+    var apiKey by remember { mutableStateOf(config.apiKey) }
+    var apiUrl by remember { mutableStateOf(config.apiUrl) }
+    var modelName by remember { mutableStateOf(config.modelName) }
+    
+    // 当配置更新时，同步到输入框
+    LaunchedEffect(config.apiKey, config.apiUrl, config.modelName) {
+        apiKey = config.apiKey
+        apiUrl = config.apiUrl
+        modelName = config.modelName
+    }
+    
+    Column(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // API配置输入框
+        OutlinedTextField(
+            value = apiUrl,
+            onValueChange = { 
+                apiUrl = it
+                onConfigChange(apiKey, it, modelName)
+            },
+            label = { Text("API URL") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            singleLine = true
+        )
+        
+        OutlinedTextField(
+            value = apiKey,
+            onValueChange = { 
+                apiKey = it
+                onConfigChange(it, apiUrl, modelName)
+            },
+            label = { Text("API Key") },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.sp)
+        )
+        
+        OutlinedTextField(
+            value = modelName,
+            onValueChange = { 
+                modelName = it
+                onConfigChange(apiKey, apiUrl, it)
+            },
+            label = { Text("模型名称") },
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            singleLine = true
+        )
+        
+        // 测试按钮
+        TranslationApiTestButton_7ree(
+            apiConfig = ApiConfig_7ree(
+                translationApi1 = TranslationApiConfig_7ree(
+                    apiKey = apiKey,
+                    apiUrl = apiUrl,
+                    modelName = modelName,
+                    isEnabled = true
+                )
+            ),
+            onResult = onTestResult,
+            buttonText = "测试翻译API$apiLabel"
+        )
     }
 }
