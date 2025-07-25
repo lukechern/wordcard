@@ -316,6 +316,43 @@ class WordQueryViewModel_7ree(
         )
     }
     
+    // 新增：保存当前通用配置的方法
+    fun saveCurrentGeneralConfig_7ree() {
+        val currentConfig = generalConfig_7ree.value
+        configManagerService_7ree.saveGeneralConfig_7ree(
+            currentConfig.keyboardType,
+            currentConfig.autoReadAfterQuery,
+            currentConfig.autoReadOnSpellingCard,
+            currentConfig.ttsEngine
+        )
+    }
+    
+    // 新增：保存当前API配置的方法
+    fun saveCurrentApiConfig_7ree() {
+        val currentConfig = apiConfig_7ree.value
+        configManagerService_7ree.saveTranslationApiConfig_7ree(
+            currentConfig.translationApi1.apiName,
+            currentConfig.translationApi1.apiKey,
+            currentConfig.translationApi1.apiUrl,
+            currentConfig.translationApi1.modelName,
+            currentConfig.translationApi1.isEnabled,
+            currentConfig.translationApi2.apiName,
+            currentConfig.translationApi2.apiKey,
+            currentConfig.translationApi2.apiUrl,
+            currentConfig.translationApi2.modelName,
+            currentConfig.translationApi2.isEnabled
+        )
+    }
+    
+    // 新增：保存当前提示词配置的方法
+    fun saveCurrentPromptConfig_7ree() {
+        val currentConfig = promptConfig_7ree.value
+        configManagerService_7ree.savePromptConfig_7ree(
+            currentConfig.queryPrompt_7ree,
+            currentConfig.outputTemplate_7ree
+        )
+    }
+    
     // 数据导入导出
     fun exportHistoryData_7ree() {
         dataManagerService_7ree.exportHistoryData_7ree()

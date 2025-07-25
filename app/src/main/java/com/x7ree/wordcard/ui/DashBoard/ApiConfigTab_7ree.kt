@@ -149,28 +149,5 @@ fun ApiConfigTab_7ree(
                 )
             }
         )
-        
-        Button(
-            onClick = {
-                // 保存所有API配置，包括API名称，使用本地状态的值
-                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
-                    localApi1Name_7ree,
-                    localApi1Key_7ree, 
-                    localApi1Url_7ree, 
-                    localApi1Model_7ree,
-                    localApi1Enabled_7ree,
-                    localApi2Name_7ree,
-                    localApi2Key_7ree, 
-                    localApi2Url_7ree, 
-                    localApi2Model_7ree,
-                    localApi2Enabled_7ree
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text("保存配置")
-        }
     }
 }

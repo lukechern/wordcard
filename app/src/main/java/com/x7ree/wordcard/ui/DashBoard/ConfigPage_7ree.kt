@@ -53,26 +53,59 @@ fun ConfigPage_7ree(
             )
         }
         
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
-        when (selectedTab_7ree) {
-            SettingsTab_7ree.HELP -> {
-                HelpScreen_7ree()
+        Box(modifier = Modifier.weight(1f)) {
+            when (selectedTab_7ree) {
+                SettingsTab_7ree.HELP -> {
+                    HelpScreen_7ree()
+                }
+                SettingsTab_7ree.GENERAL -> {
+                    GeneralConfigTab_7ree(wordQueryViewModel_7ree)
+                }
+                SettingsTab_7ree.API_CONFIG -> {
+                    ApiConfigTab_7ree(wordQueryViewModel_7ree)
+                }
+                SettingsTab_7ree.PROMPT_CONFIG -> {
+                    PromptConfigTab_7ree(wordQueryViewModel_7ree)
+                }
+                SettingsTab_7ree.DATA_MANAGEMENT -> {
+                    DataManagementTab_7ree(
+                        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+                        onImportFile_7ree = onImportFile_7ree
+                    )
+                }
             }
-            SettingsTab_7ree.GENERAL -> {
-                GeneralConfigTab_7ree(wordQueryViewModel_7ree)
-            }
-            SettingsTab_7ree.API_CONFIG -> {
-                ApiConfigTab_7ree(wordQueryViewModel_7ree)
-            }
-            SettingsTab_7ree.PROMPT_CONFIG -> {
-                PromptConfigTab_7ree(wordQueryViewModel_7ree)
-            }
-            SettingsTab_7ree.DATA_MANAGEMENT -> {
-                DataManagementTab_7ree(
-                    wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                    onImportFile_7ree = onImportFile_7ree
-                )
+        }
+        
+        // 只有在需要保存按钮的标签页才显示保存按钮
+        if (selectedTab_7ree == SettingsTab_7ree.GENERAL || 
+            selectedTab_7ree == SettingsTab_7ree.API_CONFIG || 
+            selectedTab_7ree == SettingsTab_7ree.PROMPT_CONFIG) {
+            Button(
+                onClick = {
+                    // 根据当前标签页调用相应的保存方法
+                    when (selectedTab_7ree) {
+                        SettingsTab_7ree.GENERAL -> {
+                            // 通用配置保存需要从ViewModel获取当前状态
+                            wordQueryViewModel_7ree.saveCurrentGeneralConfig_7ree()
+                        }
+                        SettingsTab_7ree.API_CONFIG -> {
+                            // API配置保存需要从ViewModel获取当前状态
+                            wordQueryViewModel_7ree.saveCurrentApiConfig_7ree()
+                        }
+                        SettingsTab_7ree.PROMPT_CONFIG -> {
+                            // 提示词配置保存需要从ViewModel获取当前状态
+                            wordQueryViewModel_7ree.saveCurrentPromptConfig_7ree()
+                        }
+                        else -> {}
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            ) {
+                Text("保存配置")
             }
         }
     }

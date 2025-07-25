@@ -69,14 +69,5 @@ fun PromptConfigTab_7ree(
                 .padding(bottom = 16.dp),
             textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp)
         )
-        
-        Button(
-            onClick = {
-                wordQueryViewModel_7ree.savePromptConfig_7ree(queryPrompt_7ree, outputTemplate_7ree)
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("保存配置")
-        }
     }
 }

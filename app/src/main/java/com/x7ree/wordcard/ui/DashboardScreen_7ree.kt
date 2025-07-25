@@ -33,13 +33,13 @@ fun DashboardScreen_7ree(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         // 标题栏：标题 + 图标
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp) // 与SearchBarComponent保持一致的高度
+                .height(56.dp) // 减少标题栏高度
                 .padding(horizontal = 16.dp, vertical = 8.dp), // 与SearchBarComponent保持一致的内部边距
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically

@@ -252,21 +252,5 @@ fun GeneralConfigTab_7ree(
                 }
             }
         }
-        
-        Button(
-            onClick = {
-                wordQueryViewModel_7ree.saveGeneralConfig_7ree(
-                    selectedKeyboardType_7ree,
-                    autoReadAfterQuery_7ree,
-                    autoReadOnSpellingCard_7ree,
-                    selectedTtsEngine_7ree
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text("保存配置")
-        }
     }
 }
