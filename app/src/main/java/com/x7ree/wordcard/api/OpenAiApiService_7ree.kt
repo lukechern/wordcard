@@ -123,16 +123,17 @@ class OpenAiApiService_7ree(
 ${getOutputTemplate_7ree()}
 
 待解释的英文单词：$word"""
+            val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val request_7ree = ChatCompletionRequest_7ree(
-                model = apiConfig_7ree.modelName,
+                model = activeApi.modelName,
                 messages = listOf(Message_7ree(role = "user", content = prompt_7ree))
             )
 
-            // println("DEBUG: 发送请求到: ${apiConfig_7ree.apiUrl}")
+            // println("DEBUG: 发送请求到: ${activeApi.apiUrl}")
             // println("DEBUG: 请求内容: $request_7ree")
 
-            val response_7ree: ChatCompletionResponse_7ree = client_7ree.post(apiConfig_7ree.apiUrl) {
-                header(HttpHeaders.Authorization, "Bearer ${apiConfig_7ree.apiKey}")
+            val response_7ree: ChatCompletionResponse_7ree = client_7ree.post(activeApi.apiUrl) {
+                header(HttpHeaders.Authorization, "Bearer ${activeApi.apiKey}")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(request_7ree)
             }.body()
@@ -163,14 +164,15 @@ ${getOutputTemplate_7ree()}
 ${getOutputTemplate_7ree()}
 
 待解释的英文单词：$word"""
+            val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val request_7ree = ChatCompletionStreamRequest_7ree(
-                model = apiConfig_7ree.modelName,
+                model = activeApi.modelName,
                 messages = listOf(Message_7ree(role = "user", content = prompt_7ree)),
                 stream = true
             )
 
-            val response_7ree: HttpResponse = client_7ree.post(apiConfig_7ree.apiUrl) {
-                header(HttpHeaders.Authorization, "Bearer ${apiConfig_7ree.apiKey}")
+            val response_7ree: HttpResponse = client_7ree.post(activeApi.apiUrl) {
+                header(HttpHeaders.Authorization, "Bearer ${activeApi.apiKey}")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(request_7ree)
             }
@@ -280,13 +282,14 @@ ${getOutputTemplate_7ree()}
     suspend fun testApiConnection_7ree(): Result<String> {
         return try {
             // println("DEBUG: 测试API连接")
+            val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val testRequest_7ree = ChatCompletionRequest_7ree(
-                model = apiConfig_7ree.modelName,
+                model = activeApi.modelName,
                 messages = listOf(Message_7ree(role = "user", content = "Hello"))
             )
 
-            client_7ree.post(apiConfig_7ree.apiUrl) {
-                header(HttpHeaders.Authorization, "Bearer ${apiConfig_7ree.apiKey}")
+            client_7ree.post(activeApi.apiUrl) {
+                header(HttpHeaders.Authorization, "Bearer ${activeApi.apiKey}")
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 setBody(testRequest_7ree)
             }.body<ChatCompletionResponse_7ree>()

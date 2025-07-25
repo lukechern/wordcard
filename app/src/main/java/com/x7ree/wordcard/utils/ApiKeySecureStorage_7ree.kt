@@ -24,9 +24,24 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         private const val ANDROID_KEYSTORE = "AndroidKeyStore"
         private const val TRANSFORMATION = "AES/GCM/NoPadding"
         private const val PREFS_NAME = "secure_api_storage_7ree"
+        
+        // 翻译API 1
+        private const val ENCRYPTED_TRANSLATION_API1_KEY = "encrypted_translation_api1_key_7ree"
+        private const val TRANSLATION_API1_URL = "translation_api1_url_7ree"
+        private const val TRANSLATION_API1_MODEL = "translation_api1_model_7ree"
+        private const val TRANSLATION_API1_ENABLED = "translation_api1_enabled_7ree"
+        
+        // 翻译API 2
+        private const val ENCRYPTED_TRANSLATION_API2_KEY = "encrypted_translation_api2_key_7ree"
+        private const val TRANSLATION_API2_URL = "translation_api2_url_7ree"
+        private const val TRANSLATION_API2_MODEL = "translation_api2_model_7ree"
+        private const val TRANSLATION_API2_ENABLED = "translation_api2_enabled_7ree"
+        
+        // 向后兼容的旧字段
         private const val ENCRYPTED_API_KEY = "encrypted_api_key_7ree"
         private const val API_URL = "api_url_7ree"
         private const val MODEL_NAME = "model_name_7ree"
+        
         private const val AZURE_REGION = "azure_region_7ree"
         private const val ENCRYPTED_AZURE_API_KEY = "encrypted_azure_api_key_7ree"
         private const val AZURE_SPEECH_REGION = "azure_speech_region_7ree"
@@ -591,6 +606,204 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         clearAzureSpeechApiKey_7ree()
         clearAzureSpeechRegion_7ree()
         clearAzureSpeechEndpoint_7ree()
+    }
+    
+    // ========== 新的翻译API配置方法 ==========
+    
+    /**
+     * 存储翻译API 1配置
+     */
+    fun storeTranslationApi1Config_7ree(apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
+        return try {
+            val keyResult = if (apiKey.isBlank()) {
+                clearTranslationApi1Key_7ree()
+                true
+            } else {
+                val (encryptedKey, iv) = encryptString_7ree(apiKey)
+                sharedPreferences.edit()
+                    .putString(ENCRYPTED_TRANSLATION_API1_KEY, encryptedKey)
+                    .putString(ENCRYPTED_TRANSLATION_API1_KEY + IV_SUFFIX, iv)
+                    .apply()
+                true
+            }
+            
+            val urlResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API1_URL, apiUrl.ifBlank { "https://api.openai.com/v1/chat/completions" })
+                .apply().let { true }
+                
+            val modelResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API1_MODEL, modelName.ifBlank { "gpt-3.5-turbo" })
+                .apply().let { true }
+                
+            val enabledResult = sharedPreferences.edit()
+                .putBoolean(TRANSLATION_API1_ENABLED, isEnabled)
+                .apply().let { true }
+            
+            keyResult && urlResult && modelResult && enabledResult
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * 存储翻译API 2配置
+     */
+    fun storeTranslationApi2Config_7ree(apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
+        return try {
+            val keyResult = if (apiKey.isBlank()) {
+                clearTranslationApi2Key_7ree()
+                true
+            } else {
+                val (encryptedKey, iv) = encryptString_7ree(apiKey)
+                sharedPreferences.edit()
+                    .putString(ENCRYPTED_TRANSLATION_API2_KEY, encryptedKey)
+                    .putString(ENCRYPTED_TRANSLATION_API2_KEY + IV_SUFFIX, iv)
+                    .apply()
+                true
+            }
+            
+            val urlResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API2_URL, apiUrl.ifBlank { "https://api.openai.com/v1/chat/completions" })
+                .apply().let { true }
+                
+            val modelResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API2_MODEL, modelName.ifBlank { "gpt-4" })
+                .apply().let { true }
+                
+            val enabledResult = sharedPreferences.edit()
+                .putBoolean(TRANSLATION_API2_ENABLED, isEnabled)
+                .apply().let { true }
+            
+            keyResult && urlResult && modelResult && enabledResult
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * 读取翻译API 1配置
+     */
+    fun getTranslationApi1Config_7ree(): Pair<Pair<Pair<String, String>, String>, Boolean> {
+        return try {
+            val apiKey = try {
+                val encryptedKey = sharedPreferences.getString(ENCRYPTED_TRANSLATION_API1_KEY, null)
+                val iv = sharedPreferences.getString(ENCRYPTED_TRANSLATION_API1_KEY + IV_SUFFIX, null)
+                if (encryptedKey != null && iv != null) {
+                    decryptString_7ree(encryptedKey, iv)
+                } else ""
+            } catch (e: Exception) { "" }
+            
+            val apiUrl = sharedPreferences.getString(TRANSLATION_API1_URL, null) 
+                ?: "https://api.openai.com/v1/chat/completions"
+            val modelName = sharedPreferences.getString(TRANSLATION_API1_MODEL, null) 
+                ?: "gpt-3.5-turbo"
+            val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API1_ENABLED, true)
+            
+            Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
+        } catch (e: Exception) {
+            Pair(Pair(Pair("", "https://api.openai.com/v1/chat/completions"), "gpt-3.5-turbo"), true)
+        }
+    }
+    
+    /**
+     * 读取翻译API 2配置
+     */
+    fun getTranslationApi2Config_7ree(): Pair<Pair<Pair<String, String>, String>, Boolean> {
+        return try {
+            val apiKey = try {
+                val encryptedKey = sharedPreferences.getString(ENCRYPTED_TRANSLATION_API2_KEY, null)
+                val iv = sharedPreferences.getString(ENCRYPTED_TRANSLATION_API2_KEY + IV_SUFFIX, null)
+                if (encryptedKey != null && iv != null) {
+                    decryptString_7ree(encryptedKey, iv)
+                } else ""
+            } catch (e: Exception) { "" }
+            
+            val apiUrl = sharedPreferences.getString(TRANSLATION_API2_URL, null) 
+                ?: "https://api.openai.com/v1/chat/completions"
+            val modelName = sharedPreferences.getString(TRANSLATION_API2_MODEL, null) 
+                ?: "gpt-4"
+            val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API2_ENABLED, false)
+            
+            Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
+        } catch (e: Exception) {
+            Pair(Pair(Pair("", "https://api.openai.com/v1/chat/completions"), "gpt-4"), false)
+        }
+    }
+    
+    /**
+     * 清除翻译API 1 Key
+     */
+    fun clearTranslationApi1Key_7ree() {
+        sharedPreferences.edit()
+            .remove(ENCRYPTED_TRANSLATION_API1_KEY)
+            .remove(ENCRYPTED_TRANSLATION_API1_KEY + IV_SUFFIX)
+            .apply()
+    }
+    
+    /**
+     * 清除翻译API 2 Key
+     */
+    fun clearTranslationApi2Key_7ree() {
+        sharedPreferences.edit()
+            .remove(ENCRYPTED_TRANSLATION_API2_KEY)
+            .remove(ENCRYPTED_TRANSLATION_API2_KEY + IV_SUFFIX)
+            .apply()
+    }
+    
+    /**
+     * 清除所有翻译API配置
+     */
+    fun clearAllTranslationApiConfig_7ree() {
+        sharedPreferences.edit()
+            .remove(ENCRYPTED_TRANSLATION_API1_KEY)
+            .remove(ENCRYPTED_TRANSLATION_API1_KEY + IV_SUFFIX)
+            .remove(TRANSLATION_API1_URL)
+            .remove(TRANSLATION_API1_MODEL)
+            .remove(TRANSLATION_API1_ENABLED)
+            .remove(ENCRYPTED_TRANSLATION_API2_KEY)
+            .remove(ENCRYPTED_TRANSLATION_API2_KEY + IV_SUFFIX)
+            .remove(TRANSLATION_API2_URL)
+            .remove(TRANSLATION_API2_MODEL)
+            .remove(TRANSLATION_API2_ENABLED)
+            .apply()
+    }
+    
+    /**
+     * 批量存储新的API配置结构
+     */
+    fun storeNewApiConfig_7ree(
+        api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
+        api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean,
+        azureRegion: String, azureApiKey: String,
+        azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String, azureSpeechVoice: String
+    ): Boolean {
+        return try {
+            val api1Result = storeTranslationApi1Config_7ree(api1Key, api1Url, api1Model, api1Enabled)
+            val api2Result = storeTranslationApi2Config_7ree(api2Key, api2Url, api2Model, api2Enabled)
+            val azureRegionResult = storeAzureRegion_7ree(azureRegion)
+            val azureKeyResult = storeAzureApiKey_7ree(azureApiKey)
+            val azureSpeechRegionResult = storeAzureSpeechRegion_7ree(azureSpeechRegion)
+            val azureSpeechKeyResult = storeAzureSpeechApiKey_7ree(azureSpeechApiKey)
+            val azureSpeechEndpointResult = storeAzureSpeechEndpoint_7ree(azureSpeechEndpoint)
+            val azureSpeechVoiceResult = storeAzureSpeechVoice_7ree(azureSpeechVoice)
+            
+            api1Result && api2Result && azureRegionResult && azureKeyResult && 
+            azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult && azureSpeechVoiceResult
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * 检查是否有新的翻译API配置
+     */
+    fun hasNewTranslationApiConfig_7ree(): Boolean {
+        return sharedPreferences.contains(ENCRYPTED_TRANSLATION_API1_KEY) ||
+               sharedPreferences.contains(TRANSLATION_API1_URL) ||
+               sharedPreferences.contains(TRANSLATION_API1_MODEL) ||
+               sharedPreferences.contains(ENCRYPTED_TRANSLATION_API2_KEY) ||
+               sharedPreferences.contains(TRANSLATION_API2_URL) ||
+               sharedPreferences.contains(TRANSLATION_API2_MODEL)
     }
     
     /**

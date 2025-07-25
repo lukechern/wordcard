@@ -6,6 +6,7 @@ import com.x7ree.wordcard.config.ApiConfig_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.config.GeneralConfig_7ree
 import com.x7ree.wordcard.config.PromptConfig_7ree
+import com.x7ree.wordcard.config.TranslationApiConfig_7ree
 import com.x7ree.wordcard.query.state.ConfigState_7ree
 import com.x7ree.wordcard.query.state.WordQueryState_7ree
 import com.x7ree.wordcard.tts.TtsManager_7ree
@@ -56,9 +57,13 @@ class ConfigManager_7ree(
             try {
                 val currentConfig = configState_7ree.apiConfig_7ree.value
                 val config = ApiConfig_7ree(
-                    apiKey = apiKey,
-                    apiUrl = apiUrl,
-                    modelName = modelName,
+                    translationApi1 = TranslationApiConfig_7ree(
+                        apiKey = apiKey,
+                        apiUrl = apiUrl,
+                        modelName = modelName,
+                        isEnabled = currentConfig.translationApi1.isEnabled
+                    ),
+                    translationApi2 = currentConfig.translationApi2,
                     azureRegion = currentConfig.azureRegion,
                     azureApiKey = currentConfig.azureApiKey,
                     azureSpeechRegion = azureSpeechRegion,
@@ -83,6 +88,55 @@ class ConfigManager_7ree(
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("配置保存失败: ${e.message}")
                 // println("DEBUG: API配置保存异常: ${e.message}")
+            }
+        }
+    }
+    
+    // 新增：保存翻译API配置的方法
+    fun saveTranslationApiConfig_7ree(
+        api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
+        api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
+    ) {
+        coroutineScope.launch {
+            try {
+                val currentConfig = configState_7ree.apiConfig_7ree.value
+                val config = ApiConfig_7ree(
+                    translationApi1 = TranslationApiConfig_7ree(
+                        apiKey = api1Key,
+                        apiUrl = api1Url,
+                        modelName = api1Model,
+                        isEnabled = api1Enabled
+                    ),
+                    translationApi2 = TranslationApiConfig_7ree(
+                        apiKey = api2Key,
+                        apiUrl = api2Url,
+                        modelName = api2Model,
+                        isEnabled = api2Enabled
+                    ),
+                    azureRegion = currentConfig.azureRegion,
+                    azureApiKey = currentConfig.azureApiKey,
+                    azureSpeechRegion = currentConfig.azureSpeechRegion,
+                    azureSpeechApiKey = currentConfig.azureSpeechApiKey,
+                    azureSpeechEndpoint = currentConfig.azureSpeechEndpoint,
+                    azureSpeechVoice = currentConfig.azureSpeechVoice
+                )
+                
+                val success = appConfigManager_7ree.saveApiConfig_7ree(config)
+                if (success) {
+                    configState_7ree.updateApiConfig_7ree(config)
+                    // 更新API服务的配置
+                    apiService_7ree.updateApiConfig_7ree(config)
+                    // 更新TTS管理器的API配置
+                    ttsManager_7ree.updateApiConfig(config)
+                    queryState_7ree.updateOperationResult_7ree("翻译API配置保存成功")
+                    // println("DEBUG: 翻译API配置保存成功")
+                } else {
+                    queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败")
+                    // println("DEBUG: 翻译API配置保存失败")
+                }
+            } catch (e: Exception) {
+                queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败: ${e.message}")
+                // println("DEBUG: 翻译API配置保存异常: ${e.message}")
             }
         }
     }

@@ -32,17 +32,18 @@ class TranslationApiTester_7ree {
         
         try {
             // 验证配置完整性
-            if (apiConfig.apiKey.isBlank()) {
+            val activeApi = apiConfig.getActiveTranslationApi()
+            if (activeApi.apiKey.isBlank()) {
                 onResult(false, "API Key 不能为空")
                 return
             }
             
-            if (apiConfig.apiUrl.isBlank()) {
+            if (activeApi.apiUrl.isBlank()) {
                 onResult(false, "API URL 不能为空")
                 return
             }
             
-            if (apiConfig.modelName.isBlank()) {
+            if (activeApi.modelName.isBlank()) {
                 onResult(false, "模型名称不能为空")
                 return
             }
@@ -110,11 +111,12 @@ class TranslationApiTester_7ree {
      * 验证 API 配置格式
      */
     fun validateApiConfig(apiConfig: ApiConfig_7ree): Pair<Boolean, String> {
+        val activeApi = apiConfig.getActiveTranslationApi()
         return when {
-            apiConfig.apiKey.isBlank() -> false to "API Key 不能为空"
-            apiConfig.apiUrl.isBlank() -> false to "API URL 不能为空"
-            apiConfig.modelName.isBlank() -> false to "模型名称不能为空"
-            !apiConfig.apiUrl.startsWith("http") -> false to "API URL 格式不正确，应以 http:// 或 https:// 开头"
+            activeApi.apiKey.isBlank() -> false to "API Key 不能为空"
+            activeApi.apiUrl.isBlank() -> false to "API URL 不能为空"
+            activeApi.modelName.isBlank() -> false to "模型名称不能为空"
+            !activeApi.apiUrl.startsWith("http") -> false to "API URL 格式不正确，应以 http:// 或 https:// 开头"
             else -> true to "配置格式正确"
         }
     }

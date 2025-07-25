@@ -16,17 +16,45 @@ import com.x7ree.wordcard.utils.ApiKeySecureStorage_7ree
 **/
 
 @Serializable
-data class ApiConfig_7ree(
+data class TranslationApiConfig_7ree(
     val apiKey: String = "",
     val apiUrl: String = "https://api.openai.com/v1/chat/completions",
     val modelName: String = "gpt-3.5-turbo",
+    val isEnabled: Boolean = true
+)
+
+@Serializable
+data class ApiConfig_7ree(
+    val translationApi1: TranslationApiConfig_7ree = TranslationApiConfig_7ree(),
+    val translationApi2: TranslationApiConfig_7ree = TranslationApiConfig_7ree(
+        apiUrl = "https://api.openai.com/v1/chat/completions",
+        modelName = "gpt-4",
+        isEnabled = false
+    ),
     val azureRegion: String = "",
     val azureApiKey: String = "",
     val azureSpeechRegion: String = "",
     val azureSpeechApiKey: String = "",
     val azureSpeechEndpoint: String = "",
-    val azureSpeechVoice: String = "en-US-JennyNeural" // 默认音色：女性-美式
-)
+    val azureSpeechVoice: String = "en-US-JennyNeural", // 默认音色：女性-美式
+    
+    // 向后兼容的属性
+    @Deprecated("使用 translationApi1.apiKey")
+    val apiKey: String = "",
+    @Deprecated("使用 translationApi1.apiUrl")
+    val apiUrl: String = "https://api.openai.com/v1/chat/completions",
+    @Deprecated("使用 translationApi1.modelName")
+    val modelName: String = "gpt-3.5-turbo"
+) {
+    // 获取当前启用的翻译API配置
+    fun getActiveTranslationApi(): TranslationApiConfig_7ree {
+        return when {
+            translationApi1.isEnabled -> translationApi1
+            translationApi2.isEnabled -> translationApi2
+            else -> translationApi1 // 默认使用第一个
+        }
+    }
+}
 
 @Serializable
 data class GeneralConfig_7ree(
@@ -58,11 +86,16 @@ class AppConfigManager_7ree(private val context: Context) {
     // 保存API配置（使用安全存储）
     fun saveApiConfig_7ree(config: ApiConfig_7ree): Boolean {
         return try {
-            // 使用安全存储保存敏感信息
-            val secureResult = secureStorage_7ree.storeFullApiConfigWithSpeech_7ree(
-                config.apiKey,
-                config.apiUrl,
-                config.modelName,
+            // 使用新的API配置结构保存
+            val secureResult = secureStorage_7ree.storeNewApiConfig_7ree(
+                config.translationApi1.apiKey,
+                config.translationApi1.apiUrl,
+                config.translationApi1.modelName,
+                config.translationApi1.isEnabled,
+                config.translationApi2.apiKey,
+                config.translationApi2.apiUrl,
+                config.translationApi2.modelName,
+                config.translationApi2.isEnabled,
                 config.azureRegion,
                 config.azureApiKey,
                 config.azureSpeechRegion,
@@ -90,18 +123,59 @@ class AppConfigManager_7ree(private val context: Context) {
     fun loadApiConfig_7ree(): ApiConfig_7ree {
         return try {
             if (hasApiConfig_7ree()) {
-                // 从安全存储读取
-                ApiConfig_7ree(
-                    apiKey = secureStorage_7ree.getApiKey_7ree(),
-                    apiUrl = secureStorage_7ree.getApiUrl_7ree(),
-                    modelName = secureStorage_7ree.getModelName_7ree(),
-                    azureRegion = secureStorage_7ree.getAzureRegion_7ree(),
-                    azureApiKey = secureStorage_7ree.getAzureApiKey_7ree(),
-                    azureSpeechRegion = secureStorage_7ree.getAzureSpeechRegion_7ree(),
-                    azureSpeechApiKey = secureStorage_7ree.getAzureSpeechApiKey_7ree(),
-                    azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
-                    azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
-                )
+                // 检查是否有新的翻译API配置结构
+                if (secureStorage_7ree.hasNewTranslationApiConfig_7ree()) {
+                    // 使用新的配置结构
+                    val api1Config = secureStorage_7ree.getTranslationApi1Config_7ree()
+                    val api2Config = secureStorage_7ree.getTranslationApi2Config_7ree()
+                    
+                    ApiConfig_7ree(
+                        translationApi1 = TranslationApiConfig_7ree(
+                            apiKey = api1Config.first.first.first,
+                            apiUrl = api1Config.first.first.second,
+                            modelName = api1Config.first.second,
+                            isEnabled = api1Config.second
+                        ),
+                        translationApi2 = TranslationApiConfig_7ree(
+                            apiKey = api2Config.first.first.first,
+                            apiUrl = api2Config.first.first.second,
+                            modelName = api2Config.first.second,
+                            isEnabled = api2Config.second
+                        ),
+                        azureRegion = secureStorage_7ree.getAzureRegion_7ree(),
+                        azureApiKey = secureStorage_7ree.getAzureApiKey_7ree(),
+                        azureSpeechRegion = secureStorage_7ree.getAzureSpeechRegion_7ree(),
+                        azureSpeechApiKey = secureStorage_7ree.getAzureSpeechApiKey_7ree(),
+                        azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
+                        azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
+                    )
+                } else {
+                    // 使用旧的配置结构，迁移到新结构
+                    val oldApiKey = secureStorage_7ree.getApiKey_7ree()
+                    val oldApiUrl = secureStorage_7ree.getApiUrl_7ree()
+                    val oldModelName = secureStorage_7ree.getModelName_7ree()
+                    
+                    ApiConfig_7ree(
+                        translationApi1 = TranslationApiConfig_7ree(
+                            apiKey = oldApiKey,
+                            apiUrl = oldApiUrl,
+                            modelName = oldModelName,
+                            isEnabled = true
+                        ),
+                        translationApi2 = TranslationApiConfig_7ree(
+                            apiKey = "",
+                            apiUrl = "https://api.openai.com/v1/chat/completions",
+                            modelName = "gpt-4",
+                            isEnabled = false
+                        ),
+                        azureRegion = secureStorage_7ree.getAzureRegion_7ree(),
+                        azureApiKey = secureStorage_7ree.getAzureApiKey_7ree(),
+                        azureSpeechRegion = secureStorage_7ree.getAzureSpeechRegion_7ree(),
+                        azureSpeechApiKey = secureStorage_7ree.getAzureSpeechApiKey_7ree(),
+                        azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
+                        azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
+                    )
+                }
             } else {
                 // 尝试从旧的明文存储迁移
                 migrateFromLegacyStorage_7ree()

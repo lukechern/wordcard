@@ -218,7 +218,7 @@ private fun FilterMenuItem_7ree(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                if (isSelected) Color(0xFFE8F5E8) // 很浅的浅绿色背景
                 else Color.Transparent
             )
             .clickable { onClick() }
@@ -239,7 +239,7 @@ private fun FilterMenuItem_7ree(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+            color = if (isSelected) MaterialTheme.colorScheme.onSurface // 改为onSurface以适配浅绿色背景
             else MaterialTheme.colorScheme.onSurface
         )
         
@@ -248,7 +248,7 @@ private fun FilterMenuItem_7ree(
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodySmall,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            color = if (isSelected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) // 改为onSurface以适配浅绿色背景
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
@@ -269,7 +269,7 @@ private fun SortMenuItem_7ree(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(
-                if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                if (isSelected) Color(0xFFE8F5E8) // 很浅的浅绿色背景
                 else Color.Transparent
             )
             .clickable { 
@@ -314,7 +314,7 @@ private fun SortMenuItem_7ree(
             text = title,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+            color = if (isSelected) MaterialTheme.colorScheme.onSurface // 改为onSurface以适配浅绿色背景
             else MaterialTheme.colorScheme.onSurface
         )
         
@@ -324,7 +324,7 @@ private fun SortMenuItem_7ree(
         Text(
             text = sortDirection,
             style = MaterialTheme.typography.bodySmall,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            color = if (isSelected) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) // 改为onSurface以适配浅绿色背景
             else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }

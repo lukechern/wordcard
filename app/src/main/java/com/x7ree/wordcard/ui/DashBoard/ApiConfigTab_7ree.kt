@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.DashBoard.components.TranslationApiSection_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.DualTranslationApiSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.components.SpeechApiSection_7ree
 
 @Composable
@@ -18,9 +19,6 @@ fun ApiConfigTab_7ree(
 ) {
     val apiConfig_7ree by wordQueryViewModel_7ree.apiConfig_7ree.collectAsState()
     
-    var apiKey_7ree by remember { mutableStateOf(apiConfig_7ree.apiKey) }
-    var apiUrl_7ree by remember { mutableStateOf(apiConfig_7ree.apiUrl) }
-    var modelName_7ree by remember { mutableStateOf(apiConfig_7ree.modelName) }
     var azureSpeechRegion_7ree by remember { mutableStateOf(apiConfig_7ree.azureSpeechRegion) }
     var azureSpeechApiKey_7ree by remember { mutableStateOf(apiConfig_7ree.azureSpeechApiKey) }
     var azureSpeechEndpoint_7ree by remember { mutableStateOf(apiConfig_7ree.azureSpeechEndpoint) }
@@ -28,9 +26,6 @@ fun ApiConfigTab_7ree(
     
     // 当配置更新时，同步到输入框
     LaunchedEffect(apiConfig_7ree) {
-        apiKey_7ree = apiConfig_7ree.apiKey
-        apiUrl_7ree = apiConfig_7ree.apiUrl
-        modelName_7ree = apiConfig_7ree.modelName
         azureSpeechRegion_7ree = apiConfig_7ree.azureSpeechRegion
         azureSpeechApiKey_7ree = apiConfig_7ree.azureSpeechApiKey
         azureSpeechEndpoint_7ree = apiConfig_7ree.azureSpeechEndpoint
@@ -50,14 +45,28 @@ fun ApiConfigTab_7ree(
         )
         
         // AI大模型翻译API参数配置区域
-        TranslationApiSection_7ree(
-            apiKey = apiKey_7ree,
-            apiUrl = apiUrl_7ree,
-            modelName = modelName_7ree,
-            onApiKeyChange = { apiKey_7ree = it },
-            onApiUrlChange = { apiUrl_7ree = it },
-            onModelNameChange = { modelName_7ree = it },
+        DualTranslationApiSection_7ree(
             apiConfig = apiConfig_7ree,
+            onApi1Change = { key, url, model, enabled ->
+                // 保存API 1配置
+                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
+                    key, url, model, enabled,
+                    apiConfig_7ree.translationApi2.apiKey,
+                    apiConfig_7ree.translationApi2.apiUrl,
+                    apiConfig_7ree.translationApi2.modelName,
+                    apiConfig_7ree.translationApi2.isEnabled
+                )
+            },
+            onApi2Change = { key, url, model, enabled ->
+                // 保存API 2配置
+                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
+                    apiConfig_7ree.translationApi1.apiKey,
+                    apiConfig_7ree.translationApi1.apiUrl,
+                    apiConfig_7ree.translationApi1.modelName,
+                    apiConfig_7ree.translationApi1.isEnabled,
+                    key, url, model, enabled
+                )
+            },
             onTestResult = { success, message ->
                 wordQueryViewModel_7ree.setOperationResult_7ree(
                     if (success) "✅ 翻译API测试: $message" else "❌ 翻译API测试: $message"
@@ -89,9 +98,9 @@ fun ApiConfigTab_7ree(
             onAutoSave = {
                 // 自动保存当前配置
                 wordQueryViewModel_7ree.saveApiConfig_7ree(
-                    apiKey_7ree, 
-                    apiUrl_7ree, 
-                    modelName_7ree,
+                    apiConfig_7ree.getActiveTranslationApi().apiKey, 
+                    apiConfig_7ree.getActiveTranslationApi().apiUrl, 
+                    apiConfig_7ree.getActiveTranslationApi().modelName,
                     azureSpeechRegion_7ree,
                     azureSpeechApiKey_7ree,
                     azureSpeechEndpoint_7ree,
@@ -103,9 +112,9 @@ fun ApiConfigTab_7ree(
         Button(
             onClick = {
                 wordQueryViewModel_7ree.saveApiConfig_7ree(
-                    apiKey_7ree, 
-                    apiUrl_7ree, 
-                    modelName_7ree,
+                    apiConfig_7ree.getActiveTranslationApi().apiKey, 
+                    apiConfig_7ree.getActiveTranslationApi().apiUrl, 
+                    apiConfig_7ree.getActiveTranslationApi().modelName,
                     azureSpeechRegion_7ree,
                     azureSpeechApiKey_7ree,
                     azureSpeechEndpoint_7ree,
