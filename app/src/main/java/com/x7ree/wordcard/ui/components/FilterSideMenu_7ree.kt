@@ -69,7 +69,7 @@ fun FilterSideMenu_7ree(
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
-                    .width(220.dp) // 再减少32dp：252 - 32 = 220
+                    .width(215.dp) // 再减少5dp：220 - 5 = 215
                     .offset(x = offsetX.dp)
                     .align(Alignment.CenterEnd)
                     .background(
@@ -105,11 +105,20 @@ fun FilterSideMenu_7ree(
                     }
                 }
 
+                // 收藏筛选标题
+                Text(
+                    text = "筛选",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+
                 // 收藏筛选
                 FilterMenuItem_7ree(
                     icon = if (filterState.showFavoritesOnly) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                    title = "收藏筛选",
-                    subtitle = if (filterState.showFavoritesOnly) "只显示收藏" else "显示全部",
+                    title = "只看收藏",
+                    subtitle = if (filterState.showFavoritesOnly) "是" else "否",
                     isSelected = filterState.showFavoritesOnly,
                     onClick = {
                         onFilterStateChange(
@@ -122,7 +131,7 @@ fun FilterSideMenu_7ree(
 
                 // 排序选项标题
                 Text(
-                    text = "排序选项",
+                    text = "排序规则",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -131,7 +140,8 @@ fun FilterSideMenu_7ree(
 
                 // 记录时间排序
                 SortMenuItem_7ree(
-                    title = "记录时间：早→晚",
+                    title = "记录时间",
+                    sortDirection = "早→晚",
                     sortType = SortType_7ree.RECORD_TIME_ASC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -140,7 +150,8 @@ fun FilterSideMenu_7ree(
                 )
 
                 SortMenuItem_7ree(
-                    title = "记录时间：晚→早",
+                    title = "记录时间",
+                    sortDirection = "晚→早",
                     sortType = SortType_7ree.RECORD_TIME_DESC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -150,7 +161,8 @@ fun FilterSideMenu_7ree(
 
                 // 拼写次数排序
                 SortMenuItem_7ree(
-                    title = "拼写次数：少→多",
+                    title = "拼写次数",
+                    sortDirection = "少→多",
                     sortType = SortType_7ree.SPELLING_COUNT_ASC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -159,7 +171,8 @@ fun FilterSideMenu_7ree(
                 )
 
                 SortMenuItem_7ree(
-                    title = "拼写次数：多→少",
+                    title = "拼写次数",
+                    sortDirection = "多→少",
                     sortType = SortType_7ree.SPELLING_COUNT_DESC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -169,7 +182,8 @@ fun FilterSideMenu_7ree(
 
                 // 浏览次数排序（与浏览数量相同，都对应viewCount字段）
                 SortMenuItem_7ree(
-                    title = "浏览次数：少→多",
+                    title = "浏览次数",
+                    sortDirection = "少→多",
                     sortType = SortType_7ree.VIEW_COUNT_ASC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -178,7 +192,8 @@ fun FilterSideMenu_7ree(
                 )
 
                 SortMenuItem_7ree(
-                    title = "浏览次数：多→少",
+                    title = "浏览次数",
+                    sortDirection = "多→少",
                     sortType = SortType_7ree.VIEW_COUNT_DESC,
                     currentSortType = filterState.sortType,
                     onSortTypeChange = { sortType ->
@@ -215,7 +230,7 @@ private fun FilterMenuItem_7ree(
             contentDescription = title,
             tint = if (isSelected) MaterialTheme.colorScheme.primary
             else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(20.4.dp) // 减小15%：24 * 0.85 = 20.4
         )
         
         Spacer(modifier = Modifier.width(12.dp))
@@ -242,6 +257,7 @@ private fun FilterMenuItem_7ree(
 @Composable
 private fun SortMenuItem_7ree(
     title: String,
+    sortDirection: String,
     sortType: SortType_7ree,
     currentSortType: SortType_7ree?,
     onSortTypeChange: (SortType_7ree?) -> Unit
@@ -263,9 +279,9 @@ private fun SortMenuItem_7ree(
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // 排序图标 - 使用Material Icons
+        // 排序图标 - 使用Material Icons，选中时加大20%
         val iconVector = when {
-            title.contains("少→多") || title.contains("早→晚") -> {
+            sortDirection.contains("少→多") || sortDirection.contains("早→晚") -> {
                 // 上升箭头图标
                 androidx.compose.material.icons.Icons.Default.KeyboardArrowUp
             }
@@ -275,13 +291,22 @@ private fun SortMenuItem_7ree(
             }
         }
         
-        Icon(
-            imageVector = iconVector,
-            contentDescription = title,
-            tint = if (isSelected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp)
-        )
+        // 使用固定大小的Box来确保对齐和行高一致
+        Box(
+            modifier = Modifier.size(20.4.dp), // 与收藏筛选图标大小一致
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = iconVector,
+                contentDescription = "$title $sortDirection",
+                tint = if (isSelected) MaterialTheme.colorScheme.primary
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(
+                    if (isSelected) 29.81.dp // 选中时再加大20%：24.84 * 1.2 = 29.81
+                    else 24.84.dp // 未选中时也加大20%：20.7 * 1.2 = 24.84
+                )
+            )
+        }
         
         Spacer(modifier = Modifier.width(12.dp))
         
@@ -295,17 +320,13 @@ private fun SortMenuItem_7ree(
         
         Spacer(modifier = Modifier.weight(1f))
         
-        // 选中指示器
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .background(
-                        MaterialTheme.colorScheme.primary,
-                        shape = androidx.compose.foundation.shape.CircleShape
-                    )
-            )
-        }
+        // 排序方向文字右对齐，去掉绿色圆点
+        Text(
+            text = sortDirection,
+            style = MaterialTheme.typography.bodySmall,
+            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+            else MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
     
     Spacer(modifier = Modifier.height(4.dp))

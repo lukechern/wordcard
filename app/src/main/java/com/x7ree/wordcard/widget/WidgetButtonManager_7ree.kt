@@ -29,16 +29,20 @@ class WidgetButtonManager_7ree(private val context: Context) {
             button.alpha = 0.5f // 禁用状态下半透明
         }
         
-        // 创建带图标的文字
+        // 创建带图标的文字，增加间距
         val buttonText = "用AI查询"
-        val spannableString = SpannableString(" $buttonText")
+        val spannableString = SpannableString("   $buttonText") // 增加3个空格作为间距
         
-        // 获取放大镜图标
-        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_search_magnifier_7ree)
+        // 获取三个星星图标
+        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_auto_awesome_7ree)
         drawable?.let {
-            it.setBounds(0, 0, it.intrinsicWidth, it.intrinsicHeight)
-            // 使用ALIGN_BOTTOM来降低图标位置
-            val imageSpan = ImageSpan(it, ImageSpan.ALIGN_BOTTOM)
+            // 设置图标为白色
+            it.setTint(ContextCompat.getColor(context, android.R.color.white))
+            // 调整图标大小，使其与文字更好地对齐
+            val iconSize = (14 * context.resources.displayMetrics.density).toInt() // 14dp转换为像素
+            it.setBounds(0, 0, iconSize, iconSize)
+            // 使用ALIGN_CENTER来垂直居中对齐
+            val imageSpan = ImageSpan(it, ImageSpan.ALIGN_CENTER)
             spannableString.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         

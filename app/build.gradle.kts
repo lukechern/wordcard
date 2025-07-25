@@ -13,8 +13,8 @@ android {
         applicationId = "com.x7ree.wordcard"
         minSdk = 26
         targetSdk = 36
-        versionCode = 16
-        versionName = "4.7"
+        versionCode = 17
+        versionName = "4.8"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

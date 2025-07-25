@@ -35,7 +35,7 @@ import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -285,7 +285,7 @@ fun WordInputComponent_7ree(
             )
         ) {
             Icon(
-                imageVector = Icons.Filled.Search,
+                imageVector = Icons.Filled.AutoAwesome,
                 contentDescription = "查询",
                 modifier = Modifier.padding(end = 8.dp)
             )
@@ -299,7 +299,7 @@ fun WordInputComponent_7ree(
             // 统计数据组件
             StatisticsComponent_7ree(
                 wordQueryViewModel = wordQueryViewModel,
-                modifier = Modifier.padding(top = 112.dp)
+                modifier = Modifier.padding(top = 88.dp) // 向上移动1行：112 - 24 = 88
             )
         }
         
