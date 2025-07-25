@@ -283,10 +283,13 @@ open class WidgetConfigBaseActivity_7ree : AppCompatActivity() {
             val loadingText = findViewById<TextView>(R.id.widget_loading_text_7ree)
             val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
             
+            // 获取当前启用的API名称
+            val activeApiName = apiService_7ree.getActiveApiConfig_7ree().getActiveTranslationApi().apiName
+            
             // 切换到搜索状态
             uiStateManager_7ree.switchToSearchState_7ree(
                 inputText, queryButton, progressBar, resultText, wordTitle, 
-                chineseMeaning, loadingText, resultButtons, queryText
+                chineseMeaning, loadingText, resultButtons, queryText, activeApiName
             )
             
             // 添加查询状态下的UI坐标和间距日志输出

@@ -12,6 +12,7 @@ import com.x7ree.wordcard.query.state.WordQueryState_7ree
 import com.x7ree.wordcard.tts.TtsManager_7ree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * 配置管理器
@@ -94,20 +95,22 @@ class ConfigManager_7ree(
     
     // 新增：保存翻译API配置的方法
     fun saveTranslationApiConfig_7ree(
-        api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
-        api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
+        api1Name: String, api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
+        api2Name: String, api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
     ) {
         coroutineScope.launch {
             try {
                 val currentConfig = configState_7ree.apiConfig_7ree.value
                 val config = ApiConfig_7ree(
                     translationApi1 = TranslationApiConfig_7ree(
+                        apiName = api1Name,
                         apiKey = api1Key,
                         apiUrl = api1Url,
                         modelName = api1Model,
                         isEnabled = api1Enabled
                     ),
                     translationApi2 = TranslationApiConfig_7ree(
+                        apiName = api2Name,
                         apiKey = api2Key,
                         apiUrl = api2Url,
                         modelName = api2Model,
@@ -121,6 +124,10 @@ class ConfigManager_7ree(
                     azureSpeechVoice = currentConfig.azureSpeechVoice
                 )
                 
+                Log.d("ConfigManager_7ree", "DEBUG: 保存翻译API配置")
+                Log.d("ConfigManager_7ree", "DEBUG: API1配置 - 名称: $api1Name, URL: $api1Url, 模型: $api1Model, 启用: $api1Enabled")
+                Log.d("ConfigManager_7ree", "DEBUG: API2配置 - 名称: $api2Name, URL: $api2Url, 模型: $api2Model, 启用: $api2Enabled")
+                
                 val success = appConfigManager_7ree.saveApiConfig_7ree(config)
                 if (success) {
                     configState_7ree.updateApiConfig_7ree(config)
@@ -129,14 +136,14 @@ class ConfigManager_7ree(
                     // 更新TTS管理器的API配置
                     ttsManager_7ree.updateApiConfig(config)
                     queryState_7ree.updateOperationResult_7ree("翻译API配置保存成功")
-                    // println("DEBUG: 翻译API配置保存成功")
+                    Log.d("ConfigManager_7ree", "DEBUG: 翻译API配置保存成功")
                 } else {
                     queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败")
-                    // println("DEBUG: 翻译API配置保存失败")
+                    Log.e("ConfigManager_7ree", "DEBUG: 翻译API配置保存失败")
                 }
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("翻译API配置保存失败: ${e.message}")
-                // println("DEBUG: 翻译API配置保存异常: ${e.message}")
+                Log.e("ConfigManager_7ree", "DEBUG: 翻译API配置保存异常: ${e.message}", e)
             }
         }
     }

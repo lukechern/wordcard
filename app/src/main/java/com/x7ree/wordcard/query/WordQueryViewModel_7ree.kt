@@ -292,12 +292,12 @@ class WordQueryViewModel_7ree(
     
     // 新增：保存翻译API配置的方法
     fun saveTranslationApiConfig_7ree(
-        api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
-        api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
+        api1Name: String, api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
+        api2Name: String, api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
     ) {
         configManagerService_7ree.saveTranslationApiConfig_7ree(
-            api1Key, api1Url, api1Model, api1Enabled,
-            api2Key, api2Url, api2Model, api2Enabled
+            api1Name, api1Key, api1Url, api1Model, api1Enabled,
+            api2Name, api2Key, api2Url, api2Model, api2Enabled
         )
     }
     

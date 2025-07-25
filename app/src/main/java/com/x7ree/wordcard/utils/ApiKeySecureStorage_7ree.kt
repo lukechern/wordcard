@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import android.util.Log
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -27,12 +28,14 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         
         // 翻译API 1
         private const val ENCRYPTED_TRANSLATION_API1_KEY = "encrypted_translation_api1_key_7ree"
+        private const val TRANSLATION_API1_NAME = "translation_api1_name_7ree"
         private const val TRANSLATION_API1_URL = "translation_api1_url_7ree"
         private const val TRANSLATION_API1_MODEL = "translation_api1_model_7ree"
         private const val TRANSLATION_API1_ENABLED = "translation_api1_enabled_7ree"
         
         // 翻译API 2
         private const val ENCRYPTED_TRANSLATION_API2_KEY = "encrypted_translation_api2_key_7ree"
+        private const val TRANSLATION_API2_NAME = "translation_api2_name_7ree"
         private const val TRANSLATION_API2_URL = "translation_api2_url_7ree"
         private const val TRANSLATION_API2_MODEL = "translation_api2_model_7ree"
         private const val TRANSLATION_API2_ENABLED = "translation_api2_enabled_7ree"
@@ -613,7 +616,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     /**
      * 存储翻译API 1配置
      */
-    fun storeTranslationApi1Config_7ree(apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
+    fun storeTranslationApi1Config_7ree(apiName: String, apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
         return try {
             val keyResult = if (apiKey.isBlank()) {
                 clearTranslationApi1Key_7ree()
@@ -627,6 +630,10 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 true
             }
             
+            val nameResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API1_NAME, apiName)
+                .apply().let { true }
+            
             val urlResult = sharedPreferences.edit()
                 .putString(TRANSLATION_API1_URL, apiUrl.ifBlank { "https://api.openai.com/v1/chat/completions" })
                 .apply().let { true }
@@ -639,7 +646,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .putBoolean(TRANSLATION_API1_ENABLED, isEnabled)
                 .apply().let { true }
             
-            keyResult && urlResult && modelResult && enabledResult
+            keyResult && nameResult && urlResult && modelResult && enabledResult
         } catch (e: Exception) {
             false
         }
@@ -648,7 +655,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     /**
      * 存储翻译API 2配置
      */
-    fun storeTranslationApi2Config_7ree(apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
+    fun storeTranslationApi2Config_7ree(apiName: String, apiKey: String, apiUrl: String, modelName: String, isEnabled: Boolean): Boolean {
         return try {
             val keyResult = if (apiKey.isBlank()) {
                 clearTranslationApi2Key_7ree()
@@ -662,6 +669,10 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 true
             }
             
+            val nameResult = sharedPreferences.edit()
+                .putString(TRANSLATION_API2_NAME, apiName)
+                .apply().let { true }
+            
             val urlResult = sharedPreferences.edit()
                 .putString(TRANSLATION_API2_URL, apiUrl.ifBlank { "https://api.openai.com/v1/chat/completions" })
                 .apply().let { true }
@@ -674,7 +685,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 .putBoolean(TRANSLATION_API2_ENABLED, isEnabled)
                 .apply().let { true }
             
-            keyResult && urlResult && modelResult && enabledResult
+            keyResult && nameResult && urlResult && modelResult && enabledResult
         } catch (e: Exception) {
             false
         }
@@ -699,8 +710,11 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ?: "gpt-3.5-turbo"
             val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API1_ENABLED, true)
             
+            Log.d("ApiKeySecureStorage_7ree", "DEBUG: API1配置 - API Key长度: ${apiKey.length}, URL: $apiUrl, 模型: $modelName, 启用: $isEnabled")
+            
             Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
         } catch (e: Exception) {
+            Log.e("ApiKeySecureStorage_7ree", "DEBUG: 读取API1配置失败: ${e.message}", e)
             Pair(Pair(Pair("", "https://api.openai.com/v1/chat/completions"), "gpt-3.5-turbo"), true)
         }
     }
@@ -724,9 +738,34 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
                 ?: "gpt-4"
             val isEnabled = sharedPreferences.getBoolean(TRANSLATION_API2_ENABLED, false)
             
+            Log.d("ApiKeySecureStorage_7ree", "DEBUG: API2配置 - API Key长度: ${apiKey.length}, URL: $apiUrl, 模型: $modelName, 启用: $isEnabled")
+            
             Pair(Pair(Pair(apiKey, apiUrl), modelName), isEnabled)
         } catch (e: Exception) {
+            Log.e("ApiKeySecureStorage_7ree", "DEBUG: 读取API2配置失败: ${e.message}", e)
             Pair(Pair(Pair("", "https://api.openai.com/v1/chat/completions"), "gpt-4"), false)
+        }
+    }
+    
+    /**
+     * 读取翻译API 1名称
+     */
+    fun getTranslationApi1Name_7ree(): String {
+        return try {
+            sharedPreferences.getString(TRANSLATION_API1_NAME, "OpenAI GPT-3.5") ?: "OpenAI GPT-3.5"
+        } catch (e: Exception) {
+            "OpenAI GPT-3.5"
+        }
+    }
+    
+    /**
+     * 读取翻译API 2名称
+     */
+    fun getTranslationApi2Name_7ree(): String {
+        return try {
+            sharedPreferences.getString(TRANSLATION_API2_NAME, "OpenAI GPT-4") ?: "OpenAI GPT-4"
+        } catch (e: Exception) {
+            "OpenAI GPT-4"
         }
     }
     
@@ -772,14 +811,14 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
      * 批量存储新的API配置结构
      */
     fun storeNewApiConfig_7ree(
-        api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
-        api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean,
+        api1Name: String, api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
+        api2Name: String, api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean,
         azureRegion: String, azureApiKey: String,
         azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String, azureSpeechVoice: String
     ): Boolean {
         return try {
-            val api1Result = storeTranslationApi1Config_7ree(api1Key, api1Url, api1Model, api1Enabled)
-            val api2Result = storeTranslationApi2Config_7ree(api2Key, api2Url, api2Model, api2Enabled)
+            val api1Result = storeTranslationApi1Config_7ree(api1Name, api1Key, api1Url, api1Model, api1Enabled)
+            val api2Result = storeTranslationApi2Config_7ree(api2Name, api2Key, api2Url, api2Model, api2Enabled)
             val azureRegionResult = storeAzureRegion_7ree(azureRegion)
             val azureKeyResult = storeAzureApiKey_7ree(azureApiKey)
             val azureSpeechRegionResult = storeAzureSpeechRegion_7ree(azureSpeechRegion)

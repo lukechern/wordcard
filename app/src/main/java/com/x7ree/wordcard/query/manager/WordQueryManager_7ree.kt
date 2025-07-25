@@ -7,6 +7,7 @@ import com.x7ree.wordcard.query.state.WordQueryState_7ree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import android.util.Log
 
 /**
  * 单词查询业务逻辑管理器
@@ -32,7 +33,7 @@ class WordQueryManager_7ree(
         
         // 记录查询开始时间
         // val queryStartTime = System.currentTimeMillis()
-        // println("DEBUG: 开始查询单词: ${wordInput}, 时间: ${queryStartTime}ms")
+        Log.d("WordQueryManager_7ree", "DEBUG: 开始查询单词: ${wordInput}")
         
         coroutineScope.launch {
             try {
@@ -41,7 +42,7 @@ class WordQueryManager_7ree(
                 
                 if (cachedWord_7ree != null) {
                     // 本地有缓存数据
-                    // println("DEBUG: 从缓存获取到数据")
+                    Log.d("WordQueryManager_7ree", "DEBUG: 从缓存获取到数据")
                     queryState_7ree.updateQueryResult_7ree(cachedWord_7ree.apiResult)
                     queryState_7ree.updateFromCache_7ree(true)
                     
@@ -55,12 +56,12 @@ class WordQueryManager_7ree(
                     updateCurrentWordInfo_7ree()
                 } else {
                     // 本地没有数据，发起API请求
-                    // println("DEBUG: 本地无缓存，发起API请求")
+                    Log.d("WordQueryManager_7ree", "DEBUG: 本地无缓存，发起API请求")
                     var isFirstChunk_7ree = true
                     
                     apiService_7ree.queryWordStreamSimple_7ree(wordInput).collect { chunk_7ree ->
                         
-                        // println("DEBUG: 收到流式内容块: $chunk_7ree")
+                        Log.d("WordQueryManager_7ree", "DEBUG: 收到流式内容块: $chunk_7ree")
                         val currentResult = queryState_7ree.queryResult_7ree
                         queryState_7ree.updateQueryResult_7ree(currentResult + chunk_7ree)
                         
@@ -75,16 +76,21 @@ class WordQueryManager_7ree(
                     // API请求成功后，保存到本地数据库
                     val queryResult = queryState_7ree.queryResult_7ree
                     if (queryResult.isNotBlank() && !queryResult.startsWith("错误:")) {
-                        // println("DEBUG: 保存查询结果到数据库")
+                        Log.d("WordQueryManager_7ree", "DEBUG: 保存查询结果到数据库")
+                        Log.d("WordQueryManager_7ree", "DEBUG: 查询结果长度: ${queryResult.length}")
+                        Log.d("WordQueryManager_7ree", "DEBUG: 查询结果前200字符: ${queryResult.take(200)}")
                         wordRepository_7ree.saveWord_7ree(wordInput, queryResult)
                         
                         // 更新当前单词信息
                         updateCurrentWordInfo_7ree()
+                    } else {
+                        Log.e("WordQueryManager_7ree", "DEBUG: 查询结果无效或包含错误")
+                        Log.e("WordQueryManager_7ree", "DEBUG: 查询结果: $queryResult")
                     }
                 }
 
             } catch (e: Exception) {
-                // println("DEBUG: 查询异常: ${e.message}")
+                Log.e("WordQueryManager_7ree", "DEBUG: 查询异常: ${e.message}", e)
                 queryState_7ree.updateQueryResult_7ree("查询失败: ${e.localizedMessage}")
 
             } finally {

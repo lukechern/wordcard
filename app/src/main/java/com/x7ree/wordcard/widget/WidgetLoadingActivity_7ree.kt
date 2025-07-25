@@ -10,6 +10,7 @@ import android.widget.TextView
 import android.util.Log
 import android.view.ViewTreeObserver
 import com.x7ree.wordcard.R
+import com.x7ree.wordcard.config.AppConfigManager_7ree
 import kotlinx.coroutines.*
 import kotlinx.coroutines.TimeoutCancellationException
 
@@ -51,13 +52,12 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
     private fun showLoadingAnimation() {
         progressBar.visibility = android.view.View.VISIBLE
         loadingText.visibility = android.view.View.VISIBLE
-        loadingText.text = "正在启动查询..."
+        // 获取当前启用的API名称
+        val activeApiName = getActiveApiName()
+        loadingText.text = "正在问AI$activeApiName,请稍候…"
         
         // 添加UI坐标和间距日志输出
         logUICoordinatesAndSpacing_7ree()
-        
-        // 添加一些动态效果
-        startLoadingTextAnimation()
         
         // 如果加载时间超过1.5秒，显示提示信息
         Handler(Looper.getMainLooper()).postDelayed({
@@ -67,6 +67,22 @@ class WidgetLoadingActivity_7ree : AppCompatActivity() {
                 logUICoordinatesAndSpacing_7ree()
             }
         }, 1500)
+    }
+    
+    /**
+     * 获取当前启用的API名称
+     */
+    private fun getActiveApiName(): String {
+        try {
+            // 创建配置管理器实例来获取当前API配置
+            val configManager = AppConfigManager_7ree(this)
+            val apiConfig = configManager.loadApiConfig_7ree()
+            val activeApi = apiConfig.getActiveTranslationApi()
+            return if (activeApi.apiName.isNotEmpty()) " ${activeApi.apiName}" else ""
+        } catch (e: Exception) {
+            // 如果获取失败，返回空字符串
+            return ""
+        }
     }
     
     private fun startLoadingTextAnimation() {

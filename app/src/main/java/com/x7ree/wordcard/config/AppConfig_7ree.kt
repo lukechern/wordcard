@@ -6,17 +6,12 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import com.x7ree.wordcard.utils.ApiKeySecureStorage_7ree
+import android.util.Log
 
-/**
-语言包定义
-
-    'pl_config_saved_7r' => '配置已保存',
-    'pl_config_load_failed_7r' => '配置加载失败',
-    'pl_config_save_failed_7r' => '配置保存失败',
-**/
 
 @Serializable
 data class TranslationApiConfig_7ree(
+    val apiName: String = "",
     val apiKey: String = "",
     val apiUrl: String = "https://api.openai.com/v1/chat/completions",
     val modelName: String = "gpt-3.5-turbo",
@@ -25,8 +20,11 @@ data class TranslationApiConfig_7ree(
 
 @Serializable
 data class ApiConfig_7ree(
-    val translationApi1: TranslationApiConfig_7ree = TranslationApiConfig_7ree(),
+    val translationApi1: TranslationApiConfig_7ree = TranslationApiConfig_7ree(
+        apiName = "OpenAI GPT-3.5"
+    ),
     val translationApi2: TranslationApiConfig_7ree = TranslationApiConfig_7ree(
+        apiName = "OpenAI GPT-4",
         apiUrl = "https://api.openai.com/v1/chat/completions",
         modelName = "gpt-4",
         isEnabled = false
@@ -86,12 +84,18 @@ class AppConfigManager_7ree(private val context: Context) {
     // 保存API配置（使用安全存储）
     fun saveApiConfig_7ree(config: ApiConfig_7ree): Boolean {
         return try {
-            // 使用新的API配置结构保存
+            Log.d("AppConfig_7ree", "DEBUG: 保存API配置")
+            Log.d("AppConfig_7ree", "DEBUG: API1配置 - 名称: ${config.translationApi1.apiName}, URL: ${config.translationApi1.apiUrl}, 模型: ${config.translationApi1.modelName}, 启用: ${config.translationApi1.isEnabled}")
+            Log.d("AppConfig_7ree", "DEBUG: API2配置 - 名称: ${config.translationApi2.apiName}, URL: ${config.translationApi2.apiUrl}, 模型: ${config.translationApi2.modelName}, 启用: ${config.translationApi2.isEnabled}")
+            
+            // 使用新的API配置结构保存，包括API名称
             val secureResult = secureStorage_7ree.storeNewApiConfig_7ree(
+                config.translationApi1.apiName,
                 config.translationApi1.apiKey,
                 config.translationApi1.apiUrl,
                 config.translationApi1.modelName,
                 config.translationApi1.isEnabled,
+                config.translationApi2.apiName,
                 config.translationApi2.apiKey,
                 config.translationApi2.apiUrl,
                 config.translationApi2.modelName,
@@ -105,16 +109,18 @@ class AppConfigManager_7ree(private val context: Context) {
             )
             
             if (secureResult) {
+                Log.d("AppConfig_7ree", "DEBUG: API配置安全存储保存成功")
                 // 标记已有配置（不存储实际内容）
                 sharedPreferences.edit()
                     .putBoolean(KEY_API_CONFIG, true)
                     .apply()
                 true
             } else {
+                Log.e("AppConfig_7ree", "DEBUG: API配置安全存储保存失败")
                 false
             }
         } catch (e: Exception) {
-            // println("DEBUG: 保存API配置失败: ${e.message}")
+            Log.e("AppConfig_7ree", "DEBUG: 保存API配置失败: ${e.message}", e)
             false
         }
     }
@@ -122,21 +128,30 @@ class AppConfigManager_7ree(private val context: Context) {
     // 读取API配置（使用安全存储）
     fun loadApiConfig_7ree(): ApiConfig_7ree {
         return try {
+            Log.d("AppConfig_7ree", "DEBUG: 读取API配置")
             if (hasApiConfig_7ree()) {
+                Log.d("AppConfig_7ree", "DEBUG: 存在API配置")
                 // 检查是否有新的翻译API配置结构
                 if (secureStorage_7ree.hasNewTranslationApiConfig_7ree()) {
+                    Log.d("AppConfig_7ree", "DEBUG: 使用新的翻译API配置结构")
                     // 使用新的配置结构
                     val api1Config = secureStorage_7ree.getTranslationApi1Config_7ree()
                     val api2Config = secureStorage_7ree.getTranslationApi2Config_7ree()
                     
-                    ApiConfig_7ree(
+                    // 读取API名称
+                    val api1Name = secureStorage_7ree.getTranslationApi1Name_7ree()
+                    val api2Name = secureStorage_7ree.getTranslationApi2Name_7ree()
+                    
+                    val config = ApiConfig_7ree(
                         translationApi1 = TranslationApiConfig_7ree(
+                            apiName = api1Name,
                             apiKey = api1Config.first.first.first,
                             apiUrl = api1Config.first.first.second,
                             modelName = api1Config.first.second,
                             isEnabled = api1Config.second
                         ),
                         translationApi2 = TranslationApiConfig_7ree(
+                            apiName = api2Name,
                             apiKey = api2Config.first.first.first,
                             apiUrl = api2Config.first.first.second,
                             modelName = api2Config.first.second,
@@ -149,20 +164,28 @@ class AppConfigManager_7ree(private val context: Context) {
                         azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
                         azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
                     )
+                    
+                    Log.d("AppConfig_7ree", "DEBUG: 加载的API配置 - API1: ${config.translationApi1.apiName}, URL: ${config.translationApi1.apiUrl}, 模型: ${config.translationApi1.modelName}, 启用: ${config.translationApi1.isEnabled}, API Key长度: ${config.translationApi1.apiKey.length}")
+                    Log.d("AppConfig_7ree", "DEBUG: 加载的API配置 - API2: ${config.translationApi2.apiName}, URL: ${config.translationApi2.apiUrl}, 模型: ${config.translationApi2.modelName}, 启用: ${config.translationApi2.isEnabled}, API Key长度: ${config.translationApi2.apiKey.length}")
+                    
+                    config
                 } else {
+                    Log.d("AppConfig_7ree", "DEBUG: 使用旧的API配置结构")
                     // 使用旧的配置结构，迁移到新结构
                     val oldApiKey = secureStorage_7ree.getApiKey_7ree()
                     val oldApiUrl = secureStorage_7ree.getApiUrl_7ree()
                     val oldModelName = secureStorage_7ree.getModelName_7ree()
                     
-                    ApiConfig_7ree(
+                    val config = ApiConfig_7ree(
                         translationApi1 = TranslationApiConfig_7ree(
+                            apiName = "OpenAI GPT-3.5",
                             apiKey = oldApiKey,
                             apiUrl = oldApiUrl,
                             modelName = oldModelName,
                             isEnabled = true
                         ),
                         translationApi2 = TranslationApiConfig_7ree(
+                            apiName = "OpenAI GPT-4",
                             apiKey = "",
                             apiUrl = "https://api.openai.com/v1/chat/completions",
                             modelName = "gpt-4",
@@ -175,13 +198,19 @@ class AppConfigManager_7ree(private val context: Context) {
                         azureSpeechEndpoint = secureStorage_7ree.getAzureSpeechEndpoint_7ree(),
                         azureSpeechVoice = secureStorage_7ree.getAzureSpeechVoice_7ree()
                     )
+                    
+                    Log.d("AppConfig_7ree", "DEBUG: 加载的旧API配置 - API1: ${config.translationApi1.apiName}, URL: ${config.translationApi1.apiUrl}, 模型: ${config.translationApi1.modelName}, 启用: ${config.translationApi1.isEnabled}")
+                    Log.d("AppConfig_7ree", "DEBUG: 加载的旧API配置 - API2: ${config.translationApi2.apiName}, URL: ${config.translationApi2.apiUrl}, 模型: ${config.translationApi2.modelName}, 启用: ${config.translationApi2.isEnabled}")
+                    
+                    config
                 }
             } else {
+                Log.d("AppConfig_7ree", "DEBUG: 不存在API配置，尝试从旧的明文存储迁移")
                 // 尝试从旧的明文存储迁移
                 migrateFromLegacyStorage_7ree()
             }
         } catch (e: Exception) {
-            // println("DEBUG: 读取API配置失败: ${e.message}")
+            Log.e("AppConfig_7ree", "DEBUG: 读取API配置失败: ${e.message}", e)
             ApiConfig_7ree()
         }
     }

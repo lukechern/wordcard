@@ -52,7 +52,7 @@
                 android:id="@+id/widget_loading_text_7ree"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="正在启动查询..."
+                android:text="正在问AI，请稍候..."
                 android:textSize="16sp"
                 android:textColor="#333333"
                 android:gravity="center" />

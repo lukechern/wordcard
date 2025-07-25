@@ -17,12 +17,12 @@ import com.x7ree.wordcard.config.TranslationApiConfig_7ree
 @Composable
 fun DualTranslationApiSection_7ree(
     apiConfig: ApiConfig_7ree,
-    onApi1Change: (String, String, String, Boolean) -> Unit,
-    onApi2Change: (String, String, String, Boolean) -> Unit,
+    onApi1Change: (String, String, String, String, Boolean) -> Unit, // 添加apiName参数
+    onApi2Change: (String, String, String, String, Boolean) -> Unit, // 添加apiName参数
     onTestResult: (Boolean, String) -> Unit
 ) {
-    // 使用remember和mutableStateOf来管理选中状态，确保UI能正确响应状态变化
-    var selectedApi by remember(apiConfig.translationApi1.isEnabled, apiConfig.translationApi2.isEnabled) {
+    // 使用remember和mutableStateOf来管理选中状态，只在初始化时设置，避免编辑时自动切换
+    var selectedApi by remember {
         mutableStateOf(
             when {
                 apiConfig.translationApi1.isEnabled && !apiConfig.translationApi2.isEnabled -> 1
@@ -31,6 +31,17 @@ fun DualTranslationApiSection_7ree(
                 else -> 1 // 两个都禁用时默认选择API1
             }
         )
+    }
+    
+    // 当配置的启用状态发生变化时，同步更新selectedApi
+    LaunchedEffect(apiConfig.translationApi1.isEnabled, apiConfig.translationApi2.isEnabled) {
+        val newSelectedApi = when {
+            apiConfig.translationApi1.isEnabled && !apiConfig.translationApi2.isEnabled -> 1
+            !apiConfig.translationApi1.isEnabled && apiConfig.translationApi2.isEnabled -> 2
+            apiConfig.translationApi1.isEnabled && apiConfig.translationApi2.isEnabled -> 1 // 两个都启用时优先选择API1
+            else -> 1 // 两个都禁用时默认选择API1
+        }
+        selectedApi = newSelectedApi
     }
     
     Card(
@@ -59,26 +70,15 @@ fun DualTranslationApiSection_7ree(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RadioButton(
-                        selected = selectedApi == 1,
-                        onClick = {
-                            // 立即更新本地状态
-                            selectedApi = 1
-                            // 执行切换到API1的操作
-                            onApi1Change(
-                                apiConfig.translationApi1.apiKey,
-                                apiConfig.translationApi1.apiUrl,
-                                apiConfig.translationApi1.modelName,
-                                true
-                            )
-                            onApi2Change(
-                                apiConfig.translationApi2.apiKey,
-                                apiConfig.translationApi2.apiUrl,
-                                apiConfig.translationApi2.modelName,
-                                false
-                            )
-                        }
-                    )
+                RadioButton(
+                    selected = selectedApi == 1,
+                    onClick = {
+                        selectedApi = 1
+                        // 更新启用状态：启用API1，禁用API2
+                        onApi1Change(apiConfig.translationApi1.apiName, apiConfig.translationApi1.apiKey, apiConfig.translationApi1.apiUrl, apiConfig.translationApi1.modelName, true)
+                        onApi2Change(apiConfig.translationApi2.apiName, apiConfig.translationApi2.apiKey, apiConfig.translationApi2.apiUrl, apiConfig.translationApi2.modelName, false)
+                    }
+                )
                     Text(
                         text = "翻译API(一)",
                         style = MaterialTheme.typography.bodyMedium,
@@ -90,26 +90,15 @@ fun DualTranslationApiSection_7ree(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    RadioButton(
-                        selected = selectedApi == 2,
-                        onClick = {
-                            // 立即更新本地状态
-                            selectedApi = 2
-                            // 执行切换到API2的操作
-                            onApi1Change(
-                                apiConfig.translationApi1.apiKey,
-                                apiConfig.translationApi1.apiUrl,
-                                apiConfig.translationApi1.modelName,
-                                false
-                            )
-                            onApi2Change(
-                                apiConfig.translationApi2.apiKey,
-                                apiConfig.translationApi2.apiUrl,
-                                apiConfig.translationApi2.modelName,
-                                true
-                            )
-                        }
-                    )
+                RadioButton(
+                    selected = selectedApi == 2,
+                    onClick = {
+                        selectedApi = 2
+                        // 更新启用状态：禁用API1，启用API2
+                        onApi1Change(apiConfig.translationApi1.apiName, apiConfig.translationApi1.apiKey, apiConfig.translationApi1.apiUrl, apiConfig.translationApi1.modelName, false)
+                        onApi2Change(apiConfig.translationApi2.apiName, apiConfig.translationApi2.apiKey, apiConfig.translationApi2.apiUrl, apiConfig.translationApi2.modelName, true)
+                    }
+                )
                     Text(
                         text = "翻译API(二)",
                         style = MaterialTheme.typography.bodyMedium,
@@ -124,8 +113,9 @@ fun DualTranslationApiSection_7ree(
             if (selectedApi == 1) {
                 TranslationApiConfigSection_7ree(
                     config = apiConfig.translationApi1,
-                    onConfigChange = { key, url, model ->
-                        onApi1Change(key, url, model, true)
+                    onConfigChange = { apiName, apiKey, apiUrl, modelName ->
+                        // 保持当前API1的启用状态不变
+                        onApi1Change(apiName, apiKey, apiUrl, modelName, apiConfig.translationApi1.isEnabled)
                     },
                     onTestResult = onTestResult,
                     apiLabel = "(一)"
@@ -133,8 +123,9 @@ fun DualTranslationApiSection_7ree(
             } else {
                 TranslationApiConfigSection_7ree(
                     config = apiConfig.translationApi2,
-                    onConfigChange = { key, url, model ->
-                        onApi2Change(key, url, model, true)
+                    onConfigChange = { apiName, apiKey, apiUrl, modelName ->
+                        // 保持当前API2的启用状态不变
+                        onApi2Change(apiName, apiKey, apiUrl, modelName, apiConfig.translationApi2.isEnabled)
                     },
                     onTestResult = onTestResult,
                     apiLabel = "(二)"
@@ -147,16 +138,18 @@ fun DualTranslationApiSection_7ree(
 @Composable
 private fun TranslationApiConfigSection_7ree(
     config: TranslationApiConfig_7ree,
-    onConfigChange: (String, String, String) -> Unit,
+    onConfigChange: (String, String, String, String) -> Unit, // 添加apiName参数
     onTestResult: (Boolean, String) -> Unit,
     apiLabel: String
 ) {
+    var apiName by remember { mutableStateOf(config.apiName) }
     var apiKey by remember { mutableStateOf(config.apiKey) }
     var apiUrl by remember { mutableStateOf(config.apiUrl) }
     var modelName by remember { mutableStateOf(config.modelName) }
     
     // 当配置更新时，同步到输入框
-    LaunchedEffect(config.apiKey, config.apiUrl, config.modelName) {
+    LaunchedEffect(config.apiName, config.apiKey, config.apiUrl, config.modelName) {
+        apiName = config.apiName
         apiKey = config.apiKey
         apiUrl = config.apiUrl
         modelName = config.modelName
@@ -165,12 +158,27 @@ private fun TranslationApiConfigSection_7ree(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
+        // API名称输入框 - 放在最上面
+        OutlinedTextField(
+            value = apiName,
+            onValueChange = { 
+                apiName = it
+                onConfigChange(it, apiKey, apiUrl, modelName)
+            },
+            label = { Text("API名称") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp),
+            singleLine = true,
+            placeholder = { Text("例如：OpenAI GPT-4、Claude-3、通义千问等") }
+        )
+        
         // API配置输入框
         OutlinedTextField(
             value = apiUrl,
             onValueChange = { 
                 apiUrl = it
-                onConfigChange(apiKey, it, modelName)
+                onConfigChange(apiName, apiKey, it, modelName)
             },
             label = { Text("API URL") },
             modifier = Modifier
@@ -183,7 +191,7 @@ private fun TranslationApiConfigSection_7ree(
             value = apiKey,
             onValueChange = { 
                 apiKey = it
-                onConfigChange(it, apiUrl, modelName)
+                onConfigChange(apiName, it, apiUrl, modelName)
             },
             label = { Text("API Key") },
             singleLine = true,
@@ -196,7 +204,7 @@ private fun TranslationApiConfigSection_7ree(
             value = modelName,
             onValueChange = { 
                 modelName = it
-                onConfigChange(apiKey, apiUrl, it)
+                onConfigChange(apiName, apiKey, apiUrl, it)
             },
             label = { Text("模型名称") },
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
@@ -207,6 +215,7 @@ private fun TranslationApiConfigSection_7ree(
         TranslationApiTestButton_7ree(
             apiConfig = ApiConfig_7ree(
                 translationApi1 = TranslationApiConfig_7ree(
+                    apiName = apiName,
                     apiKey = apiKey,
                     apiUrl = apiUrl,
                     modelName = modelName,

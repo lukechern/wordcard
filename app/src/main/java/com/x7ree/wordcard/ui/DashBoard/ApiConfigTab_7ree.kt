@@ -45,27 +45,67 @@ fun ApiConfigTab_7ree(
         )
         
         // AI大模型翻译API参数配置区域
+        // 本地状态用于跟踪API 1的更改
+        var localApi1Name_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi1.apiName) }
+        var localApi1Key_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi1.apiKey) }
+        var localApi1Url_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi1.apiUrl) }
+        var localApi1Model_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi1.modelName) }
+        var localApi1Enabled_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi1.isEnabled) }
+        
+        // 本地状态用于跟踪API 2的更改
+        var localApi2Name_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi2.apiName) }
+        var localApi2Key_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi2.apiKey) }
+        var localApi2Url_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi2.apiUrl) }
+        var localApi2Model_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi2.modelName) }
+        var localApi2Enabled_7ree by remember { mutableStateOf(apiConfig_7ree.translationApi2.isEnabled) }
+        
+        // 当配置更新时，同步到本地状态
+        LaunchedEffect(apiConfig_7ree) {
+            localApi1Name_7ree = apiConfig_7ree.translationApi1.apiName
+            localApi1Key_7ree = apiConfig_7ree.translationApi1.apiKey
+            localApi1Url_7ree = apiConfig_7ree.translationApi1.apiUrl
+            localApi1Model_7ree = apiConfig_7ree.translationApi1.modelName
+            localApi1Enabled_7ree = apiConfig_7ree.translationApi1.isEnabled
+            
+            localApi2Name_7ree = apiConfig_7ree.translationApi2.apiName
+            localApi2Key_7ree = apiConfig_7ree.translationApi2.apiKey
+            localApi2Url_7ree = apiConfig_7ree.translationApi2.apiUrl
+            localApi2Model_7ree = apiConfig_7ree.translationApi2.modelName
+            localApi2Enabled_7ree = apiConfig_7ree.translationApi2.isEnabled
+        }
+        
         DualTranslationApiSection_7ree(
-            apiConfig = apiConfig_7ree,
-            onApi1Change = { key, url, model, enabled ->
-                // 保存API 1配置
-                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
-                    key, url, model, enabled,
-                    apiConfig_7ree.translationApi2.apiKey,
-                    apiConfig_7ree.translationApi2.apiUrl,
-                    apiConfig_7ree.translationApi2.modelName,
-                    apiConfig_7ree.translationApi2.isEnabled
+            apiConfig = apiConfig_7ree.copy(
+                translationApi1 = apiConfig_7ree.translationApi1.copy(
+                    apiName = localApi1Name_7ree,
+                    apiKey = localApi1Key_7ree,
+                    apiUrl = localApi1Url_7ree,
+                    modelName = localApi1Model_7ree,
+                    isEnabled = localApi1Enabled_7ree
+                ),
+                translationApi2 = apiConfig_7ree.translationApi2.copy(
+                    apiName = localApi2Name_7ree,
+                    apiKey = localApi2Key_7ree,
+                    apiUrl = localApi2Url_7ree,
+                    modelName = localApi2Model_7ree,
+                    isEnabled = localApi2Enabled_7ree
                 )
+            ),
+            onApi1Change = { apiName, key, url, model, enabled ->
+                // 只更新本地状态，不立即保存
+                localApi1Name_7ree = apiName
+                localApi1Key_7ree = key
+                localApi1Url_7ree = url
+                localApi1Model_7ree = model
+                localApi1Enabled_7ree = enabled
             },
-            onApi2Change = { key, url, model, enabled ->
-                // 保存API 2配置
-                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
-                    apiConfig_7ree.translationApi1.apiKey,
-                    apiConfig_7ree.translationApi1.apiUrl,
-                    apiConfig_7ree.translationApi1.modelName,
-                    apiConfig_7ree.translationApi1.isEnabled,
-                    key, url, model, enabled
-                )
+            onApi2Change = { apiName, key, url, model, enabled ->
+                // 只更新本地状态，不立即保存
+                localApi2Name_7ree = apiName
+                localApi2Key_7ree = key
+                localApi2Url_7ree = url
+                localApi2Model_7ree = model
+                localApi2Enabled_7ree = enabled
             },
             onTestResult = { success, message ->
                 wordQueryViewModel_7ree.setOperationResult_7ree(
@@ -111,14 +151,18 @@ fun ApiConfigTab_7ree(
         
         Button(
             onClick = {
-                wordQueryViewModel_7ree.saveApiConfig_7ree(
-                    apiConfig_7ree.getActiveTranslationApi().apiKey, 
-                    apiConfig_7ree.getActiveTranslationApi().apiUrl, 
-                    apiConfig_7ree.getActiveTranslationApi().modelName,
-                    azureSpeechRegion_7ree,
-                    azureSpeechApiKey_7ree,
-                    azureSpeechEndpoint_7ree,
-                    azureSpeechVoice_7ree
+                // 保存所有API配置，包括API名称，使用本地状态的值
+                wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
+                    localApi1Name_7ree,
+                    localApi1Key_7ree, 
+                    localApi1Url_7ree, 
+                    localApi1Model_7ree,
+                    localApi1Enabled_7ree,
+                    localApi2Name_7ree,
+                    localApi2Key_7ree, 
+                    localApi2Url_7ree, 
+                    localApi2Model_7ree,
+                    localApi2Enabled_7ree
                 )
             },
             modifier = Modifier
