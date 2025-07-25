@@ -137,6 +137,7 @@ class WordQueryViewModel_7ree(
     val showFavoritesOnly_7ree: StateFlow<Boolean> get() = paginationState_7ree.showFavoritesOnly_7ree
     val searchQuery_7ree: StateFlow<String> get() = paginationState_7ree.searchQuery_7ree
     val isSearchMode_7ree: StateFlow<Boolean> get() = paginationState_7ree.isSearchMode_7ree
+    val sortType_7ree: StateFlow<String?> get() = paginationState_7ree.sortType_7ree
     
     // 单词本状态保存
     var savedWordBookScrollPosition_7ree: ScrollPosition_7ree
@@ -397,6 +398,19 @@ class WordQueryViewModel_7ree(
     
     fun clearSearch_7ree() {
         paginationState_7ree.clearSearch_7ree()
+        resetPagination_7ree()
+        loadInitialWords_7ree()
+    }
+    
+    // 排序功能
+    fun setSortType_7ree(sortType: String?) {
+        paginationState_7ree.updateSortType_7ree(sortType)
+        resetPagination_7ree()
+        loadInitialWords_7ree()
+    }
+    
+    fun clearSort_7ree() {
+        paginationState_7ree.clearSort_7ree()
         resetPagination_7ree()
         loadInitialWords_7ree()
     }

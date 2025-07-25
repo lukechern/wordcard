@@ -113,6 +113,21 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
         return wordDao_7ree.getFavoriteWordsPaged_7ree(limit, offset)
     }
     
+    // 支持排序的分页查询方法
+    suspend fun getWordsPagedWithSort_7ree(limit: Int, offset: Int, sortType: String, isFavoriteOnly: Boolean = false): List<WordEntity_7ree> {
+        return when (sortType) {
+            "VIEW_COUNT_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByViewCountAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByViewCountAsc_7ree(limit, offset)
+            "VIEW_COUNT_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByViewCountDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByViewCountDesc_7ree(limit, offset)
+            "BROWSE_COUNT_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByViewCountAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByViewCountAsc_7ree(limit, offset)
+            "BROWSE_COUNT_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByViewCountDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByViewCountDesc_7ree(limit, offset)
+            "RECORD_TIME_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByRecordTimeAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByRecordTimeAsc_7ree(limit, offset)
+            "RECORD_TIME_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByRecordTimeDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByRecordTimeDesc_7ree(limit, offset)
+            "SPELLING_COUNT_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedBySpellingCountAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedBySpellingCountAsc_7ree(limit, offset)
+            "SPELLING_COUNT_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedBySpellingCountDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedBySpellingCountDesc_7ree(limit, offset)
+            else -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPaged_7ree(limit, offset) else wordDao_7ree.getWordsPaged_7ree(limit, offset)
+        }
+    }
+    
     // 根据词性搜索单词
     fun getWordsByPartOfSpeech_7ree(partOfSpeech: String): Flow<List<WordEntity_7ree>> {
         return wordDao_7ree.getWordsByPartOfSpeech_7ree(partOfSpeech)

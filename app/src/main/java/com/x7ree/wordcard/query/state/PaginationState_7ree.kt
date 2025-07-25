@@ -30,6 +30,10 @@ class PaginationState_7ree {
     private val _isSearchMode_7ree = MutableStateFlow(false)
     val isSearchMode_7ree: StateFlow<Boolean> = _isSearchMode_7ree
     
+    // 排序状态
+    private val _sortType_7ree = MutableStateFlow<String?>(null)
+    val sortType_7ree: StateFlow<String?> = _sortType_7ree
+    
     var currentPage_7ree = 0
         private set
     val pageSize_7ree = 10 // 每页10个项目
@@ -125,5 +129,13 @@ class PaginationState_7ree {
     fun clearSearch_7ree() {
         _searchQuery_7ree.value = ""
         _isSearchMode_7ree.value = false
+    }
+
+    fun updateSortType_7ree(sortType: String?) {
+        _sortType_7ree.value = sortType
+    }
+
+    fun clearSort_7ree() {
+        _sortType_7ree.value = null
     }
 }

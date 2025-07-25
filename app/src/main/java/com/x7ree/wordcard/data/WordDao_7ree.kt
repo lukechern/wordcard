@@ -105,4 +105,56 @@ interface WordDao_7ree {
     // 获取有中文释义的单词数量
     @Query("SELECT COUNT(*) FROM words WHERE chineseDefinition != ''")
     fun countWordsWithDefinition_7ree(): Flow<Int>
+    
+    // 支持排序的分页查询方法
+    
+    // 按浏览次数排序（升序）
+    @Query("SELECT * FROM words ORDER BY viewCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByViewCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按浏览次数排序（降序）
+    @Query("SELECT * FROM words ORDER BY viewCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByViewCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按记录时间排序（升序）
+    @Query("SELECT * FROM words ORDER BY queryTimestamp ASC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByRecordTimeAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按记录时间排序（降序）
+    @Query("SELECT * FROM words ORDER BY queryTimestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByRecordTimeDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按拼写次数排序（升序）
+    @Query("SELECT * FROM words ORDER BY spellingCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedBySpellingCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按拼写次数排序（降序）
+    @Query("SELECT * FROM words ORDER BY spellingCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedBySpellingCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词的排序查询方法
+    
+    // 收藏单词按浏览次数排序（升序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY viewCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByViewCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按浏览次数排序（降序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY viewCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByViewCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按记录时间排序（升序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY queryTimestamp ASC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByRecordTimeAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按记录时间排序（降序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY queryTimestamp DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByRecordTimeDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按拼写次数排序（升序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY spellingCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedBySpellingCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按拼写次数排序（降序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY spellingCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedBySpellingCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
 }

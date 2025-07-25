@@ -42,6 +42,9 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.PaginatedWordList_7ree
 import com.x7ree.wordcard.ui.components.SearchBarComponent_7ree
 import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
+import com.x7ree.wordcard.ui.components.FilterSideMenu_7ree
+import com.x7ree.wordcard.ui.components.FilterState_7ree
+import com.x7ree.wordcard.ui.components.SortType_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import kotlinx.coroutines.delay
@@ -67,6 +70,17 @@ fun HistoryScreen_7ree(
     var currentSpeakingWord_7ree by remember { mutableStateOf("") }
     var ttsState_7ree by remember { mutableStateOf(TtsButtonState_7ree.IDLE) }
     val coroutineScope = rememberCoroutineScope()
+    
+    // 筛选菜单状态
+    var isFilterMenuVisible by remember { mutableStateOf(false) }
+    var filterState by remember { 
+        mutableStateOf(FilterState_7ree(showFavoritesOnly = showFavoritesOnly_7ree))
+    }
+    
+    // 同步收藏状态
+    LaunchedEffect(showFavoritesOnly_7ree) {
+        filterState = filterState.copy(showFavoritesOnly = showFavoritesOnly_7ree)
+    }
     
     // 监听TTS状态变化 - 简化的状态管理，避免重复触发
     LaunchedEffect(isSpeakingWord_7ree) {
@@ -176,7 +190,7 @@ fun HistoryScreen_7ree(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-        // 搜索栏组件，包含标题、搜索功能和收藏过滤按钮
+        // 搜索栏组件，包含标题、搜索功能和汉堡菜单按钮
         SearchBarComponent_7ree(
             title = "单词本",
             searchQuery = searchQuery_7ree,
@@ -190,16 +204,9 @@ fun HistoryScreen_7ree(
                     showCustomKeyboard_7ree = false
                     customKeyboardState_7ree.hide_7ree()
                 }
-            },
-            trailingIcon = {
-                IconButton(
-                    onClick = { wordQueryViewModel_7ree.toggleFavoriteFilter_7ree() }
-                ) {
-                    Icon(
-                        imageVector = if (showFavoritesOnly_7ree) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (showFavoritesOnly_7ree) "显示全部单词" else "只显示收藏单词",
-                        tint = if (showFavoritesOnly_7ree) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                // 退出搜索模式时关闭筛选菜单
+                if (!isSearchMode) {
+                    isFilterMenuVisible = false
                 }
             },
             wordQueryViewModel = wordQueryViewModel_7ree,
@@ -209,6 +216,12 @@ fun HistoryScreen_7ree(
                     // 确保键盘状态同步
                     customKeyboardState_7ree.show_7ree()
                 }
+            },
+            // 使用汉堡菜单
+            showMenuButton = true,
+            isMenuOpen = isFilterMenuVisible,
+            onMenuToggle = {
+                isFilterMenuVisible = !isFilterMenuVisible
             },
             modifier = Modifier.padding(bottom = 8.dp)
         )
@@ -283,6 +296,31 @@ fun HistoryScreen_7ree(
             )
         }
         }
+        
+        // 筛选侧边菜单
+        FilterSideMenu_7ree(
+            isVisible = isFilterMenuVisible,
+            filterState = filterState,
+            onFilterStateChange = { newFilterState ->
+                filterState = newFilterState
+                
+                // 处理收藏筛选变化
+                if (newFilterState.showFavoritesOnly != showFavoritesOnly_7ree) {
+                    wordQueryViewModel_7ree.toggleFavoriteFilter_7ree()
+                }
+                
+                // 处理排序变化
+                val sortTypeString = newFilterState.sortType?.name
+                wordQueryViewModel_7ree.setSortType_7ree(sortTypeString)
+                
+                // 重新加载数据
+                wordQueryViewModel_7ree.resetPagination_7ree()
+                wordQueryViewModel_7ree.loadInitialWords_7ree()
+            },
+            onDismiss = {
+                isFilterMenuVisible = false
+            }
+        )
         
         // 自定义键盘 - 固定在屏幕底部，全屏宽度
         if (useCustomKeyboard && showCustomKeyboard_7ree && isSearchMode_7ree) {

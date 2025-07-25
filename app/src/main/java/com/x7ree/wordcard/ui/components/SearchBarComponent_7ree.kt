@@ -23,6 +23,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
@@ -72,7 +75,11 @@ fun SearchBarComponent_7ree(
     trailingIcon: @Composable (() -> Unit)? = null,
     wordQueryViewModel: WordQueryViewModel_7ree? = null,
     onCustomKeyboardStateChange: ((Boolean) -> Unit)? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // 新增参数支持汉堡菜单
+    showMenuButton: Boolean = false,
+    isMenuOpen: Boolean = false,
+    onMenuToggle: (() -> Unit)? = null
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -265,8 +272,27 @@ fun SearchBarComponent_7ree(
                     )
                 }
                 
-                // 其他操作按钮（如收藏按钮）
-                trailingIcon?.invoke()
+                // 汉堡菜单按钮或其他操作按钮
+                if (showMenuButton && onMenuToggle != null) {
+                    IconButton(
+                        onClick = { onMenuToggle() }
+                    ) {
+                        Icon(
+                            imageVector = if (isMenuOpen) {
+                                // 叉叉图标
+                                Icons.Filled.Close
+                            } else {
+                                // 汉堡图标 - 使用Menu图标
+                                androidx.compose.material.icons.Icons.Default.Menu
+                            },
+                            contentDescription = if (isMenuOpen) "关闭菜单" else "打开菜单",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    // 其他操作按钮（如收藏按钮）
+                    trailingIcon?.invoke()
+                }
             }
         }
         }

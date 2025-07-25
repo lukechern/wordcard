@@ -46,10 +46,19 @@ class DataManager_7ree(
         coroutineScope.launch {
             try {
                 paginationState_7ree.resetPagination_7ree()
-                val words = if (paginationState_7ree.showFavoritesOnly_7ree.value) {
-                    wordRepository_7ree.getFavoriteWordsPaged_7ree(paginationState_7ree.pageSize_7ree, 0)
+                val sortType = paginationState_7ree.sortType_7ree.value
+                val isFavoriteOnly = paginationState_7ree.showFavoritesOnly_7ree.value
+                
+                val words = if (sortType != null) {
+                    // 使用排序查询
+                    wordRepository_7ree.getWordsPagedWithSort_7ree(paginationState_7ree.pageSize_7ree, 0, sortType, isFavoriteOnly)
                 } else {
-                    wordRepository_7ree.getWordsPaged_7ree(paginationState_7ree.pageSize_7ree, 0)
+                    // 使用默认查询
+                    if (isFavoriteOnly) {
+                        wordRepository_7ree.getFavoriteWordsPaged_7ree(paginationState_7ree.pageSize_7ree, 0)
+                    } else {
+                        wordRepository_7ree.getWordsPaged_7ree(paginationState_7ree.pageSize_7ree, 0)
+                    }
                 }
                 
                 // 检查并自动补充缺失的字段信息
@@ -61,7 +70,7 @@ class DataManager_7ree(
                     paginationState_7ree.updateHasMoreData_7ree(false)
                 }
                 
-                // println("DEBUG: 初始加载完成，共${words.size}个单词")
+                // println("DEBUG: 初始加载完成，共${words.size}个单词，排序类型：$sortType")
             } catch (e: Exception) {
                 // println("DEBUG: 初始加载失败: ${e.message}")
             }
@@ -103,10 +112,19 @@ class DataManager_7ree(
                 paginationState_7ree.updateLoadingMore_7ree(true)
                 paginationState_7ree.incrementPage_7ree()
                 val offset = paginationState_7ree.currentPage_7ree * paginationState_7ree.pageSize_7ree
-                val newWords = if (paginationState_7ree.showFavoritesOnly_7ree.value) {
-                    wordRepository_7ree.getFavoriteWordsPaged_7ree(paginationState_7ree.pageSize_7ree, offset)
+                val sortType = paginationState_7ree.sortType_7ree.value
+                val isFavoriteOnly = paginationState_7ree.showFavoritesOnly_7ree.value
+                
+                val newWords = if (sortType != null) {
+                    // 使用排序查询
+                    wordRepository_7ree.getWordsPagedWithSort_7ree(paginationState_7ree.pageSize_7ree, offset, sortType, isFavoriteOnly)
                 } else {
-                    wordRepository_7ree.getWordsPaged_7ree(paginationState_7ree.pageSize_7ree, offset)
+                    // 使用默认查询
+                    if (isFavoriteOnly) {
+                        wordRepository_7ree.getFavoriteWordsPaged_7ree(paginationState_7ree.pageSize_7ree, offset)
+                    } else {
+                        wordRepository_7ree.getWordsPaged_7ree(paginationState_7ree.pageSize_7ree, offset)
+                    }
                 }
                 
                 if (newWords.isNotEmpty()) {
