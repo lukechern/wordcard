@@ -40,7 +40,7 @@ enum class SortType_7ree {
 // 筛选状态数据类
 data class FilterState_7ree(
     val showFavoritesOnly: Boolean = false,
-    val sortType: SortType_7ree? = null
+    val sortType: SortType_7ree? = SortType_7ree.RECORD_TIME_DESC // 默认为记录时间：晚→早
 )
 
 @Composable
@@ -182,7 +182,7 @@ fun FilterSideMenu_7ree(
 
                 // 浏览次数排序（与浏览数量相同，都对应viewCount字段）
                 SortMenuItem_7ree(
-                    title = "浏览次数",
+                    title = "查阅次数",
                     sortDirection = "少→多",
                     sortType = SortType_7ree.VIEW_COUNT_ASC,
                     currentSortType = filterState.sortType,
@@ -192,7 +192,7 @@ fun FilterSideMenu_7ree(
                 )
 
                 SortMenuItem_7ree(
-                    title = "浏览次数",
+                    title = "查阅次数",
                     sortDirection = "多→少",
                     sortType = SortType_7ree.VIEW_COUNT_DESC,
                     currentSortType = filterState.sortType,
