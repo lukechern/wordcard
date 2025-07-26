@@ -68,6 +68,10 @@ import com.x7ree.wordcard.utils.DataStatistics_7ree
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 
+// 导入拆分后的组件
+import com.x7ree.wordcard.ui.components.StatisticsComponent_7ree
+import com.x7ree.wordcard.ui.components.CustomCursor_7ree
+
 // 输入界面组件
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -341,116 +345,5 @@ fun WordInputComponent_7ree(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
-    }
-}
-
-// 统计数据组件
-@Composable
-fun StatisticsComponent_7ree(
-    wordQueryViewModel: WordQueryViewModel_7ree,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val cacheManager_7ree = remember { CacheManager_7ree(context) }
-    var cachedStats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
-    
-    // 加载缓存的统计数据
-    LaunchedEffect(Unit) {
-        // 延迟加载统计数据，不阻塞UI显示
-        delay(100) // 短暂延迟，让UI先渲染
-        
-        // 检查是否需要更新缓存
-        if (cacheManager_7ree.shouldUpdateCache_7ree()) {
-            // 需要更新缓存时，获取最新数据
-            val allWords_7ree = wordQueryViewModel.getHistoryWords_7ree().first()
-            cachedStats_7ree = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
-            cacheManager_7ree.updateCacheTimestamp_7ree()
-        } else {
-            // 使用缓存数据，快速获取一次性数据
-            val allWords_7ree = wordQueryViewModel.getHistoryWords_7ree().first()
-            cachedStats_7ree = DataStatistics_7ree.calculateStatistics_7ree(allWords_7ree)
-        }
-    }
-    
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "已收集${cachedStats_7ree.totalWords}个单词",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
-        Text(
-            text = "已累计查阅${cachedStats_7ree.totalViews}次",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(4.dp)) // 两个统计数据之间的间距
-        Text(
-            text = "已持续学习${cachedStats_7ree.studyDays}天",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.fillMaxWidth().wrapContentHeight(align = Alignment.CenterVertically),
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(16.dp)) // 在统计数据和底部之间增加一些间距
-    }
-}
-
-@Composable
-fun CustomCursor_7ree(
-    text: String,
-    textStyle: androidx.compose.ui.text.TextStyle,
-    modifier: Modifier = Modifier
-) {
-    val density = LocalDensity.current
-    
-    // 光标闪烁动画
-    val infiniteTransition = rememberInfiniteTransition(label = "cursor")
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 500, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "cursor_alpha"
-    )
-    
-    // 使用TextMeasurer精确计算文本宽度
-    val textMeasurer = androidx.compose.ui.text.rememberTextMeasurer()
-    val textWidth = remember(text, textStyle) {
-        if (text.isEmpty()) {
-            0.dp
-        } else {
-            val textLayoutResult = textMeasurer.measure(
-                text = androidx.compose.ui.text.AnnotatedString(text),
-                style = textStyle
-            )
-            with(density) {
-                textLayoutResult.size.width.toDp()
-            }
-        }
-    }
-    
-    Box(
-        modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        // 光标线条
-        Box(
-            modifier = Modifier
-                .offset(x = textWidth / 2 + 5.dp) // 定位到文本末尾并右移4dp避免重叠
-                .width(2.dp)
-                .height(textStyle.fontSize.value.dp * 1.2f)
-                .alpha(alpha)
-                .background(androidx.compose.ui.graphics.Color.Black)
-        )
     }
 }
