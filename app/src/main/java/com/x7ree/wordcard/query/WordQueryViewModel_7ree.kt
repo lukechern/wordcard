@@ -316,19 +316,26 @@ class WordQueryViewModel_7ree(
         )
     }
     
-    // 新增：保存当前通用配置的方法
-    fun saveCurrentGeneralConfig_7ree() {
-        val currentConfig = generalConfig_7ree.value
-        configManagerService_7ree.saveGeneralConfig_7ree(
-            currentConfig.keyboardType,
-            currentConfig.autoReadAfterQuery,
-            currentConfig.autoReadOnSpellingCard,
-            currentConfig.ttsEngine
+    // 新增：保存Azure Speech配置的方法
+    fun saveAzureSpeechConfig_7ree(
+        azureSpeechRegion: String,
+        azureSpeechApiKey: String,
+        azureSpeechEndpoint: String,
+        azureSpeechVoice: String
+    ) {
+        configManagerService_7ree.saveAzureSpeechConfig_7ree(
+            azureSpeechRegion, azureSpeechApiKey, azureSpeechEndpoint, azureSpeechVoice
         )
     }
     
-    // 新增：保存当前API配置的方法
-    fun saveCurrentApiConfig_7ree() {
+    // 新增：保存当前通用配置的方法（从UI状态）
+    fun saveCurrentGeneralConfigFromUI_7ree() {
+        // 这个方法现在由UI组件直接调用保存方法替代
+        println("DEBUG: saveCurrentGeneralConfigFromUI_7ree被调用，但应该由UI组件直接调用保存方法")
+    }
+    
+    // 新增：保存当前API配置的方法（从UI状态）
+    fun saveCurrentApiConfigFromUI_7ree() {
         val currentConfig = apiConfig_7ree.value
         configManagerService_7ree.saveTranslationApiConfig_7ree(
             currentConfig.translationApi1.apiName,
@@ -344,8 +351,8 @@ class WordQueryViewModel_7ree(
         )
     }
     
-    // 新增：保存当前提示词配置的方法
-    fun saveCurrentPromptConfig_7ree() {
+    // 新增：保存当前提示词配置的方法（从UI状态）
+    fun saveCurrentPromptConfigFromUI_7ree() {
         val currentConfig = promptConfig_7ree.value
         configManagerService_7ree.savePromptConfig_7ree(
             currentConfig.queryPrompt_7ree,

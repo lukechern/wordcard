@@ -19,22 +19,22 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 @Composable
 fun GeneralConfigTab_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
+    selectedKeyboardType_7ree: String,
+    onKeyboardTypeChange: (String) -> Unit,
+    autoReadAfterQuery_7ree: Boolean,
+    onAutoReadAfterQueryChange: (Boolean) -> Unit,
+    autoReadOnSpellingCard_7ree: Boolean,
+    onAutoReadOnSpellingCardChange: (Boolean) -> Unit,
+    selectedTtsEngine_7ree: String,
+    onTtsEngineChange: (String) -> Unit
 ) {
-    val generalConfig_7ree by wordQueryViewModel_7ree.generalConfig_7ree.collectAsState()
-    
-    var selectedKeyboardType_7ree by remember { mutableStateOf(generalConfig_7ree.keyboardType) }
-    var autoReadAfterQuery_7ree by remember { mutableStateOf(generalConfig_7ree.autoReadAfterQuery) }
-    var autoReadOnSpellingCard_7ree by remember { mutableStateOf(generalConfig_7ree.autoReadOnSpellingCard) }
-    var selectedTtsEngine_7ree by remember { mutableStateOf(generalConfig_7ree.ttsEngine) }
-    
-    // 当配置更新时，同步到选择状态
-    LaunchedEffect(generalConfig_7ree) {
-        selectedKeyboardType_7ree = generalConfig_7ree.keyboardType
-        autoReadAfterQuery_7ree = generalConfig_7ree.autoReadAfterQuery
-        autoReadOnSpellingCard_7ree = generalConfig_7ree.autoReadOnSpellingCard
-        selectedTtsEngine_7ree = generalConfig_7ree.ttsEngine
+    // 添加调试日志
+    LaunchedEffect(selectedKeyboardType_7ree, autoReadAfterQuery_7ree, autoReadOnSpellingCard_7ree, selectedTtsEngine_7ree) {
+        println("DEBUG: GeneralConfigTab UI状态更新 - 键盘类型: $selectedKeyboardType_7ree, 自动朗读查询后: $autoReadAfterQuery_7ree, 自动朗读拼写卡片: $autoReadOnSpellingCard_7ree, TTS引擎: $selectedTtsEngine_7ree")
     }
+    
+    
     
     Column(
         modifier = Modifier
@@ -78,7 +78,7 @@ fun GeneralConfigTab_7ree(
                         .selectable(
                             selected = (selectedKeyboardType_7ree == "custom"),
                             onClick = {
-                                selectedKeyboardType_7ree = "custom"
+                                onKeyboardTypeChange("custom")
                             },
                             role = Role.RadioButton
                         ),
@@ -100,7 +100,7 @@ fun GeneralConfigTab_7ree(
                         .selectable(
                             selected = (selectedKeyboardType_7ree == "system"),
                             onClick = {
-                                selectedKeyboardType_7ree = "system"
+                                onKeyboardTypeChange("system")
                             },
                             role = Role.RadioButton
                         ),
@@ -153,7 +153,7 @@ fun GeneralConfigTab_7ree(
                 )
                 Switch(
                     checked = autoReadAfterQuery_7ree,
-                    onCheckedChange = { autoReadAfterQuery_7ree = it }
+                    onCheckedChange = onAutoReadAfterQueryChange
                 )
             }
             
@@ -172,7 +172,7 @@ fun GeneralConfigTab_7ree(
                 )
                 Switch(
                     checked = autoReadOnSpellingCard_7ree,
-                    onCheckedChange = { autoReadOnSpellingCard_7ree = it }
+                    onCheckedChange = onAutoReadOnSpellingCardChange
                 )
             }
         }
@@ -209,7 +209,7 @@ fun GeneralConfigTab_7ree(
                         .selectable(
                             selected = (selectedTtsEngine_7ree == "google"),
                             onClick = {
-                                selectedTtsEngine_7ree = "google"
+                                onTtsEngineChange("google")
                             },
                             role = Role.RadioButton
                         )
@@ -233,7 +233,7 @@ fun GeneralConfigTab_7ree(
                         .selectable(
                             selected = (selectedTtsEngine_7ree == "azure"),
                             onClick = {
-                                selectedTtsEngine_7ree = "azure"
+                                onTtsEngineChange("azure")
                             },
                             role = Role.RadioButton
                         )

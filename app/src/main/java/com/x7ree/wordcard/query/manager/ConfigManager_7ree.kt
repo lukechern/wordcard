@@ -93,7 +93,7 @@ class ConfigManager_7ree(
         }
     }
     
-    // 新增：保存翻译API配置的方法
+    // 保存API配置的方法（接受参数）
     fun saveTranslationApiConfig_7ree(
         api1Name: String, api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
         api2Name: String, api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
@@ -124,7 +124,6 @@ class ConfigManager_7ree(
                     azureSpeechVoice = currentConfig.azureSpeechVoice
                 )
                 
-                
                 val success = appConfigManager_7ree.saveApiConfig_7ree(config)
                 if (success) {
                     configState_7ree.updateApiConfig_7ree(config)
@@ -142,6 +141,7 @@ class ConfigManager_7ree(
         }
     }
     
+    // 保存提示词配置的方法（接受参数）
     fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String) {
         coroutineScope.launch {
             try {
@@ -168,6 +168,45 @@ class ConfigManager_7ree(
         }
     }
     
+    // 保存Azure Speech配置的方法（不覆盖翻译API配置）
+    fun saveAzureSpeechConfig_7ree(
+        azureSpeechRegion: String,
+        azureSpeechApiKey: String,
+        azureSpeechEndpoint: String,
+        azureSpeechVoice: String
+    ) {
+        coroutineScope.launch {
+            try {
+                val currentConfig = configState_7ree.apiConfig_7ree.value
+                val config = ApiConfig_7ree(
+                    translationApi1 = currentConfig.translationApi1, // 保持翻译API配置不变
+                    translationApi2 = currentConfig.translationApi2, // 保持翻译API配置不变
+                    azureRegion = currentConfig.azureRegion,
+                    azureApiKey = currentConfig.azureApiKey,
+                    azureSpeechRegion = azureSpeechRegion,
+                    azureSpeechApiKey = azureSpeechApiKey,
+                    azureSpeechEndpoint = azureSpeechEndpoint,
+                    azureSpeechVoice = azureSpeechVoice
+                )
+                
+                val success = appConfigManager_7ree.saveApiConfig_7ree(config)
+                if (success) {
+                    configState_7ree.updateApiConfig_7ree(config)
+                    // 更新API服务的配置
+                    apiService_7ree.updateApiConfig_7ree(config)
+                    // 更新TTS管理器的API配置
+                    ttsManager_7ree.updateApiConfig(config)
+                    queryState_7ree.updateOperationResult_7ree("Azure Speech配置保存成功")
+                } else {
+                    queryState_7ree.updateOperationResult_7ree("Azure Speech配置保存失败")
+                }
+            } catch (e: Exception) {
+                queryState_7ree.updateOperationResult_7ree("Azure Speech配置保存失败: ${e.message}")
+            }
+        }
+    }
+    
+    // 保存通用配置的方法（接受参数）
     fun saveGeneralConfig_7ree(
         keyboardType: String, 
         autoReadAfterQuery: Boolean, 
@@ -176,6 +215,7 @@ class ConfigManager_7ree(
     ) {
         coroutineScope.launch {
             try {
+                println("DEBUG: ConfigManager开始保存通用配置 - 键盘类型=$keyboardType, 自动朗读查询后=$autoReadAfterQuery, 自动朗读拼写卡片=$autoReadOnSpellingCard, TTS引擎=$ttsEngine")
                 val config = GeneralConfig_7ree(
                     keyboardType = keyboardType,
                     autoReadAfterQuery = autoReadAfterQuery,
@@ -184,19 +224,20 @@ class ConfigManager_7ree(
                 )
                 
                 val success = appConfigManager_7ree.saveGeneralConfig_7ree(config)
+                println("DEBUG: AppConfigManager保存通用配置结果: $success")
                 if (success) {
                     configState_7ree.updateGeneralConfig_7ree(config)
                     // 更新TTS管理器的配置
                     ttsManager_7ree.updateGeneralConfig(config)
                     queryState_7ree.updateOperationResult_7ree("通用配置保存成功")
-                    // println("DEBUG: 通用配置保存成功")
+                    println("DEBUG: 通用配置保存成功")
                 } else {
                     queryState_7ree.updateOperationResult_7ree("通用配置保存失败")
-                    // println("DEBUG: 通用配置保存失败")
+                    println("DEBUG: 通用配置保存失败")
                 }
             } catch (e: Exception) {
                 queryState_7ree.updateOperationResult_7ree("通用配置保存失败: ${e.message}")
-                // println("DEBUG: 通用配置保存异常: ${e.message}")
+                println("DEBUG: 通用配置保存异常: ${e.message}")
             }
         }
     }

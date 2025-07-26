@@ -815,8 +815,16 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
         azureSpeechRegion: String, azureSpeechApiKey: String, azureSpeechEndpoint: String, azureSpeechVoice: String
     ): Boolean {
         return try {
+            println("DEBUG: ApiKeySecureStorage开始保存新API配置")
+            println("DEBUG: API1 - 名称:$api1Name, URL:$api1Url, 模型:$api1Model, 启用:$api1Enabled")
+            println("DEBUG: API2 - 名称:$api2Name, URL:$api2Url, 模型:$api2Model, 启用:$api2Enabled")
+            
             val api1Result = storeTranslationApi1Config_7ree(api1Name, api1Key, api1Url, api1Model, api1Enabled)
+            println("DEBUG: API1配置保存结果: $api1Result")
+            
             val api2Result = storeTranslationApi2Config_7ree(api2Name, api2Key, api2Url, api2Model, api2Enabled)
+            println("DEBUG: API2配置保存结果: $api2Result")
+            
             val azureRegionResult = storeAzureRegion_7ree(azureRegion)
             val azureKeyResult = storeAzureApiKey_7ree(azureApiKey)
             val azureSpeechRegionResult = storeAzureSpeechRegion_7ree(azureSpeechRegion)
@@ -824,9 +832,13 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
             val azureSpeechEndpointResult = storeAzureSpeechEndpoint_7ree(azureSpeechEndpoint)
             val azureSpeechVoiceResult = storeAzureSpeechVoice_7ree(azureSpeechVoice)
             
-            api1Result && api2Result && azureRegionResult && azureKeyResult && 
+            val finalResult = api1Result && api2Result && azureRegionResult && azureKeyResult && 
             azureSpeechRegionResult && azureSpeechKeyResult && azureSpeechEndpointResult && azureSpeechVoiceResult
+            
+            println("DEBUG: 最终保存结果: $finalResult")
+            finalResult
         } catch (e: Exception) {
+            println("DEBUG: API配置保存异常: ${e.message}")
             false
         }
     }

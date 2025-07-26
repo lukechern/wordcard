@@ -11,18 +11,22 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 @Composable
 fun PromptConfigTab_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree
+    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
+    queryPrompt_7ree: String,
+    onQueryPromptChange: (String) -> Unit,
+    outputTemplate_7ree: String,
+    onOutputTemplateChange: (String) -> Unit
 ) {
-    val promptConfig_7ree by wordQueryViewModel_7ree.promptConfig_7ree.collectAsState()
     
-    var queryPrompt_7ree by remember { mutableStateOf(promptConfig_7ree.queryPrompt_7ree) }
-    var outputTemplate_7ree by remember { mutableStateOf(promptConfig_7ree.outputTemplate_7ree) }
-    
-    // 当配置更新时，同步到输入框
-    LaunchedEffect(promptConfig_7ree) {
-        queryPrompt_7ree = promptConfig_7ree.queryPrompt_7ree
-        outputTemplate_7ree = promptConfig_7ree.outputTemplate_7ree
+    // 保存配置的函数
+    fun saveConfig() {
+        println("DEBUG: 保存提示词配置 - 查询提示词: $queryPrompt_7ree, 输出模板: $outputTemplate_7ree")
+        wordQueryViewModel_7ree.savePromptConfig_7ree(
+            queryPrompt = queryPrompt_7ree,
+            outputTemplate = outputTemplate_7ree
+        )
     }
+    
     
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -43,7 +47,7 @@ fun PromptConfigTab_7ree(
         
         OutlinedTextField(
             value = queryPrompt_7ree,
-            onValueChange = { queryPrompt_7ree = it },
+            onValueChange = onQueryPromptChange,
             label = { Text("查询提示词") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,7 +65,7 @@ fun PromptConfigTab_7ree(
         
         OutlinedTextField(
             value = outputTemplate_7ree,
-            onValueChange = { outputTemplate_7ree = it },
+            onValueChange = onOutputTemplateChange,
             label = { Text("输出模板") },
             modifier = Modifier
                 .fillMaxWidth()

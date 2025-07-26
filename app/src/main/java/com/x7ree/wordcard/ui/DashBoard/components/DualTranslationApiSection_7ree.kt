@@ -142,18 +142,11 @@ private fun TranslationApiConfigSection_7ree(
     onTestResult: (Boolean, String) -> Unit,
     apiLabel: String
 ) {
-    var apiName by remember { mutableStateOf(config.apiName) }
-    var apiKey by remember { mutableStateOf(config.apiKey) }
-    var apiUrl by remember { mutableStateOf(config.apiUrl) }
-    var modelName by remember { mutableStateOf(config.modelName) }
-    
-    // 当配置更新时，同步到输入框
-    LaunchedEffect(config.apiName, config.apiKey, config.apiUrl, config.modelName) {
-        apiName = config.apiName
-        apiKey = config.apiKey
-        apiUrl = config.apiUrl
-        modelName = config.modelName
-    }
+    // 直接使用传入的config，不再维护本地状态
+    val apiName = config.apiName
+    val apiKey = config.apiKey
+    val apiUrl = config.apiUrl
+    val modelName = config.modelName
     
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -162,7 +155,6 @@ private fun TranslationApiConfigSection_7ree(
         OutlinedTextField(
             value = apiName,
             onValueChange = { 
-                apiName = it
                 onConfigChange(it, apiKey, apiUrl, modelName)
             },
             label = { Text("API名称") },
@@ -177,7 +169,6 @@ private fun TranslationApiConfigSection_7ree(
         OutlinedTextField(
             value = apiUrl,
             onValueChange = { 
-                apiUrl = it
                 onConfigChange(apiName, apiKey, it, modelName)
             },
             label = { Text("API URL") },
@@ -190,7 +181,6 @@ private fun TranslationApiConfigSection_7ree(
         OutlinedTextField(
             value = apiKey,
             onValueChange = { 
-                apiKey = it
                 onConfigChange(apiName, it, apiUrl, modelName)
             },
             label = { Text("API Key") },
@@ -203,7 +193,6 @@ private fun TranslationApiConfigSection_7ree(
         OutlinedTextField(
             value = modelName,
             onValueChange = { 
-                modelName = it
                 onConfigChange(apiName, apiKey, apiUrl, it)
             },
             label = { Text("模型名称") },
