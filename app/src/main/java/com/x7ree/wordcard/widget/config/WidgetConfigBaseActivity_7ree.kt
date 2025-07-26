@@ -284,7 +284,20 @@ open class WidgetConfigBaseActivity_7ree : AppCompatActivity() {
             val resultButtons = findViewById<LinearLayout>(R.id.widget_result_buttons_7ree)
             
             // 获取当前启用的API名称
-            val activeApiName = apiService_7ree.getActiveApiConfig_7ree().getActiveTranslationApi().apiName
+            val activeApiName = try {
+                val activeApi = apiService_7ree.getActiveApiConfig_7ree().getActiveTranslationApi()
+                if (activeApi.apiName.isNotEmpty()) {
+                    activeApi.apiName
+                } else {
+                    // 如果API名称为空，尝试从配置管理器重新获取
+                    val configManager = com.x7ree.wordcard.config.AppConfigManager_7ree(this@WidgetConfigBaseActivity_7ree)
+                    val apiConfig = configManager.loadApiConfig_7ree()
+                    apiConfig.getActiveTranslationApi().apiName
+                }
+            } catch (e: Exception) {
+                // 如果获取失败，返回空字符串
+                ""
+            }
             
             // 切换到搜索状态
             uiStateManager_7ree.switchToSearchState_7ree(

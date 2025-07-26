@@ -46,7 +46,7 @@ class WidgetUIStateManager_7ree {
         
         // 根据API名称设置加载文本
         if (apiName.isNotEmpty()) {
-            loadingText.text = "正在问AI$apiName,请稍候…"
+            loadingText.text = "正在问$apiName,请稍候…"
         } else {
             loadingText.text = "正在问AI,请稍候…"
         }

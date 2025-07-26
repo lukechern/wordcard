@@ -28,7 +28,7 @@ fun LoadingComponent_7ree(
     val configManager = AppConfigManager_7ree(context)
     val apiConfig = configManager.loadApiConfig_7ree()
     val activeApi = apiConfig.getActiveTranslationApi()
-    val activeApiName = if (activeApi.apiName.isNotEmpty()) " ${activeApi.apiName}" else ""
+    val activeApiName = if (activeApi.apiName.isNotEmpty()) activeApi.apiName else ""
     
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -47,7 +47,7 @@ fun LoadingComponent_7ree(
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "正在问AI$activeApiName,请稍候…",
+            text = if (activeApiName.isNotEmpty()) "正在问$activeApiName,请稍候…" else "正在问AI,请稍候…",
             style = MaterialTheme.typography.bodyLarge
         )
     }
