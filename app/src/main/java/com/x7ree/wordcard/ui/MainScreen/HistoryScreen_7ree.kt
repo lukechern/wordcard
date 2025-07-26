@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -45,6 +46,7 @@ import com.x7ree.wordcard.ui.components.TtsButtonState_7ree
 import com.x7ree.wordcard.ui.components.FilterSideMenu_7ree
 import com.x7ree.wordcard.ui.components.FilterState_7ree
 import com.x7ree.wordcard.ui.components.SortType_7ree
+import com.x7ree.wordcard.ui.components.CustomScrollbar_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboard_7ree
 import com.x7ree.wordcard.utils.CustomKeyboard.rememberCustomKeyboardState_7ree
 import kotlinx.coroutines.delay
@@ -185,10 +187,11 @@ fun HistoryScreen_7ree(
     var showCustomKeyboard_7ree by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
+        // 主内容区域，右侧留出空间给滚动条
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 32.dp) // 右侧留更多空间给滚动条
         ) {
         // 搜索栏组件，包含标题、搜索功能和汉堡菜单按钮
         SearchBarComponent_7ree(
@@ -295,6 +298,17 @@ fun HistoryScreen_7ree(
                 onRefresh = handleRefresh
             )
         }
+        }
+        
+        // 自定义滚动条 - 位于右侧，与帮助页面样式一致
+        if (!isInitialLoading_7ree && filteredWords_7ree.isNotEmpty()) {
+            CustomScrollbar_7ree(
+                listState = listState,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxHeight()
+                    .padding(end = 2.dp, top = 8.dp, bottom = 8.dp)
+            )
         }
         
         // 筛选侧边菜单
