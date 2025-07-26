@@ -243,6 +243,7 @@ class AppConfigManager_7ree(private val context: Context) {
         return try {
             println("DEBUG: AppConfigManager开始保存通用配置 - 键盘类型=${config.keyboardType}, 自动朗读查询后=${config.autoReadAfterQuery}, 自动朗读拼写卡片=${config.autoReadOnSpellingCard}, TTS引擎=${config.ttsEngine}")
             val configJson = json.encodeToString(config)
+            @Suppress("UNUSED_VARIABLE")
             val result = sharedPreferences.edit()
                 .putString(KEY_GENERAL_CONFIG, configJson)
                 .apply()

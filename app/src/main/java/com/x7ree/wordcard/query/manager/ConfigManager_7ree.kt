@@ -196,7 +196,7 @@ class ConfigManager_7ree(
                     apiService_7ree.updateApiConfig_7ree(config)
                     // 更新TTS管理器的API配置
                     ttsManager_7ree.updateApiConfig(config)
-                    queryState_7ree.updateOperationResult_7ree("Azure Speech配置保存成功")
+                    queryState_7ree.updateOperationResult_7ree("配置保存成功!")
                 } else {
                     queryState_7ree.updateOperationResult_7ree("Azure Speech配置保存失败")
                 }

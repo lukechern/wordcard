@@ -77,37 +77,6 @@ fun ConfigPage_7ree(
     }
     
     // API配置状态监控日志
-    LaunchedEffect(localApi1Name_7ree) {
-        println("DEBUG: API1名称状态变化 -> $localApi1Name_7ree")
-    }
-    LaunchedEffect(localApi1Key_7ree) {
-        println("DEBUG: API1密钥状态变化 -> ${localApi1Key_7ree.take(10)}...")
-    }
-    LaunchedEffect(localApi1Url_7ree) {
-        println("DEBUG: API1 URL状态变化 -> $localApi1Url_7ree")
-    }
-    LaunchedEffect(localApi1Model_7ree) {
-        println("DEBUG: API1模型状态变化 -> $localApi1Model_7ree")
-    }
-    LaunchedEffect(localApi1Enabled_7ree) {
-        println("DEBUG: API1启用状态变化 -> $localApi1Enabled_7ree")
-    }
-    
-    LaunchedEffect(localApi2Name_7ree) {
-        println("DEBUG: API2名称状态变化 -> $localApi2Name_7ree")
-    }
-    LaunchedEffect(localApi2Key_7ree) {
-        println("DEBUG: API2密钥状态变化 -> ${localApi2Key_7ree.take(10)}...")
-    }
-    LaunchedEffect(localApi2Url_7ree) {
-        println("DEBUG: API2 URL状态变化 -> $localApi2Url_7ree")
-    }
-    LaunchedEffect(localApi2Model_7ree) {
-        println("DEBUG: API2模型状态变化 -> $localApi2Model_7ree")
-    }
-    LaunchedEffect(localApi2Enabled_7ree) {
-        println("DEBUG: API2启用状态变化 -> $localApi2Enabled_7ree")
-    }
     
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -226,7 +195,6 @@ fun ConfigPage_7ree(
                     when (selectedTab_7ree) {
                         SettingsTab_7ree.GENERAL -> {
                             // 通用配置保存
-                            println("DEBUG: ConfigPage保存通用配置 - 键盘类型: $selectedKeyboardType_7ree, 自动朗读查询后: $autoReadAfterQuery_7ree, 自动朗读拼写卡片: $autoReadOnSpellingCard_7ree, TTS引擎: $selectedTtsEngine_7ree")
                             wordQueryViewModel_7ree.saveGeneralConfig_7ree(
                                 keyboardType = selectedKeyboardType_7ree,
                                 autoReadAfterQuery = autoReadAfterQuery_7ree,
@@ -236,9 +204,6 @@ fun ConfigPage_7ree(
                         }
                         SettingsTab_7ree.API_CONFIG -> {
                             // API配置保存 - 添加详细日志
-                            println("DEBUG: 开始保存API配置")
-                            println("DEBUG: API1 - 名称:$localApi1Name_7ree, URL:$localApi1Url_7ree, 模型:$localApi1Model_7ree, 启用:$localApi1Enabled_7ree")
-                            println("DEBUG: API2 - 名称:$localApi2Name_7ree, URL:$localApi2Url_7ree, 模型:$localApi2Model_7ree, 启用:$localApi2Enabled_7ree")
                             
                             wordQueryViewModel_7ree.saveTranslationApiConfig_7ree(
                                 api1Name = localApi1Name_7ree,
@@ -254,7 +219,6 @@ fun ConfigPage_7ree(
                             )
                             
                             // 保存Azure Speech配置 - 不覆盖翻译API配置
-                            println("DEBUG: 保存Azure Speech配置 - 区域:$azureSpeechRegion_7ree, 语音:$azureSpeechVoice_7ree")
                             wordQueryViewModel_7ree.saveAzureSpeechConfig_7ree(
                                 azureSpeechRegion = azureSpeechRegion_7ree,
                                 azureSpeechApiKey = azureSpeechApiKey_7ree,

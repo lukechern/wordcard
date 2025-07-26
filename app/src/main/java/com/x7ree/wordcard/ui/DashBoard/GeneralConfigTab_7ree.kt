@@ -19,7 +19,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 
 @Composable
 fun GeneralConfigTab_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
+    @Suppress("UNUSED_PARAMETER") wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     selectedKeyboardType_7ree: String,
     onKeyboardTypeChange: (String) -> Unit,
     autoReadAfterQuery_7ree: Boolean,

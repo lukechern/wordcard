@@ -41,7 +41,7 @@ fun ApiConfigTab_7ree(
     azureSpeechApiKey_7ree: String,
     onAzureSpeechApiKeyChange: (String) -> Unit,
     azureSpeechEndpoint_7ree: String,
-    onAzureSpeechEndpointChange: (String) -> Unit,
+    @Suppress("UNUSED_PARAMETER") onAzureSpeechEndpointChange: (String) -> Unit,
     azureSpeechVoice_7ree: String,
     onAzureSpeechVoiceChange: (String) -> Unit
 ) {
