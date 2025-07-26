@@ -31,7 +31,7 @@ fun GeneralConfigTab_7ree(
 ) {
     // 添加调试日志
     LaunchedEffect(selectedKeyboardType_7ree, autoReadAfterQuery_7ree, autoReadOnSpellingCard_7ree, selectedTtsEngine_7ree) {
-        println("DEBUG: GeneralConfigTab UI状态更新 - 键盘类型: $selectedKeyboardType_7ree, 自动朗读查询后: $autoReadAfterQuery_7ree, 自动朗读拼写卡片: $autoReadOnSpellingCard_7ree, TTS引擎: $selectedTtsEngine_7ree")
+        // println("DEBUG: GeneralConfigTab UI状态更新 - 键盘类型: $selectedKeyboardType_7ree, 自动朗读查询后: $autoReadAfterQuery_7ree, 自动朗读拼写卡片: $autoReadOnSpellingCard_7ree, TTS引擎: $selectedTtsEngine_7ree")
     }
     
     

@@ -33,7 +33,7 @@ class WordQueryManager_7ree(
         
         // 记录查询开始时间
         // val queryStartTime = System.currentTimeMillis()
-        Log.d("WordQueryManager_7ree", "DEBUG: 开始查询单词: ${wordInput}")
+        // Log.d("WordQueryManager_7ree", "DEBUG: 开始查询单词: ${wordInput}")
         
         coroutineScope.launch {
             try {
@@ -42,7 +42,7 @@ class WordQueryManager_7ree(
                 
                 if (cachedWord_7ree != null) {
                     // 本地有缓存数据
-                    Log.d("WordQueryManager_7ree", "DEBUG: 从缓存获取到数据")
+                    // Log.d("WordQueryManager_7ree", "DEBUG: 从缓存获取到数据")
                     queryState_7ree.updateQueryResult_7ree(cachedWord_7ree.apiResult)
                     queryState_7ree.updateFromCache_7ree(true)
                     
@@ -56,12 +56,12 @@ class WordQueryManager_7ree(
                     updateCurrentWordInfo_7ree()
                 } else {
                     // 本地没有数据，发起API请求
-                    Log.d("WordQueryManager_7ree", "DEBUG: 本地无缓存，发起API请求")
+                    // Log.d("WordQueryManager_7ree", "DEBUG: 本地无缓存，发起API请求")
                     var isFirstChunk_7ree = true
                     
                     apiService_7ree.queryWordStreamSimple_7ree(wordInput).collect { chunk_7ree ->
                         
-                        Log.d("WordQueryManager_7ree", "DEBUG: 收到流式内容块: $chunk_7ree")
+                        // Log.d("WordQueryManager_7ree", "DEBUG: 收到流式内容块: $chunk_7ree")
                         val currentResult = queryState_7ree.queryResult_7ree
                         queryState_7ree.updateQueryResult_7ree(currentResult + chunk_7ree)
                         
@@ -76,9 +76,9 @@ class WordQueryManager_7ree(
                     // API请求成功后，保存到本地数据库
                     val queryResult = queryState_7ree.queryResult_7ree
                     if (queryResult.isNotBlank() && !queryResult.startsWith("错误:")) {
-                        Log.d("WordQueryManager_7ree", "DEBUG: 保存查询结果到数据库")
-                        Log.d("WordQueryManager_7ree", "DEBUG: 查询结果长度: ${queryResult.length}")
-                        Log.d("WordQueryManager_7ree", "DEBUG: 查询结果前200字符: ${queryResult.take(200)}")
+                        // Log.d("WordQueryManager_7ree", "DEBUG: 保存查询结果到数据库")
+                        // Log.d("WordQueryManager_7ree", "DEBUG: 查询结果长度: ${queryResult.length}")
+                        // Log.d("WordQueryManager_7ree", "DEBUG: 查询结果前200字符: ${queryResult.take(200)}")
                         wordRepository_7ree.saveWord_7ree(wordInput, queryResult)
                         
                         // 更新当前单词信息
