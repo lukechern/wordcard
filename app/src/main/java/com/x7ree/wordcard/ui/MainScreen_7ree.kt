@@ -11,18 +11,6 @@ import androidx.compose.runtime.Composable
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.data.WordEntity_7ree
 
-/**
-语言包定义
-
-    'pl_search_word_7r' => '查单词',
-    'pl_history_7r' => '历史',
-    'pl_settings_7r' => '配置',
-    'pl_config_saved_7r' => '配置保存成功',
-    'pl_config_save_failed_7r' => '配置保存失败',
-    'pl_history_placeholder_7r' => '历史功能开发中...',
-    'pl_settings_placeholder_7r' => '配置功能开发中...',
-**/
-
 // 重新导出类型别名，保持向后兼容性
 typealias Screen_7ree = ScreenImpl
 
