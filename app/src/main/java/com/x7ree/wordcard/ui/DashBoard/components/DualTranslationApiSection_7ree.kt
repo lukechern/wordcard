@@ -80,7 +80,7 @@ fun DualTranslationApiSection_7ree(
                     }
                 )
                     Text(
-                        text = "翻译API(一)",
+                        text = if (apiConfig.translationApi1.apiName.isNotBlank()) apiConfig.translationApi1.apiName else "翻译API(一)",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 4.dp)
                     )
@@ -100,7 +100,7 @@ fun DualTranslationApiSection_7ree(
                     }
                 )
                     Text(
-                        text = "翻译API(二)",
+                        text = if (apiConfig.translationApi2.apiName.isNotBlank()) apiConfig.translationApi2.apiName else "翻译API(二)",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(start = 4.dp)
                     )
@@ -212,7 +212,7 @@ private fun TranslationApiConfigSection_7ree(
                 )
             ),
             onResult = onTestResult,
-            buttonText = "测试翻译API$apiLabel"
+            buttonText = if (apiName.isNotBlank()) "测试${apiName}" else "测试翻译API$apiLabel"
         )
     }
 }
