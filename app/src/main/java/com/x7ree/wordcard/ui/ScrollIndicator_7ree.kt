@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 fun ScrollIndicator_7ree(
     scrollState: ScrollState,
     modifier: Modifier = Modifier,
-    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f), // 滑轨颜色更淡
-    thumbColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f) // 滑动条颜色更淡
+    trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.11f),
+    thumbColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
 ) {
     // 计算滚动进度
     val scrollProgress = if (scrollState.maxValue > 0) {
@@ -48,14 +48,14 @@ fun ScrollIndicator_7ree(
     if (scrollState.maxValue > 0) {
         Box(
             modifier = modifier
-                .width(4.6.dp) // 原来4dp，增加15%变为4.6dp
+                .width(12.dp)
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(2.3.dp))
+                .clip(RoundedCornerShape(3.dp))
                 .background(trackColor)
         ) {
             Canvas(
                 modifier = Modifier
-                    .width(4.6.dp)
+                    .width(12.dp)
                     .fillMaxHeight()
             ) {
                 val canvasHeight = size.height
@@ -76,7 +76,7 @@ fun ScrollIndicator_7ree(
                     color = thumbColor,
                     topLeft = Offset(0f, thumbTop),
                     size = Size(canvasWidth, thumbHeight),
-                    cornerRadius = CornerRadius(2.3.dp.toPx())
+                    cornerRadius = CornerRadius(3.dp.toPx())
                 )
             }
         }

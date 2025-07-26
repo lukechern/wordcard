@@ -6,7 +6,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +33,8 @@ import androidx.compose.ui.unit.dp
 fun ScrollIndicator_7ree(
     scrollState: androidx.compose.foundation.ScrollState,
     modifier: Modifier = Modifier,
-    trackColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f), // 滑轨颜色更淡
-    thumbColor: Color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.05f) // 滑动条颜色更淡
+    trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.11f),
+    thumbColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
 ) {
     // 计算滚动进度
     val scrollProgress = if (scrollState.maxValue > 0) {
@@ -48,14 +54,14 @@ fun ScrollIndicator_7ree(
     if (scrollState.maxValue > 0) {
         Box(
             modifier = modifier
-                .width(4.6.dp) // 原来4dp，增加15%变为4.6dp
+                .width(10.dp)
                 .fillMaxHeight()
-                .clip(RoundedCornerShape(2.3.dp))
+                .clip(RoundedCornerShape(3.dp))
                 .background(trackColor)
         ) {
             Canvas(
                 modifier = Modifier
-                    .width(4.6.dp)
+                    .width(10.dp)
                     .fillMaxHeight()
             ) {
                 val canvasHeight = size.height
@@ -76,7 +82,7 @@ fun ScrollIndicator_7ree(
                     color = thumbColor,
                     topLeft = Offset(0f, thumbTop),
                     size = Size(canvasWidth, thumbHeight),
-                    cornerRadius = CornerRadius(2.3.dp.toPx())
+                    cornerRadius = CornerRadius(3.dp.toPx())
                 )
             }
         }
