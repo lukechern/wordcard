@@ -6,12 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.components.FilterState_7ree
 
 @Composable
 fun FilterMenuManager_7ree(
-    wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     showFavoritesOnly_7ree: Boolean,
     isFilterMenuVisible: Boolean,
     onFilterMenuVisibilityChange: (Boolean) -> Unit,

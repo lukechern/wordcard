@@ -1,0 +1,174 @@
+package com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent
+
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.x7ree.wordcard.data.WordEntity_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.MonthlyData_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.generateMonthlyChartData_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.drawAxes_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.drawGrid_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.drawBars_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.drawLegend_7ree
+
+@Composable
+fun MonthlyChartCanvas_7ree(
+    words_7ree: List<WordEntity_7ree>,
+    modifier: Modifier = Modifier
+) {
+    val chartData_7ree = remember(words_7ree) {
+        // 使用真实数据生成图表
+        generateMonthlyChartData_7ree(words_7ree)
+    }
+    
+    // 动画进度状态
+    var animationProgress by remember { mutableStateOf(0f) }
+    
+    // 图例点击状态管理
+    var selectedLegend by remember { mutableStateOf<String?>(null) }
+    
+    // 启动动画
+    LaunchedEffect(chartData_7ree) {
+        animationProgress = 0f
+        animate(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = tween(durationMillis = 1000, easing = EaseOutCubic)
+        ) { value, _ ->
+            animationProgress = value
+        }
+    }
+    
+    if (chartData_7ree.isNotEmpty()) {
+        // 检查是否有实际数据（不是全为0）
+        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 }
+        
+        if (hasRealData) {
+            Canvas(
+                modifier = modifier.pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // 检测图例点击
+                        val legendY = size.height - 60f + 40f
+                        val legendClickRadius = 30f
+                        
+                        when {
+                            // 检测单词图例点击
+                            offset.x >= (60f + 20f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 120f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "word") null else "word"
+                            }
+                            // 检测查阅图例点击
+                            offset.x >= (60f + 20f + 220f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 220f + 150f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "view") null else "view"
+                            }
+                            // 检测拼写练习图例点击
+                            offset.x >= (60f + 20f + 500f - legendClickRadius) && 
+                            offset.x <= (60f + 20f + 500f + 120f + legendClickRadius) &&
+                            offset.y >= (legendY - legendClickRadius) && 
+                            offset.y <= (legendY + legendClickRadius) -> {
+                                selectedLegend = if (selectedLegend == "spelling") null else "spelling"
+                            }
+                        }
+                    }
+                }
+            ) {
+                val width = size.width
+                val height = size.height
+                val padding = 60f // 增加padding以容纳坐标轴标签
+                
+                val chartWidth = width - 2 * padding
+                val chartHeight = height - 2 * padding - 80f // 为图例预留80f空间
+                
+                // 计算数据范围
+                val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
+                val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
+                val maxSpellingCount = chartData_7ree.maxOfOrNull { it.spellingCount } ?: 0
+                val maxValue = maxOf(maxWordCount, maxViewCount, maxSpellingCount, 1)
+                
+                // 绘制坐标轴
+                drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)
+                
+                // 绘制背景网格
+                drawGrid_7ree(width, height, padding, chartData_7ree.size)
+                
+                // 绘制柱状图（根据选中状态）
+                drawBars_7ree(
+                    chartData_7ree,
+                    maxValue,
+                    chartWidth,
+                    chartHeight,
+                    padding,
+                    height,
+                    animationProgress,
+                    selectedLegend
+                )
+                
+                // 绘制图例（传递选中状态）
+                drawLegend_7ree(height, padding, selectedLegend)
+            }
+        } else {
+            // 如果没有数据，显示占位符
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFF191970).copy(alpha = 0.1f),
+                                Color(0xFFD2691E).copy(alpha = 0.1f)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "📊 暂无学习数据\n请添加单词开始学习",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    } else {
+        // 如果没有数据，显示占位符
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            Color(0xFF191970).copy(alpha = 0.1f),
+                            Color(0xFFD2691E).copy(alpha = 0.1f)
+                        )
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "📊 暂无学习数据\n请添加单词开始学习",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}

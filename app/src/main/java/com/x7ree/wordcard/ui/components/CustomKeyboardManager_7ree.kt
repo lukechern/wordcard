@@ -15,7 +15,6 @@ fun CustomKeyboardManager_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
     isSearchMode_7ree: Boolean,
     showCustomKeyboard_7ree: Boolean,
-    searchQuery_7ree: String,
     onShowCustomKeyboardChange: (Boolean) -> Unit,
     onUseCustomKeyboardChange: (Boolean) -> Unit,
     onCustomKeyboardStateChange: (com.x7ree.wordcard.utils.CustomKeyboard.CustomKeyboardState_7ree) -> Unit

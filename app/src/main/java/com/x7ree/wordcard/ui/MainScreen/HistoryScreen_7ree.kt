@@ -73,7 +73,6 @@ fun HistoryScreen_7ree(
     
     // 使用筛选菜单管理器
     FilterMenuManager_7ree(
-        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
         showFavoritesOnly_7ree = showFavoritesOnly_7ree,
         isFilterMenuVisible = isFilterMenuVisible,
         onFilterMenuVisibilityChange = { isVisible -> isFilterMenuVisible = isVisible },
@@ -122,7 +121,6 @@ fun HistoryScreen_7ree(
         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
         isSearchMode_7ree = isSearchMode_7ree,
         showCustomKeyboard_7ree = showCustomKeyboard_7ree,
-        searchQuery_7ree = searchQuery_7ree,
         onShowCustomKeyboardChange = { shouldShow -> showCustomKeyboard_7ree = shouldShow },
         onUseCustomKeyboardChange = { shouldUse -> useCustomKeyboard = shouldUse },
         onCustomKeyboardStateChange = { newState -> customKeyboardState_7ree = newState }

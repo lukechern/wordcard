@@ -35,22 +35,21 @@ fun CustomScrollbar_7ree(
     if (listState.layoutInfo.totalItemsCount > 0 && 
         listState.layoutInfo.visibleItemsInfo.isNotEmpty()) {
         
-        val firstVisibleItem = listState.layoutInfo.visibleItemsInfo.firstOrNull()
-        val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
-        
-        if (firstVisibleItem != null && lastVisibleItem != null) {
-            // 计算可见区域的相关参数
-            val totalItems = listState.layoutInfo.totalItemsCount
-            val visibleItems = listState.layoutInfo.visibleItemsInfo.size
-            val firstVisibleIndex = firstVisibleItem.index
-            val lastVisibleIndex = lastVisibleItem.index
+            val firstVisibleItem = listState.layoutInfo.visibleItemsInfo.firstOrNull()
+            val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
             
-            // 计算滚动进度和拇指大小
-            val scrollProgress = if (totalItems > visibleItems) {
-                firstVisibleIndex.toFloat() / (totalItems - visibleItems).toFloat()
-            } else 0f
-            
-            val thumbSizeRatio = (visibleItems.toFloat() / totalItems.toFloat()).coerceIn(0.1f, 1f)
+            if (firstVisibleItem != null && lastVisibleItem != null) {
+                // 计算可见区域的相关参数
+                val totalItems = listState.layoutInfo.totalItemsCount
+                val visibleItems = listState.layoutInfo.visibleItemsInfo.size
+                val firstVisibleIndex = firstVisibleItem.index
+                
+                // 计算滚动进度和拇指大小
+                val scrollProgress = if (totalItems > visibleItems) {
+                    firstVisibleIndex.toFloat() / (totalItems - visibleItems).toFloat()
+                } else 0f
+                
+                val thumbSizeRatio = (visibleItems.toFloat() / totalItems.toFloat()).coerceIn(0.1f, 1f)
             
             // 只有在需要滚动时才显示滚动条
             if (thumbSizeRatio < 1f) {
