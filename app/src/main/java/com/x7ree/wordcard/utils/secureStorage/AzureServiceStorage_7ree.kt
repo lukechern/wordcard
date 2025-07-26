@@ -62,6 +62,7 @@ class AzureServiceStorage_7ree(
                 ""
             }
         } catch (e: Exception) {
+            android.util.Log.e("AzureServiceStorage_7ree", "解密Azure API密钥失败: ${e.message}", e)
             ""
         }
     }
@@ -120,6 +121,7 @@ class AzureServiceStorage_7ree(
                 ""
             }
         } catch (e: Exception) {
+            android.util.Log.e("AzureServiceStorage_7ree", "解密Azure语音API密钥失败: ${e.message}", e)
             ""
         }
     }

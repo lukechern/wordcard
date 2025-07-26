@@ -131,7 +131,10 @@ class TranslationApiStorage_7ree(
                 if (encryptedKey != null && iv != null) {
                     cryptoManager.decryptString(encryptedKey, iv)
                 } else ""
-            } catch (e: Exception) { "" }
+            } catch (e: Exception) { 
+                Log.e("TranslationApiStorage_7ree", "解密API1密钥失败: ${e.message}", e)
+                "" 
+            }
             
             val apiUrl = sharedPreferences.getString(TRANSLATION_API1_URL, null) 
                 ?: "https://api.openai.com/v1/chat/completions"
@@ -157,7 +160,10 @@ class TranslationApiStorage_7ree(
                 if (encryptedKey != null && iv != null) {
                     cryptoManager.decryptString(encryptedKey, iv)
                 } else ""
-            } catch (e: Exception) { "" }
+            } catch (e: Exception) { 
+                Log.e("TranslationApiStorage_7ree", "解密API2密钥失败: ${e.message}", e)
+                "" 
+            }
             
             val apiUrl = sharedPreferences.getString(TRANSLATION_API2_URL, null) 
                 ?: "https://api.openai.com/v1/chat/completions"
@@ -209,6 +215,7 @@ class TranslationApiStorage_7ree(
                 .apply()
             true
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "存储API密钥失败: ${e.message}", e)
             false
         }
     }
@@ -224,6 +231,7 @@ class TranslationApiStorage_7ree(
                 ""
             }
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "解密API密钥失败: ${e.message}", e)
             ""
         }
     }
@@ -240,6 +248,7 @@ class TranslationApiStorage_7ree(
                 .apply()
             true
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "存储API URL失败: ${e.message}", e)
             false
         }
     }
@@ -249,6 +258,7 @@ class TranslationApiStorage_7ree(
             sharedPreferences.getString(API_URL, null) 
                 ?: "https://api.openai.com/v1/chat/completions"
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "读取API URL失败: ${e.message}", e)
             "https://api.openai.com/v1/chat/completions"
         }
     }
@@ -265,6 +275,7 @@ class TranslationApiStorage_7ree(
                 .apply()
             true
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "存储模型名称失败: ${e.message}", e)
             false
         }
     }
@@ -274,6 +285,7 @@ class TranslationApiStorage_7ree(
             sharedPreferences.getString(MODEL_NAME, null) 
                 ?: "gpt-3.5-turbo"
         } catch (e: Exception) {
+            android.util.Log.e("TranslationApiStorage_7ree", "读取模型名称失败: ${e.message}", e)
             "gpt-3.5-turbo"
         }
     }

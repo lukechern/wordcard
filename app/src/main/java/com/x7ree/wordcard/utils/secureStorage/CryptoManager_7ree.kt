@@ -72,19 +72,25 @@ class CryptoManager_7ree {
      * 解密字符串
      */
     fun decryptString(encryptedText: String, ivString: String): String {
-        val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
-        keyStore.load(null)
-        
-        val secretKey = keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
-        val cipher = Cipher.getInstance(TRANSFORMATION)
-        
-        val iv = Base64.decode(ivString, Base64.DEFAULT)
-        val spec = GCMParameterSpec(128, iv)
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
-        
-        val encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT)
-        val decryptedBytes = cipher.doFinal(encryptedBytes)
-        
-        return String(decryptedBytes, Charsets.UTF_8)
+        return try {
+            val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
+            keyStore.load(null)
+            
+            val secretKey = keyStore.getKey(KEYSTORE_ALIAS, null) as SecretKey
+            val cipher = Cipher.getInstance(TRANSFORMATION)
+            
+            val iv = Base64.decode(ivString, Base64.DEFAULT)
+            val spec = GCMParameterSpec(128, iv)
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
+            
+            val encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT)
+            val decryptedBytes = cipher.doFinal(encryptedBytes)
+            
+            String(decryptedBytes, Charsets.UTF_8)
+        } catch (e: Exception) {
+            // 记录解密失败的详细信息
+            android.util.Log.e("CryptoManager_7ree", "解密失败: ${e.message}", e)
+            throw e // 重新抛出异常，让调用者处理
+        }
     }
 }

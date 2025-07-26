@@ -5,6 +5,7 @@ import com.x7ree.wordcard.utils.securestorage.CryptoManager_7ree
 import com.x7ree.wordcard.utils.securestorage.TranslationApiStorage_7ree
 import com.x7ree.wordcard.utils.securestorage.AzureServiceStorage_7ree
 import com.x7ree.wordcard.utils.securestorage.BatchOperationManager_7ree
+import com.x7ree.wordcard.utils.securestorage.StorageValidationManager_7ree
 
 /**
  * API Key 安全存储管理类（重构版本）
@@ -17,6 +18,7 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     private val translationApiStorage = TranslationApiStorage_7ree(context, cryptoManager)
     private val azureServiceStorage = AzureServiceStorage_7ree(context, cryptoManager)
     private val batchOperationManager = BatchOperationManager_7ree(context, translationApiStorage, azureServiceStorage)
+    private val storageValidationManager = StorageValidationManager_7ree(context, translationApiStorage, azureServiceStorage)
     
     init {
         cryptoManager.generateOrGetSecretKey()
@@ -107,4 +109,9 @@ class ApiKeySecureStorage_7ree(private val context: Context) {
     fun hasApiConfig_7ree(): Boolean = batchOperationManager.hasApiConfig()
     fun hasNewTranslationApiConfig_7ree(): Boolean = batchOperationManager.hasNewTranslationApiConfig()
     fun validateStorage_7ree(): Boolean = batchOperationManager.validateStorage()
+    
+    // 新的存储验证方法
+    fun validateStorageIntegrity_7ree() = storageValidationManager.validateStorageIntegrity()
+    fun needsStorageRecovery_7ree(): Boolean = storageValidationManager.needsStorageRecovery()
+    fun attemptStorageRecovery_7ree() = storageValidationManager.attemptStorageRecovery()
 }
