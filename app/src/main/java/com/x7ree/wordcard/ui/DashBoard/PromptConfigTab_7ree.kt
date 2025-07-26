@@ -65,9 +65,10 @@ fun PromptConfigTab_7ree(
                 label = { Text("查询提示词") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
                     .padding(bottom = 16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp)
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                minLines = 3,
+                maxLines = Int.MAX_VALUE
             )
             
             Text(
@@ -83,9 +84,10 @@ fun PromptConfigTab_7ree(
                 label = { Text("输出模板") },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
                     .padding(bottom = 16.dp),
-                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp)
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                minLines = 3,
+                maxLines = Int.MAX_VALUE
             )
         }
         
