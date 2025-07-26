@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/) 规范。
 
+## [5.2.0] - 2025-07-26
+
+### 技术改进 🔧
+- **MainActivity 重构**: 将庞大的 MainActivity 拆分为多个专门的管理类，提升代码可维护性
+  - 创建 `AppInitializer_7ree.kt` 处理应用初始化逻辑
+  - 创建 `TtsManager_7ree.kt` 管理文本到语音功能
+  - 创建 `IntentHandler_7ree.kt` 处理来自小组件和其他来源的 Intent
+  - 创建 `BackPressHandler_7ree.kt` 处理返回键的双击退出功能
+- **代码模块化**: 通过拆分 MainActivity，使代码结构更加清晰，便于后期维护和升级
+
 ## [5.1.0] - 2025-07-26
 
 ### 界面优化 🎨
