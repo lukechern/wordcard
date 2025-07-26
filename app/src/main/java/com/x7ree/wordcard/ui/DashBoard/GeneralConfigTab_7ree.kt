@@ -36,11 +36,15 @@ fun GeneralConfigTab_7ree(
     
     
     
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
+    val scrollState = rememberScrollState()
+    
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(end = 16.dp) // 为滚动条留出空间
+        ) {
         Text(
             text = "通用设置",
             style = MaterialTheme.typography.titleLarge,
@@ -250,6 +254,50 @@ fun GeneralConfigTab_7ree(
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
+            }
+        }
+        }
+        
+        // Android 兼容的滚动指示器
+        if (scrollState.maxValue > 0) {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .fillMaxHeight()
+                    .width(12.dp)
+                    .padding(end = 2.dp, top = 8.dp, bottom = 8.dp)
+                    .background(
+                        color = Color.Gray.copy(alpha = 0.11f),
+                        shape = RoundedCornerShape(3.dp)
+                    )
+            ) {
+                val trackHeight = maxHeight
+                
+                // 计算可见区域与总内容的比例
+                val viewportHeight = scrollState.viewportSize.toFloat()
+                val contentHeight = scrollState.maxValue.toFloat() + viewportHeight
+                val thumbHeightRatio = (viewportHeight / contentHeight).coerceIn(0.1f, 1f)
+                
+                // 计算滚动进度
+                val scrollProgress = if (scrollState.maxValue > 0) {
+                    scrollState.value.toFloat() / scrollState.maxValue.toFloat()
+                } else 0f
+                
+                // 计算拇指位置 - 基于实际轨道高度
+                val thumbHeight = trackHeight * thumbHeightRatio
+                val availableSpace = trackHeight - thumbHeight
+                val thumbOffset = availableSpace * scrollProgress
+                
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(thumbHeight)
+                        .offset(y = thumbOffset)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                            shape = RoundedCornerShape(3.dp)
+                        )
+                )
             }
         }
     }
