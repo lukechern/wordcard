@@ -52,6 +52,7 @@ fun HistoryWordItem_7ree(
     val chineseDefinition_7ree = wordEntity_7ree.chineseDefinition.trim()
 
     SwipeableRevealItem_7ree(
+        modifier = Modifier.padding(end = 10.dp),
         onDeleteClick = onDismiss_7ree,
         content = {
             Card(

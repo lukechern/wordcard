@@ -187,128 +187,138 @@ fun HistoryScreen_7ree(
     var showCustomKeyboard_7ree by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
-        // 主内容区域，右侧留出空间给滚动条
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 32.dp) // 右侧留更多空间给滚动条
+                .padding(16.dp)
         ) {
-        // 搜索栏组件，包含标题、搜索功能和汉堡菜单按钮
-        SearchBarComponent_7ree(
-            title = "单词本",
-            searchQuery = searchQuery_7ree,
-            isSearchMode = isSearchMode_7ree,
-            onSearchQueryChange = { query ->
-                wordQueryViewModel_7ree.updateSearchQuery_7ree(query)
-            },
-            onSearchModeToggle = { isSearchMode ->
-                wordQueryViewModel_7ree.setSearchMode_7ree(isSearchMode)
-                if (!isSearchMode && useCustomKeyboard) {
-                    showCustomKeyboard_7ree = false
-                    customKeyboardState_7ree.hide_7ree()
-                }
-                // 退出搜索模式时关闭筛选菜单
-                if (!isSearchMode) {
-                    isFilterMenuVisible = false
-                }
-            },
-            wordQueryViewModel = wordQueryViewModel_7ree,
-            onCustomKeyboardStateChange = { shouldShow ->
-                showCustomKeyboard_7ree = shouldShow
-                if (shouldShow) {
-                    // 确保键盘状态同步
-                    customKeyboardState_7ree.show_7ree()
-                }
-            },
-            // 使用汉堡菜单
-            showMenuButton = true,
-            isMenuOpen = isFilterMenuVisible,
-            onMenuToggle = {
-                isFilterMenuVisible = !isFilterMenuVisible
-            },
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        if (isInitialLoading_7ree) {
-            // 显示初始加载状态
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator()
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "单词本加载中...",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        } else if (filteredWords_7ree.isEmpty() && !hasMoreData_7ree) {
-            // 显示空状态
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = if (showFavoritesOnly_7ree) "暂无收藏的单词" else "单词本暂无记录",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        } else {
-            PaginatedWordList_7ree(
-                words = filteredWords_7ree,
-                isLoadingMore = isLoadingMore_7ree,
-                hasMoreData = hasMoreData_7ree,
-                onWordClick = onWordClick_7ree,
-                onWordDelete = { wordEntity_7ree ->
-                    // 立即添加到删除集合，从UI中移除
-                    deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word
-                    // 执行实际的删除操作
-                    wordQueryViewModel_7ree.deleteWord_7ree(wordEntity_7ree.word)
-                    // 重新加载数据以保持分页正确性
-                    wordQueryViewModel_7ree.resetPagination_7ree()
-                    wordQueryViewModel_7ree.loadInitialWords_7ree()
+            // 搜索栏组件，包含标题、搜索功能和汉堡菜单按钮
+            SearchBarComponent_7ree(
+                title = "单词本",
+                searchQuery = searchQuery_7ree,
+                isSearchMode = isSearchMode_7ree,
+                onSearchQueryChange = { query ->
+                    wordQueryViewModel_7ree.updateSearchQuery_7ree(query)
                 },
-                onLoadMore = {
-                    wordQueryViewModel_7ree.loadMoreWords_7ree()
-                },
-                onWordSpeak = { word ->
-                    // 防止重复点击
-                    if (currentSpeakingWord_7ree.isEmpty() || currentSpeakingWord_7ree != word) {
-                        currentSpeakingWord_7ree = word
-                        // 立即设置为加载状态
-                        ttsState_7ree = TtsButtonState_7ree.LOADING
-                        
-                        // 调用TTS播放
-                        wordQueryViewModel_7ree.speakWord_7ree(word)
+                onSearchModeToggle = { isSearchMode ->
+                    wordQueryViewModel_7ree.setSearchMode_7ree(isSearchMode)
+                    if (!isSearchMode && useCustomKeyboard) {
+                        showCustomKeyboard_7ree = false
+                        customKeyboardState_7ree.hide_7ree()
+                    }
+                    // 退出搜索模式时关闭筛选菜单
+                    if (!isSearchMode) {
+                        isFilterMenuVisible = false
                     }
                 },
-                onWordStopSpeak = {
-                    wordQueryViewModel_7ree.stopSpeaking_7ree()
-                    currentSpeakingWord_7ree = ""
-                    ttsState_7ree = TtsButtonState_7ree.IDLE
+                wordQueryViewModel = wordQueryViewModel_7ree,
+                onCustomKeyboardStateChange = { shouldShow ->
+                    showCustomKeyboard_7ree = shouldShow
+                    if (shouldShow) {
+                        // 确保键盘状态同步
+                        customKeyboardState_7ree.show_7ree()
+                    }
                 },
-                ttsState = ttsState_7ree,
-                currentSpeakingWord = currentSpeakingWord_7ree,
-                listState = listState,
-                isRefreshing = isRefreshing_7ree,
-                onRefresh = handleRefresh
+                // 使用汉堡菜单
+                showMenuButton = true,
+                isMenuOpen = isFilterMenuVisible,
+                onMenuToggle = {
+                    isFilterMenuVisible = !isFilterMenuVisible
+                },
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-        }
-        }
-        
-        // 自定义滚动条 - 位于右侧，与帮助页面样式一致
-        if (!isInitialLoading_7ree && filteredWords_7ree.isNotEmpty()) {
-            CustomScrollbar_7ree(
-                listState = listState,
+            
+            // 内容区域 - 包含滚动条
+            Box(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .fillMaxHeight()
-                    .padding(end = 2.dp, top = 8.dp, bottom = 8.dp)
-            )
+                    .fillMaxSize()
+            ) {
+                if (isInitialLoading_7ree) {
+                    // 显示初始加载状态
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator()
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "单词本加载中...",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else if (filteredWords_7ree.isEmpty() && !hasMoreData_7ree) {
+                    // 显示空状态
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (showFavoritesOnly_7ree) "暂无收藏的单词" else "单词本暂无记录",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    // 创建一个包含单词列表和滚动条的Box
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        PaginatedWordList_7ree(
+                            words = filteredWords_7ree,
+                            isLoadingMore = isLoadingMore_7ree,
+                            hasMoreData = hasMoreData_7ree,
+                            onWordClick = onWordClick_7ree,
+                            onWordDelete = { wordEntity_7ree ->
+                                // 立即添加到删除集合，从UI中移除
+                                deletedWords_7ree = deletedWords_7ree + wordEntity_7ree.word
+                                // 执行实际的删除操作
+                                wordQueryViewModel_7ree.deleteWord_7ree(wordEntity_7ree.word)
+                                // 重新加载数据以保持分页正确性
+                                wordQueryViewModel_7ree.resetPagination_7ree()
+                                wordQueryViewModel_7ree.loadInitialWords_7ree()
+                            },
+                            onLoadMore = {
+                                wordQueryViewModel_7ree.loadMoreWords_7ree()
+                            },
+                            onWordSpeak = { word ->
+                                // 防止重复点击
+                                if (currentSpeakingWord_7ree.isEmpty() || currentSpeakingWord_7ree != word) {
+                                    currentSpeakingWord_7ree = word
+                                    // 立即设置为加载状态
+                                    ttsState_7ree = TtsButtonState_7ree.LOADING
+                                    
+                                    // 调用TTS播放
+                                    wordQueryViewModel_7ree.speakWord_7ree(word)
+                                }
+                            },
+                            onWordStopSpeak = {
+                                wordQueryViewModel_7ree.stopSpeaking_7ree()
+                                currentSpeakingWord_7ree = ""
+                                ttsState_7ree = TtsButtonState_7ree.IDLE
+                            },
+                            ttsState = ttsState_7ree,
+                            currentSpeakingWord = currentSpeakingWord_7ree,
+                            listState = listState,
+                            isRefreshing = isRefreshing_7ree,
+                            onRefresh = handleRefresh
+                        )
+                        
+                        // 自定义滚动条 - 位于内容区域右侧，从标题栏下方开始
+                        if (!isInitialLoading_7ree && filteredWords_7ree.isNotEmpty()) {
+                            CustomScrollbar_7ree(
+                                listState = listState,
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .fillMaxHeight()
+                                    .padding(top = 0.dp, bottom = 8.dp)
+                                    .offset(x = 8.dp)
+                            )
+                        }
+                    }
+                }
+            }
+            
         }
         
         // 筛选侧边菜单
