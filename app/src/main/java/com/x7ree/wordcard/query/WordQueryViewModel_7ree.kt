@@ -23,6 +23,14 @@ import com.x7ree.wordcard.query.state.NavigationState_7ree
 import com.x7ree.wordcard.query.state.PaginationState_7ree
 import com.x7ree.wordcard.query.state.ScrollPosition_7ree
 import com.x7ree.wordcard.query.state.WordQueryState_7ree
+import com.x7ree.wordcard.query.input.InputHandler_7ree
+import com.x7ree.wordcard.query.navigation.NavigationHandler_7ree
+import com.x7ree.wordcard.query.tts.TtsHandler_7ree
+import com.x7ree.wordcard.query.favorite.FavoriteHandler_7ree
+import com.x7ree.wordcard.query.config.ConfigHandler_7ree
+import com.x7ree.wordcard.query.data.DataHandler_7ree
+import com.x7ree.wordcard.query.pagination.PaginationHandler_7ree
+import com.x7ree.wordcard.query.spelling.SpellingHandler_7ree
 import com.x7ree.wordcard.tts.TtsManager_7ree as CoreTtsManager
 import kotlinx.coroutines.flow.StateFlow
 
@@ -53,6 +61,16 @@ class WordQueryViewModel_7ree(
     private val configManagerService_7ree: ConfigManager_7ree
     private val dataManagerService_7ree: DataManager_7ree
     private val ttsManagerService_7ree: TtsManager_7ree
+    
+    // 功能处理模块
+    private val inputHandler_7ree: InputHandler_7ree
+    private val navigationHandler_7ree: NavigationHandler_7ree
+    private val ttsHandler_7ree: TtsHandler_7ree
+    private val favoriteHandler_7ree: FavoriteHandler_7ree
+    private val configHandler_7ree: ConfigHandler_7ree
+    private val dataHandler_7ree: DataHandler_7ree
+    private val paginationHandler_7ree: PaginationHandler_7ree
+    private val spellingHandler_7ree: SpellingHandler_7ree
     
     init {
         // 初始化业务管理器
@@ -97,6 +115,21 @@ class WordQueryViewModel_7ree(
         // 确保TTS管理器使用最新的配置
         coreTtsManager_7ree.updateGeneralConfig(configState_7ree.generalConfig_7ree.value)
         coreTtsManager_7ree.updateApiConfig(configState_7ree.apiConfig_7ree.value)
+        
+        // 初始化功能处理模块
+        inputHandler_7ree = InputHandler_7ree(wordQueryManager_7ree)
+        navigationHandler_7ree = NavigationHandler_7ree(
+            wordRepository_7ree,
+            wordQueryManager_7ree,
+            navigationState_7ree,
+            viewModelScope
+        )
+        ttsHandler_7ree = TtsHandler_7ree(wordQueryManager_7ree, ttsManagerService_7ree)
+        favoriteHandler_7ree = FavoriteHandler_7ree(dataManagerService_7ree, wordRepository_7ree, queryState_7ree)
+        configHandler_7ree = ConfigHandler_7ree(configManagerService_7ree)
+        dataHandler_7ree = DataHandler_7ree(dataManagerService_7ree, dataExportImportManager_7ree)
+        paginationHandler_7ree = PaginationHandler_7ree(dataManagerService_7ree, paginationState_7ree)
+        spellingHandler_7ree = SpellingHandler_7ree(dataManagerService_7ree, queryState_7ree)
         
         // 设置导出路径
         paginationState_7ree.updateExportPath_7ree(dataExportImportManager_7ree.getDefaultExportDirectory_7ree())
@@ -150,129 +183,107 @@ class WordQueryViewModel_7ree(
     
     // 单词输入和查询
     fun onWordInputChanged_7ree(newInput: String) {
-        queryState_7ree.updateWordInput_7ree(newInput)
+        inputHandler_7ree.onWordInputChanged_7ree(newInput) { updatedInput ->
+            queryState_7ree.updateWordInput_7ree(updatedInput)
+        }
     }
     
     fun queryWord_7ree() {
-        wordQueryManager_7ree.queryWord_7ree()
+        inputHandler_7ree.queryWord_7ree()
     }
     
     // 单词导航
     fun ensureWordsLoaded_7ree() {
-        loadAllWords_7ree()
-    }
-    
-    private fun loadAllWords_7ree() {
-        if (navigationState_7ree.allWords_7ree.value.isNotEmpty()) {
-            return
-        }
-        
-        // println("DEBUG: 开始加载所有单词列表")
-        
-        viewModelScope.launch {
-            try {
-                wordRepository_7ree.getAllWords_7ree().collect { words ->
-                    navigationState_7ree.updateAllWords_7ree(words)
-                    // println("DEBUG: 加载所有单词列表完成，共${words.size}个单词")
-                }
-            } catch (e: Exception) {
-                // println("DEBUG: 加载单词列表失败: ${e.message}")
-            }
-        }
+        navigationHandler_7ree.ensureWordsLoaded_7ree()
     }
     
     fun navigateToPreviousWord_7ree() {
-        // println("DEBUG: navigateToPreviousWord_7ree - 开始切换到上一个单词")
-        
-        // 确保单词列表已加载
-        ensureWordsLoaded_7ree()
-        
-        val previousWord = navigationState_7ree.getPreviousWord_7ree(wordInput_7ree)
-        if (previousWord != null) {
-            // println("DEBUG: 切换到上一个单词: ${previousWord.word}")
-            loadWordFromHistory_7ree(previousWord.word)
-        } else {
-            // println("DEBUG: 无法导航到上一个单词")
-        }
+        navigationHandler_7ree.navigateToPreviousWord_7ree(wordInput_7ree)
     }
     
     fun navigateToNextWord_7ree() {
-        // println("DEBUG: navigateToNextWord_7ree - 开始切换到下一个单词")
-        
-        // 确保单词列表已加载
-        ensureWordsLoaded_7ree()
-        
-        val nextWord = navigationState_7ree.getNextWord_7ree(wordInput_7ree)
-        if (nextWord != null) {
-            // println("DEBUG: 切换到下一个单词: ${nextWord.word}")
-            loadWordFromHistory_7ree(nextWord.word)
-        } else {
-            // println("DEBUG: 无法导航到下一个单词")
-        }
+        navigationHandler_7ree.navigateToNextWord_7ree(wordInput_7ree)
     }
     
     fun canNavigate_7ree(): Boolean {
-        // 确保单词列表已加载
-        ensureWordsLoaded_7ree()
-        
-        val canNavigate = navigationState_7ree.canNavigate_7ree(wordInput_7ree)
-        // println("DEBUG: canNavigate_7ree - wordInput='${wordInput_7ree}', canNavigate=$canNavigate")
-        return canNavigate
+        return navigationHandler_7ree.canNavigate_7ree(wordInput_7ree)
+    }
+    
+    fun setCurrentScreen_7ree(screen: String) {
+        navigationHandler_7ree.setCurrentScreen_7ree(screen)
+    }
+    
+    fun returnToWordBook_7ree() {
+        navigationHandler_7ree.returnToWordBook_7ree()
     }
     
     // TTS相关
     fun setIsSpeaking_7ree(speaking: Boolean) {
-        queryState_7ree.updateSpeakingState_7ree(speaking)
+        ttsHandler_7ree.setIsSpeaking_7ree(speaking) { updatedState ->
+            queryState_7ree.updateSpeakingState_7ree(updatedState)
+        }
     }
     
     fun setIsSpeakingWord_7ree(speaking: Boolean) {
-        queryState_7ree.updateSpeakingWordState_7ree(speaking)
+        ttsHandler_7ree.setIsSpeakingWord_7ree(speaking) { updatedState ->
+            queryState_7ree.updateSpeakingWordState_7ree(updatedState)
+        }
     }
     
     fun setIsSpeakingExamples_7ree(speaking: Boolean) {
-        queryState_7ree.updateSpeakingExamplesState_7ree(speaking)
+        ttsHandler_7ree.setIsSpeakingExamples_7ree(speaking) { updatedState ->
+            queryState_7ree.updateSpeakingExamplesState_7ree(updatedState)
+        }
     }
     
     fun getWordSpeechText_7ree(): String {
-        return wordInput_7ree
+        return ttsHandler_7ree.getWordSpeechText_7ree(wordInput_7ree)
     }
     
     fun getExamplesSpeechText_7ree(): String {
-        return wordQueryManager_7ree.getExamplesSpeechText_7ree()
+        return ttsHandler_7ree.getExamplesSpeechText_7ree()
+    }
+    
+    fun speakWord_7ree(word: String) {
+        ttsHandler_7ree.speakWord_7ree(word)
+    }
+
+    fun speakExamples_7ree() {
+        ttsHandler_7ree.speakExamples_7ree()
+    }
+
+    fun stopSpeaking_7ree() {
+        ttsHandler_7ree.stopSpeaking_7ree()
+    }
+    
+    fun getTtsEngineStatus_7ree(): String {
+        return ttsHandler_7ree.getTtsEngineStatus_7ree()
     }
     
     // 收藏相关
     fun toggleFavorite_7ree() {
-        if (wordInput_7ree.isNotBlank()) {
-            dataManagerService_7ree.toggleFavorite_7ree(wordInput_7ree)
-        }
+        favoriteHandler_7ree.toggleFavorite_7ree(wordInput_7ree)
     }
     
     fun setFavorite_7ree(isFavorite: Boolean) {
-        if (wordInput_7ree.isNotBlank()) {
-            dataManagerService_7ree.setFavorite_7ree(wordInput_7ree, isFavorite)
-        }
+        favoriteHandler_7ree.setFavoriteForCurrentWord_7ree(wordInput_7ree, isFavorite)
     }
     
     fun setFavorite_7ree(word: String, isFavorite: Boolean) {
-        dataManagerService_7ree.setFavorite_7ree(word, isFavorite)
+        favoriteHandler_7ree.setFavoriteForWord_7ree(word, isFavorite)
     }
     
     // 单词管理
     fun deleteWord_7ree(word: String) {
-        dataManagerService_7ree.deleteWord_7ree(word)
+        favoriteHandler_7ree.deleteWord_7ree(word)
     }
     
-    fun getHistoryWords_7ree() = wordRepository_7ree.getAllWords_7ree()
+    fun getHistoryWords_7ree() = favoriteHandler_7ree.getHistoryWords_7ree()
     
     fun loadWordFromHistory_7ree(word: String) {
+        wordQueryManager_7ree.loadWordFromHistory_7ree(word)
         // 标记为从单词本进入
         navigationState_7ree.updateFromWordBook_7ree(true)
-        
-        // 保存当前单词本状态
-        savedWordBookFilterState_7ree = showFavoritesOnly_7ree.value
-        
-        wordQueryManager_7ree.loadWordFromHistory_7ree(word)
     }
     
     // 配置管理
@@ -285,24 +296,23 @@ class WordQueryViewModel_7ree(
         azureSpeechEndpoint: String = "",
         azureSpeechVoice: String = "en-US-JennyNeural"
     ) {
-        configManagerService_7ree.saveApiConfig_7ree(
+        configHandler_7ree.saveApiConfig_7ree(
             apiKey, apiUrl, modelName, azureSpeechRegion, azureSpeechApiKey, azureSpeechEndpoint, azureSpeechVoice
         )
     }
     
-    // 新增：保存翻译API配置的方法
     fun saveTranslationApiConfig_7ree(
         api1Name: String, api1Key: String, api1Url: String, api1Model: String, api1Enabled: Boolean,
         api2Name: String, api2Key: String, api2Url: String, api2Model: String, api2Enabled: Boolean
     ) {
-        configManagerService_7ree.saveTranslationApiConfig_7ree(
+        configHandler_7ree.saveTranslationApiConfig_7ree(
             api1Name, api1Key, api1Url, api1Model, api1Enabled,
             api2Name, api2Key, api2Url, api2Model, api2Enabled
         )
     }
     
     fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String) {
-        configManagerService_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate)
+        configHandler_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate)
     }
     
     fun saveGeneralConfig_7ree(
@@ -311,66 +321,45 @@ class WordQueryViewModel_7ree(
         autoReadOnSpellingCard: Boolean, 
         ttsEngine: String
     ) {
-        configManagerService_7ree.saveGeneralConfig_7ree(
+        configHandler_7ree.saveGeneralConfig_7ree(
             keyboardType, autoReadAfterQuery, autoReadOnSpellingCard, ttsEngine
         )
     }
     
-    // 新增：保存Azure Speech配置的方法
     fun saveAzureSpeechConfig_7ree(
         azureSpeechRegion: String,
         azureSpeechApiKey: String,
         azureSpeechEndpoint: String,
         azureSpeechVoice: String
     ) {
-        configManagerService_7ree.saveAzureSpeechConfig_7ree(
+        configHandler_7ree.saveAzureSpeechConfig_7ree(
             azureSpeechRegion, azureSpeechApiKey, azureSpeechEndpoint, azureSpeechVoice
         )
     }
     
-    // 新增：保存当前通用配置的方法（从UI状态）
     fun saveCurrentGeneralConfigFromUI_7ree() {
-        // 这个方法现在由UI组件直接调用保存方法替代
-        println("DEBUG: saveCurrentGeneralConfigFromUI_7ree被调用，但应该由UI组件直接调用保存方法")
+        configHandler_7ree.saveCurrentGeneralConfigFromUI_7ree()
     }
     
-    // 新增：保存当前API配置的方法（从UI状态）
     fun saveCurrentApiConfigFromUI_7ree() {
-        val currentConfig = apiConfig_7ree.value
-        configManagerService_7ree.saveTranslationApiConfig_7ree(
-            currentConfig.translationApi1.apiName,
-            currentConfig.translationApi1.apiKey,
-            currentConfig.translationApi1.apiUrl,
-            currentConfig.translationApi1.modelName,
-            currentConfig.translationApi1.isEnabled,
-            currentConfig.translationApi2.apiName,
-            currentConfig.translationApi2.apiKey,
-            currentConfig.translationApi2.apiUrl,
-            currentConfig.translationApi2.modelName,
-            currentConfig.translationApi2.isEnabled
-        )
+        configHandler_7ree.saveCurrentApiConfigFromUI_7ree(apiConfig_7ree.value)
     }
     
-    // 新增：保存当前提示词配置的方法（从UI状态）
     fun saveCurrentPromptConfigFromUI_7ree() {
-        val currentConfig = promptConfig_7ree.value
-        configManagerService_7ree.savePromptConfig_7ree(
-            currentConfig.queryPrompt_7ree,
-            currentConfig.outputTemplate_7ree
-        )
+        configHandler_7ree.saveCurrentPromptConfigFromUI_7ree(promptConfig_7ree.value)
     }
     
     // 数据导入导出
     fun exportHistoryData_7ree() {
-        dataManagerService_7ree.exportHistoryData_7ree()
+        dataHandler_7ree.exportHistoryData_7ree()
     }
     
     fun importHistoryData_7ree(uri: Uri) {
-        dataManagerService_7ree.importHistoryData_7ree(uri)
+        dataHandler_7ree.importHistoryData_7ree(uri)
     }
     
     fun getDataExportImportManager(): DataExportImportManager_7ree {
-        return dataExportImportManager_7ree
+        return dataHandler_7ree.getDataExportImportManager()
     }
     
     // 操作结果管理
@@ -384,23 +373,23 @@ class WordQueryViewModel_7ree(
     
     // 分页加载
     fun loadWordCount_7ree() {
-        dataManagerService_7ree.loadWordCount_7ree()
+        paginationHandler_7ree.loadWordCount_7ree()
     }
     
     fun loadTotalViews_7ree() {
-        dataManagerService_7ree.loadTotalViews_7ree()
+        paginationHandler_7ree.loadTotalViews_7ree()
     }
     
     fun loadInitialWords_7ree() {
-        dataManagerService_7ree.loadInitialWords_7ree()
+        paginationHandler_7ree.loadInitialWords_7ree()
     }
     
     fun loadMoreWords_7ree() {
-        dataManagerService_7ree.loadMoreWords_7ree()
+        paginationHandler_7ree.loadMoreWords_7ree()
     }
     
     fun resetPagination_7ree() {
-        paginationState_7ree.resetPagination_7ree()
+        paginationHandler_7ree.resetPagination_7ree()
     }
     
     // 状态重置
@@ -408,95 +397,44 @@ class WordQueryViewModel_7ree(
         queryState_7ree.resetQueryState_7ree()
     }
     
-    // 屏幕导航
-    fun setCurrentScreen_7ree(screen: String) {
-        navigationState_7ree.updateCurrentScreen_7ree(screen)
-    }
-    
-    fun returnToWordBook_7ree() {
-        navigationState_7ree.returnToWordBook_7ree()
-    }
-    
     // 收藏过滤
     fun toggleFavoriteFilter_7ree() {
-        paginationState_7ree.toggleFavoriteFilter_7ree()
-        resetPagination_7ree()
-        loadInitialWords_7ree()
-        // println("DEBUG: 切换单词过滤")
+        paginationHandler_7ree.toggleFavoriteFilter_7ree()
     }
     
     // 搜索功能
     fun updateSearchQuery_7ree(query: String) {
-        paginationState_7ree.updateSearchQuery_7ree(query)
-        dataManagerService_7ree.searchWords_7ree(query)
+        paginationHandler_7ree.updateSearchQuery_7ree(query)
     }
     
     fun toggleSearchMode_7ree() {
-        paginationState_7ree.toggleSearchMode_7ree()
-        if (!isSearchMode_7ree.value) {
-            // 退出搜索模式时清空搜索查询并重新加载初始数据
-            paginationState_7ree.updateSearchQuery_7ree("")
-            resetPagination_7ree()
-            loadInitialWords_7ree()
-        }
+        paginationHandler_7ree.toggleSearchMode_7ree()
     }
     
     fun setSearchMode_7ree(isSearchMode: Boolean) {
-        paginationState_7ree.updateSearchMode_7ree(isSearchMode)
-        if (!isSearchMode) {
-            // 退出搜索模式时清空搜索查询并重新加载初始数据
-            paginationState_7ree.updateSearchQuery_7ree("")
-            resetPagination_7ree()
-            loadInitialWords_7ree()
-        }
+        paginationHandler_7ree.setSearchMode_7ree(isSearchMode)
     }
     
     fun clearSearch_7ree() {
-        paginationState_7ree.clearSearch_7ree()
-        resetPagination_7ree()
-        loadInitialWords_7ree()
+        paginationHandler_7ree.clearSearch_7ree()
     }
     
     // 排序功能
     fun setSortType_7ree(sortType: String?) {
-        paginationState_7ree.updateSortType_7ree(sortType)
-        resetPagination_7ree()
-        loadInitialWords_7ree()
+        paginationHandler_7ree.setSortType_7ree(sortType)
     }
     
     fun clearSort_7ree() {
-        paginationState_7ree.clearSort_7ree()
-        resetPagination_7ree()
-        loadInitialWords_7ree()
+        paginationHandler_7ree.clearSort_7ree()
     }
     
     // 拼写练习
     fun onSpellingSuccess_7ree() {
-        if (wordInput_7ree.isNotBlank()) {
-            dataManagerService_7ree.onSpellingSuccess_7ree(wordInput_7ree)
-        }
+        spellingHandler_7ree.onSpellingSuccess_7ree(wordInput_7ree)
     }
     
     fun getCurrentSpellingCount_7ree(): Int {
-        return currentWordInfo_7ree?.spellingCount ?: 0
-    }
-    
-    // TTS相关
-    fun speakWord_7ree(word: String) {
-        ttsManagerService_7ree.speakWord_7ree(word)
-    }
-
-    fun speakExamples_7ree() {
-        val examplesText = getExamplesSpeechText_7ree()
-        ttsManagerService_7ree.speakExamples_7ree(examplesText)
-    }
-
-    fun stopSpeaking_7ree() {
-        ttsManagerService_7ree.stopSpeaking_7ree()
-    }
-    
-    fun getTtsEngineStatus_7ree(): String {
-        return ttsManagerService_7ree.getTtsEngineStatus_7ree()
+        return spellingHandler_7ree.getCurrentSpellingCount_7ree()
     }
     
     // 资源释放
