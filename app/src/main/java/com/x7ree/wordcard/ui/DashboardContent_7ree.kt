@@ -30,6 +30,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.data.WordEntity_7ree
 import com.x7ree.wordcard.utils.DataStatistics_7ree
 import com.x7ree.wordcard.utils.CacheManager_7ree
+import com.x7ree.wordcard.ui.DashBoard.components.DailyChartComponent.DailyChartComponent_7ree
 
 import kotlin.math.round
 
