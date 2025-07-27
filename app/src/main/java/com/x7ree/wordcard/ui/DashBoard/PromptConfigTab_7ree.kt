@@ -46,17 +46,10 @@ fun PromptConfigTab_7ree(
                 .padding(end = 16.dp) // 为滚动条留出空间
         ) {
             Text(
-                text = "查询提示词和输出模板配置",
+                text = "提示词和输出模板配置",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
-            )
-            
-            Text(
-                text = "查询提示词",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
             )
             
             OutlinedTextField(
@@ -71,17 +64,10 @@ fun PromptConfigTab_7ree(
                 maxLines = Int.MAX_VALUE
             )
             
-            Text(
-                text = "输出模板",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
             OutlinedTextField(
                 value = outputTemplate_7ree,
                 onValueChange = onOutputTemplateChange,
-                label = { Text("输出模板") },
+                label = { Text("翻译输出模板") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
