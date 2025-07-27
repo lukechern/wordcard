@@ -142,6 +142,9 @@ fun MainScreen_7ree(
                                     
                                     selectedArticle?.let { article ->
                                         if (showDetailScreen) {
+                                            val isReading by articleViewModel.isReading.collectAsState()
+                                            val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
+                                            
                                             // 显示文章详情页
                                             ArticleDetailScreen_7ree(
                                                 article = article,
@@ -152,8 +155,10 @@ fun MainScreen_7ree(
                                                     articleViewModel.toggleSelectedArticleFavorite()
                                                 },
                                                 onShareClick = {
-                                                    articleViewModel.shareArticle(article)
-                                                }
+                                                    articleViewModel.toggleReading()
+                                                },
+                                                isReading = isReading,
+                                                ttsButtonState = ttsButtonState
                                             )
                                         } else {
                                             // 显示文章列表页

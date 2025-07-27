@@ -9,7 +9,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +32,9 @@ fun ArticleDetailScreen_7ree(
     article: ArticleEntity_7ree,
     onBackClick: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
-    onShareClick: () -> Unit = {}
+    onShareClick: () -> Unit = {},
+    isReading: Boolean = false,
+    ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY
 ) {
     val scrollState = rememberScrollState()
     
@@ -64,12 +69,41 @@ fun ArticleDetailScreen_7ree(
                     )
                 }
                 
-                // 分享按钮
-                IconButton(onClick = onShareClick) {
-                    Icon(
-                        imageVector = Icons.Default.Share,
-                        contentDescription = "分享"
-                    )
+                // 朗读按钮
+                IconButton(
+                    onClick = onShareClick,
+                    enabled = ttsButtonState != com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING
+                ) {
+                    when (ttsButtonState) {
+                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.PLAYING -> {
+                            Icon(
+                                imageVector = Icons.Default.Stop,
+                                contentDescription = "停止朗读",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.ERROR -> {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = "重试朗读",
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY -> {
+                            Icon(
+                                imageVector = Icons.Default.VolumeUp,
+                                contentDescription = "朗读文章",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         )

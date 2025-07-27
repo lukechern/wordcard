@@ -23,6 +23,7 @@ class ArticleViewModel_7ree(
 ) : ViewModel() {
     
     private val appConfigManager_7ree = AppConfigManager_7ree(context)
+    private val articleTtsManager_7ree = ArticleTtsManager_7ree(context)
     
     // 文章列表状态
     private val _articles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
@@ -48,26 +49,44 @@ class ArticleViewModel_7ree(
     private val _showDetailScreen = MutableStateFlow(false)
     val showDetailScreen: StateFlow<Boolean> = _showDetailScreen.asStateFlow()
     
+    // 朗读状态
+    val isReading: StateFlow<Boolean> = articleTtsManager_7ree.isReading
+    val isTtsInitializing: StateFlow<Boolean> = articleTtsManager_7ree.isInitializing
+    val ttsErrorMessage: StateFlow<String?> = articleTtsManager_7ree.errorMessage
+    val ttsButtonState: StateFlow<ArticleTtsManager_7ree.TtsButtonState> = articleTtsManager_7ree.buttonState
+    val currentTtsEngine: StateFlow<String> = articleTtsManager_7ree.currentEngine
+    
     init {
-        loadArticles()
+        initializeArticleFlow()
     }
     
     /**
-     * 加载文章列表
+     * 初始化文章列表数据流
      */
-    fun loadArticles() {
+    private fun initializeArticleFlow() {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 articleRepository_7ree.getAllArticles_7ree().collect { articleList ->
+                    android.util.Log.d("ArticleViewModel", "文章列表更新，共 ${articleList.size} 篇文章")
                     _articles.value = articleList
+                    _isLoading.value = false
                 }
             } catch (e: Exception) {
+                android.util.Log.e("ArticleViewModel", "加载文章失败: ${e.message}", e)
                 _operationResult.value = "加载文章失败: ${e.message}"
-            } finally {
                 _isLoading.value = false
             }
         }
+    }
+    
+    /**
+     * 手动刷新文章列表（用于调试）
+     */
+    fun refreshArticles() {
+        android.util.Log.d("ArticleViewModel", "手动刷新文章列表")
+        // 由于我们使用Flow，数据库的任何更改都应该自动反映到UI
+        // 这个方法主要用于调试和强制刷新
     }
     
     /**
@@ -94,22 +113,23 @@ class ArticleViewModel_7ree(
                 }
                 
                 // 解析API结果
-                val parsedResult = parseArticleResult(apiResult)
+                val parser = ArticleMarkdownParser_7ree()
+                val parsedResult = parser.parseArticleMarkdown(apiResult)
                 
                 // 保存到数据库
                 val articleId = articleRepository_7ree.saveArticle_7ree(
                     keyWords = parsedResult.keywords, // 使用解析出的关键词
                     apiResult = apiResult,
-                    englishTitle = parsedResult.title,
-                    titleTranslation = parsedResult.titleTranslation,
-                    englishContent = parsedResult.content,
-                    chineseContent = parsedResult.translation
+                    englishTitle = parsedResult.englishTitle,
+                    titleTranslation = parsedResult.chineseTitle,
+                    englishContent = parsedResult.englishContent,
+                    chineseContent = parsedResult.chineseContent
                 )
                 
                 _operationResult.value = "文章生成成功！"
                 
-                // 重新加载文章列表
-                loadArticles()
+                // 文章生成成功，Flow会自动更新列表
+                android.util.Log.d("ArticleViewModel", "文章生成成功，等待Flow自动更新")
                 
             } catch (e: Exception) {
                 _operationResult.value = "文章生成失败: ${e.message}"
@@ -127,8 +147,8 @@ class ArticleViewModel_7ree(
             try {
                 articleRepository_7ree.toggleFavorite_7ree(articleId)
                 _operationResult.value = "收藏状态已更新"
-                // 重新加载文章列表以更新UI
-                loadArticles()
+                // Flow会自动更新文章列表
+                android.util.Log.d("ArticleViewModel", "收藏状态已更新，等待Flow自动更新")
             } catch (e: Exception) {
                 _operationResult.value = "更新收藏状态失败: ${e.message}"
             }
@@ -156,7 +176,8 @@ class ArticleViewModel_7ree(
             try {
                 articleRepository_7ree.deleteArticle_7ree(articleId)
                 _operationResult.value = "文章已删除"
-                loadArticles()
+                // Flow会自动更新文章列表
+                android.util.Log.d("ArticleViewModel", "文章已删除，等待Flow自动更新")
             } catch (e: Exception) {
                 _operationResult.value = "删除文章失败: ${e.message}"
             }
@@ -174,10 +195,96 @@ class ArticleViewModel_7ree(
      * 选择文章并显示详情页
      */
     fun selectArticle(article: ArticleEntity_7ree) {
-        _selectedArticle.value = article
-        _showDetailScreen.value = true
-        // 增加浏览次数
-        incrementViewCount(article.id)
+        viewModelScope.launch {
+            try {
+                // 检查文章内容是否包含 ### 符号，如果有说明解析失败
+                val needsReparse = article.englishContent.contains("###") || 
+                                 article.chineseContent.contains("###") ||
+                                 article.englishTitle == "Generated Article" ||
+                                 article.chineseContent == "翻译暂不可用"
+                
+                if (needsReparse && article.apiResult.isNotEmpty()) {
+                    android.util.Log.d("ArticleDetail", "检测到文章解析失败，开始重新解析...")
+                    android.util.Log.d("ArticleDetail", "原因: englishContent包含###=${article.englishContent.contains("###")}, chineseContent包含###=${article.chineseContent.contains("###")}, 默认标题=${article.englishTitle == "Generated Article"}, 默认翻译=${article.chineseContent == "翻译暂不可用"}")
+                    
+                    // 重新解析文章
+                    val parser = ArticleMarkdownParser_7ree()
+                    val parsedResult = parser.parseArticleMarkdown(article.apiResult)
+                    
+                    // 更新数据库
+                    val updatedArticle = article.copy(
+                        englishTitle = parsedResult.englishTitle,
+                        titleTranslation = parsedResult.chineseTitle,
+                        englishContent = parsedResult.englishContent,
+                        chineseContent = parsedResult.chineseContent,
+                        keyWords = parsedResult.keywords
+                    )
+                    
+                    // 保存更新后的文章到数据库
+                    android.util.Log.d("ArticleDetail", "准备更新数据库，文章ID: ${updatedArticle.id}")
+                    android.util.Log.d("ArticleDetail", "更新前英文标题: ${article.englishTitle}")
+                    android.util.Log.d("ArticleDetail", "更新后英文标题: ${updatedArticle.englishTitle}")
+                    android.util.Log.d("ArticleDetail", "更新前中文内容: ${article.chineseContent}")
+                    android.util.Log.d("ArticleDetail", "更新后中文内容: ${updatedArticle.chineseContent}")
+                    
+                    articleRepository_7ree.updateArticle_7ree(updatedArticle)
+                    android.util.Log.d("ArticleDetail", "数据库更新操作已执行")
+                    
+                    // 验证数据库更新是否成功
+                    val verifyArticle = articleRepository_7ree.getArticle_7ree(updatedArticle.id)
+                    if (verifyArticle != null) {
+                        android.util.Log.d("ArticleDetail", "数据库验证成功")
+                        android.util.Log.d("ArticleDetail", "验证后英文标题: ${verifyArticle.englishTitle}")
+                        android.util.Log.d("ArticleDetail", "验证后中文标题: ${verifyArticle.titleTranslation}")
+                        android.util.Log.d("ArticleDetail", "验证后中文内容: ${verifyArticle.chineseContent}")
+                        android.util.Log.d("ArticleDetail", "验证后关键词: ${verifyArticle.keyWords}")
+                        
+                        // 使用数据库中验证后的文章
+                        _selectedArticle.value = verifyArticle
+                        
+                        android.util.Log.d("ArticleDetail", "数据库更新完成，Flow应该会自动更新文章列表")
+                    } else {
+                        android.util.Log.e("ArticleDetail", "数据库验证失败，文章未找到")
+                        // 使用更新后的文章作为备选
+                        _selectedArticle.value = updatedArticle
+                    }
+                } else {
+                    // 文章解析正常，直接使用
+                    _selectedArticle.value = article
+                }
+                
+                _showDetailScreen.value = true
+                
+                // 输出文章详情日志
+                val currentArticle = _selectedArticle.value!!
+                android.util.Log.d("ArticleDetail", "=== 文章详情页打开 ===")
+                android.util.Log.d("ArticleDetail", "文章ID: ${currentArticle.id}")
+                android.util.Log.d("ArticleDetail", "生成时间戳: ${currentArticle.generationTimestamp}")
+                android.util.Log.d("ArticleDetail", "生成时间: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(currentArticle.generationTimestamp))}")
+                android.util.Log.d("ArticleDetail", "关键词: ${currentArticle.keyWords}")
+                android.util.Log.d("ArticleDetail", "浏览次数: ${currentArticle.viewCount}")
+                android.util.Log.d("ArticleDetail", "是否收藏: ${currentArticle.isFavorite}")
+                android.util.Log.d("ArticleDetail", "英文标题: ${currentArticle.englishTitle}")
+                android.util.Log.d("ArticleDetail", "标题翻译: ${currentArticle.titleTranslation}")
+                android.util.Log.d("ArticleDetail", "英文内容长度: ${currentArticle.englishContent.length} 字符")
+                android.util.Log.d("ArticleDetail", "英文内容: ${currentArticle.englishContent}")
+                android.util.Log.d("ArticleDetail", "中文内容长度: ${currentArticle.chineseContent.length} 字符")
+                android.util.Log.d("ArticleDetail", "中文内容: ${currentArticle.chineseContent}")
+                android.util.Log.d("ArticleDetail", "API原始结果长度: ${currentArticle.apiResult.length} 字符")
+                android.util.Log.d("ArticleDetail", "API原始结果: ${currentArticle.apiResult}")
+                android.util.Log.d("ArticleDetail", "=== 文章详情日志结束 ===")
+                
+                // 增加浏览次数
+                incrementViewCount(currentArticle.id)
+                
+            } catch (e: Exception) {
+                android.util.Log.e("ArticleDetail", "选择文章时发生错误: ${e.message}", e)
+                // 发生错误时仍然显示原文章
+                _selectedArticle.value = article
+                _showDetailScreen.value = true
+                incrementViewCount(article.id)
+            }
+        }
     }
     
     /**
@@ -200,11 +307,42 @@ class ArticleViewModel_7ree(
     }
     
     /**
-     * 分享文章
+     * 朗读文章
      */
-    fun shareArticle(article: ArticleEntity_7ree) {
-        // 暂时简化分享功能
-        _operationResult.value = "分享功能开发中..."
+    fun readArticle(article: ArticleEntity_7ree) {
+        android.util.Log.d("ArticleTts", "开始朗读文章: ${article.englishTitle}")
+        articleTtsManager_7ree.readArticle(
+            englishContent = article.englishContent,
+            englishTitle = article.englishTitle
+        )
+    }
+    
+    /**
+     * 停止朗读
+     */
+    fun stopReading() {
+        android.util.Log.d("ArticleTts", "停止朗读")
+        articleTtsManager_7ree.stopReading()
+    }
+    
+    /**
+     * 切换朗读状态（朗读/停止）
+     */
+    fun toggleReading() {
+        _selectedArticle.value?.let { article ->
+            android.util.Log.d("ArticleTts", "切换朗读状态，当前按钮状态: ${ttsButtonState.value}")
+            articleTtsManager_7ree.toggleReading(
+                englishContent = article.englishContent,
+                englishTitle = article.englishTitle
+            )
+        }
+    }
+    
+    /**
+     * 清除TTS错误信息
+     */
+    fun clearTtsError() {
+        articleTtsManager_7ree.clearError()
     }
     
     /**
@@ -222,104 +360,11 @@ class ArticleViewModel_7ree(
     }
     
     /**
-     * 解析文章生成结果
+     * 释放资源
      */
-    private fun parseArticleResult(apiResult: String): ArticleParseResult {
-        return try {
-            val lines = apiResult.split("\n")
-            var englishTitle = ""
-            var chineseTitle = ""
-            var content = ""
-            var keywords = ""
-            var translation = ""
-            
-            var currentSection = ""
-            val contentBuilder = StringBuilder()
-            val translationBuilder = StringBuilder()
-            
-            for (line in lines) {
-                when {
-                    line.startsWith("# 文章标题") || line.startsWith("# English Title") -> {
-                        currentSection = "title"
-                    }
-                    line.startsWith("# 标题翻译") || line.startsWith("# Chinese Title") -> {
-                        currentSection = "chineseTitle"
-                    }
-                    line.startsWith("# 文章内容") || line.startsWith("# Article Content") -> {
-                        currentSection = "content"
-                    }
-                    line.startsWith("# 重点单词") || line.startsWith("# Keywords") -> {
-                        currentSection = "keywords"
-                    }
-                    line.startsWith("# 文章翻译") || line.startsWith("# Chinese Translation") -> {
-                        currentSection = "translation"
-                    }
-                    line.isNotBlank() && !line.startsWith("#") -> {
-                        when (currentSection) {
-                            "title" -> englishTitle = line.trim()
-                            "chineseTitle" -> chineseTitle = line.trim()
-                            "content" -> contentBuilder.appendLine(line)
-                            "keywords" -> keywords = line.trim()
-                            "translation" -> translationBuilder.appendLine(line)
-                        }
-                    }
-                }
-            }
-            
-            content = contentBuilder.toString().trim()
-            translation = translationBuilder.toString().trim()
-            
-            // 如果解析失败，使用默认值
-            if (englishTitle.isEmpty()) englishTitle = "Generated Article"
-            if (chineseTitle.isEmpty()) chineseTitle = generateChineseTitle(englishTitle)
-            if (content.isEmpty()) content = apiResult
-            if (translation.isEmpty()) translation = "翻译暂不可用"
-            if (keywords.isEmpty()) keywords = "无关键词"
-            
-            ArticleParseResult(
-                title = englishTitle,
-                titleTranslation = chineseTitle,
-                content = content,
-                translation = translation,
-                keywords = keywords
-            )
-        } catch (e: Exception) {
-            // 解析失败时返回默认结果
-            ArticleParseResult(
-                title = "Generated Article",
-                titleTranslation = "生成的文章",
-                content = apiResult,
-                translation = "翻译暂不可用",
-                keywords = "解析失败"
-            )
-        }
+    override fun onCleared() {
+        super.onCleared()
+        android.util.Log.d("ArticleViewModel", "释放ViewModel资源")
+        articleTtsManager_7ree.release()
     }
-    
-    /**
-     * 生成简单的中文标题
-     */
-    private fun generateChineseTitle(englishTitle: String): String {
-        return when {
-            englishTitle.contains("story", ignoreCase = true) -> "故事"
-            englishTitle.contains("adventure", ignoreCase = true) -> "冒险"
-            englishTitle.contains("journey", ignoreCase = true) -> "旅程"
-            englishTitle.contains("life", ignoreCase = true) -> "生活"
-            englishTitle.contains("nature", ignoreCase = true) -> "自然"
-            englishTitle.contains("technology", ignoreCase = true) -> "科技"
-            englishTitle.contains("education", ignoreCase = true) -> "教育"
-            englishTitle.contains("health", ignoreCase = true) -> "健康"
-            else -> "英语文章"
-        }
-    }
-    
-    /**
-     * 文章解析结果数据类
-     */
-    private data class ArticleParseResult(
-        val title: String,
-        val titleTranslation: String,
-        val content: String,
-        val translation: String,
-        val keywords: String
-    )
 }
