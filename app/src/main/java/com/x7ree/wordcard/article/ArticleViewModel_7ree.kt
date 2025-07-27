@@ -7,12 +7,22 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import com.x7ree.wordcard.api.OpenAiApiService_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.config.PromptConfig_7ree
 import com.x7ree.wordcard.data.ArticleEntity_7ree
 import com.x7ree.wordcard.data.ArticleRepository_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
+import com.x7ree.wordcard.article.utils.ArticleGenerationHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleDataHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleTtsHelper_7ree
+import com.x7ree.wordcard.article.utils.SmartWordSelectionHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleFavoriteHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleDetailHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleListHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleDeleteHelper_7ree
+import com.x7ree.wordcard.article.utils.ArticleGenerationHelper2_7ree
 
 /**
  * 文章功能的ViewModel
@@ -25,7 +35,15 @@ class ArticleViewModel_7ree(
 ) : ViewModel() {
     
     private val appConfigManager_7ree = AppConfigManager_7ree(context)
-    private val articleTtsManager_7ree = ArticleTtsManager_7ree(context)
+    private val articleGenerationHelper_7ree = ArticleGenerationHelper_7ree(wordRepository_7ree, articleRepository_7ree, apiService_7ree)
+    private val articleDataHelper_7ree = ArticleDataHelper_7ree(wordRepository_7ree)
+    private val articleTtsHelper_7ree = ArticleTtsHelper_7ree(context)
+    private val smartWordSelectionHelper_7ree = SmartWordSelectionHelper_7ree(wordRepository_7ree)
+    private val articleFavoriteHelper_7ree = ArticleFavoriteHelper_7ree(articleRepository_7ree)
+    private val articleDetailHelper_7ree = ArticleDetailHelper_7ree(articleRepository_7ree, wordRepository_7ree)
+    private val articleListHelper_7ree = ArticleListHelper_7ree(articleRepository_7ree)
+    private val articleDeleteHelper_7ree = ArticleDeleteHelper_7ree(articleRepository_7ree)
+    private val articleGenerationHelper2_7ree = ArticleGenerationHelper2_7ree(apiService_7ree, appConfigManager_7ree, articleRepository_7ree, articleGenerationHelper_7ree)
     
     // 文章列表状态
     private val _articles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
@@ -52,15 +70,31 @@ class ArticleViewModel_7ree(
     val showDetailScreen: StateFlow<Boolean> = _showDetailScreen.asStateFlow()
     
     // 朗读状态
-    val isReading: StateFlow<Boolean> = articleTtsManager_7ree.isReading
-    val isTtsInitializing: StateFlow<Boolean> = articleTtsManager_7ree.isInitializing
-    val ttsErrorMessage: StateFlow<String?> = articleTtsManager_7ree.errorMessage
-    val ttsButtonState: StateFlow<ArticleTtsManager_7ree.TtsButtonState> = articleTtsManager_7ree.buttonState
-    val currentTtsEngine: StateFlow<String> = articleTtsManager_7ree.currentEngine
+    val isReading: StateFlow<Boolean> = articleTtsHelper_7ree.isReading
+    val isTtsInitializing: StateFlow<Boolean> = articleTtsHelper_7ree.isInitializing
+    val ttsErrorMessage: StateFlow<String?> = articleTtsHelper_7ree.errorMessage
+    val ttsButtonState: StateFlow<ArticleTtsManager_7ree.TtsButtonState> = articleTtsHelper_7ree.buttonState
+    val currentTtsEngine: StateFlow<String> = articleTtsHelper_7ree.currentEngine
     
     // 关键词统计
     private val _keywordStats = MutableStateFlow<Map<String, Int>>(emptyMap())
     val keywordStats: StateFlow<Map<String, Int>> = _keywordStats.asStateFlow()
+    
+    // 智能生成文章状态
+    private val _smartGenerationStatus = MutableStateFlow<String>("")
+    val smartGenerationStatus: StateFlow<String> = _smartGenerationStatus.asStateFlow()
+    
+    // 智能生成文章关键词
+    private val _smartGenerationKeywords = MutableStateFlow<List<String>>(emptyList())
+    val smartGenerationKeywords: StateFlow<List<String>> = _smartGenerationKeywords.asStateFlow()
+    
+    // 是否显示智能生成文章卡片
+    private val _showSmartGenerationCard = MutableStateFlow(false)
+    val showSmartGenerationCard: StateFlow<Boolean> = _showSmartGenerationCard.asStateFlow()
+    
+    // 智能生成类型
+    private var currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
+    fun getCurrentSmartGenerationType(): com.x7ree.wordcard.ui.SmartGenerationType_7ree? = currentSmartGenerationType
     
     init {
         initializeArticleFlow()
@@ -70,27 +104,18 @@ class ArticleViewModel_7ree(
      * 初始化文章列表数据流
      */
     private fun initializeArticleFlow() {
-        viewModelScope.launch {
-            try {
-                _isLoading.value = true
-                articleRepository_7ree.getAllArticles_7ree().collect { articleList ->
-                    android.util.Log.d("ArticleViewModel", "文章列表更新，共 ${articleList.size} 篇文章")
-                    _articles.value = articleList
-                    _isLoading.value = false
-                }
-            } catch (e: Exception) {
-                android.util.Log.e("ArticleViewModel", "加载文章失败: ${e.message}", e)
-                _operationResult.value = "加载文章失败: ${e.message}"
-                _isLoading.value = false
-            }
-        }
+        articleListHelper_7ree.initializeArticleFlow(
+            viewModelScope,
+            { loading -> _isLoading.value = loading },
+            { articles -> _articles.value = articles },
+            { error -> _operationResult.value = error }
+        )
     }
     
     /**
      * 手动刷新文章列表（用于调试）
      */
     fun refreshArticles() {
-        android.util.Log.d("ArticleViewModel", "手动刷新文章列表")
         // 由于我们使用Flow，数据库的任何更改都应该自动反映到UI
         // 这个方法主要用于调试和强制刷新
     }
@@ -99,65 +124,37 @@ class ArticleViewModel_7ree(
      * 生成新文章
      */
     fun generateArticle(keyWords: String) {
-        viewModelScope.launch {
-            try {
-                _isGenerating.value = true
-                _operationResult.value = "正在生成文章..."
-                
-                // 获取提示词配置
-                val promptConfig = appConfigManager_7ree.loadPromptConfig_7ree()
-                
-                // 构建生成文章的提示词
-                val prompt = buildArticlePrompt(keyWords, promptConfig)
-                
-                // 调用API生成文章
-                val apiResultWrapper = apiService_7ree.queryWord_7ree(prompt)
-                
-                // 检查API调用结果
-                val apiResult = apiResultWrapper.getOrElse { error ->
-                    throw Exception("API调用失败: ${error.message}")
+        articleGenerationHelper2_7ree.generateArticle(
+            keyWords,
+            viewModelScope,
+            { generating -> _isGenerating.value = generating },
+            { result -> 
+                _operationResult.value = result
+                // 如果是智能生成文章，更新智能生成文章卡片的状态
+                if (_showSmartGenerationCard.value) {
+                    if (result == "文章生成成功！") {
+                        // 获取最新生成的文章标题
+                        val latestArticle = _articles.value.firstOrNull()
+                        val title = latestArticle?.englishTitle ?: "无标题"
+                        
+                _smartGenerationStatus.value = "文章已生成，标题如下：\n$title"
+                    } else if (result.startsWith("文章生成失败")) {
+                        _smartGenerationStatus.value = result
+                    }
                 }
-                
-                // 解析API结果
-                val parser = ArticleMarkdownParser_7ree()
-                val parsedResult = parser.parseArticleMarkdown(apiResult)
-                
-                // 保存到数据库
-                val articleId = articleRepository_7ree.saveArticle_7ree(
-                    keyWords = parsedResult.keywords, // 使用解析出的关键词
-                    apiResult = apiResult,
-                    englishTitle = parsedResult.englishTitle,
-                    titleTranslation = parsedResult.chineseTitle,
-                    englishContent = parsedResult.englishContent,
-                    chineseContent = parsedResult.chineseContent
-                )
-                
-                _operationResult.value = "文章生成成功！"
-                
-                // 文章生成成功，Flow会自动更新列表
-                android.util.Log.d("ArticleViewModel", "文章生成成功，等待Flow自动更新")
-                
-            } catch (e: Exception) {
-                _operationResult.value = "文章生成失败: ${e.message}"
-            } finally {
-                _isGenerating.value = false
             }
-        }
+        )
     }
     
     /**
      * 切换文章收藏状态
      */
     fun toggleFavorite(articleId: Long) {
-        viewModelScope.launch {
-            try {
-                articleRepository_7ree.toggleFavorite_7ree(articleId)
-                _operationResult.value = "收藏状态已更新"
-                // Flow会自动更新文章列表
-                android.util.Log.d("ArticleViewModel", "收藏状态已更新，等待Flow自动更新")
-            } catch (e: Exception) {
-                _operationResult.value = "更新收藏状态失败: ${e.message}"
-            }
+        articleFavoriteHelper_7ree.toggleFavorite(
+            articleId,
+            viewModelScope
+        ) { result ->
+            _operationResult.value = result
         }
     }
     
@@ -165,28 +162,18 @@ class ArticleViewModel_7ree(
      * 增加文章浏览次数
      */
     fun incrementViewCount(articleId: Long) {
-        viewModelScope.launch {
-            try {
-                articleRepository_7ree.incrementViewCount_7ree(articleId)
-            } catch (e: Exception) {
-                // 浏览次数更新失败不需要显示错误信息
-            }
-        }
+        articleListHelper_7ree.incrementViewCount(articleId, viewModelScope)
     }
     
     /**
      * 删除文章
      */
     fun deleteArticle(articleId: Long) {
-        viewModelScope.launch {
-            try {
-                articleRepository_7ree.deleteArticle_7ree(articleId)
-                _operationResult.value = "文章已删除"
-                // Flow会自动更新文章列表
-                android.util.Log.d("ArticleViewModel", "文章已删除，等待Flow自动更新")
-            } catch (e: Exception) {
-                _operationResult.value = "删除文章失败: ${e.message}"
-            }
+        articleDeleteHelper_7ree.deleteArticle(
+            articleId,
+            viewModelScope
+        ) { result ->
+            _operationResult.value = result
         }
     }
     
@@ -201,99 +188,24 @@ class ArticleViewModel_7ree(
      * 选择文章并显示详情页
      */
     fun selectArticle(article: ArticleEntity_7ree) {
-        viewModelScope.launch {
-            try {
-                // 检查文章内容是否包含 ### 符号，如果有说明解析失败
-                val needsReparse = article.englishContent.contains("###") || 
-                                 article.chineseContent.contains("###") ||
-                                 article.englishTitle == "Generated Article" ||
-                                 article.chineseContent == "翻译暂不可用"
-                
-                if (needsReparse && article.apiResult.isNotEmpty()) {
-                    android.util.Log.d("ArticleDetail", "检测到文章解析失败，开始重新解析...")
-                    android.util.Log.d("ArticleDetail", "原因: englishContent包含###=${article.englishContent.contains("###")}, chineseContent包含###=${article.chineseContent.contains("###")}, 默认标题=${article.englishTitle == "Generated Article"}, 默认翻译=${article.chineseContent == "翻译暂不可用"}")
-                    
-                    // 重新解析文章
-                    val parser = ArticleMarkdownParser_7ree()
-                    val parsedResult = parser.parseArticleMarkdown(article.apiResult)
-                    
-                    // 更新数据库
-                    val updatedArticle = article.copy(
-                        englishTitle = parsedResult.englishTitle,
-                        titleTranslation = parsedResult.chineseTitle,
-                        englishContent = parsedResult.englishContent,
-                        chineseContent = parsedResult.chineseContent,
-                        keyWords = parsedResult.keywords
-                    )
-                    
-                    // 保存更新后的文章到数据库
-                    android.util.Log.d("ArticleDetail", "准备更新数据库，文章ID: ${updatedArticle.id}")
-                    android.util.Log.d("ArticleDetail", "更新前英文标题: ${article.englishTitle}")
-                    android.util.Log.d("ArticleDetail", "更新后英文标题: ${updatedArticle.englishTitle}")
-                    android.util.Log.d("ArticleDetail", "更新前中文内容: ${article.chineseContent}")
-                    android.util.Log.d("ArticleDetail", "更新后中文内容: ${updatedArticle.chineseContent}")
-                    
-                    articleRepository_7ree.updateArticle_7ree(updatedArticle)
-                    android.util.Log.d("ArticleDetail", "数据库更新操作已执行")
-                    
-                    // 验证数据库更新是否成功
-                    val verifyArticle = articleRepository_7ree.getArticle_7ree(updatedArticle.id)
-                    if (verifyArticle != null) {
-                        android.util.Log.d("ArticleDetail", "数据库验证成功")
-                        android.util.Log.d("ArticleDetail", "验证后英文标题: ${verifyArticle.englishTitle}")
-                        android.util.Log.d("ArticleDetail", "验证后中文标题: ${verifyArticle.titleTranslation}")
-                        android.util.Log.d("ArticleDetail", "验证后中文内容: ${verifyArticle.chineseContent}")
-                        android.util.Log.d("ArticleDetail", "验证后关键词: ${verifyArticle.keyWords}")
-                        
-                        // 使用数据库中验证后的文章
-                        _selectedArticle.value = verifyArticle
-                        
-                        android.util.Log.d("ArticleDetail", "数据库更新完成，Flow应该会自动更新文章列表")
-                    } else {
-                        android.util.Log.e("ArticleDetail", "数据库验证失败，文章未找到")
-                        // 使用更新后的文章作为备选
-                        _selectedArticle.value = updatedArticle
-                    }
-                } else {
-                    // 文章解析正常，直接使用
-                    _selectedArticle.value = article
-                }
-                
-                _showDetailScreen.value = true
-                
-                // 输出文章详情日志
-                val currentArticle = _selectedArticle.value!!
-                android.util.Log.d("ArticleDetail", "=== 文章详情页打开 ===")
-                android.util.Log.d("ArticleDetail", "文章ID: ${currentArticle.id}")
-                android.util.Log.d("ArticleDetail", "生成时间戳: ${currentArticle.generationTimestamp}")
-                android.util.Log.d("ArticleDetail", "生成时间: ${java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date(currentArticle.generationTimestamp))}")
-                android.util.Log.d("ArticleDetail", "关键词: ${currentArticle.keyWords}")
-                android.util.Log.d("ArticleDetail", "浏览次数: ${currentArticle.viewCount}")
-                android.util.Log.d("ArticleDetail", "是否收藏: ${currentArticle.isFavorite}")
-                android.util.Log.d("ArticleDetail", "英文标题: ${currentArticle.englishTitle}")
-                android.util.Log.d("ArticleDetail", "标题翻译: ${currentArticle.titleTranslation}")
-                android.util.Log.d("ArticleDetail", "英文内容长度: ${currentArticle.englishContent.length} 字符")
-                android.util.Log.d("ArticleDetail", "英文内容: ${currentArticle.englishContent}")
-                android.util.Log.d("ArticleDetail", "中文内容长度: ${currentArticle.chineseContent.length} 字符")
-                android.util.Log.d("ArticleDetail", "中文内容: ${currentArticle.chineseContent}")
-                android.util.Log.d("ArticleDetail", "API原始结果长度: ${currentArticle.apiResult.length} 字符")
-                android.util.Log.d("ArticleDetail", "API原始结果: ${currentArticle.apiResult}")
-                android.util.Log.d("ArticleDetail", "=== 文章详情日志结束 ===")
-                
-                // 增加浏览次数
-                incrementViewCount(currentArticle.id)
-                
-                // 计算关键词统计
-                calculateKeywordStats(currentArticle)
-                
-            } catch (e: Exception) {
-                android.util.Log.e("ArticleDetail", "选择文章时发生错误: ${e.message}", e)
-                // 发生错误时仍然显示原文章
-                _selectedArticle.value = article
-                _showDetailScreen.value = true
-                incrementViewCount(article.id)
-            }
-        }
+        articleDetailHelper_7ree.handleArticleSelection(
+            article,
+            viewModelScope,
+            { selectedArticle -> _selectedArticle.value = selectedArticle },
+            { stats -> _keywordStats.value = stats },
+            _articles.value
+        )
+        
+        _showDetailScreen.value = true
+        
+        // 增加浏览次数
+        articleDetailHelper_7ree.handleArticleSelection(
+            article,
+            viewModelScope,
+            { selectedArticle -> incrementViewCount(selectedArticle.id) },
+            { stats -> },
+            _articles.value
+        )
     }
     
     /**
@@ -319,19 +231,14 @@ class ArticleViewModel_7ree(
      * 朗读文章
      */
     fun readArticle(article: ArticleEntity_7ree) {
-        android.util.Log.d("ArticleTts", "开始朗读文章: ${article.englishTitle}")
-        articleTtsManager_7ree.readArticle(
-            englishContent = article.englishContent,
-            englishTitle = article.englishTitle
-        )
+        articleTtsHelper_7ree.readArticle(article.englishContent, article.englishTitle)
     }
     
     /**
      * 停止朗读
      */
     fun stopReading() {
-        android.util.Log.d("ArticleTts", "停止朗读")
-        articleTtsManager_7ree.stopReading()
+        articleTtsHelper_7ree.stopReading()
     }
     
     /**
@@ -339,11 +246,7 @@ class ArticleViewModel_7ree(
      */
     fun toggleReading() {
         _selectedArticle.value?.let { article ->
-            android.util.Log.d("ArticleTts", "切换朗读状态，当前按钮状态: ${ttsButtonState.value}")
-            articleTtsManager_7ree.toggleReading(
-                englishContent = article.englishContent,
-                englishTitle = article.englishTitle
-            )
+            articleTtsHelper_7ree.toggleReading(article.englishContent, article.englishTitle)
         }
     }
     
@@ -351,93 +254,7 @@ class ArticleViewModel_7ree(
      * 清除TTS错误信息
      */
     fun clearTtsError() {
-        articleTtsManager_7ree.clearError()
-    }
-    
-    /**
-     * 计算关键词统计
-     */
-    private fun calculateKeywordStats(currentArticle: ArticleEntity_7ree) {
-        viewModelScope.launch {
-            try {
-                android.util.Log.d("ArticleViewModel", "开始计算关键词统计")
-                
-                // 获取当前文章的关键词
-                val currentKeywords = currentArticle.keyWords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
-                android.util.Log.d("ArticleViewModel", "当前文章关键词: $currentKeywords")
-                
-                // 获取所有文章
-                val allArticles = _articles.value
-                android.util.Log.d("ArticleViewModel", "总文章数: ${allArticles.size}")
-                
-                // 统计每个关键词在所有文章中的出现次数
-                val keywordCountMap = mutableMapOf<String, Int>()
-                
-                currentKeywords.forEach { keyword ->
-                    var count = 0
-                    allArticles.forEach { article ->
-                        val articleKeywords = article.keyWords.split(",").map { it.trim() }
-                        if (articleKeywords.contains(keyword)) {
-                            count++
-                        }
-                    }
-                    keywordCountMap[keyword] = count
-                    android.util.Log.d("ArticleViewModel", "关键词 '$keyword' 在 $count 篇文章中出现")
-                }
-                
-                // 更新状态
-                _keywordStats.value = keywordCountMap
-                
-                // 同步到单词本数据库
-                syncKeywordStatsToWordDatabase(keywordCountMap)
-                
-            } catch (e: Exception) {
-                android.util.Log.e("ArticleViewModel", "计算关键词统计失败: ${e.message}", e)
-            }
-        }
-    }
-    
-    /**
-     * 将关键词统计同步到单词本数据库
-     */
-    private suspend fun syncKeywordStatsToWordDatabase(keywordStats: Map<String, Int>) {
-        try {
-            android.util.Log.d("ArticleViewModel", "开始同步关键词统计到单词本数据库")
-            
-            if (wordRepository_7ree == null) {
-                android.util.Log.w("ArticleViewModel", "WordRepository未注入，无法同步关键词统计")
-                return
-            }
-            
-            keywordStats.forEach { (keyword, count) ->
-                try {
-                    // 检查单词是否存在于单词本中
-                    val existingWord = wordRepository_7ree.getWord_7ree(keyword)
-                    if (existingWord != null) {
-                        android.util.Log.d("ArticleViewModel", "找到单词 '$keyword'，当前引用次数: ${existingWord.referenceCount}，准备更新为: $count")
-                        // 更新现有单词的引用次数
-                        wordRepository_7ree.updateReferenceCount_7ree(keyword, count)
-                        
-                        // 验证更新是否成功
-                        val updatedWord = wordRepository_7ree.getWord_7ree(keyword)
-                        if (updatedWord != null) {
-                            android.util.Log.d("ArticleViewModel", "验证更新结果 - 单词 '$keyword' 的引用次数现在是: ${updatedWord.referenceCount}")
-                        } else {
-                            android.util.Log.e("ArticleViewModel", "更新后无法找到单词 '$keyword'")
-                        }
-                    } else {
-                        android.util.Log.d("ArticleViewModel", "单词 '$keyword' 不在单词本中，跳过更新")
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("ArticleViewModel", "更新单词 '$keyword' 的引用次数失败: ${e.message}", e)
-                }
-            }
-            
-            android.util.Log.d("ArticleViewModel", "关键词统计同步完成")
-            
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "同步关键词统计到单词本失败: ${e.message}", e)
-        }
+        articleTtsHelper_7ree.clearError()
     }
     
     /**
@@ -446,32 +263,52 @@ class ArticleViewModel_7ree(
     fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree) {
         viewModelScope.launch {
             try {
+                // 保存当前智能生成类型
+                currentSmartGenerationType = type
+                
+                // 显示智能生成文章卡片
+                _showSmartGenerationCard.value = true
                 _isGenerating.value = true
                 _operationResult.value = "正在智能选择关键词..."
                 
-                android.util.Log.d("ArticleViewModel", "开始智能生成文章，类型: $type")
-                
                 if (wordRepository_7ree == null) {
                     _operationResult.value = "单词库未初始化，无法智能选词"
+                    _smartGenerationStatus.value = "单词库未初始化，无法智能选词"
+                    _isGenerating.value = false
                     return@launch
                 }
+                
+                // 根据类型设置初始状态
+                val initialStatus = when (type) {
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> "开始查找单词本中查阅量最少的5个单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> "开始查找单词本中引用次数最少的5个单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> "开始查找单词本中拼写练习次数最少的5个单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> "开始查找单词本中最新加入的5个单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> "开始随机选择5个单词"
+                    else -> "开始查找单词"
+                }
+                
+                _smartGenerationStatus.value = initialStatus
+                
+                // 至少显示1秒钟的初始状态
+                delay(1000)
                 
                 // 根据类型获取关键词
                 val keywords = when (type) {
                     com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> {
-                        getWordsWithLowViewCount()
+                        smartWordSelectionHelper_7ree.getWordsWithLowViewCount()
                     }
                     com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> {
-                        getWordsWithLowReferenceCount()
+                        smartWordSelectionHelper_7ree.getWordsWithLowReferenceCount()
                     }
                     com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> {
-                        getWordsWithLowSpellingCount()
+                        smartWordSelectionHelper_7ree.getWordsWithLowSpellingCount()
                     }
                     com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> {
-                        getNewestWords()
+                        smartWordSelectionHelper_7ree.getNewestWords()
                     }
                     com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> {
-                        getRandomWords()
+                        smartWordSelectionHelper_7ree.getRandomWords()
                     }
                     else -> {
                         emptyList()
@@ -480,108 +317,65 @@ class ArticleViewModel_7ree(
                 
                 if (keywords.isEmpty()) {
                     _operationResult.value = "单词库中没有找到合适的单词"
+                    _smartGenerationStatus.value = "单词库中没有找到合适的单词"
+                    _isGenerating.value = false
                     return@launch
                 }
                 
+                // 显示找到的关键词
+                _smartGenerationKeywords.value = keywords
+                
+                // 根据类型设置找到关键词的状态
+                val foundStatus = when (type) {
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> "已找到以下低查询单词：" + keywords.joinToString("，")
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> "已找到以下低引用单词：" + keywords.joinToString("，")
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> "已找到以下低拼写单词：" + keywords.joinToString("，")
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> "已找到以下新收录单词：" + keywords.joinToString("，")
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> "已找到以下随机单词：" + keywords.joinToString("，")
+                    else -> "已找到以下单词：" + keywords.joinToString("，")
+                }
+                
+                _smartGenerationStatus.value = foundStatus
+                
+                // 至少显示1秒钟的找到关键词状态
+                delay(1000)
+                
                 val keyWordsString = keywords.joinToString(", ")
-                android.util.Log.d("ArticleViewModel", "智能选择的关键词: $keyWordsString")
+                
+                // 显示正在生成文章的状态（包含API名称和单词类型）
+                val apiConfig = appConfigManager_7ree.loadApiConfig_7ree()
+                val apiName = apiConfig.getActiveTranslationApi().apiName
+                
+                val wordTypeText = when (type) {
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> "5个低查询单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> "5个低引用单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> "5个低拼写单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> "5个新收录单词"
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> "5个随机单词"
+                    else -> "5个单词"
+                }
+                
+                _smartGenerationStatus.value = "${apiName}正在生成文章中，请稍候……"
                 
                 // 使用选择的关键词生成文章
                 generateArticle(keyWordsString)
                 
             } catch (e: Exception) {
-                android.util.Log.e("ArticleViewModel", "智能生成文章失败: ${e.message}", e)
                 _operationResult.value = "智能生成失败: ${e.message}"
+                _smartGenerationStatus.value = "智能生成失败: ${e.message}"
                 _isGenerating.value = false
             }
         }
     }
     
     /**
-     * 获取查阅次数最少的5个单词
+     * 关闭智能生成文章卡片
      */
-    private suspend fun getWordsWithLowViewCount(): List<String> {
-        return try {
-            // 这里需要从WordRepository获取按查阅次数排序的单词
-            // 由于当前的WordRepository可能没有这个方法，我们先用一个简化的实现
-            android.util.Log.d("ArticleViewModel", "获取查阅次数最少的单词")
-            // TODO: 实现从WordRepository获取按viewCount排序的单词
-            listOf("example", "sample", "test", "demo", "basic") // 临时实现
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "获取低查阅单词失败: ${e.message}", e)
-            emptyList()
-        }
-    }
-    
-    /**
-     * 获取引用次数最少的5个单词
-     */
-    private suspend fun getWordsWithLowReferenceCount(): List<String> {
-        return try {
-            android.util.Log.d("ArticleViewModel", "获取引用次数最少的单词")
-            // TODO: 实现从WordRepository获取按referenceCount排序的单词
-            listOf("unique", "special", "rare", "uncommon", "distinct") // 临时实现
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "获取低引用单词失败: ${e.message}", e)
-            emptyList()
-        }
-    }
-    
-    /**
-     * 获取拼写练习次数最少的5个单词
-     */
-    private suspend fun getWordsWithLowSpellingCount(): List<String> {
-        return try {
-            android.util.Log.d("ArticleViewModel", "获取拼写练习最少的单词")
-            // TODO: 实现从WordRepository获取按spellingCount排序的单词
-            listOf("practice", "exercise", "training", "study", "learn") // 临时实现
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "获取低拼写单词失败: ${e.message}", e)
-            emptyList()
-        }
-    }
-    
-    /**
-     * 获取最新加入的5个单词
-     */
-    private suspend fun getNewestWords(): List<String> {
-        return try {
-            android.util.Log.d("ArticleViewModel", "获取最新加入的单词")
-            // TODO: 实现从WordRepository获取按queryTimestamp排序的单词
-            listOf("recent", "latest", "current", "modern", "contemporary") // 临时实现
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "获取最新单词失败: ${e.message}", e)
-            emptyList()
-        }
-    }
-    
-    /**
-     * 获取随机的5个单词
-     */
-    private suspend fun getRandomWords(): List<String> {
-        return try {
-            android.util.Log.d("ArticleViewModel", "获取随机单词")
-            // TODO: 实现从WordRepository随机获取单词
-            val randomWords = listOf("adventure", "journey", "discovery", "exploration", "experience")
-            randomWords.shuffled().take(5) // 临时实现
-        } catch (e: Exception) {
-            android.util.Log.e("ArticleViewModel", "获取随机单词失败: ${e.message}", e)
-            emptyList()
-        }
-    }
-    
-    /**
-     * 构建文章生成提示词
-     */
-    private fun buildArticlePrompt(keyWords: String, promptConfig: PromptConfig_7ree): String {
-        return """
-            ${promptConfig.articleGenerationPrompt_7ree}
-            
-            请基于以下关键词生成文章：$keyWords
-            
-            请严格按照以下模板格式输出：
-            ${promptConfig.articleOutputTemplate_7ree}
-        """.trimIndent()
+    fun closeSmartGenerationCard() {
+        _showSmartGenerationCard.value = false
+        _smartGenerationStatus.value = ""
+        _smartGenerationKeywords.value = emptyList()
+        _isGenerating.value = false
     }
     
     /**
@@ -589,7 +383,6 @@ class ArticleViewModel_7ree(
      */
     override fun onCleared() {
         super.onCleared()
-        android.util.Log.d("ArticleViewModel", "释放ViewModel资源")
-        articleTtsManager_7ree.release()
+        articleTtsHelper_7ree.release()
     }
 }

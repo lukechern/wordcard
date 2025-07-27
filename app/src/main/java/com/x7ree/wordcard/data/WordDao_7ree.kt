@@ -78,6 +78,10 @@ interface WordDao_7ree {
     @Query("SELECT COUNT(*) FROM words")
     fun countAllWords_7ree(): Flow<Int>
     
+    // 获取所有单词的数量（挂起函数）
+    @Query("SELECT COUNT(*) FROM words")
+    suspend fun getTotalWordCount_7ree(): Int
+    
     // 获取总查阅次数
     @Query("SELECT COALESCE(SUM(viewCount), 0) FROM words")
     fun getTotalViews_7ree(): Flow<Int>
@@ -136,6 +140,14 @@ interface WordDao_7ree {
     @Query("SELECT * FROM words ORDER BY spellingCount DESC LIMIT :limit OFFSET :offset")
     suspend fun getWordsPagedBySpellingCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
     
+    // 按引用次数排序（升序）
+    @Query("SELECT * FROM words ORDER BY referenceCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByReferenceCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 按引用次数排序（降序）
+    @Query("SELECT * FROM words ORDER BY referenceCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getWordsPagedByReferenceCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
     // 收藏单词的排序查询方法
     
     // 收藏单词按浏览次数排序（升序）
@@ -161,4 +173,12 @@ interface WordDao_7ree {
     // 收藏单词按拼写次数排序（降序）
     @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY spellingCount DESC LIMIT :limit OFFSET :offset")
     suspend fun getFavoriteWordsPagedBySpellingCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按引用次数排序（升序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY referenceCount ASC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByReferenceCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
+    
+    // 收藏单词按引用次数排序（降序）
+    @Query("SELECT * FROM words WHERE isFavorite = 1 ORDER BY referenceCount DESC LIMIT :limit OFFSET :offset")
+    suspend fun getFavoriteWordsPagedByReferenceCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
 }

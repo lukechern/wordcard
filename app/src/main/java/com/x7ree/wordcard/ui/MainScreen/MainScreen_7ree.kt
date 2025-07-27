@@ -178,7 +178,12 @@ fun MainScreen_7ree(
                                                 onToggleFavorite = { articleId ->
                                                     articleViewModel.toggleFavorite(articleId)
                                                 },
-                                                isGenerating = isGenerating
+                                                isGenerating = isGenerating,
+                                                showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
+                                                smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
+                                                smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
+                                                onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
+                                                currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType()
                                             )
                                         }
                                     } ?: run {
@@ -197,7 +202,12 @@ fun MainScreen_7ree(
                                             onToggleFavorite = { articleId ->
                                                 articleViewModel.toggleFavorite(articleId)
                                             },
-                                            isGenerating = isGenerating
+                                            isGenerating = isGenerating,
+                                            showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
+                                            smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
+                                            smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
+                                            onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
+                                            currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType()
                                         )
                                     }
                                 } else {

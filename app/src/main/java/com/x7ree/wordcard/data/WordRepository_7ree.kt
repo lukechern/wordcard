@@ -106,6 +106,11 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
     // 获取单词总数
     val wordCount_7ree: Flow<Int> = wordDao_7ree.countAllWords_7ree()
     
+    // 获取单词总数（挂起函数）
+    suspend fun getTotalWordCount_7ree(): Int {
+        return wordDao_7ree.getTotalWordCount_7ree()
+    }
+    
     // 获取总查阅次数
     val getTotalViews_7ree: Flow<Int> = wordDao_7ree.getTotalViews_7ree()
     
@@ -129,6 +134,8 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
             "RECORD_TIME_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByRecordTimeDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByRecordTimeDesc_7ree(limit, offset)
             "SPELLING_COUNT_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedBySpellingCountAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedBySpellingCountAsc_7ree(limit, offset)
             "SPELLING_COUNT_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedBySpellingCountDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedBySpellingCountDesc_7ree(limit, offset)
+            "REFERENCE_COUNT_ASC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByReferenceCountAsc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByReferenceCountAsc_7ree(limit, offset)
+            "REFERENCE_COUNT_DESC" -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPagedByReferenceCountDesc_7ree(limit, offset) else wordDao_7ree.getWordsPagedByReferenceCountDesc_7ree(limit, offset)
             else -> if (isFavoriteOnly) wordDao_7ree.getFavoriteWordsPaged_7ree(limit, offset) else wordDao_7ree.getWordsPaged_7ree(limit, offset)
         }
     }

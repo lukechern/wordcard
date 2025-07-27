@@ -33,7 +33,12 @@ fun ArticleScreen_7ree(
     onSmartGenerate: (SmartGenerationType_7ree) -> Unit = {},
     onArticleClick: (ArticleEntity_7ree) -> Unit = {},
     onToggleFavorite: (Long) -> Unit = {},
-    isGenerating: Boolean = false
+    isGenerating: Boolean = false,
+    showSmartGenerationCard: Boolean = false,
+    smartGenerationStatus: String = "",
+    smartGenerationKeywords: List<String> = emptyList(),
+    onCloseSmartGenerationCard: () -> Unit = {},
+    currentSmartGenerationType: SmartGenerationType_7ree? = null
 ) {
     var showGenerationDialog by remember { mutableStateOf(false) }
     Column(
@@ -127,6 +132,15 @@ fun ArticleScreen_7ree(
             showGenerationDialog = false
         },
         isGenerating = isGenerating
+    )
+    
+    // 智能生成进度卡片
+    SmartGenerationProgressCard_7ree(
+        isVisible = showSmartGenerationCard,
+        status = smartGenerationStatus,
+        keywords = smartGenerationKeywords,
+        onDismiss = onCloseSmartGenerationCard,
+        currentSmartGenerationType = currentSmartGenerationType
     )
 }
 
