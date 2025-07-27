@@ -144,6 +144,7 @@ fun MainScreen_7ree(
                                         if (showDetailScreen) {
                                             val isReading by articleViewModel.isReading.collectAsState()
                                             val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
+                                            val keywordStats by articleViewModel.keywordStats.collectAsState()
                                             
                                             // 显示文章详情页
                                             ArticleDetailScreen_7ree(
@@ -158,7 +159,8 @@ fun MainScreen_7ree(
                                                     articleViewModel.toggleReading()
                                                 },
                                                 isReading = isReading,
-                                                ttsButtonState = ttsButtonState
+                                                ttsButtonState = ttsButtonState,
+                                                keywordStats = keywordStats
                                             )
                                         } else {
                                             // 显示文章列表页

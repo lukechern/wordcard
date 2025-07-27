@@ -38,6 +38,11 @@ class WordRepository_7ree(private val wordDao_7ree: WordDao_7ree) {
         wordDao_7ree.incrementSpellingCount_7ree(word)
     }
     
+    // 更新引用次数
+    suspend fun updateReferenceCount_7ree(word: String, count: Int) {
+        wordDao_7ree.updateReferenceCount_7ree(word, count)
+    }
+    
     // 切换收藏状态
     suspend fun toggleFavorite_7ree(word: String) {
         wordDao_7ree.toggleFavorite_7ree(word)

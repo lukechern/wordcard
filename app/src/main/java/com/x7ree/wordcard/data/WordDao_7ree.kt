@@ -46,6 +46,10 @@ interface WordDao_7ree {
     @Query("UPDATE words SET spellingCount = spellingCount + 1 WHERE word = :word")
     suspend fun incrementSpellingCount_7ree(word: String)
     
+    // 更新引用次数
+    @Query("UPDATE words SET referenceCount = :count WHERE word = :word")
+    suspend fun updateReferenceCount_7ree(word: String, count: Int)
+    
     // 切换收藏状态
     @Query("UPDATE words SET isFavorite = CASE WHEN isFavorite = 1 THEN 0 ELSE 1 END WHERE word = :word")
     suspend fun toggleFavorite_7ree(word: String)

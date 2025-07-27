@@ -34,7 +34,8 @@ fun ArticleDetailScreen_7ree(
     onToggleFavorite: () -> Unit = {},
     onShareClick: () -> Unit = {},
     isReading: Boolean = false,
-    ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY
+    ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY,
+    keywordStats: Map<String, Int> = emptyMap()
 ) {
     val scrollState = rememberScrollState()
     
@@ -219,8 +220,11 @@ fun ArticleDetailScreen_7ree(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         
-                        // 关键词标签显示
-                        KeywordTags_7ree(keywords = article.keyWords.split(",").map { it.trim() })
+                        // 关键词标签显示（带统计）
+                        KeywordTagsWithStats_7ree(
+                            keywords = article.keyWords.split(",").map { it.trim() },
+                            keywordStats = keywordStats
+                        )
                     }
                 }
             }
@@ -296,6 +300,65 @@ private fun KeywordTags_7ree(keywords: List<String>) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun KeywordTagsWithStats_7ree(
+    keywords: List<String>,
+    keywordStats: Map<String, Int>
+) {
+    // 使用FlowRow布局显示关键词标签
+    val maxRowWidth = 3 // 每行最多3个标签
+    
+    Column {
+        var currentRow = mutableListOf<String>()
+        val rows = mutableListOf<List<String>>()
+        
+        keywords.forEach { keyword ->
+            currentRow.add(keyword)
+            if (currentRow.size >= maxRowWidth) {
+                rows.add(currentRow.toList())
+                currentRow = mutableListOf()
+            }
+        }
+        
+        if (currentRow.isNotEmpty()) {
+            rows.add(currentRow.toList())
+        }
+        
+        rows.forEach { rowKeywords ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowKeywords.forEach { keyword ->
+                    KeywordTagWithStats_7ree(
+                        keyword = keyword,
+                        count = keywordStats[keyword] ?: 0
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun KeywordTagWithStats_7ree(keyword: String, count: Int) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(
+            text = "$keyword($count)",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 

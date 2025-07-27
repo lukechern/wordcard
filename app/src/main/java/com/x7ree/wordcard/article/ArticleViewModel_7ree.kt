@@ -12,6 +12,7 @@ import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.config.PromptConfig_7ree
 import com.x7ree.wordcard.data.ArticleEntity_7ree
 import com.x7ree.wordcard.data.ArticleRepository_7ree
+import com.x7ree.wordcard.data.WordRepository_7ree
 
 /**
  * 文章功能的ViewModel
@@ -19,7 +20,8 @@ import com.x7ree.wordcard.data.ArticleRepository_7ree
 class ArticleViewModel_7ree(
     private val articleRepository_7ree: ArticleRepository_7ree,
     private val apiService_7ree: OpenAiApiService_7ree,
-    private val context: Context
+    private val context: Context,
+    private val wordRepository_7ree: WordRepository_7ree? = null
 ) : ViewModel() {
     
     private val appConfigManager_7ree = AppConfigManager_7ree(context)
@@ -55,6 +57,10 @@ class ArticleViewModel_7ree(
     val ttsErrorMessage: StateFlow<String?> = articleTtsManager_7ree.errorMessage
     val ttsButtonState: StateFlow<ArticleTtsManager_7ree.TtsButtonState> = articleTtsManager_7ree.buttonState
     val currentTtsEngine: StateFlow<String> = articleTtsManager_7ree.currentEngine
+    
+    // 关键词统计
+    private val _keywordStats = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val keywordStats: StateFlow<Map<String, Int>> = _keywordStats.asStateFlow()
     
     init {
         initializeArticleFlow()
@@ -277,6 +283,9 @@ class ArticleViewModel_7ree(
                 // 增加浏览次数
                 incrementViewCount(currentArticle.id)
                 
+                // 计算关键词统计
+                calculateKeywordStats(currentArticle)
+                
             } catch (e: Exception) {
                 android.util.Log.e("ArticleDetail", "选择文章时发生错误: ${e.message}", e)
                 // 发生错误时仍然显示原文章
@@ -343,6 +352,92 @@ class ArticleViewModel_7ree(
      */
     fun clearTtsError() {
         articleTtsManager_7ree.clearError()
+    }
+    
+    /**
+     * 计算关键词统计
+     */
+    private fun calculateKeywordStats(currentArticle: ArticleEntity_7ree) {
+        viewModelScope.launch {
+            try {
+                android.util.Log.d("ArticleViewModel", "开始计算关键词统计")
+                
+                // 获取当前文章的关键词
+                val currentKeywords = currentArticle.keyWords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                android.util.Log.d("ArticleViewModel", "当前文章关键词: $currentKeywords")
+                
+                // 获取所有文章
+                val allArticles = _articles.value
+                android.util.Log.d("ArticleViewModel", "总文章数: ${allArticles.size}")
+                
+                // 统计每个关键词在所有文章中的出现次数
+                val keywordCountMap = mutableMapOf<String, Int>()
+                
+                currentKeywords.forEach { keyword ->
+                    var count = 0
+                    allArticles.forEach { article ->
+                        val articleKeywords = article.keyWords.split(",").map { it.trim() }
+                        if (articleKeywords.contains(keyword)) {
+                            count++
+                        }
+                    }
+                    keywordCountMap[keyword] = count
+                    android.util.Log.d("ArticleViewModel", "关键词 '$keyword' 在 $count 篇文章中出现")
+                }
+                
+                // 更新状态
+                _keywordStats.value = keywordCountMap
+                
+                // 同步到单词本数据库
+                syncKeywordStatsToWordDatabase(keywordCountMap)
+                
+            } catch (e: Exception) {
+                android.util.Log.e("ArticleViewModel", "计算关键词统计失败: ${e.message}", e)
+            }
+        }
+    }
+    
+    /**
+     * 将关键词统计同步到单词本数据库
+     */
+    private suspend fun syncKeywordStatsToWordDatabase(keywordStats: Map<String, Int>) {
+        try {
+            android.util.Log.d("ArticleViewModel", "开始同步关键词统计到单词本数据库")
+            
+            if (wordRepository_7ree == null) {
+                android.util.Log.w("ArticleViewModel", "WordRepository未注入，无法同步关键词统计")
+                return
+            }
+            
+            keywordStats.forEach { (keyword, count) ->
+                try {
+                    // 检查单词是否存在于单词本中
+                    val existingWord = wordRepository_7ree.getWord_7ree(keyword)
+                    if (existingWord != null) {
+                        android.util.Log.d("ArticleViewModel", "找到单词 '$keyword'，当前引用次数: ${existingWord.referenceCount}，准备更新为: $count")
+                        // 更新现有单词的引用次数
+                        wordRepository_7ree.updateReferenceCount_7ree(keyword, count)
+                        
+                        // 验证更新是否成功
+                        val updatedWord = wordRepository_7ree.getWord_7ree(keyword)
+                        if (updatedWord != null) {
+                            android.util.Log.d("ArticleViewModel", "验证更新结果 - 单词 '$keyword' 的引用次数现在是: ${updatedWord.referenceCount}")
+                        } else {
+                            android.util.Log.e("ArticleViewModel", "更新后无法找到单词 '$keyword'")
+                        }
+                    } else {
+                        android.util.Log.d("ArticleViewModel", "单词 '$keyword' 不在单词本中，跳过更新")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("ArticleViewModel", "更新单词 '$keyword' 的引用次数失败: ${e.message}", e)
+                }
+            }
+            
+            android.util.Log.d("ArticleViewModel", "关键词统计同步完成")
+            
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "同步关键词统计到单词本失败: ${e.message}", e)
+        }
     }
     
     /**

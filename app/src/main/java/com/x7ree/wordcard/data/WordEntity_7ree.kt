@@ -16,5 +16,6 @@ data class WordEntity_7ree(
     val spellingCount: Int = 0,          // 拼写练习次数
     val chineseDefinition: String = "",  // 中文释义
     val phonetic: String = "",           // 音标
-    val partOfSpeech: String = ""        // 词性
+    val partOfSpeech: String = "",       // 词性
+    val referenceCount: Int = 0          // 在文章中被引用的次数
 )

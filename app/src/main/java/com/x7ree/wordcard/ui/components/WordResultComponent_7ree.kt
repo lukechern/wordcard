@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.History
@@ -69,6 +70,13 @@ fun WordResultComponent_7ree(
     // 监听当前单词信息的变化，确保收藏状态能够及时更新UI
     val currentWordInfo by remember { 
         derivedStateOf { wordQueryViewModel.currentWordInfo_7ree }
+    }
+    
+    // 在组件显示时刷新单词信息，确保引用次数是最新的
+    LaunchedEffect(wordQueryViewModel.wordInput_7ree) {
+        if (wordQueryViewModel.wordInput_7ree.isNotBlank()) {
+            wordQueryViewModel.refreshCurrentWordInfo_7ree()
+        }
     }
     
     // 添加调试日志来跟踪收藏状态变化
@@ -319,7 +327,7 @@ fun WordResultComponent_7ree(
                         contentAlignment = Alignment.Center
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(0.85f), // 减少15%宽度
+                            modifier = Modifier.fillMaxWidth(0.95f), // 由于现在有4个卡片，稍微增加宽度
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             // 卡片1：初次查询时间
@@ -330,7 +338,7 @@ fun WordResultComponent_7ree(
                                 modifier = Modifier.weight(1f)
                             )
                             
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp)) // 减少间距以适应4个卡片
                             
                             // 卡片2：查阅次数
                             InfoCard_7ree(
@@ -340,9 +348,19 @@ fun WordResultComponent_7ree(
                                 modifier = Modifier.weight(1f)
                             )
                             
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
                             
-                            // 卡片3：拼写练习
+                            // 卡片3：引用次数
+                            InfoCard_7ree(
+                                title = "引用次数",
+                                value = "引用${wordQueryViewModel.currentWordInfo_7ree!!.referenceCount}次",
+                                icon = Icons.Filled.Article,
+                                modifier = Modifier.weight(1f)
+                            )
+                            
+                            Spacer(modifier = Modifier.width(6.dp))
+                            
+                            // 卡片4：拼写练习
                             SpellingCard_7ree(
                                 spellingCount = wordQueryViewModel.getCurrentSpellingCount_7ree(),
                                 onSpellingClick = { onShowSpellingDialogChange(true) },

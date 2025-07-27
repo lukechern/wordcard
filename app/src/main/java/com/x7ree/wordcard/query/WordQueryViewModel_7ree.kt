@@ -77,7 +77,7 @@ class WordQueryViewModel_7ree(
     
     // 文章功能
     val articleViewModel_7ree: ArticleViewModel_7ree? = if (articleRepository_7ree != null) {
-        ArticleViewModel_7ree(articleRepository_7ree, apiService_7ree, context)
+        ArticleViewModel_7ree(articleRepository_7ree, apiService_7ree, context, wordRepository_7ree)
     } else null
     
     init {
@@ -443,6 +443,21 @@ class WordQueryViewModel_7ree(
     
     fun getCurrentSpellingCount_7ree(): Int {
         return spellingHandler_7ree.getCurrentSpellingCount_7ree()
+    }
+    
+    // 刷新当前单词信息
+    fun refreshCurrentWordInfo_7ree() {
+        if (wordInput_7ree.isNotBlank()) {
+            viewModelScope.launch {
+                try {
+                    val updatedWordInfo = wordRepository_7ree.getWord_7ree(wordInput_7ree)
+                    queryState_7ree.updateCurrentWordInfo_7ree(updatedWordInfo)
+                    android.util.Log.d("WordQueryViewModel", "已刷新单词 '$wordInput_7ree' 的信息，引用次数: ${updatedWordInfo?.referenceCount ?: 0}")
+                } catch (e: Exception) {
+                    android.util.Log.e("WordQueryViewModel", "刷新单词信息失败: ${e.message}", e)
+                }
+            }
+        }
     }
     
     // 资源释放
