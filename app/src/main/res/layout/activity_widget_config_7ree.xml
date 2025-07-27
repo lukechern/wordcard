@@ -125,13 +125,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
+        android:layout_marginEnd="7dp"
         android:textSize="12sp"
         android:textColor="#333333"
         android:lineSpacingExtra="2dp"
         android:visibility="gone"
         android:maxHeight="200dp"
         android:scrollbars="vertical"
-        android:fadeScrollbars="false" />
+        android:fadeScrollbars="false"
+        style="@style/WidgetScrollbarStyle_7ree" />
 
         </LinearLayout>
 

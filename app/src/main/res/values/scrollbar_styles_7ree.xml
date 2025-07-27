@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 自定义滚动条样式，匹配WordCardScrollIndicator_7ree.kt的样式 -->
+    <style name="WidgetScrollbarStyle_7ree">
+        <item name="android:scrollbarThumbVertical">@drawable/widget_scrollbar_thumb_7ree</item>
+        <item name="android:scrollbarTrackVertical">@drawable/widget_scrollbar_track_7ree</item>
+        <item name="android:scrollbarSize">5dp</item>
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
+    </style>
+</resources>

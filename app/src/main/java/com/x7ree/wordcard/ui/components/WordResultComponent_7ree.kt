@@ -43,8 +43,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.LocalSwipeState_7ree
-import com.x7ree.wordcard.ui.ScrollIndicator_7ree
 import com.x7ree.wordcard.ui.SpellingCard_7ree
+import com.x7ree.wordcard.ui.WordCardScrollIndicator_7ree
 import com.x7ree.wordcard.ui.SpellingPractice.SpellingPracticeDialog_7ree
 import com.x7ree.wordcard.ui.SwipeArrowIndicator_7ree
 import com.x7ree.wordcard.ui.SwipeDirection_7ree
@@ -173,7 +173,7 @@ fun WordResultComponent_7ree(
                                 state = scrollState_7ree,
                                 enabled = true // 确保滚动功能正常
                             )
-                            .padding(bottom = 16.dp) // 只保留底部间距，左右padding已在外层设置
+                            .padding(bottom = 16.dp, end = 7.dp) // 只保留底部间距，右侧添加7.dp边距
                     ) {
                         // TTS状态管理 - 独立管理音标和例句按钮状态
                         val isSpeakingWord_7ree = wordQueryViewModel.isSpeakingWord_7ree
@@ -269,7 +269,7 @@ fun WordResultComponent_7ree(
                     }
                     
                     // 添加自定义滚动指示器，定位在正文内容右侧
-                    ScrollIndicator_7ree(
+                    WordCardScrollIndicator_7ree(
                         scrollState = scrollState_7ree,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
