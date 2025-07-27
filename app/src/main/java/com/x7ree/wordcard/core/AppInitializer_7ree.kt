@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.x7ree.wordcard.api.OpenAiApiService_7ree
+import com.x7ree.wordcard.data.ArticleRepository_7ree
 import com.x7ree.wordcard.data.WordDatabase_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
@@ -25,6 +26,7 @@ class AppInitializer_7ree(private val context: Context, private val lifecycleOwn
     // 创建数据库和仓库实例 - 改为异步初始化
     private var database_7ree: WordDatabase_7ree? = null
     private var wordRepository_7ree: WordRepository_7ree? = null
+    private var articleRepository_7ree: ArticleRepository_7ree? = null
     var wordQueryViewModel_7ree: WordQueryViewModel_7ree? by mutableStateOf(null)
     
     fun initializeAppAsync_7ree(onInitializationComplete: (WordQueryViewModel_7ree?) -> Unit) {
@@ -87,6 +89,7 @@ class AppInitializer_7ree(private val context: Context, private val lifecycleOwn
             // Log.d(TAG_7ree, "开始异步初始化数据库")
             database_7ree = WordDatabase_7ree.getDatabase_7ree(context)
             wordRepository_7ree = WordRepository_7ree(database_7ree!!.wordDao_7ree())
+            articleRepository_7ree = ArticleRepository_7ree(database_7ree!!.articleDao_7ree())
             isDatabaseInitialized_7ree = true
             // Log.d(TAG_7ree, "数据库初始化完成")
         } catch (e: Exception) {
@@ -97,10 +100,10 @@ class AppInitializer_7ree(private val context: Context, private val lifecycleOwn
     private suspend fun initializeViewModel_7ree() {
         try {
             // Log.d(TAG_7ree, "开始初始化ViewModel")
-            if (wordRepository_7ree != null) {
-                wordQueryViewModel_7ree = WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree!!, context)
+            if (wordRepository_7ree != null && articleRepository_7ree != null) {
+                wordQueryViewModel_7ree = WordQueryViewModel_7ree(OpenAiApiService_7ree(), wordRepository_7ree!!, articleRepository_7ree!!, context)
             } else {
-                Log.e(TAG_7ree, "WordRepository未初始化，无法创建ViewModel")
+                Log.e(TAG_7ree, "Repository未初始化，无法创建ViewModel")
             }
         } catch (e: Exception) {
             Log.e(TAG_7ree, "ViewModel初始化失败: ${e.message}", e)

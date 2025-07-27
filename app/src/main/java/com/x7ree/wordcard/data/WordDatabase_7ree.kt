@@ -7,10 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [WordEntity_7ree::class], version = 3, exportSchema = false)
+@Database(entities = [WordEntity_7ree::class, ArticleEntity_7ree::class], version = 4, exportSchema = false)
 abstract class WordDatabase_7ree : RoomDatabase() {
     
     abstract fun wordDao_7ree(): WordDao_7ree
+    abstract fun articleDao_7ree(): ArticleDao_7ree
     
     companion object {
         @Volatile
@@ -32,13 +33,33 @@ abstract class WordDatabase_7ree : RoomDatabase() {
             }
         }
         
+        // 数据库迁移：从版本3到版本4，添加articles表
+        private val MIGRATION_3_4_7ree = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
+                    CREATE TABLE IF NOT EXISTS articles (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        generationTimestamp INTEGER NOT NULL,
+                        keyWords TEXT NOT NULL,
+                        viewCount INTEGER NOT NULL,
+                        apiResult TEXT NOT NULL,
+                        englishTitle TEXT NOT NULL,
+                        titleTranslation TEXT NOT NULL,
+                        englishContent TEXT NOT NULL,
+                        chineseContent TEXT NOT NULL,
+                        isFavorite INTEGER NOT NULL
+                    )
+                """.trimIndent())
+            }
+        }
+        
         fun getDatabase_7ree(context: Context): WordDatabase_7ree {
             return INSTANCE_7ree ?: synchronized(this) {
                 val instance_7ree = Room.databaseBuilder(
                     context.applicationContext,
                     WordDatabase_7ree::class.java,
                     "word_database_7ree"
-                ).addMigrations(MIGRATION_1_2_7ree, MIGRATION_2_3_7ree).build()
+                ).addMigrations(MIGRATION_1_2_7ree, MIGRATION_2_3_7ree, MIGRATION_3_4_7ree).build()
                 INSTANCE_7ree = instance_7ree
                 instance_7ree
             }

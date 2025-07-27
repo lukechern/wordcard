@@ -18,8 +18,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
+import com.x7ree.wordcard.ui.ArticleDetailScreen_7ree
+import com.x7ree.wordcard.ui.ArticleScreen_7ree
 import com.x7ree.wordcard.ui.BottomNavigationBar_7ree
 import com.x7ree.wordcard.ui.DashboardScreen_7ree
+import com.x7ree.wordcard.ui.MainScreen.HistoryScreen_7ree
 import com.x7ree.wordcard.ui.SplashScreen_7ree
 import com.x7ree.wordcard.ui.WordCardScreen_7ree
 import kotlinx.coroutines.delay
@@ -35,6 +38,7 @@ fun MainScreen_7ree(
     val currentScreenString_7ree by wordQueryViewModel_7ree?.currentScreen_7ree?.collectAsState() ?: mutableStateOf("SEARCH")
     val currentScreen_7ree = when (currentScreenString_7ree) {
         "HISTORY" -> Screen_7ree.HISTORY
+        "ARTICLE" -> Screen_7ree.ARTICLE
         "SETTINGS" -> Screen_7ree.SETTINGS
         else -> Screen_7ree.SEARCH
     }
@@ -92,6 +96,7 @@ fun MainScreen_7ree(
                         onScreenSelected_7ree = { screen -> 
                             val screenString = when (screen) {
                                 Screen_7ree.HISTORY -> "HISTORY"
+                                Screen_7ree.ARTICLE -> "ARTICLE"
                                 Screen_7ree.SETTINGS -> "SETTINGS"
                                 else -> "SEARCH"
                             }
@@ -126,6 +131,75 @@ fun MainScreen_7ree(
                                         wordQueryViewModel_7ree.setCurrentScreen_7ree("SEARCH")
                                     }
                                 )
+                            }
+                            Screen_7ree.ARTICLE -> {
+                                val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree
+                                if (articleViewModel != null) {
+                                    val articles by articleViewModel.articles.collectAsState()
+                                    val isGenerating by articleViewModel.isGenerating.collectAsState()
+                                    val showDetailScreen by articleViewModel.showDetailScreen.collectAsState()
+                                    val selectedArticle by articleViewModel.selectedArticle.collectAsState()
+                                    
+                                    selectedArticle?.let { article ->
+                                        if (showDetailScreen) {
+                                            // 显示文章详情页
+                                            ArticleDetailScreen_7ree(
+                                                article = article,
+                                                onBackClick = {
+                                                    articleViewModel.closeDetailScreen()
+                                                },
+                                                onToggleFavorite = {
+                                                    articleViewModel.toggleSelectedArticleFavorite()
+                                                },
+                                                onShareClick = {
+                                                    articleViewModel.shareArticle(article)
+                                                }
+                                            )
+                                        } else {
+                                            // 显示文章列表页
+                                            ArticleScreen_7ree(
+                                                articles = articles,
+                                                onGenerateArticle = { keyWords ->
+                                                    articleViewModel.generateArticle(keyWords)
+                                                },
+                                                onArticleClick = { article ->
+                                                    articleViewModel.selectArticle(article)
+                                                },
+                                                onToggleFavorite = { articleId ->
+                                                    articleViewModel.toggleFavorite(articleId)
+                                                },
+                                                isGenerating = isGenerating
+                                            )
+                                        }
+                                    } ?: run {
+                                        // 显示文章列表页
+                                        ArticleScreen_7ree(
+                                            articles = articles,
+                                            onGenerateArticle = { keyWords ->
+                                                articleViewModel.generateArticle(keyWords)
+                                            },
+                                            onArticleClick = { article ->
+                                                articleViewModel.selectArticle(article)
+                                            },
+                                            onToggleFavorite = { articleId ->
+                                                articleViewModel.toggleFavorite(articleId)
+                                            },
+                                            isGenerating = isGenerating
+                                        )
+                                    }
+                                } else {
+                                    // 如果ArticleViewModel未初始化，显示错误信息
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "文章功能初始化失败",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            color = MaterialTheme.colorScheme.error
+                                        )
+                                    }
+                                }
                             }
                             Screen_7ree.SETTINGS -> {
                                 DashboardScreen_7ree(

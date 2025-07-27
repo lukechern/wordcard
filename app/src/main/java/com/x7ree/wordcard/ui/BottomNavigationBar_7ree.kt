@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material3.BottomAppBar
@@ -71,6 +72,13 @@ fun BottomNavigationBar_7ree(
                 label = "单词本",
                 isSelected = currentScreen_7ree == Screen_7ree.HISTORY,
                 onClick = { onScreenSelected_7ree(Screen_7ree.HISTORY) }
+            )
+            
+            CustomNavigationItem_7ree(
+                icon = Icons.Filled.Article,
+                label = "读文章",
+                isSelected = currentScreen_7ree == Screen_7ree.ARTICLE,
+                onClick = { onScreenSelected_7ree(Screen_7ree.ARTICLE) }
             )
             
             CustomNavigationItem_7ree(

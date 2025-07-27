@@ -11,6 +11,8 @@ import com.x7ree.wordcard.config.ApiConfig_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.config.GeneralConfig_7ree
 import com.x7ree.wordcard.config.PromptConfig_7ree
+import com.x7ree.wordcard.article.ArticleViewModel_7ree
+import com.x7ree.wordcard.data.ArticleRepository_7ree
 import com.x7ree.wordcard.data.DataExportImportManager_7ree
 import com.x7ree.wordcard.data.WordEntity_7ree
 import com.x7ree.wordcard.data.WordRepository_7ree
@@ -42,6 +44,7 @@ import kotlinx.coroutines.flow.StateFlow
 class WordQueryViewModel_7ree(
     private val apiService_7ree: OpenAiApiService_7ree = OpenAiApiService_7ree(),
     private val wordRepository_7ree: WordRepository_7ree,
+    private val articleRepository_7ree: ArticleRepository_7ree? = null,
     private val context: Context
 ) : ViewModel() {
     
@@ -71,6 +74,11 @@ class WordQueryViewModel_7ree(
     private val dataHandler_7ree: DataHandler_7ree
     private val paginationHandler_7ree: PaginationHandler_7ree
     private val spellingHandler_7ree: SpellingHandler_7ree
+    
+    // 文章功能
+    val articleViewModel_7ree: ArticleViewModel_7ree? = if (articleRepository_7ree != null) {
+        ArticleViewModel_7ree(articleRepository_7ree, apiService_7ree, context)
+    } else null
     
     init {
         // 初始化业务管理器
