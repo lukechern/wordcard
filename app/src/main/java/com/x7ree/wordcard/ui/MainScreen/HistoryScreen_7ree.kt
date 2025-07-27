@@ -130,7 +130,7 @@ fun HistoryScreen_7ree(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             // 搜索栏组件，包含标题、搜索功能和汉堡菜单按钮
             SearchBarComponent_7ree(
