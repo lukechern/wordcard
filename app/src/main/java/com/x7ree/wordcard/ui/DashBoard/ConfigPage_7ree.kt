@@ -45,6 +45,8 @@ fun ConfigPage_7ree(
     val promptConfig_7ree by wordQueryViewModel_7ree.promptConfig_7ree.collectAsState()
     var queryPrompt_7ree by remember { mutableStateOf(promptConfig_7ree.queryPrompt_7ree) }
     var outputTemplate_7ree by remember { mutableStateOf(promptConfig_7ree.outputTemplate_7ree) }
+    var articleGenerationPrompt_7ree by remember { mutableStateOf(promptConfig_7ree.articleGenerationPrompt_7ree) }
+    var articleOutputTemplate_7ree by remember { mutableStateOf(promptConfig_7ree.articleOutputTemplate_7ree) }
     
     // 同步初始状态
     LaunchedEffect(generalConfig_7ree) {
@@ -74,6 +76,8 @@ fun ConfigPage_7ree(
     LaunchedEffect(promptConfig_7ree) {
         queryPrompt_7ree = promptConfig_7ree.queryPrompt_7ree
         outputTemplate_7ree = promptConfig_7ree.outputTemplate_7ree
+        articleGenerationPrompt_7ree = promptConfig_7ree.articleGenerationPrompt_7ree
+        articleOutputTemplate_7ree = promptConfig_7ree.articleOutputTemplate_7ree
     }
     
     // API配置状态监控日志
@@ -173,7 +177,11 @@ fun ConfigPage_7ree(
                         queryPrompt_7ree = queryPrompt_7ree,
                         onQueryPromptChange = { queryPrompt_7ree = it },
                         outputTemplate_7ree = outputTemplate_7ree,
-                        onOutputTemplateChange = { outputTemplate_7ree = it }
+                        onOutputTemplateChange = { outputTemplate_7ree = it },
+                        articleGenerationPrompt_7ree = articleGenerationPrompt_7ree,
+                        onArticleGenerationPromptChange = { articleGenerationPrompt_7ree = it },
+                        articleOutputTemplate_7ree = articleOutputTemplate_7ree,
+                        onArticleOutputTemplateChange = { articleOutputTemplate_7ree = it }
                     )
                 }
                 SettingsTab_7ree.DATA_MANAGEMENT -> {
@@ -230,7 +238,9 @@ fun ConfigPage_7ree(
                             // 提示词配置保存
                             wordQueryViewModel_7ree.savePromptConfig_7ree(
                                 queryPrompt = queryPrompt_7ree,
-                                outputTemplate = outputTemplate_7ree
+                                outputTemplate = outputTemplate_7ree,
+                                articleGenerationPrompt = articleGenerationPrompt_7ree,
+                                articleOutputTemplate = articleOutputTemplate_7ree
                             )
                         }
                         else -> {}

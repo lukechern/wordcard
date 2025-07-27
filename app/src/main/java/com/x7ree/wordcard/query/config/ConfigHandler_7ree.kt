@@ -42,8 +42,8 @@ class ConfigHandler_7ree(
     /**
      * 保存提示词配置
      */
-    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String) {
-        configManager_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate)
+    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String, articleGenerationPrompt: String, articleOutputTemplate: String) {
+        configManager_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate, articleGenerationPrompt, articleOutputTemplate)
     }
     
     /**
@@ -106,7 +106,9 @@ class ConfigHandler_7ree(
     fun saveCurrentPromptConfigFromUI_7ree(promptConfig: com.x7ree.wordcard.config.PromptConfig_7ree) {
         configManager_7ree.savePromptConfig_7ree(
             promptConfig.queryPrompt_7ree,
-            promptConfig.outputTemplate_7ree
+            promptConfig.outputTemplate_7ree,
+            promptConfig.articleGenerationPrompt_7ree,
+            promptConfig.articleOutputTemplate_7ree
         )
     }
 }

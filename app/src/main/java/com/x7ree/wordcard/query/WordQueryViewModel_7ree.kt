@@ -311,8 +311,8 @@ class WordQueryViewModel_7ree(
         )
     }
     
-    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String) {
-        configHandler_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate)
+    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String, articleGenerationPrompt: String, articleOutputTemplate: String) {
+        configHandler_7ree.savePromptConfig_7ree(queryPrompt, outputTemplate, articleGenerationPrompt, articleOutputTemplate)
     }
     
     fun saveGeneralConfig_7ree(

@@ -142,12 +142,14 @@ class ConfigManager_7ree(
     }
     
     // 保存提示词配置的方法（接受参数）
-    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String) {
+    fun savePromptConfig_7ree(queryPrompt: String, outputTemplate: String, articleGenerationPrompt: String, articleOutputTemplate: String) {
         coroutineScope.launch {
             try {
                 val config = PromptConfig_7ree(
                     queryPrompt_7ree = queryPrompt,
-                    outputTemplate_7ree = outputTemplate
+                    outputTemplate_7ree = outputTemplate,
+                    articleGenerationPrompt_7ree = articleGenerationPrompt,
+                    articleOutputTemplate_7ree = articleOutputTemplate
                 )
                 
                 val success = appConfigManager_7ree.savePromptConfig_7ree(config)

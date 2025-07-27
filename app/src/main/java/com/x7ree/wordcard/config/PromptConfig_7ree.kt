@@ -46,5 +46,25 @@ data class PromptConfig_7ree(
 {synonyms}
 
 # 反义词
-{antonyms}"""
+{antonyms}""",
+    val articleGenerationPrompt_7ree: String = """请根据提供的单词生成一篇英文文章，要求：
+
+1. 文章长度适中（200-300词）
+2. 自然地使用提供的单词
+3. 文章内容有趣且有教育意义
+4. 语法正确，表达流畅
+5. 适合英语学习者阅读
+
+请确保文章质量高，能够帮助用户在语境中理解和记忆单词。""",
+    val articleOutputTemplate_7ree: String = """# 文章标题
+{title}
+
+# 文章内容
+{content}
+
+# 重点单词
+{keywords}
+
+# 文章翻译
+{translation}"""
 ) 

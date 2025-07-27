@@ -23,15 +23,21 @@ fun PromptConfigTab_7ree(
     queryPrompt_7ree: String,
     onQueryPromptChange: (String) -> Unit,
     outputTemplate_7ree: String,
-    onOutputTemplateChange: (String) -> Unit
+    onOutputTemplateChange: (String) -> Unit,
+    articleGenerationPrompt_7ree: String,
+    onArticleGenerationPromptChange: (String) -> Unit,
+    articleOutputTemplate_7ree: String,
+    onArticleOutputTemplateChange: (String) -> Unit
 ) {
     
     // 保存配置的函数
     fun saveConfig() {
-        println("DEBUG: 保存提示词配置 - 查询提示词: $queryPrompt_7ree, 输出模板: $outputTemplate_7ree")
+        println("DEBUG: 保存提示词配置 - 查询提示词: $queryPrompt_7ree, 输出模板: $outputTemplate_7ree, 文章生成提示词: $articleGenerationPrompt_7ree, 文章输出模板: $articleOutputTemplate_7ree")
         wordQueryViewModel_7ree.savePromptConfig_7ree(
             queryPrompt = queryPrompt_7ree,
-            outputTemplate = outputTemplate_7ree
+            outputTemplate = outputTemplate_7ree,
+            articleGenerationPrompt = articleGenerationPrompt_7ree,
+            articleOutputTemplate = articleOutputTemplate_7ree
         )
     }
     
@@ -68,6 +74,30 @@ fun PromptConfigTab_7ree(
                 value = outputTemplate_7ree,
                 onValueChange = onOutputTemplateChange,
                 label = { Text("翻译输出模板") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                minLines = 3,
+                maxLines = Int.MAX_VALUE
+            )
+            
+            OutlinedTextField(
+                value = articleGenerationPrompt_7ree,
+                onValueChange = onArticleGenerationPromptChange,
+                label = { Text("文章生成提示词") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+                minLines = 3,
+                maxLines = Int.MAX_VALUE
+            )
+            
+            OutlinedTextField(
+                value = articleOutputTemplate_7ree,
+                onValueChange = onArticleOutputTemplateChange,
+                label = { Text("文章输出模板") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
