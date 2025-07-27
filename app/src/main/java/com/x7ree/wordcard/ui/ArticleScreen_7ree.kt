@@ -30,6 +30,7 @@ import java.util.*
 fun ArticleScreen_7ree(
     articles: List<ArticleEntity_7ree> = emptyList(),
     onGenerateArticle: (String) -> Unit = {},
+    onSmartGenerate: (SmartGenerationType_7ree) -> Unit = {},
     onArticleClick: (ArticleEntity_7ree) -> Unit = {},
     onToggleFavorite: (Long) -> Unit = {},
     isGenerating: Boolean = false
@@ -119,6 +120,10 @@ fun ArticleScreen_7ree(
         onDismiss = { showGenerationDialog = false },
         onGenerate = { keyWords ->
             onGenerateArticle(keyWords)
+            showGenerationDialog = false
+        },
+        onSmartGenerate = { type ->
+            onSmartGenerate(type)
             showGenerationDialog = false
         },
         isGenerating = isGenerating

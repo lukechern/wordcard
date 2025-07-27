@@ -169,6 +169,9 @@ fun MainScreen_7ree(
                                                 onGenerateArticle = { keyWords ->
                                                     articleViewModel.generateArticle(keyWords)
                                                 },
+                                                onSmartGenerate = { type ->
+                                                    articleViewModel.smartGenerateArticle(type)
+                                                },
                                                 onArticleClick = { article ->
                                                     articleViewModel.selectArticle(article)
                                                 },
@@ -184,6 +187,9 @@ fun MainScreen_7ree(
                                             articles = articles,
                                             onGenerateArticle = { keyWords ->
                                                 articleViewModel.generateArticle(keyWords)
+                                            },
+                                            onSmartGenerate = { type ->
+                                                articleViewModel.smartGenerateArticle(type)
                                             },
                                             onArticleClick = { article ->
                                                 articleViewModel.selectArticle(article)

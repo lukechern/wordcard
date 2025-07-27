@@ -441,6 +441,136 @@ class ArticleViewModel_7ree(
     }
     
     /**
+     * 智能生成文章
+     */
+    fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree) {
+        viewModelScope.launch {
+            try {
+                _isGenerating.value = true
+                _operationResult.value = "正在智能选择关键词..."
+                
+                android.util.Log.d("ArticleViewModel", "开始智能生成文章，类型: $type")
+                
+                if (wordRepository_7ree == null) {
+                    _operationResult.value = "单词库未初始化，无法智能选词"
+                    return@launch
+                }
+                
+                // 根据类型获取关键词
+                val keywords = when (type) {
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> {
+                        getWordsWithLowViewCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> {
+                        getWordsWithLowReferenceCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> {
+                        getWordsWithLowSpellingCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> {
+                        getNewestWords()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> {
+                        getRandomWords()
+                    }
+                    else -> {
+                        emptyList()
+                    }
+                }
+                
+                if (keywords.isEmpty()) {
+                    _operationResult.value = "单词库中没有找到合适的单词"
+                    return@launch
+                }
+                
+                val keyWordsString = keywords.joinToString(", ")
+                android.util.Log.d("ArticleViewModel", "智能选择的关键词: $keyWordsString")
+                
+                // 使用选择的关键词生成文章
+                generateArticle(keyWordsString)
+                
+            } catch (e: Exception) {
+                android.util.Log.e("ArticleViewModel", "智能生成文章失败: ${e.message}", e)
+                _operationResult.value = "智能生成失败: ${e.message}"
+                _isGenerating.value = false
+            }
+        }
+    }
+    
+    /**
+     * 获取查阅次数最少的5个单词
+     */
+    private suspend fun getWordsWithLowViewCount(): List<String> {
+        return try {
+            // 这里需要从WordRepository获取按查阅次数排序的单词
+            // 由于当前的WordRepository可能没有这个方法，我们先用一个简化的实现
+            android.util.Log.d("ArticleViewModel", "获取查阅次数最少的单词")
+            // TODO: 实现从WordRepository获取按viewCount排序的单词
+            listOf("example", "sample", "test", "demo", "basic") // 临时实现
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "获取低查阅单词失败: ${e.message}", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * 获取引用次数最少的5个单词
+     */
+    private suspend fun getWordsWithLowReferenceCount(): List<String> {
+        return try {
+            android.util.Log.d("ArticleViewModel", "获取引用次数最少的单词")
+            // TODO: 实现从WordRepository获取按referenceCount排序的单词
+            listOf("unique", "special", "rare", "uncommon", "distinct") // 临时实现
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "获取低引用单词失败: ${e.message}", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * 获取拼写练习次数最少的5个单词
+     */
+    private suspend fun getWordsWithLowSpellingCount(): List<String> {
+        return try {
+            android.util.Log.d("ArticleViewModel", "获取拼写练习最少的单词")
+            // TODO: 实现从WordRepository获取按spellingCount排序的单词
+            listOf("practice", "exercise", "training", "study", "learn") // 临时实现
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "获取低拼写单词失败: ${e.message}", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * 获取最新加入的5个单词
+     */
+    private suspend fun getNewestWords(): List<String> {
+        return try {
+            android.util.Log.d("ArticleViewModel", "获取最新加入的单词")
+            // TODO: 实现从WordRepository获取按queryTimestamp排序的单词
+            listOf("recent", "latest", "current", "modern", "contemporary") // 临时实现
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "获取最新单词失败: ${e.message}", e)
+            emptyList()
+        }
+    }
+    
+    /**
+     * 获取随机的5个单词
+     */
+    private suspend fun getRandomWords(): List<String> {
+        return try {
+            android.util.Log.d("ArticleViewModel", "获取随机单词")
+            // TODO: 实现从WordRepository随机获取单词
+            val randomWords = listOf("adventure", "journey", "discovery", "exploration", "experience")
+            randomWords.shuffled().take(5) // 临时实现
+        } catch (e: Exception) {
+            android.util.Log.e("ArticleViewModel", "获取随机单词失败: ${e.message}", e)
+            emptyList()
+        }
+    }
+    
+    /**
      * 构建文章生成提示词
      */
     private fun buildArticlePrompt(keyWords: String, promptConfig: PromptConfig_7ree): String {
