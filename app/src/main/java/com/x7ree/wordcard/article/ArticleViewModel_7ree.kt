@@ -258,9 +258,16 @@ class ArticleViewModel_7ree(
     }
     
     /**
-     * 智能生成文章
+     * 智能生成文章（使用预定义的智能选词类型）
      */
     fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree) {
+        smartGenerateArticle(type, "")
+    }
+    
+    /**
+     * 智能生成文章（支持手动输入关键词）
+     */
+    fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree, manualKeywords: String = "") {
         viewModelScope.launch {
             try {
                 // 保存当前智能生成类型
@@ -269,6 +276,25 @@ class ArticleViewModel_7ree(
                 // 显示智能生成文章卡片
                 _showSmartGenerationCard.value = true
                 _isGenerating.value = true
+                
+                // 对于手动输入，直接使用已输入的关键词
+                if (type == com.x7ree.wordcard.ui.SmartGenerationType_7ree.MANUAL_INPUT) {
+                    _operationResult.value = "正在生成文章..."
+                    _smartGenerationStatus.value = "正在生成文章，请稍候..."
+                    
+                    // 延迟一小段时间以显示状态
+                    delay(500)
+                    
+                    // 显示正在生成文章的状态（包含API名称）
+                    val apiConfig = appConfigManager_7ree.loadApiConfig_7ree()
+                    val apiName = apiConfig.getActiveTranslationApi().apiName
+                    _smartGenerationStatus.value = "${apiName}正在生成文章中，请稍候……"
+                    
+                    // 使用手动输入的关键词生成文章
+                    generateArticle(manualKeywords)
+                    return@launch
+                }
+                
                 _operationResult.value = "正在智能选择关键词..."
                 
                 if (wordRepository_7ree == null) {

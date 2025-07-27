@@ -20,6 +20,7 @@ fun ArticleGenerationDialog_7ree(
     onDismiss: () -> Unit,
     onGenerate: (String) -> Unit,
     onSmartGenerate: (SmartGenerationType_7ree) -> Unit = {},
+    onSmartGenerateWithKeywords: (SmartGenerationType_7ree, String) -> Unit = { _, _ -> },
     isGenerating: Boolean = false
 ) {
     if (isVisible) {
@@ -165,7 +166,7 @@ fun ArticleGenerationDialog_7ree(
                             Button(
                                 onClick = {
                                     if (keyWords.isNotBlank()) {
-                                        onGenerate(keyWords.trim())
+                                        onSmartGenerateWithKeywords(SmartGenerationType_7ree.MANUAL_INPUT, keyWords.trim())
                                     }
                                 },
                                 enabled = !isGenerating && keyWords.isNotBlank()

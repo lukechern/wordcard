@@ -51,6 +51,7 @@ fun SmartGenerationProgressCard_7ree(
                         com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> "低拼写单词"
                         com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> "新收录单词"
                         com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> "随机单词"
+                        com.x7ree.wordcard.ui.SmartGenerationType_7ree.MANUAL_INPUT -> "手动输入单词"
                         else -> ""
                     }
                     

@@ -172,6 +172,9 @@ fun MainScreen_7ree(
                                                 onSmartGenerate = { type ->
                                                     articleViewModel.smartGenerateArticle(type)
                                                 },
+                                                onSmartGenerateWithKeywords = { type, keywords ->
+                                                    articleViewModel.smartGenerateArticle(type, keywords)
+                                                },
                                                 onArticleClick = { article ->
                                                     articleViewModel.selectArticle(article)
                                                 },
@@ -188,6 +191,7 @@ fun MainScreen_7ree(
                                         }
                                     } ?: run {
                                         // 显示文章列表页
+                                        var showGenerationDialog by remember { mutableStateOf(false) }
                                         ArticleScreen_7ree(
                                             articles = articles,
                                             onGenerateArticle = { keyWords ->
@@ -195,6 +199,9 @@ fun MainScreen_7ree(
                                             },
                                             onSmartGenerate = { type ->
                                                 articleViewModel.smartGenerateArticle(type)
+                                            },
+                                            onSmartGenerateWithKeywords = { type, keywords ->
+                                                articleViewModel.smartGenerateArticle(type, keywords)
                                             },
                                             onArticleClick = { article ->
                                                 articleViewModel.selectArticle(article)

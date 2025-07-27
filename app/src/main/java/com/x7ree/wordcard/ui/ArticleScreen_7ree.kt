@@ -31,6 +31,7 @@ fun ArticleScreen_7ree(
     articles: List<ArticleEntity_7ree> = emptyList(),
     onGenerateArticle: (String) -> Unit = {},
     onSmartGenerate: (SmartGenerationType_7ree) -> Unit = {},
+    onSmartGenerateWithKeywords: (SmartGenerationType_7ree, String) -> Unit = { _, _ -> },
     onArticleClick: (ArticleEntity_7ree) -> Unit = {},
     onToggleFavorite: (Long) -> Unit = {},
     isGenerating: Boolean = false,
@@ -41,6 +42,15 @@ fun ArticleScreen_7ree(
     currentSmartGenerationType: SmartGenerationType_7ree? = null
 ) {
     var showGenerationDialog by remember { mutableStateOf(false) }
+    var shouldCloseDialogAfterGeneration by remember { mutableStateOf(false) }
+    
+    // 监听生成状态，如果正在生成文章，则在生成完成后关闭对话框
+    LaunchedEffect(isGenerating) {
+        if (!isGenerating && shouldCloseDialogAfterGeneration) {
+            showGenerationDialog = false
+            shouldCloseDialogAfterGeneration = false
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -130,6 +140,11 @@ fun ArticleScreen_7ree(
         onSmartGenerate = { type ->
             onSmartGenerate(type)
             showGenerationDialog = false
+        },
+        onSmartGenerateWithKeywords = { type, keywords ->
+            onSmartGenerateWithKeywords(type, keywords)
+            // 对于手动输入，不立即关闭对话框，等待生成完成后再关闭
+            shouldCloseDialogAfterGeneration = true
         },
         isGenerating = isGenerating
     )
