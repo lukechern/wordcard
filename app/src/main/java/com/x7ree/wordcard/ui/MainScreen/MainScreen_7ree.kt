@@ -46,6 +46,7 @@ fun MainScreen_7ree(
     var showCustomToast_7ree by remember { mutableStateOf(false) }
     var toastMessage_7ree by remember { mutableStateOf("") }
     val operationResult_7ree by wordQueryViewModel_7ree?.operationResult_7ree?.collectAsState() ?: mutableStateOf(null)
+    val articleOperationResult_7ree by wordQueryViewModel_7ree?.articleViewModel_7ree?.operationResult?.collectAsState() ?: mutableStateOf(null)
 
     // 监听操作结果，显示自定义提示条
     LaunchedEffect(operationResult_7ree) {
@@ -54,6 +55,16 @@ fun MainScreen_7ree(
             showCustomToast_7ree = true
             // 清除操作结果
             wordQueryViewModel_7ree?.clearOperationResult_7ree()
+        }
+    }
+    
+    // 监听文章操作结果，显示自定义提示条
+    LaunchedEffect(articleOperationResult_7ree) {
+        articleOperationResult_7ree?.let { result ->
+            toastMessage_7ree = result
+            showCustomToast_7ree = true
+            // 清除操作结果
+            wordQueryViewModel_7ree?.articleViewModel_7ree?.clearOperationResult()
         }
     }
 

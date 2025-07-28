@@ -67,22 +67,27 @@ fun ArticleDetailScreen_7ree(
                 )
                 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 收藏按钮
-                    IconButton(onClick = onToggleFavorite) {
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier.size(30.dp)
+                    ) {
                         Icon(
                             imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
-                            tint = if (article.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
+                            tint = if (article.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                     
                     // 朗读按钮
                     IconButton(
                         onClick = onShareClick,
-                        enabled = ttsButtonState != com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING
+                        enabled = ttsButtonState != com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING,
+                        modifier = Modifier.size(30.dp)
                     ) {
                         when (ttsButtonState) {
                             com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING -> {
@@ -96,21 +101,24 @@ fun ArticleDetailScreen_7ree(
                                 Icon(
                                     imageVector = Icons.Default.Stop,
                                     contentDescription = "停止朗读",
-                                    tint = MaterialTheme.colorScheme.primary
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                             com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.ERROR -> {
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
                                     contentDescription = "重试朗读",
-                                    tint = MaterialTheme.colorScheme.error
+                                    tint = MaterialTheme.colorScheme.error,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                             com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY -> {
                                 Icon(
                                     imageVector = Icons.Default.VolumeUp,
                                     contentDescription = "朗读文章",
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }

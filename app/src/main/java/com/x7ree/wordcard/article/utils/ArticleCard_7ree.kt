@@ -133,7 +133,7 @@ fun ArticleCard_7ree(
                         Icon(
                             imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                             contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
-                            tint = if (article.isFavorite) Color.Red else Color.Gray,
+                            tint = if (article.isFavorite) MaterialTheme.colorScheme.primary else Color.Gray,
                             modifier = Modifier.size(20.dp)
                         )
                     }
