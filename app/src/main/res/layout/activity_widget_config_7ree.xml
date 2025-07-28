@@ -96,9 +96,10 @@
         android:layout_height="36dp"
         android:text="用AI查询"
         android:textSize="14sp"
-        android:textColor="#FFFFFF"
-        android:background="@drawable/widget_green_button_background_7ree"
-        android:gravity="center" />
+        android:textColor="@color/dark_gray"
+        android:background="@drawable/widget_gray_button_background_7ree"
+        android:gravity="center"
+        android:alpha="0.5" />
 
     <!-- 查询结果显示区域 -->
     <ProgressBar

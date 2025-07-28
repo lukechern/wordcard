@@ -33,17 +33,31 @@ class WidgetButtonManager_7ree(private val context: Context) {
         val buttonText = "用AI查询"
         val spannableString = SpannableString("   $buttonText") // 增加3个空格作为间距
         
-        // 获取三个星星图标
-        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_add_article_7ree)
+        // 获取星星图标
+        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_auto_awesome_7ree)
         drawable?.let {
-            it.setTint(ContextCompat.getColor(context, R.color.dark_green_7ree))
+            // 根据按钮状态设置图标颜色
+            val iconColor = if (enabled) {
+                ContextCompat.getColor(context, R.color.white) // 生效状态：白色图标
+            } else {
+                ContextCompat.getColor(context, R.color.dark_gray) // 未生效状态：深灰色图标
+            }
+            it.setTint(iconColor)
             // 调整图标大小，使其与文字更好地对齐
-            val iconSize = (14 * context.resources.displayMetrics.density).toInt() // 14dp转换为像素
+            val iconSize = (15 * context.resources.displayMetrics.density).toInt() // 15dp转换为像素
             it.setBounds(0, 0, iconSize, iconSize)
             // 使用ALIGN_CENTER来垂直居中对齐
             val imageSpan = ImageSpan(it, ImageSpan.ALIGN_CENTER)
             spannableString.setSpan(imageSpan, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
+        
+        // 设置文字颜色
+        val textColor = if (enabled) {
+            ContextCompat.getColor(context, R.color.white) // 生效状态：白色文字
+        } else {
+            ContextCompat.getColor(context, R.color.dark_gray) // 未生效状态：深灰色文字
+        }
+        button.setTextColor(textColor)
         
         button.text = spannableString
     }
