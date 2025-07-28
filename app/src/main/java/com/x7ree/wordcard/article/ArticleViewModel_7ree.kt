@@ -25,6 +25,8 @@ import com.x7ree.wordcard.article.utils.ArticleDeleteHelper_7ree
 import com.x7ree.wordcard.article.utils.ArticleGenerationHelper2_7ree
 import com.x7ree.wordcard.article.utils.ArticleFilterState_7ree
 import com.x7ree.wordcard.article.utils.ArticleSortType_7ree
+import com.x7ree.wordcard.article.utils.ArticlePaginationHandler_7ree
+import kotlinx.coroutines.delay
 
 /**
  * 文章功能的ViewModel
@@ -46,6 +48,9 @@ class ArticleViewModel_7ree(
     private val articleListHelper_7ree = ArticleListHelper_7ree(articleRepository_7ree)
     private val articleDeleteHelper_7ree = ArticleDeleteHelper_7ree(articleRepository_7ree)
     private val articleGenerationHelper2_7ree = ArticleGenerationHelper2_7ree(apiService_7ree, appConfigManager_7ree, articleRepository_7ree, articleGenerationHelper_7ree)
+    
+    // 分页处理器
+    private val articlePaginationHandler_7ree = ArticlePaginationHandler_7ree(articleRepository_7ree)
     
     // 文章列表状态
     private val _articles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
@@ -121,12 +126,35 @@ class ArticleViewModel_7ree(
     private val _selectedArticleIds = MutableStateFlow<Set<Long>>(emptySet())
     val selectedArticleIds: StateFlow<Set<Long>> = _selectedArticleIds.asStateFlow()
     
+    // 分页相关状态 - 从分页处理器获取
+    val pagedArticles: StateFlow<List<ArticleEntity_7ree>> = articlePaginationHandler_7ree.pagedArticles
+    val isLoadingMore: StateFlow<Boolean> = articlePaginationHandler_7ree.isLoadingMore
+    val hasMoreData: StateFlow<Boolean> = articlePaginationHandler_7ree.hasMoreData
+    val isPaginationRefreshing: StateFlow<Boolean> = articlePaginationHandler_7ree.isRefreshing
+    
+    // 是否使用分页模式
+    private val _usePaginationMode = MutableStateFlow(true)
+    val usePaginationMode: StateFlow<Boolean> = _usePaginationMode.asStateFlow()
+    
     init {
-        initializeArticleFlow()
-        // 监听筛选状态变化，重新应用筛选和排序
-        viewModelScope.launch {
-            _filterState.collect { filterState ->
-                applyFilterAndSort()
+        // 初始化分页数据
+        loadInitialArticles()
+        
+        // 如果不使用分页模式，则使用原有的流式数据
+        if (!_usePaginationMode.value) {
+            initializeArticleFlow()
+            // 监听筛选状态变化，重新应用筛选和排序
+            viewModelScope.launch {
+                _filterState.collect { filterState ->
+                    applyFilterAndSort()
+                }
+            }
+        } else {
+            // 分页模式下，监听筛选状态变化，重新加载分页数据
+            viewModelScope.launch {
+                _filterState.collect { filterState ->
+                    loadInitialArticles()
+                }
             }
         }
     }
@@ -222,16 +250,28 @@ class ArticleViewModel_7ree(
             { generating -> _isGenerating.value = generating },
             { result -> 
                 _operationResult.value = result
+                
+                // 如果生成成功，处理新文章
+                if (result == "文章生成成功！") {
+                    handleNewArticleGenerated()
+                }
+                
                 // 如果是智能生成文章，更新智能生成文章卡片的状态
                 if (_showSmartGenerationCard.value) {
                     if (result == "文章生成成功！") {
                         // 延迟一下再获取最新文章，确保数据库更新完成
                         viewModelScope.launch {
                             delay(100) // 等待数据库更新
-                            // 获取最新生成的文章标题（按时间戳排序）
-                            val latestArticle = _articles.value
-                                .sortedByDescending { it.generationTimestamp }
-                                .firstOrNull()
+                            // 根据模式获取最新文章
+                            val latestArticle = if (_usePaginationMode.value) {
+                                articlePaginationHandler_7ree.pagedArticles.value
+                                    .sortedByDescending { it.generationTimestamp }
+                                    .firstOrNull()
+                            } else {
+                                _articles.value
+                                    .sortedByDescending { it.generationTimestamp }
+                                    .firstOrNull()
+                            }
                             val title = latestArticle?.englishTitle ?: "无标题"
                             
                             _smartGenerationStatus.value = "文章已生成，标题如下：\n$title"
@@ -615,6 +655,194 @@ class ArticleViewModel_7ree(
             } catch (e: Exception) {
                 _operationResult.value = "批量删除失败: ${e.message}"
             }
+        }
+    }
+    
+    // ========== 分页相关方法 ==========
+    
+    /**
+     * 加载初始文章（分页模式）
+     */
+    fun loadInitialArticles() {
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+                articlePaginationHandler_7ree.loadInitialArticles(_filterState.value)
+            } catch (e: Exception) {
+                _operationResult.value = "加载文章失败: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    /**
+     * 加载更多文章（分页模式）
+     */
+    fun loadMoreArticles() {
+        viewModelScope.launch {
+            try {
+                articlePaginationHandler_7ree.loadMoreArticles()
+            } catch (e: Exception) {
+                _operationResult.value = "加载更多文章失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 分页模式下的下拉刷新 - 完全参考单词本的DataLoadingManager实现
+     */
+    fun paginationRefreshArticles() {
+        viewModelScope.launch {
+            try {
+                // 设置刷新状态
+                articlePaginationHandler_7ree.setRefreshing(true)
+                
+                // 完全重置分页状态
+                articlePaginationHandler_7ree.resetPagination()
+                
+                // 重新加载初始数据
+                loadInitialArticles()
+                
+                // 延迟以显示刷新动画 - 与单词本保持一致
+                delay(500)
+                
+            } catch (e: Exception) {
+                _operationResult.value = "刷新失败: ${e.message}"
+            } finally {
+                // 确保刷新状态被重置
+                articlePaginationHandler_7ree.setRefreshing(false)
+            }
+        }
+    }
+    
+    /**
+     * 切换分页模式
+     */
+    fun togglePaginationMode() {
+        _usePaginationMode.value = !_usePaginationMode.value
+        if (_usePaginationMode.value) {
+            // 切换到分页模式
+            loadInitialArticles()
+        } else {
+            // 切换到流式模式
+            initializeArticleFlow()
+        }
+    }
+    
+    /**
+     * 分页模式下的文章收藏切换
+     */
+    fun paginationToggleFavorite(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                // 先更新数据库
+                articleFavoriteHelper_7ree.toggleFavorite(articleId, viewModelScope) { result ->
+                    _operationResult.value = result
+                }
+                
+                // 然后更新分页列表中的文章状态
+                val currentArticles = articlePaginationHandler_7ree.pagedArticles.value
+                val updatedArticle = currentArticles.find { it.id == articleId }?.let { article ->
+                    article.copy(isFavorite = !article.isFavorite)
+                }
+                
+                updatedArticle?.let {
+                    articlePaginationHandler_7ree.updateArticle(it)
+                }
+                
+            } catch (e: Exception) {
+                _operationResult.value = "收藏操作失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 分页模式下的文章删除
+     */
+    fun paginationDeleteArticle(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                // 先从分页列表中移除
+                articlePaginationHandler_7ree.removeArticle(articleId)
+                
+                // 然后删除数据库记录
+                articleDeleteHelper_7ree.deleteArticle(articleId, viewModelScope) { result ->
+                    _operationResult.value = result
+                }
+                
+            } catch (e: Exception) {
+                _operationResult.value = "删除文章失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 分页模式下的批量删除
+     */
+    fun paginationDeleteSelectedArticles() {
+        val selectedIds = _selectedArticleIds.value
+        if (selectedIds.isEmpty()) {
+            _operationResult.value = "请先选择要删除的文章"
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                var successCount = 0
+                var failCount = 0
+                
+                // 先从分页列表中移除选中的文章
+                selectedIds.forEach { articleId ->
+                    articlePaginationHandler_7ree.removeArticle(articleId)
+                }
+                
+                // 然后删除数据库记录
+                selectedIds.forEach { articleId ->
+                    try {
+                        articleDeleteHelper_7ree.deleteArticle(
+                            articleId,
+                            viewModelScope
+                        ) { result ->
+                            if (result.contains("成功")) {
+                                successCount++
+                            } else {
+                                failCount++
+                            }
+                        }
+                    } catch (e: Exception) {
+                        failCount++
+                    }
+                }
+                
+                // 等待删除操作完成
+                delay(500)
+                
+                val resultMessage = when {
+                    failCount == 0 -> "成功删除 ${successCount} 篇文章"
+                    successCount == 0 -> "删除失败，共 ${failCount} 篇文章删除失败"
+                    else -> "删除完成，成功 ${successCount} 篇，失败 ${failCount} 篇"
+                }
+                
+                _operationResult.value = resultMessage
+                
+                // 清空选中状态并退出管理模式
+                _selectedArticleIds.value = emptySet()
+                _isManagementMode.value = false
+                
+            } catch (e: Exception) {
+                _operationResult.value = "批量删除失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 分页模式下的文章生成后处理
+     */
+    private fun handleNewArticleGenerated() {
+        if (_usePaginationMode.value) {
+            // 分页模式下，重新加载第一页以显示新生成的文章
+            loadInitialArticles()
         }
     }
     

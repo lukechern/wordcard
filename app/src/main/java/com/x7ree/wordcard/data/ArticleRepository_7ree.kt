@@ -142,4 +142,37 @@ class ArticleRepository_7ree(private val articleDao_7ree: ArticleDao_7ree) {
             else -> if (isFavoriteOnly) articleDao_7ree.getFavoriteArticlesPaged_7ree(limit, offset) else articleDao_7ree.getArticlesPaged_7ree(limit, offset)
         }
     }
+    
+    // 新增的分页查询方法，与ArticlePaginationHandler_7ree配合使用
+    suspend fun getAllArticlesSortedByTimeAsc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getArticlesPagedByGenerationTimeAsc_7ree(limit, offset)
+    }
+    
+    suspend fun getAllArticlesSortedByTimeDesc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getArticlesPagedByGenerationTimeDesc_7ree(limit, offset)
+    }
+    
+    suspend fun getAllArticlesSortedByViewCountAsc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getArticlesPagedByViewCountAsc_7ree(limit, offset)
+    }
+    
+    suspend fun getAllArticlesSortedByViewCountDesc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getArticlesPagedByViewCountDesc_7ree(limit, offset)
+    }
+    
+    suspend fun getFavoriteArticlesSortedByTimeAsc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getFavoriteArticlesPagedByGenerationTimeAsc_7ree(limit, offset)
+    }
+    
+    suspend fun getFavoriteArticlesSortedByTimeDesc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getFavoriteArticlesPagedByGenerationTimeDesc_7ree(limit, offset)
+    }
+    
+    suspend fun getFavoriteArticlesSortedByViewCountAsc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getFavoriteArticlesPagedByViewCountAsc_7ree(limit, offset)
+    }
+    
+    suspend fun getFavoriteArticlesSortedByViewCountDesc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.getFavoriteArticlesPagedByViewCountDesc_7ree(limit, offset)
+    }
 }

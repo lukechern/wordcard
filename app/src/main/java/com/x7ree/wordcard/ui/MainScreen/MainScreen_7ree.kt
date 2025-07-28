@@ -135,7 +135,21 @@ fun MainScreen_7ree(
                             Screen_7ree.ARTICLE -> {
                                 val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree
                                 if (articleViewModel != null) {
-                                    val articles by articleViewModel.articles.collectAsState()
+                                    // 收集分页相关状态
+                                    val usePaginationMode by articleViewModel.usePaginationMode.collectAsState()
+                                    val articles by if (usePaginationMode) {
+                                        articleViewModel.pagedArticles.collectAsState()
+                                    } else {
+                                        articleViewModel.articles.collectAsState()
+                                    }
+                                    val isLoadingMore by articleViewModel.isLoadingMore.collectAsState()
+                                    val hasMoreData by articleViewModel.hasMoreData.collectAsState()
+                                    val isRefreshing by if (usePaginationMode) {
+                                        articleViewModel.isPaginationRefreshing.collectAsState()
+                                    } else {
+                                        articleViewModel.isRefreshing.collectAsState()
+                                    }
+                                    
                                     val isGenerating by articleViewModel.isGenerating.collectAsState()
                                     val showDetailScreen by articleViewModel.showDetailScreen.collectAsState()
                                     val selectedArticle by articleViewModel.selectedArticle.collectAsState()
@@ -179,7 +193,11 @@ fun MainScreen_7ree(
                                                     articleViewModel.selectArticle(article)
                                                 },
                                                 onToggleFavorite = { articleId ->
-                                                    articleViewModel.toggleFavorite(articleId)
+                                                    if (usePaginationMode) {
+                                                        articleViewModel.paginationToggleFavorite(articleId)
+                                                    } else {
+                                                        articleViewModel.toggleFavorite(articleId)
+                                                    }
                                                 },
                                                 isGenerating = isGenerating,
                                                 showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
@@ -187,8 +205,14 @@ fun MainScreen_7ree(
                                                 smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
                                                 onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
                                                 currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
-                                                isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
-                                                onRefresh = { articleViewModel.pullToRefreshArticles() },
+                                                isRefreshing = isRefreshing,
+                                                onRefresh = { 
+                                                    if (usePaginationMode) {
+                                                        articleViewModel.paginationRefreshArticles()
+                                                    } else {
+                                                        articleViewModel.pullToRefreshArticles()
+                                                    }
+                                                },
                                                 // 新增的筛选菜单参数
                                                 showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
                                                 filterState = articleViewModel.filterState.collectAsState().value,
@@ -202,12 +226,22 @@ fun MainScreen_7ree(
                                                 onExitManagementMode = { articleViewModel.exitManagementMode() },
                                                 onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
                                                 onToggleSelectAll = { articleViewModel.toggleSelectAll() },
-                                                onDeleteSelectedArticles = { articleViewModel.deleteSelectedArticles() }
+                                                onDeleteSelectedArticles = { 
+                                                    if (usePaginationMode) {
+                                                        articleViewModel.paginationDeleteSelectedArticles()
+                                                    } else {
+                                                        articleViewModel.deleteSelectedArticles()
+                                                    }
+                                                },
+                                                // 新增的分页参数
+                                                usePaginationMode = usePaginationMode,
+                                                isLoadingMore = isLoadingMore,
+                                                hasMoreData = hasMoreData,
+                                                onLoadMore = { articleViewModel.loadMoreArticles() }
                                             )
                                         }
                                     } ?: run {
                                         // 显示文章列表页
-                                        var showGenerationDialog by remember { mutableStateOf(false) }
                                         ArticleScreen_7ree(
                                             articles = articles,
                                             onGenerateArticle = { keyWords ->
@@ -223,7 +257,11 @@ fun MainScreen_7ree(
                                                 articleViewModel.selectArticle(article)
                                             },
                                             onToggleFavorite = { articleId ->
-                                                articleViewModel.toggleFavorite(articleId)
+                                                if (usePaginationMode) {
+                                                    articleViewModel.paginationToggleFavorite(articleId)
+                                                } else {
+                                                    articleViewModel.toggleFavorite(articleId)
+                                                }
                                             },
                                             isGenerating = isGenerating,
                                             showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
@@ -231,8 +269,14 @@ fun MainScreen_7ree(
                                             smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
                                             onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
                                             currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
-                                            isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
-                                            onRefresh = { articleViewModel.pullToRefreshArticles() },
+                                            isRefreshing = isRefreshing,
+                                            onRefresh = { 
+                                                if (usePaginationMode) {
+                                                    articleViewModel.paginationRefreshArticles()
+                                                } else {
+                                                    articleViewModel.pullToRefreshArticles()
+                                                }
+                                            },
                                             // 新增的筛选菜单参数
                                             showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
                                             filterState = articleViewModel.filterState.collectAsState().value,
@@ -246,7 +290,18 @@ fun MainScreen_7ree(
                                             onExitManagementMode = { articleViewModel.exitManagementMode() },
                                             onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
                                             onToggleSelectAll = { articleViewModel.toggleSelectAll() },
-                                            onDeleteSelectedArticles = { articleViewModel.deleteSelectedArticles() }
+                                            onDeleteSelectedArticles = { 
+                                                if (usePaginationMode) {
+                                                    articleViewModel.paginationDeleteSelectedArticles()
+                                                } else {
+                                                    articleViewModel.deleteSelectedArticles()
+                                                }
+                                            },
+                                            // 新增的分页参数
+                                            usePaginationMode = usePaginationMode,
+                                            isLoadingMore = isLoadingMore,
+                                            hasMoreData = hasMoreData,
+                                            onLoadMore = { articleViewModel.loadMoreArticles() }
                                         )
                                     }
                                 } else {
