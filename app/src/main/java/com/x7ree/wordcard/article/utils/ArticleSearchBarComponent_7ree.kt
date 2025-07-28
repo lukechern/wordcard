@@ -206,6 +206,7 @@ fun ArticleSearchBarComponent_7ree(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_add_article_7ree),
                             contentDescription = "生成文章",
+                            tint = Color(0xFF2B7033), // 设置为更深的绿色
                             modifier = Modifier.size(24.dp) // 图标保持和单词本等大
                         )
                     }

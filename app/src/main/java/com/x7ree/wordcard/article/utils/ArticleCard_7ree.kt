@@ -69,8 +69,6 @@ fun ArticleCard_7ree(
                         text = article.englishTitle,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
                         modifier = Modifier
                             .weight(1f)
                             .padding(bottom = 4.dp)
@@ -99,7 +97,7 @@ fun ArticleCard_7ree(
                 // 关键词
                 if (article.keyWords.isNotEmpty()) {
                     Text(
-                        text = "关键词: ${article.keyWords}",
+                        text = "${article.keyWords}",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(bottom = 8.dp)

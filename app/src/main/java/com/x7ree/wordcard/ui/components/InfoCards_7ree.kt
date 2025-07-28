@@ -42,12 +42,7 @@ fun InfoCard_7ree(
                 shadowElevation = 0f
             },
         colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = if (onClick != null) {
-                // 可点击的卡片使用稍微不同的颜色，表示可交互
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Column(
