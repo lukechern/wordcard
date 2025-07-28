@@ -8,7 +8,7 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-5.3-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-6.0-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
@@ -40,6 +40,8 @@ WordCard单词卡片 是一款基于 AI 的智能单词学习安卓应用APP，�
 - 数据导入导出功能
 - 支持通过局域网在PC端进行数据导入导出操作
 - PC端Web界面支持文件导入和手动粘贴JSON数据两种方式
+- AI情景文章生成，基于单词本中的单词自动生成情景文章，帮助在语境中深入学习单词
+- 文章收藏、搜索和管理功能，方便用户管理和复习生成的文章
 
 ### ✏️ 拼写练习
 - 交互式单词拼写练习功能
@@ -296,7 +298,10 @@ app/src/main/java/com/x7ree/wordcard/
 #### 第五步：单词详情页，深度学习好帮手✅
 在单词详情页里，你可以让 APP 朗读单词，收藏重要词汇，还能通过上下滑动手指来切换其他单词进行复习。更棒的是，现在还新增了拼写练习功能！点击拼写练习卡片，就能开始单词拼写训练，界面会以深绿色大标题显示中文词义（如果词义较多会智能显示前两个），让你在理解词义的基础上练习拼写。这样的学习体验，是不是很棒？
 
-#### 第六步：仪表盘，见证你的成长📊
+#### 第六步：AI情景文章，语境学习新体验📝
+现在新增了AI情景文章生成功能！点击底部导航栏的【读文章】栏目，即可进入文章生成界面。系统会基于你单词本中的词汇，智能生成相关的英语情景文章，帮助你在语境中深入学习单词。你可以收藏喜欢的文章，方便日后复习。还支持文章搜索功能，快速找到你感兴趣的内容。通过阅读这些定制化的文章，你的词汇理解和应用能力将得到显著提升！
+
+#### 第七步：仪表盘，见证你的成长📊
 想看看自己的学习成果？进入仪表盘就能查看详细的学习数据和统计图表。看着那些不断增长的数字，成就感满满！📈
 
 ### 💡 小贴士
