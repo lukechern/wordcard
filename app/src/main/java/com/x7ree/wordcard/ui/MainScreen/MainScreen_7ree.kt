@@ -188,7 +188,21 @@ fun MainScreen_7ree(
                                                 onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
                                                 currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
                                                 isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
-                                                onRefresh = { articleViewModel.pullToRefreshArticles() }
+                                                onRefresh = { articleViewModel.pullToRefreshArticles() },
+                                                // 新增的筛选菜单参数
+                                                showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
+                                                filterState = articleViewModel.filterState.collectAsState().value,
+                                                onShowFilterMenu = { articleViewModel.showFilterMenu() },
+                                                onHideFilterMenu = { articleViewModel.hideFilterMenu() },
+                                                onFilterStateChange = { filterState -> articleViewModel.updateFilterState(filterState) },
+                                                // 新增的管理模式参数
+                                                isManagementMode = articleViewModel.isManagementMode.collectAsState().value,
+                                                selectedArticleIds = articleViewModel.selectedArticleIds.collectAsState().value,
+                                                onEnterManagementMode = { articleViewModel.enterManagementMode() },
+                                                onExitManagementMode = { articleViewModel.exitManagementMode() },
+                                                onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
+                                                onToggleSelectAll = { articleViewModel.toggleSelectAll() },
+                                                onDeleteSelectedArticles = { articleViewModel.deleteSelectedArticles() }
                                             )
                                         }
                                     } ?: run {
@@ -218,7 +232,21 @@ fun MainScreen_7ree(
                                             onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
                                             currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
                                             isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
-                                            onRefresh = { articleViewModel.pullToRefreshArticles() }
+                                            onRefresh = { articleViewModel.pullToRefreshArticles() },
+                                            // 新增的筛选菜单参数
+                                            showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
+                                            filterState = articleViewModel.filterState.collectAsState().value,
+                                            onShowFilterMenu = { articleViewModel.showFilterMenu() },
+                                            onHideFilterMenu = { articleViewModel.hideFilterMenu() },
+                                            onFilterStateChange = { filterState -> articleViewModel.updateFilterState(filterState) },
+                                            // 新增的管理模式参数
+                                            isManagementMode = articleViewModel.isManagementMode.collectAsState().value,
+                                            selectedArticleIds = articleViewModel.selectedArticleIds.collectAsState().value,
+                                            onEnterManagementMode = { articleViewModel.enterManagementMode() },
+                                            onExitManagementMode = { articleViewModel.exitManagementMode() },
+                                            onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
+                                            onToggleSelectAll = { articleViewModel.toggleSelectAll() },
+                                            onDeleteSelectedArticles = { articleViewModel.deleteSelectedArticles() }
                                         )
                                     }
                                 } else {

@@ -23,6 +23,8 @@ import com.x7ree.wordcard.article.utils.ArticleDetailHelper_7ree
 import com.x7ree.wordcard.article.utils.ArticleListHelper_7ree
 import com.x7ree.wordcard.article.utils.ArticleDeleteHelper_7ree
 import com.x7ree.wordcard.article.utils.ArticleGenerationHelper2_7ree
+import com.x7ree.wordcard.article.utils.ArticleFilterState_7ree
+import com.x7ree.wordcard.article.utils.ArticleSortType_7ree
 
 /**
  * 文章功能的ViewModel
@@ -100,8 +102,33 @@ class ArticleViewModel_7ree(
     private var currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
     fun getCurrentSmartGenerationType(): com.x7ree.wordcard.ui.SmartGenerationType_7ree? = currentSmartGenerationType
     
+    // 筛选和排序状态
+    private val _filterState = MutableStateFlow(ArticleFilterState_7ree())
+    val filterState: StateFlow<ArticleFilterState_7ree> = _filterState.asStateFlow()
+    
+    // 原始文章列表（未经筛选和排序）
+    private val _rawArticles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
+    
+    // 筛选菜单显示状态
+    private val _showFilterMenu = MutableStateFlow(false)
+    val showFilterMenu: StateFlow<Boolean> = _showFilterMenu.asStateFlow()
+    
+    // 管理模式状态
+    private val _isManagementMode = MutableStateFlow(false)
+    val isManagementMode: StateFlow<Boolean> = _isManagementMode.asStateFlow()
+    
+    // 选中的文章ID列表
+    private val _selectedArticleIds = MutableStateFlow<Set<Long>>(emptySet())
+    val selectedArticleIds: StateFlow<Set<Long>> = _selectedArticleIds.asStateFlow()
+    
     init {
         initializeArticleFlow()
+        // 监听筛选状态变化，重新应用筛选和排序
+        viewModelScope.launch {
+            _filterState.collect { filterState ->
+                applyFilterAndSort()
+            }
+        }
     }
     
     /**
@@ -111,9 +138,48 @@ class ArticleViewModel_7ree(
         articleListHelper_7ree.initializeArticleFlow(
             viewModelScope,
             { loading -> _isLoading.value = loading },
-            { articles -> _articles.value = articles },
+            { articles -> 
+                _rawArticles.value = articles
+                applyFilterAndSort()
+            },
             { error -> _operationResult.value = error }
         )
+    }
+    
+    /**
+     * 应用筛选和排序
+     */
+    private fun applyFilterAndSort() {
+        val rawArticles = _rawArticles.value
+        val filterState = _filterState.value
+        
+        // 应用筛选
+        var filteredArticles = rawArticles
+        if (filterState.showFavoritesOnly) {
+            filteredArticles = filteredArticles.filter { it.isFavorite }
+        }
+        
+        // 应用排序
+        val sortedArticles = when (filterState.sortType) {
+            ArticleSortType_7ree.PUBLISH_TIME_ASC -> {
+                filteredArticles.sortedBy { it.generationTimestamp }
+            }
+            ArticleSortType_7ree.PUBLISH_TIME_DESC -> {
+                filteredArticles.sortedByDescending { it.generationTimestamp }
+            }
+            ArticleSortType_7ree.VIEW_COUNT_ASC -> {
+                filteredArticles.sortedBy { it.viewCount }
+            }
+            ArticleSortType_7ree.VIEW_COUNT_DESC -> {
+                filteredArticles.sortedByDescending { it.viewCount }
+            }
+            null -> {
+                // 默认排序：按生成时间降序
+                filteredArticles.sortedByDescending { it.generationTimestamp }
+            }
+        }
+        
+        _articles.value = sortedArticles
     }
     
     /**
@@ -434,6 +500,122 @@ class ArticleViewModel_7ree(
         _smartGenerationStatus.value = ""
         _smartGenerationKeywords.value = emptyList()
         _isGenerating.value = false
+    }
+    
+    /**
+     * 显示筛选菜单
+     */
+    fun showFilterMenu() {
+        _showFilterMenu.value = true
+    }
+    
+    /**
+     * 隐藏筛选菜单
+     */
+    fun hideFilterMenu() {
+        _showFilterMenu.value = false
+    }
+    
+    /**
+     * 更新筛选状态
+     */
+    fun updateFilterState(newFilterState: ArticleFilterState_7ree) {
+        _filterState.value = newFilterState
+    }
+    
+    /**
+     * 进入管理模式
+     */
+    fun enterManagementMode() {
+        _isManagementMode.value = true
+        _selectedArticleIds.value = emptySet()
+    }
+    
+    /**
+     * 退出管理模式
+     */
+    fun exitManagementMode() {
+        _isManagementMode.value = false
+        _selectedArticleIds.value = emptySet()
+    }
+    
+    /**
+     * 切换文章选中状态
+     */
+    fun toggleArticleSelection(articleId: Long) {
+        val currentSelected = _selectedArticleIds.value
+        _selectedArticleIds.value = if (currentSelected.contains(articleId)) {
+            currentSelected - articleId
+        } else {
+            currentSelected + articleId
+        }
+    }
+    
+    /**
+     * 全选/取消全选
+     */
+    fun toggleSelectAll() {
+        val currentSelected = _selectedArticleIds.value
+        val allArticleIds = _articles.value.map { it.id }.toSet()
+        
+        _selectedArticleIds.value = if (currentSelected.size == allArticleIds.size) {
+            emptySet() // 如果已全选，则取消全选
+        } else {
+            allArticleIds // 否则全选
+        }
+    }
+    
+    /**
+     * 批量删除选中的文章
+     */
+    fun deleteSelectedArticles() {
+        val selectedIds = _selectedArticleIds.value
+        if (selectedIds.isEmpty()) {
+            _operationResult.value = "请先选择要删除的文章"
+            return
+        }
+        
+        viewModelScope.launch {
+            try {
+                var successCount = 0
+                var failCount = 0
+                
+                selectedIds.forEach { articleId ->
+                    try {
+                        articleDeleteHelper_7ree.deleteArticle(
+                            articleId,
+                            viewModelScope
+                        ) { result ->
+                            if (result.contains("成功")) {
+                                successCount++
+                            } else {
+                                failCount++
+                            }
+                        }
+                    } catch (e: Exception) {
+                        failCount++
+                    }
+                }
+                
+                // 等待删除操作完成
+                delay(500)
+                
+                val resultMessage = when {
+                    failCount == 0 -> "成功删除 ${successCount} 篇文章"
+                    successCount == 0 -> "删除失败，共 ${failCount} 篇文章删除失败"
+                    else -> "删除完成，成功 ${successCount} 篇，失败 ${failCount} 篇"
+                }
+                
+                _operationResult.value = resultMessage
+                
+                // 清空选中状态并退出管理模式
+                _selectedArticleIds.value = emptySet()
+                _isManagementMode.value = false
+                
+            } catch (e: Exception) {
+                _operationResult.value = "批量删除失败: ${e.message}"
+            }
+        }
     }
     
     /**
