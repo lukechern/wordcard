@@ -159,11 +159,17 @@ class ArticleViewModel_7ree(
                 // 如果是智能生成文章，更新智能生成文章卡片的状态
                 if (_showSmartGenerationCard.value) {
                     if (result == "文章生成成功！") {
-                        // 获取最新生成的文章标题
-                        val latestArticle = _articles.value.firstOrNull()
-                        val title = latestArticle?.englishTitle ?: "无标题"
-                        
-                _smartGenerationStatus.value = "文章已生成，标题如下：\n$title"
+                        // 延迟一下再获取最新文章，确保数据库更新完成
+                        viewModelScope.launch {
+                            delay(100) // 等待数据库更新
+                            // 获取最新生成的文章标题（按时间戳排序）
+                            val latestArticle = _articles.value
+                                .sortedByDescending { it.generationTimestamp }
+                                .firstOrNull()
+                            val title = latestArticle?.englishTitle ?: "无标题"
+                            
+                            _smartGenerationStatus.value = "文章已生成，标题如下：\n$title"
+                        }
                     } else if (result.startsWith("文章生成失败")) {
                         _smartGenerationStatus.value = result
                     }
@@ -314,7 +320,7 @@ class ArticleViewModel_7ree(
                     // 显示正在生成文章的状态（包含API名称）
                     val apiConfig = appConfigManager_7ree.loadApiConfig_7ree()
                     val apiName = apiConfig.getActiveTranslationApi().apiName
-                    _smartGenerationStatus.value = "${apiName}正在生成文章中，请稍候……"
+                    _smartGenerationStatus.value = "${apiName}正在生成文章，请稍候……"
                     
                     // 使用手动输入的关键词生成文章
                     generateArticle(manualKeywords)
@@ -407,7 +413,7 @@ class ArticleViewModel_7ree(
                     else -> "5个单词"
                 }
                 
-                _smartGenerationStatus.value = "${apiName}正在生成文章中，请稍候……"
+                _smartGenerationStatus.value = "${apiName}正在生成文章，请稍候……"
                 
                 // 使用选择的关键词生成文章
                 generateArticle(keyWordsString)

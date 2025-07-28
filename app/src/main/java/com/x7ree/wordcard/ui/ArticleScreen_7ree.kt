@@ -3,9 +3,8 @@ package com.x7ree.wordcard.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -125,21 +124,63 @@ fun ArticleScreen_7ree(
                     }
                 }
             } else {
-                // 瀑布流文章卡片
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
-                    verticalItemSpacing = 8.dp,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    content = {
-                        items(articles) { article ->
-                            ArticleCard_7ree(
-                                article = article,
-                                onClick = { onArticleClick(article) },
-                                onToggleFavorite = { onToggleFavorite(article.id) }
-                            )
+                // 使用两列布局确保最新文章始终在第一行左边
+                val sortedArticles = remember(articles) {
+                    // 按生成时间排序，确保最新的在前面，并添加稳定的二级排序
+                    articles.sortedWith(
+                        compareByDescending<ArticleEntity_7ree> { it.generationTimestamp }
+                            .thenByDescending { it.id }
+                    )
+                }
+                
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // 直接按行处理，每行显示两个文章
+                    items(
+                        count = (sortedArticles.size + 1) / 2,
+                        key = { rowIndex -> 
+                            // 使用行中文章的ID作为key，确保稳定性
+                            val leftIndex = rowIndex * 2
+                            val rightIndex = leftIndex + 1
+                            val leftId = if (leftIndex < sortedArticles.size) sortedArticles[leftIndex].id else -1L
+                            val rightId = if (rightIndex < sortedArticles.size) sortedArticles[rightIndex].id else -2L
+                            "${leftId}_${rightId}"
+                        }
+                    ) { rowIndex ->
+                        val leftIndex = rowIndex * 2
+                        val rightIndex = leftIndex + 1
+                        
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            // 左列 - 显示偶数索引的文章 (0, 2, 4, ...)
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (leftIndex < sortedArticles.size) {
+                                    val leftArticle = sortedArticles[leftIndex]
+                                    ArticleCard_7ree(
+                                        article = leftArticle,
+                                        onClick = { onArticleClick(leftArticle) },
+                                        onToggleFavorite = { onToggleFavorite(leftArticle.id) }
+                                    )
+                                }
+                            }
+                            
+                            // 右列 - 显示奇数索引的文章 (1, 3, 5, ...)
+                            Box(modifier = Modifier.weight(1f)) {
+                                if (rightIndex < sortedArticles.size) {
+                                    val rightArticle = sortedArticles[rightIndex]
+                                    ArticleCard_7ree(
+                                        article = rightArticle,
+                                        onClick = { onArticleClick(rightArticle) },
+                                        onToggleFavorite = { onToggleFavorite(rightArticle.id) }
+                                    )
+                                }
+                            }
                         }
                     }
-                )
+                }
             }
         }
     }
@@ -180,89 +221,92 @@ private fun ArticleCard_7ree(
     onClick: () -> Unit,
     onToggleFavorite: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
+    // 使用key确保组件与数据的绑定稳定性
+    key(article.id) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp)
+                .clickable { onClick() },
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            // 标题
-            Text(
-                text = article.englishTitle,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
-            // 标题翻译
-            Text(
-                text = article.titleTranslation,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            // 文章内容预览
-            Text(
-                text = article.englishContent,
-                style = MaterialTheme.typography.bodySmall,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            // 关键词
-            if (article.keyWords.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp)
+            ) {
+                // 标题
                 Text(
-                    text = "关键词: ${article.keyWords}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.primary,
+                    text = article.englishTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                
+                // 标题翻译
+                Text(
+                    text = article.titleTranslation,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-            }
-            
-            // 底部信息栏
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    // 生成时间
+                
+                // 文章内容预览
+                Text(
+                    text = article.englishContent,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                
+                // 关键词
+                if (article.keyWords.isNotEmpty()) {
                     Text(
-                        text = formatTimestamp(article.generationTimestamp),
+                        text = "关键词: ${article.keyWords}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
-                    )
-                    // 浏览次数
-                    Text(
-                        text = "浏览 ${article.viewCount} 次",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
                 }
                 
-                // 收藏按钮
-                IconButton(
-                    onClick = onToggleFavorite,
-                    modifier = Modifier.size(24.dp)
+                // 底部信息栏
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
-                        tint = if (article.isFavorite) Color.Red else Color.Gray,
-                        modifier = Modifier.size(20.dp)
-                    )
+                    Column {
+                        // 生成时间
+                        Text(
+                            text = formatTimestamp(article.generationTimestamp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                        // 浏览次数
+                        Text(
+                            text = "浏览 ${article.viewCount} 次",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color.Gray
+                        )
+                    }
+                    
+                    // 收藏按钮
+                    IconButton(
+                        onClick = onToggleFavorite,
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
+                            tint = if (article.isFavorite) Color.Red else Color.Gray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
