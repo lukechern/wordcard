@@ -109,7 +109,10 @@ fun PaginatedArticleList_7ree(
     // 管理模式相关参数
     isManagementMode: Boolean = false,
     selectedArticleIds: Set<Long> = emptySet(),
-    onToggleArticleSelection: (Long) -> Unit = {}
+    onToggleArticleSelection: (Long) -> Unit = {},
+    // 搜索模式相关参数
+    isSearchMode: Boolean = false,
+    searchQuery: String = ""
 ) {
     
     // 检测是否滚动到接近底部
@@ -214,7 +217,7 @@ fun PaginatedArticleList_7ree(
         }
     ) {
         if (articles.isEmpty()) {
-            // 空状态
+            // 空状态 - 根据搜索模式显示不同的提示
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -222,23 +225,45 @@ fun PaginatedArticleList_7ree(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "暂无文章",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "点击右上角的 + 按钮生成文章",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "或下拉刷新文章列表",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                    if (isSearchMode && searchQuery.isNotBlank()) {
+                        // 搜索模式下的空状态
+                        Text(
+                            text = "未找到相关文章",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "搜索关键词：\"$searchQuery\"",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "尝试使用其他关键词搜索",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    } else {
+                        // 正常模式下的空状态
+                        Text(
+                            text = "暂无文章",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "点击右上角的 + 按钮生成文章",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "或下拉刷新文章列表",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         } else {

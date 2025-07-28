@@ -137,9 +137,19 @@ fun MainScreen_7ree(
                                 if (articleViewModel != null) {
                                     // 收集分页相关状态
                                     val usePaginationMode by articleViewModel.usePaginationMode.collectAsState()
+                                    val isSearchMode by articleViewModel.isSearchMode.collectAsState()
+                                    val searchQuery by articleViewModel.searchQuery.collectAsState()
+                                    val searchResults by articleViewModel.searchResults.collectAsState()
+                                    
+                                    // 根据搜索模式选择显示的文章列表
                                     val articles by if (usePaginationMode) {
+                                        // 分页模式下，搜索结果也通过pagedArticles获取
                                         articleViewModel.pagedArticles.collectAsState()
+                                    } else if (isSearchMode && searchQuery.isNotBlank()) {
+                                        // 非分页模式下，搜索结果通过searchResults获取
+                                        articleViewModel.searchResults.collectAsState()
                                     } else {
+                                        // 非分页模式下的正常文章列表
                                         articleViewModel.articles.collectAsState()
                                     }
                                     val isLoadingMore by articleViewModel.isLoadingMore.collectAsState()
@@ -237,7 +247,15 @@ fun MainScreen_7ree(
                                                 usePaginationMode = usePaginationMode,
                                                 isLoadingMore = isLoadingMore,
                                                 hasMoreData = hasMoreData,
-                                                onLoadMore = { articleViewModel.loadMoreArticles() }
+                                                onLoadMore = { articleViewModel.loadMoreArticles() },
+                                                // 新增的搜索参数
+                                                searchQuery = articleViewModel.searchQuery.collectAsState().value,
+                                                isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
+                                                onSearchQueryChange = { query -> 
+                                                    println("DEBUG: MainScreen onSearchQueryChange called with: '$query'")
+                                                    articleViewModel.updateSearchQuery(query)
+                                                },
+                                                onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
                                             )
                                         }
                                     } ?: run {
@@ -301,7 +319,15 @@ fun MainScreen_7ree(
                                             usePaginationMode = usePaginationMode,
                                             isLoadingMore = isLoadingMore,
                                             hasMoreData = hasMoreData,
-                                            onLoadMore = { articleViewModel.loadMoreArticles() }
+                                            onLoadMore = { articleViewModel.loadMoreArticles() },
+                                            // 新增的搜索参数
+                                            searchQuery = articleViewModel.searchQuery.collectAsState().value,
+                                            isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
+                                            onSearchQueryChange = { query -> 
+                                                println("DEBUG: MainScreen onSearchQueryChange (2nd) called with: '$query'")
+                                                articleViewModel.updateSearchQuery(query)
+                                            },
+                                            onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
                                         )
                                     }
                                 } else {

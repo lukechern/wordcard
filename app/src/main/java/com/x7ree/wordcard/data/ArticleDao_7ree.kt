@@ -155,4 +155,113 @@ interface ArticleDao_7ree {
     
     @Query("SELECT * FROM articles WHERE isFavorite = 1 ORDER BY generationTimestamp DESC LIMIT :limit OFFSET :offset")
     suspend fun getFavoriteArticlesPagedByGenerationTimeDesc_7ree(limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    // ========== 搜索分页方法 ==========
+    
+    // 简化版搜索方法 - 只搜索标题和关键词
+    // 在所有文章中搜索，支持分页和排序
+    @Query("""
+        SELECT * FROM articles 
+        WHERE englishTitle LIKE '%' || :query || '%' 
+           OR titleTranslation LIKE '%' || :query || '%'
+           OR keyWords LIKE '%' || :query || '%'
+           OR englishContent LIKE '%' || :query || '%'
+           OR chineseContent LIKE '%' || :query || '%'
+        ORDER BY generationTimestamp ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchArticlesPagedByGenerationTimeAsc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE englishTitle LIKE '%' || :query || '%' 
+           OR titleTranslation LIKE '%' || :query || '%'
+           OR keyWords LIKE '%' || :query || '%'
+           OR englishContent LIKE '%' || :query || '%'
+           OR chineseContent LIKE '%' || :query || '%'
+        ORDER BY generationTimestamp DESC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchArticlesPagedByGenerationTimeDesc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE englishTitle LIKE '%' || :query || '%' 
+           OR titleTranslation LIKE '%' || :query || '%'
+           OR keyWords LIKE '%' || :query || '%'
+           OR englishContent LIKE '%' || :query || '%'
+           OR chineseContent LIKE '%' || :query || '%'
+        ORDER BY viewCount ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchArticlesPagedByViewCountAsc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE englishTitle LIKE '%' || :query || '%' 
+           OR titleTranslation LIKE '%' || :query || '%'
+           OR keyWords LIKE '%' || :query || '%'
+           OR englishContent LIKE '%' || :query || '%'
+           OR chineseContent LIKE '%' || :query || '%'
+        ORDER BY viewCount DESC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchArticlesPagedByViewCountDesc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    // 在收藏文章中搜索，支持分页和排序
+    @Query("""
+        SELECT * FROM articles 
+        WHERE isFavorite = 1 
+          AND (englishTitle LIKE '%' || :query || '%' 
+               OR titleTranslation LIKE '%' || :query || '%'
+               OR keyWords LIKE '%' || :query || '%'
+               OR englishContent LIKE '%' || :query || '%'
+               OR chineseContent LIKE '%' || :query || '%')
+        ORDER BY generationTimestamp ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchFavoriteArticlesPagedByGenerationTimeAsc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE isFavorite = 1 
+          AND (englishTitle LIKE '%' || :query || '%' 
+               OR titleTranslation LIKE '%' || :query || '%'
+               OR keyWords LIKE '%' || :query || '%'
+               OR englishContent LIKE '%' || :query || '%'
+               OR chineseContent LIKE '%' || :query || '%')
+        ORDER BY generationTimestamp DESC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchFavoriteArticlesPagedByGenerationTimeDesc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE isFavorite = 1 
+          AND (englishTitle LIKE '%' || :query || '%' 
+               OR titleTranslation LIKE '%' || :query || '%'
+               OR keyWords LIKE '%' || :query || '%'
+               OR englishContent LIKE '%' || :query || '%'
+               OR chineseContent LIKE '%' || :query || '%')
+        ORDER BY viewCount ASC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchFavoriteArticlesPagedByViewCountAsc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    @Query("""
+        SELECT * FROM articles 
+        WHERE isFavorite = 1 
+          AND (englishTitle LIKE '%' || :query || '%' 
+               OR titleTranslation LIKE '%' || :query || '%'
+               OR keyWords LIKE '%' || :query || '%'
+               OR englishContent LIKE '%' || :query || '%'
+               OR chineseContent LIKE '%' || :query || '%')
+        ORDER BY viewCount DESC 
+        LIMIT :limit OFFSET :offset
+    """)
+    suspend fun searchFavoriteArticlesPagedByViewCountDesc_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
+    
+    // 简单的测试搜索方法
+    @Query("SELECT * FROM articles WHERE englishTitle LIKE '%' || :query || '%' LIMIT :limit OFFSET :offset")
+    suspend fun testSearchArticles_7ree(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree>
 }

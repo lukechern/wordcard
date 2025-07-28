@@ -136,6 +136,17 @@ class ArticleViewModel_7ree(
     private val _usePaginationMode = MutableStateFlow(true)
     val usePaginationMode: StateFlow<Boolean> = _usePaginationMode.asStateFlow()
     
+    // 搜索相关状态
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+    
+    private val _isSearchMode = MutableStateFlow(false)
+    val isSearchMode: StateFlow<Boolean> = _isSearchMode.asStateFlow()
+    
+    // 搜索结果（用于非分页模式）
+    private val _searchResults = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
+    val searchResults: StateFlow<List<ArticleEntity_7ree>> = _searchResults.asStateFlow()
+    
     init {
         // 初始化分页数据
         loadInitialArticles()
@@ -682,7 +693,13 @@ class ArticleViewModel_7ree(
     fun loadMoreArticles() {
         viewModelScope.launch {
             try {
-                articlePaginationHandler_7ree.loadMoreArticles()
+                if (articlePaginationHandler_7ree.isInSearchMode()) {
+                    // 搜索模式下加载更多搜索结果
+                    articlePaginationHandler_7ree.loadMoreSearchResults()
+                } else {
+                    // 正常模式下加载更多文章
+                    articlePaginationHandler_7ree.loadMoreArticles()
+                }
             } catch (e: Exception) {
                 _operationResult.value = "加载更多文章失败: ${e.message}"
             }
@@ -843,6 +860,157 @@ class ArticleViewModel_7ree(
         if (_usePaginationMode.value) {
             // 分页模式下，重新加载第一页以显示新生成的文章
             loadInitialArticles()
+        }
+    }
+    
+    // ========== 搜索相关方法 ==========
+    
+    /**
+     * 切换搜索模式
+     */
+    fun toggleSearchMode(isSearchMode: Boolean) {
+        _isSearchMode.value = isSearchMode
+        if (!isSearchMode) {
+            // 退出搜索模式时清空搜索查询
+            _searchQuery.value = ""
+            _searchResults.value = emptyList()
+            
+            // 如果是分页模式，清空分页处理器的搜索状态并重新加载
+            if (_usePaginationMode.value) {
+                viewModelScope.launch {
+                    articlePaginationHandler_7ree.clearSearch()
+                    loadInitialArticles()
+                }
+            }
+        }
+    }
+    
+    /**
+     * 更新搜索查询
+     */
+    fun updateSearchQuery(query: String) {
+        println("DEBUG: updateSearchQuery called with query: '$query'")
+        _searchQuery.value = query
+        if (query.isBlank()) {
+            _searchResults.value = emptyList()
+            return
+        }
+        
+        // 执行搜索
+        performSearch(query)
+    }
+    
+    /**
+     * 执行搜索
+     * 搜索文章标题和关键词，支持分页搜索
+     */
+    private fun performSearch(query: String) {
+        viewModelScope.launch {
+            try {
+                val searchQuery = query.trim()
+                println("DEBUG: performSearch called with query: '$searchQuery'")
+                println("DEBUG: usePaginationMode: ${_usePaginationMode.value}")
+                
+                if (_usePaginationMode.value) {
+                    // 分页模式下，通过分页处理器执行搜索
+                    println("DEBUG: Using pagination mode for search")
+                    articlePaginationHandler_7ree.searchArticles(searchQuery, _filterState.value)
+                } else {
+                    // 非分页模式下，在当前文章列表中搜索
+                    val searchQueryLower = searchQuery.lowercase()
+                    val articlesToSearch = _articles.value
+                    println("DEBUG: Using non-pagination mode, searching in ${articlesToSearch.size} articles")
+                    
+                    // 执行搜索过滤
+                    val filteredArticles = articlesToSearch.filter { article ->
+                        // 搜索英文标题
+                        article.englishTitle.lowercase().contains(searchQueryLower) ||
+                        // 搜索标题翻译
+                        article.titleTranslation.lowercase().contains(searchQueryLower) ||
+                        // 搜索关键词
+                        article.keyWords.lowercase().contains(searchQueryLower) ||
+                        // 搜索英文内容（部分匹配）
+                        article.englishContent.lowercase().contains(searchQueryLower) ||
+                        // 搜索中文内容（部分匹配）
+                        article.chineseContent.lowercase().contains(searchQueryLower)
+                    }
+                    
+                    println("DEBUG: Non-pagination search found ${filteredArticles.size} results")
+                    _searchResults.value = filteredArticles
+                }
+                
+            } catch (e: Exception) {
+                println("DEBUG: Search failed with exception: ${e.message}")
+                _operationResult.value = "搜索失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 获取当前显示的文章列表
+     * 根据搜索模式返回搜索结果或原始列表
+     */
+    fun getCurrentDisplayArticles(): StateFlow<List<ArticleEntity_7ree>> {
+        return if (_isSearchMode.value && _searchQuery.value.isNotBlank()) {
+            _searchResults
+        } else if (_usePaginationMode.value) {
+            pagedArticles
+        } else {
+            articles
+        }
+    }
+    
+    /**
+     * 清空搜索结果
+     */
+    fun clearSearchResults() {
+        _searchQuery.value = ""
+        _searchResults.value = emptyList()
+        _isSearchMode.value = false
+    }
+    
+    /**
+     * 测试搜索功能 - 直接搜索所有文章
+     */
+    fun testSearch(query: String) {
+        viewModelScope.launch {
+            try {
+                println("DEBUG: testSearch called with query: '$query'")
+                
+                // 获取所有文章进行测试
+                val allArticles = if (_usePaginationMode.value) {
+                    articlePaginationHandler_7ree.pagedArticles.value
+                } else {
+                    _articles.value
+                }
+                
+                println("DEBUG: Total articles available: ${allArticles.size}")
+                
+                // 打印前几篇文章的标题用于调试
+                allArticles.take(3).forEach { article ->
+                    println("DEBUG: Article title: '${article.englishTitle}', keywords: '${article.keyWords}'")
+                }
+                
+                // 简单搜索
+                val searchQueryLower = query.lowercase()
+                val results = allArticles.filter { article ->
+                    article.englishTitle.lowercase().contains(searchQueryLower)
+                }
+                
+                println("DEBUG: Simple search found ${results.size} results")
+                
+                // 更新搜索结果
+                _searchResults.value = results
+                
+                // 如果是分页模式，我们需要通过正确的方式更新结果
+                if (_usePaginationMode.value) {
+                    // 在分页模式下，我们应该通过搜索方法来更新结果
+                    println("DEBUG: In pagination mode, should use search method instead")
+                }
+                
+            } catch (e: Exception) {
+                println("DEBUG: testSearch failed: ${e.message}")
+            }
         }
     }
     

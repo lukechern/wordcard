@@ -34,6 +34,10 @@ class ArticlePaginationHandler_7ree(
     // 筛选状态
     private var currentFilterState: ArticleFilterState_7ree = ArticleFilterState_7ree()
     
+    // 搜索状态
+    private var currentSearchQuery: String = ""
+    private var isSearchMode: Boolean = false
+    
     /**
      * 加载初始文章
      */
@@ -212,4 +216,152 @@ class ArticlePaginationHandler_7ree(
             _pagedArticles.value = currentArticles
         }
     }
+    
+    /**
+     * 搜索文章 - 支持分页搜索
+     */
+    suspend fun searchArticles(query: String, filterState: ArticleFilterState_7ree) {
+        try {
+            println("DEBUG: ArticlePaginationHandler.searchArticles called with query: '$query'")
+            currentSearchQuery = query
+            isSearchMode = query.isNotBlank()
+            currentFilterState = filterState
+            currentPage = 0
+            _pagedArticles.value = emptyList()
+            _hasMoreData.value = true
+            
+            if (query.isBlank()) {
+                // 如果搜索查询为空，加载正常的文章列表
+                println("DEBUG: Query is blank, loading normal articles")
+                loadInitialArticles(filterState)
+                return
+            }
+            
+            // 执行搜索并加载第一页结果
+            println("DEBUG: Executing search with filter")
+            
+            // 先尝试使用测试搜索方法
+            val testArticles = articleRepository_7ree.testSearchArticles(query, pageSize, 0)
+            println("DEBUG: Test search returned ${testArticles.size} articles")
+            
+            // 如果测试搜索有结果，直接使用测试结果
+            if (testArticles.isNotEmpty()) {
+                println("DEBUG: Using test search results")
+                _pagedArticles.value = testArticles
+                _hasMoreData.value = testArticles.size == pageSize
+            } else {
+                // 否则使用原来的搜索方法
+                val articles = searchArticlesWithFilter(0, pageSize, query, filterState)
+                println("DEBUG: Filter search returned ${articles.size} articles")
+                _pagedArticles.value = articles
+                _hasMoreData.value = articles.size == pageSize
+            }
+            
+        } catch (e: Exception) {
+            println("DEBUG: Search failed with exception: ${e.message}")
+            // 处理搜索错误
+        }
+    }
+    
+    /**
+     * 加载更多搜索结果
+     */
+    suspend fun loadMoreSearchResults() {
+        if (!isSearchMode || currentSearchQuery.isBlank()) {
+            // 如果不在搜索模式，使用普通的加载更多
+            loadMoreArticles()
+            return
+        }
+        
+        if (_isLoadingMore.value || !_hasMoreData.value) return
+        
+        try {
+            _isLoadingMore.value = true
+            currentPage++
+            
+            val newArticles = searchArticlesWithFilter(currentPage, pageSize, currentSearchQuery, currentFilterState)
+            
+            if (newArticles.isNotEmpty()) {
+                val currentArticles = _pagedArticles.value.toMutableList()
+                currentArticles.addAll(newArticles)
+                _pagedArticles.value = currentArticles
+                
+                // 如果返回的文章数量少于页面大小，说明没有更多数据了
+                _hasMoreData.value = newArticles.size == pageSize
+            } else {
+                _hasMoreData.value = false
+            }
+            
+        } catch (e: Exception) {
+            // 处理错误，回退页码
+            currentPage--
+        } finally {
+            _isLoadingMore.value = false
+        }
+    }
+    
+    /**
+     * 根据搜索查询和筛选条件加载文章
+     */
+    private suspend fun searchArticlesWithFilter(
+        page: Int,
+        size: Int,
+        query: String,
+        filterState: ArticleFilterState_7ree
+    ): List<ArticleEntity_7ree> {
+        val offset = page * size
+        println("DEBUG: searchArticlesWithFilter called with query='$query', page=$page, size=$size, offset=$offset")
+        println("DEBUG: filterState.showFavoritesOnly=${filterState.showFavoritesOnly}, sortType=${filterState.sortType}")
+        
+        return when {
+            // 在收藏文章中搜索
+            filterState.showFavoritesOnly -> {
+                when (filterState.sortType) {
+                    ArticleSortType_7ree.PUBLISH_TIME_ASC -> 
+                        articleRepository_7ree.searchFavoriteArticlesSortedByTimeAsc(query, size, offset)
+                    ArticleSortType_7ree.PUBLISH_TIME_DESC -> 
+                        articleRepository_7ree.searchFavoriteArticlesSortedByTimeDesc(query, size, offset)
+                    ArticleSortType_7ree.VIEW_COUNT_ASC -> 
+                        articleRepository_7ree.searchFavoriteArticlesSortedByViewCountAsc(query, size, offset)
+                    ArticleSortType_7ree.VIEW_COUNT_DESC -> 
+                        articleRepository_7ree.searchFavoriteArticlesSortedByViewCountDesc(query, size, offset)
+                    null -> 
+                        articleRepository_7ree.searchFavoriteArticlesSortedByTimeDesc(query, size, offset) // 默认按时间降序
+                }
+            }
+            // 在所有文章中搜索
+            else -> {
+                when (filterState.sortType) {
+                    ArticleSortType_7ree.PUBLISH_TIME_ASC -> 
+                        articleRepository_7ree.searchAllArticlesSortedByTimeAsc(query, size, offset)
+                    ArticleSortType_7ree.PUBLISH_TIME_DESC -> 
+                        articleRepository_7ree.searchAllArticlesSortedByTimeDesc(query, size, offset)
+                    ArticleSortType_7ree.VIEW_COUNT_ASC -> 
+                        articleRepository_7ree.searchAllArticlesSortedByViewCountAsc(query, size, offset)
+                    ArticleSortType_7ree.VIEW_COUNT_DESC -> 
+                        articleRepository_7ree.searchAllArticlesSortedByViewCountDesc(query, size, offset)
+                    null -> 
+                        articleRepository_7ree.searchAllArticlesSortedByTimeDesc(query, size, offset) // 默认按时间降序
+                }
+            }
+        }
+    }
+    
+    /**
+     * 清空搜索状态
+     */
+    fun clearSearch() {
+        currentSearchQuery = ""
+        isSearchMode = false
+    }
+    
+    /**
+     * 获取当前搜索查询
+     */
+    fun getCurrentSearchQuery(): String = currentSearchQuery
+    
+    /**
+     * 检查是否在搜索模式
+     */
+    fun isInSearchMode(): Boolean = isSearchMode
 }

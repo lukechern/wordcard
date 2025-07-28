@@ -32,6 +32,7 @@ import com.x7ree.wordcard.article.utils.ArticleFilterSideMenu_7ree
 import com.x7ree.wordcard.article.utils.ArticleFilterState_7ree
 import com.x7ree.wordcard.article.utils.PaginatedArticleList_7ree
 import com.x7ree.wordcard.article.utils.ArticleCard_7ree
+import com.x7ree.wordcard.article.utils.ArticleSearchBarComponent_7ree
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -70,7 +71,12 @@ fun ArticleScreen_7ree(
     usePaginationMode: Boolean = true,
     isLoadingMore: Boolean = false,
     hasMoreData: Boolean = true,
-    onLoadMore: () -> Unit = {}
+    onLoadMore: () -> Unit = {},
+    // 新增的搜索相关参数
+    searchQuery: String = "",
+    isSearchMode: Boolean = false,
+    onSearchQueryChange: (String) -> Unit = {},
+    onSearchModeToggle: (Boolean) -> Unit = {}
 ) {
     var showGenerationDialog by remember { mutableStateOf(false) }
     var shouldCloseDialogAfterGeneration by remember { mutableStateOf(false) }
@@ -90,57 +96,17 @@ fun ArticleScreen_7ree(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-        // 标题栏
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "读文章",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            // 右侧按钮组
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // 生成文章按钮 - 背景减少30%，图标保持和单词本等大
-                IconButton(
-                    onClick = { showGenerationDialog = true },
-                    modifier = Modifier
-                        .size(30.dp) // 背景减少
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = CircleShape // 改为正圆形
-                        )
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "生成文章",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp) // 图标保持和单词本等大
-                    )
-                }
-                
-                // 汉堡菜单按钮
-                IconButton(
-                    onClick = { onShowFilterMenu() },
-                    modifier = Modifier.size(30.dp) // 与加号按钮保持一致的尺寸
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Menu,
-                        contentDescription = "筛选与排序",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(24.dp) // 图标保持和单词本等大
-                    )
-                }
-            }
-        }
+        // 搜索栏组件 - 替换原有的标题栏
+        ArticleSearchBarComponent_7ree(
+            title = "读文章",
+            searchQuery = searchQuery,
+            isSearchMode = isSearchMode,
+            onSearchQueryChange = onSearchQueryChange,
+            onSearchModeToggle = onSearchModeToggle,
+            onGenerateArticle = { showGenerationDialog = true },
+            onShowFilterMenu = onShowFilterMenu,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
         
         // 文章列表 - 根据模式选择使用分页组件或原有组件
         if (usePaginationMode) {
@@ -157,7 +123,9 @@ fun ArticleScreen_7ree(
                 onRefresh = onRefresh,
                 isManagementMode = isManagementMode,
                 selectedArticleIds = selectedArticleIds,
-                onToggleArticleSelection = onToggleArticleSelection
+                onToggleArticleSelection = onToggleArticleSelection,
+                isSearchMode = isSearchMode,
+                searchQuery = searchQuery
             )
         } else {
             // 使用原有的下拉刷新组件

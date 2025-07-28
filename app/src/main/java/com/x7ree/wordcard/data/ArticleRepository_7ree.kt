@@ -175,4 +175,45 @@ class ArticleRepository_7ree(private val articleDao_7ree: ArticleDao_7ree) {
     suspend fun getFavoriteArticlesSortedByViewCountDesc(limit: Int, offset: Int): List<ArticleEntity_7ree> {
         return articleDao_7ree.getFavoriteArticlesPagedByViewCountDesc_7ree(limit, offset)
     }
+    
+    // ========== 分页搜索方法 ==========
+    
+    // 在所有文章中搜索，支持分页和排序
+    suspend fun searchAllArticlesSortedByTimeAsc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchArticlesPagedByGenerationTimeAsc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchAllArticlesSortedByTimeDesc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchArticlesPagedByGenerationTimeDesc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchAllArticlesSortedByViewCountAsc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchArticlesPagedByViewCountAsc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchAllArticlesSortedByViewCountDesc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchArticlesPagedByViewCountDesc_7ree(query, limit, offset)
+    }
+    
+    // 在收藏文章中搜索，支持分页和排序
+    suspend fun searchFavoriteArticlesSortedByTimeAsc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchFavoriteArticlesPagedByGenerationTimeAsc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchFavoriteArticlesSortedByTimeDesc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchFavoriteArticlesPagedByGenerationTimeDesc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchFavoriteArticlesSortedByViewCountAsc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchFavoriteArticlesPagedByViewCountAsc_7ree(query, limit, offset)
+    }
+    
+    suspend fun searchFavoriteArticlesSortedByViewCountDesc(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.searchFavoriteArticlesPagedByViewCountDesc_7ree(query, limit, offset)
+    }
+    
+    // 测试搜索方法
+    suspend fun testSearchArticles(query: String, limit: Int, offset: Int): List<ArticleEntity_7ree> {
+        return articleDao_7ree.testSearchArticles_7ree(query, limit, offset)
+    }
 }
