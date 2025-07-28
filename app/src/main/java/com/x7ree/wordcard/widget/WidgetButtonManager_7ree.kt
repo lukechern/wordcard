@@ -34,10 +34,9 @@ class WidgetButtonManager_7ree(private val context: Context) {
         val spannableString = SpannableString("   $buttonText") // 增加3个空格作为间距
         
         // 获取三个星星图标
-        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_auto_awesome_7ree)
+        val drawable = ContextCompat.getDrawable(context, R.drawable.ic_add_article_7ree)
         drawable?.let {
-            // 设置图标为白色
-            it.setTint(ContextCompat.getColor(context, android.R.color.white))
+            it.setTint(ContextCompat.getColor(context, R.color.dark_green_7ree))
             // 调整图标大小，使其与文字更好地对齐
             val iconSize = (14 * context.resources.displayMetrics.density).toInt() // 14dp转换为像素
             it.setBounds(0, 0, iconSize, iconSize)

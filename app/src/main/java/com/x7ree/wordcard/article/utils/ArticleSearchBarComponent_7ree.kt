@@ -1,5 +1,7 @@
 package com.x7ree.wordcard.article.utils
 
+import com.x7ree.wordcard.R
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -24,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
@@ -199,15 +202,10 @@ fun ArticleSearchBarComponent_7ree(
                         onClick = onGenerateArticle,
                         modifier = Modifier
                             .size(30.dp) // 背景减少
-                            .background(
-                                color = MaterialTheme.colorScheme.primary,
-                                shape = CircleShape // 改为正圆形
-                            )
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Add,
+                            painter = painterResource(id = R.drawable.ic_add_article_7ree),
                             contentDescription = "生成文章",
-                            tint = Color.White,
                             modifier = Modifier.size(24.dp) // 图标保持和单词本等大
                         )
                     }

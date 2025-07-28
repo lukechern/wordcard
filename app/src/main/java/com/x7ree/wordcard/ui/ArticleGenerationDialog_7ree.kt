@@ -127,7 +127,7 @@ fun ArticleGenerationDialog_7ree(
                                 
                                 SmartGenerationButton_7ree(
                                     title = "人工输入",
-                                    subtitle = "手动输入关键词",
+                                    subtitle = "手动输入单词",
                                     icon = Icons.Default.Edit,
                                     color = MaterialTheme.colorScheme.tertiary,
                                     enabled = !isGenerating,
