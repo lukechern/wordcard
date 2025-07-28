@@ -121,184 +121,184 @@ fun WordInputComponent_7ree(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(horizontal = 0.dp)
                 .offset(y = (-0.15f * 100 + 50).dp), // 调整偏移量
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-        // App图标
-        Image(
-            painter = painterResource(id = R.drawable.wordcardicon),
-            contentDescription = "App图标",
-            contentScale = ContentScale.Fit,
-            alignment = Alignment.Center,
-            modifier = Modifier
-                .size(90.dp)
-                .padding(bottom = 16.dp)
-        )
-        
-        // 标题
-        Text(
-            text = "AI查单词",
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 32.dp)
-        )
-        
-        // 焦点状态
-        var isFocused by remember { mutableStateOf(false) }
-        
-        // 输入框容器
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-        ) {
-            // 输入框 - 统一设计风格，限制只能输入英文字母
-            OutlinedTextField(
-            value = textFieldValue,
-            onValueChange = { newTextFieldValue ->
-                // 检查是否包含非英文字符
-                val hasInvalidChars = newTextFieldValue.text.any { !it.isLetter() || (it !in 'a'..'z' && it !in 'A'..'Z') }
-                if (hasInvalidChars) {
-                    onInputWarningChange(true)
-                }
-                
-                // 过滤输入，只允许英文字母
-                val filteredText = newTextFieldValue.text.filter { it.isLetter() && (it in 'a'..'z' || it in 'A'..'Z') }
-                
-                // 更新TextFieldValue，保持光标在末尾
-                textFieldValue = TextFieldValue(
-                    text = filteredText,
-                    selection = TextRange(filteredText.length)
-                )
-                
-                // 同步更新ViewModel
-                if (!useCustomKeyboard) {
-                    wordQueryViewModel.onWordInputChanged_7ree(filteredText)
-                }
-            },
-            readOnly = useCustomKeyboard, // 自定义键盘模式下设置为只读
-            label = { Text("请输入英文单词") },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(focusRequester)
-                .onFocusChanged { focusState ->
-                    isFocused = focusState.isFocused
-                    if (focusState.isFocused && useCustomKeyboard) {
-                        keyboardController?.hide()
-                        customKeyboardState_7ree.show_7ree()
+            // App图标
+            Image(
+                painter = painterResource(id = R.drawable.wordcardicon),
+                contentDescription = "App图标",
+                contentScale = ContentScale.Fit,
+                alignment = Alignment.Center,
+                modifier = Modifier
+                    .size(90.dp)
+                    .padding(bottom = 16.dp)
+            )
+            
+            // 标题
+            Text(
+                text = "AI查单词",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
+            
+            // 焦点状态
+            var isFocused by remember { mutableStateOf(false) }
+            
+            // 输入框容器
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+            ) {
+                // 输入框 - 统一设计风格，限制只能输入英文字母
+                OutlinedTextField(
+                value = textFieldValue,
+                onValueChange = { newTextFieldValue ->
+                    // 检查是否包含非英文字符
+                    val hasInvalidChars = newTextFieldValue.text.any { !it.isLetter() || (it !in 'a'..'z' && it !in 'A'..'Z') }
+                    if (hasInvalidChars) {
+                        onInputWarningChange(true)
                     }
-                }
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        // 点击输入框时请求焦点并显示键盘
-                        focusRequester.requestFocus()
-                        if (useCustomKeyboard) {
+                    
+                    // 过滤输入，只允许英文字母
+                    val filteredText = newTextFieldValue.text.filter { it.isLetter() && (it in 'a'..'z' || it in 'A'..'Z') }
+                    
+                    // 更新TextFieldValue，保持光标在末尾
+                    textFieldValue = TextFieldValue(
+                        text = filteredText,
+                        selection = TextRange(filteredText.length)
+                    )
+                    
+                    // 同步更新ViewModel
+                    if (!useCustomKeyboard) {
+                        wordQueryViewModel.onWordInputChanged_7ree(filteredText)
+                    }
+                },
+                readOnly = useCustomKeyboard, // 自定义键盘模式下设置为只读
+                label = { Text("请输入英文单词") },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        isFocused = focusState.isFocused
+                        if (focusState.isFocused && useCustomKeyboard) {
                             keyboardController?.hide()
                             customKeyboardState_7ree.show_7ree()
                         }
-                    })
-                },
-            textStyle = LocalTextStyle.current.copy(
-                fontSize = 24.sp,
-                textAlign = TextAlign.Center
-            ),
-            shape = RoundedCornerShape(16.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedLabelColor = MaterialTheme.colorScheme.primary,
-                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                cursorColor = if (useCustomKeyboard) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.primary
-            ),
-            keyboardOptions = if (useCustomKeyboard) {
-                KeyboardOptions(imeAction = ImeAction.None)
-            } else {
-                KeyboardOptions(imeAction = ImeAction.Search)
-            },
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    // 点击回车时直接提交查询
-                    if (wordQueryViewModel.wordInput_7ree.length >= 3) {
-                        wordQueryViewModel.queryWord_7ree()
                     }
-                }
-            )
-        )
-        
-        // 自定义光标组件
-        if (useCustomKeyboard && isFocused) {
-            CustomCursor_7ree(
-                text = wordQueryViewModel.wordInput_7ree,
-                textStyle = androidx.compose.ui.text.TextStyle(
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            // 点击输入框时请求焦点并显示键盘
+                            focusRequester.requestFocus()
+                            if (useCustomKeyboard) {
+                                keyboardController?.hide()
+                                customKeyboardState_7ree.show_7ree()
+                            }
+                        })
+                    },
+                textStyle = LocalTextStyle.current.copy(
                     fontSize = 24.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
                     textAlign = TextAlign.Center
                 ),
-                modifier = Modifier.align(Alignment.Center)
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                    focusedLabelColor = MaterialTheme.colorScheme.primary,
+                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    cursorColor = if (useCustomKeyboard) androidx.compose.ui.graphics.Color.Transparent else MaterialTheme.colorScheme.primary
+                ),
+                keyboardOptions = if (useCustomKeyboard) {
+                    KeyboardOptions(imeAction = ImeAction.None)
+                } else {
+                    KeyboardOptions(imeAction = ImeAction.Search)
+                },
+                keyboardActions = KeyboardActions(
+                    onSearch = {
+                        // 点击回车时直接提交查询
+                        if (wordQueryViewModel.wordInput_7ree.length >= 3) {
+                            wordQueryViewModel.queryWord_7ree()
+                        }
+                    }
+                )
             )
-        }
-    }
-        
-        // 自动聚焦到输入框
-        LaunchedEffect(Unit) {
-            focusRequester.requestFocus()
-        }
-        
-        // 处理输入框点击事件
-        LaunchedEffect(useCustomKeyboard) {
-            if (useCustomKeyboard) {
-                // 使用自定义键盘时，隐藏系统键盘并显示自定义键盘
-                keyboardController?.hide()
-                customKeyboardState_7ree.show_7ree()
+            
+            // 自定义光标组件
+            if (useCustomKeyboard && isFocused) {
+                CustomCursor_7ree(
+                    text = wordQueryViewModel.wordInput_7ree,
+                    textStyle = androidx.compose.ui.text.TextStyle(
+                        fontSize = 24.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Normal,
+                        textAlign = TextAlign.Center
+                    ),
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
         }
-        
-        // 输入提示条
-        if (showInputWarning) {
-            Text(
-                text = "⚠️ 只能输入英文字母",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        }
+            
+            // 自动聚焦到输入框
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+            
+            // 处理输入框点击事件
+            LaunchedEffect(useCustomKeyboard) {
+                if (useCustomKeyboard) {
+                    // 使用自定义键盘时，隐藏系统键盘并显示自定义键盘
+                    keyboardController?.hide()
+                    customKeyboardState_7ree.show_7ree()
+                }
+            }
+            
+            // 输入提示条
+            if (showInputWarning) {
+                Text(
+                    text = "⚠️ 只能输入英文字母",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        // 查询按钮 - 统一设计风格，添加放大镜图标
-        Button(
-            onClick = { wordQueryViewModel.queryWord_7ree() },
-            enabled = !wordQueryViewModel.isLoading_7ree && wordQueryViewModel.wordInput_7ree.length >= 3,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-            ),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 4.dp,
-                pressedElevation = 2.dp,
-                disabledElevation = 0.dp
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Filled.AutoAwesome,
-                contentDescription = "查询",
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Text(
-                text = "用AI查询",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
+            // 查询按钮 - 统一设计风格，添加放大镜图标
+            Button(
+                onClick = { wordQueryViewModel.queryWord_7ree() },
+                enabled = !wordQueryViewModel.isLoading_7ree && wordQueryViewModel.wordInput_7ree.length >= 3,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 4.dp,
+                    pressedElevation = 2.dp,
+                    disabledElevation = 0.dp
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.AutoAwesome,
+                    contentDescription = "查询",
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = "用AI查询",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
 
             // 统计数据组件
             StatisticsComponent_7ree(
@@ -342,7 +342,8 @@ fun WordInputComponent_7ree(
                         customKeyboardState_7ree.hide_7ree()
                     }
                 },
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
             )
         }
     }

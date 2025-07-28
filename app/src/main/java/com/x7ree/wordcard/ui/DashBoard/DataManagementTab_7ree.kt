@@ -64,6 +64,7 @@ fun DataManagementTab_7ree(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
+            .padding(end = 8.dp) // 为滚动条留出空间
     ) {
         Text(
             text = "WordCard 数据管理",

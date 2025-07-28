@@ -27,7 +27,7 @@ fun HelpScreen_7ree() {
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 32.dp) // 右侧留更多空间给滚动条
+                .padding(start = 0.dp, top = 16.dp, bottom = 16.dp, end = 8.dp) // 右侧留更多空间给滚动条
         ) {
             // 循环显示帮助内容
             for (item in helpContent.content) {

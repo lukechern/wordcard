@@ -49,7 +49,7 @@ fun PromptConfigTab_7ree(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(end = 16.dp) // 为滚动条留出空间
+                .padding(end = 8.dp) // 为滚动条留出空间
         ) {
             Text(
                 text = "提示词和输出模板配置",

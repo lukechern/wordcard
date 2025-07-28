@@ -83,7 +83,9 @@ fun ConfigPage_7ree(
     // API配置状态监控日志
     
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
     ) {
         TabRow(selectedTabIndex = selectedTab_7ree.ordinal) {
             Tab(
