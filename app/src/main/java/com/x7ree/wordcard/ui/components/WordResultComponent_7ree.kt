@@ -350,12 +350,16 @@ fun WordResultComponent_7ree(
                             
                             Spacer(modifier = Modifier.width(6.dp))
                             
-                            // 卡片3：引用次数
+                            // 卡片3：引用次数 - 添加点击事件跳转到文章页面
                             InfoCard_7ree(
                                 title = "引用次数",
                                 value = "引用${wordQueryViewModel.currentWordInfo_7ree!!.referenceCount}次",
                                 icon = Icons.Filled.Article,
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                onClick = {
+                                    // 点击引用次数卡片，跳转到文章页面并搜索当前单词
+                                    wordQueryViewModel.navigateToArticleAndSearch_7ree()
+                                }
                             )
                             
                             Spacer(modifier = Modifier.width(6.dp))

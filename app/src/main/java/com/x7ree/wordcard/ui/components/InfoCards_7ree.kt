@@ -31,16 +31,23 @@ fun InfoCard_7ree(
     title: String,
     value: String,
     icon: ImageVector,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
     Card(
         modifier = modifier
+            .let { if (onClick != null) it.clickable { onClick() } else it }
             .graphicsLayer {
                 // 设置较低的z轴层级，避免遮挡手势检测
                 shadowElevation = 0f
             },
         colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = if (onClick != null) {
+                // 可点击的卡片使用稍微不同的颜色，表示可交互
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+            } else {
+                MaterialTheme.colorScheme.surfaceVariant
+            }
         )
     ) {
         Column(

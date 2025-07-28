@@ -225,6 +225,29 @@ class WordQueryViewModel_7ree(
         navigationHandler_7ree.returnToWordBook_7ree()
     }
     
+    /**
+     * 跳转到文章页面并搜索当前单词
+     */
+    fun navigateToArticleAndSearch_7ree() {
+        val currentWord = wordInput_7ree.trim()
+        println("DEBUG: navigateToArticleAndSearch_7ree called with word: '$currentWord'")
+        
+        if (currentWord.isNotBlank() && articleViewModel_7ree != null) {
+            println("DEBUG: Navigating to article page and searching for: '$currentWord'")
+            
+            // 切换到文章页面
+            setCurrentScreen_7ree("ARTICLE")
+            
+            // 启用搜索模式并搜索当前单词
+            articleViewModel_7ree.toggleSearchMode(true)
+            articleViewModel_7ree.updateSearchQuery(currentWord)
+            
+            println("DEBUG: Article search initiated successfully")
+        } else {
+            println("DEBUG: Cannot navigate - currentWord: '$currentWord', articleViewModel: ${articleViewModel_7ree != null}")
+        }
+    }
+    
     // TTS相关
     fun setIsSpeaking_7ree(speaking: Boolean) {
         ttsHandler_7ree.setIsSpeaking_7ree(speaking) { updatedState ->
