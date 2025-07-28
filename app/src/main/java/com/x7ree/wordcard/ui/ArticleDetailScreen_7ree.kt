@@ -1,6 +1,7 @@
 package com.x7ree.wordcard.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ fun ArticleDetailScreen_7ree(
     onBackClick: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
     onShareClick: () -> Unit = {},
+    onKeywordClick: (String) -> Unit = {},
     isReading: Boolean = false,
     ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY,
     keywordStats: Map<String, Int> = emptyMap()
@@ -223,7 +225,8 @@ fun ArticleDetailScreen_7ree(
                         // 关键词标签显示（带统计）
                         KeywordTagsWithStats_7ree(
                             keywords = article.keyWords.split(",").map { it.trim() },
-                            keywordStats = keywordStats
+                            keywordStats = keywordStats,
+                            onKeywordClick = onKeywordClick
                         )
                     }
                 }
@@ -306,7 +309,8 @@ private fun KeywordTags_7ree(keywords: List<String>) {
 @Composable
 private fun KeywordTagsWithStats_7ree(
     keywords: List<String>,
-    keywordStats: Map<String, Int>
+    keywordStats: Map<String, Int>,
+    onKeywordClick: (String) -> Unit = {}
 ) {
     // 使用FlowRow布局显示关键词标签
     val maxRowWidth = 3 // 每行最多3个标签
@@ -337,7 +341,8 @@ private fun KeywordTagsWithStats_7ree(
                 rowKeywords.forEach { keyword ->
                     KeywordTagWithStats_7ree(
                         keyword = keyword,
-                        count = keywordStats[keyword] ?: 0
+                        count = keywordStats[keyword] ?: 0,
+                        onKeywordClick = onKeywordClick
                     )
                 }
             }
@@ -346,12 +351,13 @@ private fun KeywordTagsWithStats_7ree(
 }
 
 @Composable
-private fun KeywordTagWithStats_7ree(keyword: String, count: Int) {
+private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick: (String) -> Unit = {}) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clickable { onKeywordClick(keyword) }
     ) {
         Text(
             text = "$keyword($count)",

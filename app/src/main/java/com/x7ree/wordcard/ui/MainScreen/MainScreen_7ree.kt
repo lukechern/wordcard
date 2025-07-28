@@ -182,6 +182,12 @@ fun MainScreen_7ree(
                                                 onShareClick = {
                                                     articleViewModel.toggleReading()
                                                 },
+                                                onKeywordClick = { keyword ->
+                                                    // 处理关键词点击事件
+                                                    wordQueryViewModel_7ree?.onWordInputChanged_7ree(keyword)
+                                                    wordQueryViewModel_7ree?.queryWord_7ree()
+                                                    wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
+                                                },
                                                 isReading = isReading,
                                                 ttsButtonState = ttsButtonState,
                                                 keywordStats = keywordStats

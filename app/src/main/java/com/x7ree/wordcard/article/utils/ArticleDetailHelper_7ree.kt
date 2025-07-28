@@ -91,7 +91,8 @@ class ArticleDetailHelper_7ree(
                             count++
                         }
                     }
-                    keywordCountMap[keyword] = count
+                    // 确保每个关键词至少计数为1（在当前文章中出现）
+                    keywordCountMap[keyword] = if (count == 0) 1 else count
                 }
                 
                 // 回调更新状态
@@ -101,6 +102,8 @@ class ArticleDetailHelper_7ree(
                 syncKeywordStatsToWordDatabase(coroutineScope, keywordCountMap)
             } catch (e: Exception) {
                 // 静默处理统计错误
+                // 即使出错也要确保回调被调用，避免UI状态不更新
+                onStatsCalculated(emptyMap())
             }
         }
     }

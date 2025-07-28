@@ -337,12 +337,21 @@ class ArticleViewModel_7ree(
      * 选择文章并显示详情页
      */
     fun selectArticle(article: ArticleEntity_7ree) {
+        // 根据是否使用分页模式选择正确的文章列表
+        val articlesToUse = if (_usePaginationMode.value) {
+            // 在分页模式下，使用分页处理器获取的所有文章
+            articlePaginationHandler_7ree.pagedArticles.value
+        } else {
+            // 在非分页模式下，使用原始文章列表
+            _articles.value
+        }
+        
         articleDetailHelper_7ree.handleArticleSelection(
             article,
             viewModelScope,
             { selectedArticle -> _selectedArticle.value = selectedArticle },
             { stats -> _keywordStats.value = stats },
-            _articles.value
+            articlesToUse
         )
         
         _showDetailScreen.value = true
@@ -353,7 +362,7 @@ class ArticleViewModel_7ree(
             viewModelScope,
             { selectedArticle -> incrementViewCount(selectedArticle.id) },
             { stats -> },
-            _articles.value
+            articlesToUse
         )
     }
     
