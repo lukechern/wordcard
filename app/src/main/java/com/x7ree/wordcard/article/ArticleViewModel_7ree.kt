@@ -53,6 +53,10 @@ class ArticleViewModel_7ree(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
+    // 下拉刷新状态
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+    
     // 操作结果
     private val _operationResult = MutableStateFlow<String?>(null)
     val operationResult: StateFlow<String?> = _operationResult.asStateFlow()
@@ -118,6 +122,28 @@ class ArticleViewModel_7ree(
     fun refreshArticles() {
         // 由于我们使用Flow，数据库的任何更改都应该自动反映到UI
         // 这个方法主要用于调试和强制刷新
+    }
+    
+    /**
+     * 下拉刷新文章列表
+     */
+    fun pullToRefreshArticles() {
+        viewModelScope.launch {
+            try {
+                _isRefreshing.value = true
+                
+                // 模拟刷新延迟，提供更好的用户体验
+                delay(800)
+                
+                // 重新初始化文章流，这会触发数据库查询并更新UI
+                initializeArticleFlow()
+                
+            } catch (e: Exception) {
+                _operationResult.value = "刷新失败: ${e.message}"
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
     }
     
     /**

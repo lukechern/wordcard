@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
+import com.x7ree.wordcard.article.utils.ArticlePullToRefreshComponent_7ree
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -39,7 +40,9 @@ fun ArticleScreen_7ree(
     smartGenerationStatus: String = "",
     smartGenerationKeywords: List<String> = emptyList(),
     onCloseSmartGenerationCard: () -> Unit = {},
-    currentSmartGenerationType: SmartGenerationType_7ree? = null
+    currentSmartGenerationType: SmartGenerationType_7ree? = null,
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = {}
 ) {
     var showGenerationDialog by remember { mutableStateOf(false) }
     var shouldCloseDialogAfterGeneration by remember { mutableStateOf(false) }
@@ -87,45 +90,57 @@ fun ArticleScreen_7ree(
             }
         }
         
-        // 文章列表
-        if (articles.isEmpty()) {
-            // 空状态
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+        // 文章列表 - 使用下拉刷新组件包装
+        ArticlePullToRefreshComponent_7ree(
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            if (articles.isEmpty()) {
+                // 空状态
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "暂无文章",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "点击右上角的 + 按钮生成文章",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
-                    )
-                }
-            }
-        } else {
-            // 瀑布流文章卡片
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(2),
-                verticalItemSpacing = 8.dp,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                content = {
-                    items(articles) { article ->
-                        ArticleCard_7ree(
-                            article = article,
-                            onClick = { onArticleClick(article) },
-                            onToggleFavorite = { onToggleFavorite(article.id) }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "暂无文章",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "点击右上角的 + 按钮生成文章",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Gray
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "或下拉刷新文章列表",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
                         )
                     }
                 }
-            )
+            } else {
+                // 瀑布流文章卡片
+                LazyVerticalStaggeredGrid(
+                    columns = StaggeredGridCells.Fixed(2),
+                    verticalItemSpacing = 8.dp,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    content = {
+                        items(articles) { article ->
+                            ArticleCard_7ree(
+                                article = article,
+                                onClick = { onArticleClick(article) },
+                                onToggleFavorite = { onToggleFavorite(article.id) }
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
     

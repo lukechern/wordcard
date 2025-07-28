@@ -186,7 +186,9 @@ fun MainScreen_7ree(
                                                 smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
                                                 smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
                                                 onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
-                                                currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType()
+                                                currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
+                                                isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
+                                                onRefresh = { articleViewModel.pullToRefreshArticles() }
                                             )
                                         }
                                     } ?: run {
@@ -214,7 +216,9 @@ fun MainScreen_7ree(
                                             smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
                                             smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
                                             onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
-                                            currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType()
+                                            currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
+                                            isRefreshing = articleViewModel.isRefreshing.collectAsState().value,
+                                            onRefresh = { articleViewModel.pullToRefreshArticles() }
                                         )
                                     }
                                 } else {
