@@ -33,7 +33,7 @@ fun DashboardScreen_7ree(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 0.dp, vertical = 8.dp)
     ) {
         // 标题栏：标题 + 图标
         Row(

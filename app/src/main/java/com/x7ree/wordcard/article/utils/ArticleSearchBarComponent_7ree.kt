@@ -194,7 +194,7 @@ fun ArticleSearchBarComponent_7ree(
                 )
                 
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 生成文章按钮 - 背景减少30%，图标保持和单词本等大
@@ -204,10 +204,10 @@ fun ArticleSearchBarComponent_7ree(
                             .size(30.dp) // 背景减少
                     ) {
                         Icon(
-                            painter = painterResource(id = R.drawable.ic_add_article_7ree),
+                            imageVector = Icons.Default.Add,
                             contentDescription = "生成文章",
                             tint = Color(0xFF2B7033), // 设置为更深的绿色
-                            modifier = Modifier.size(24.dp) // 图标保持和单词本等大
+                            modifier = Modifier.size(28.dp) // 调整图标大小为28.dp
                         )
                     }
                     

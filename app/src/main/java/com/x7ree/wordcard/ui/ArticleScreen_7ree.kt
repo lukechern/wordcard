@@ -94,7 +94,6 @@ fun ArticleScreen_7ree(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp)
         ) {
         // 搜索栏组件 - 替换原有的标题栏
         ArticleSearchBarComponent_7ree(
@@ -118,7 +117,9 @@ fun ArticleScreen_7ree(
                 onArticleClick = onArticleClick,
                 onToggleFavorite = onToggleFavorite,
                 onLoadMore = onLoadMore,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp),
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
                 isManagementMode = isManagementMode,
@@ -165,7 +166,8 @@ fun ArticleScreen_7ree(
                 } else {
                     // 使用两列布局，文章已经在ViewModel中进行了筛选和排序
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     ) {
                         // 直接按行处理，每行显示两个文章
                         items(
@@ -333,5 +335,3 @@ fun ArticleScreen_7ree(
         onManageClick = onEnterManagementMode
     )
 }
-
-

@@ -89,14 +89,16 @@ fun WordResultComponent_7ree(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp), // 左右对称24.dp，上下保持16.dp
+            .padding(horizontal = 2.dp, vertical = 16.dp), // 左右对称2.dp，上下保持16.dp
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // 标题栏：左边"单词卡片"，右边收藏桃心图标
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .height(50.dp) // 调整标题栏高度
+                .padding(horizontal = 0.dp, vertical = 0.dp)
+                .padding(bottom = 8.dp), // 添加底部边距，与单词本列表页保持一致
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -132,7 +134,7 @@ fun WordResultComponent_7ree(
                 fontSize = MaterialTheme.typography.headlineMedium.fontSize * 1.4f // 放大40%（原来是1.3f，现在增加1号）
             ),
             fontWeight = FontWeight.ExtraBold, // 从Bold改为ExtraBold，更加粗
-            modifier = Modifier.padding(bottom = 24.dp)
+            modifier = Modifier.padding(bottom = 16.dp) // 减少底部边距
         )
 
         if (wordQueryViewModel.queryResult_7ree.isNotBlank()) {
@@ -181,7 +183,7 @@ fun WordResultComponent_7ree(
                                 state = scrollState_7ree,
                                 enabled = true // 确保滚动功能正常
                             )
-                            .padding(bottom = 16.dp, end = 7.dp) // 只保留底部间距，右侧添加7.dp边距
+                            .padding(bottom = 16.dp) // 只保留底部间距
                     ) {
                         // TTS状态管理 - 独立管理音标和例句按钮状态
                         val isSpeakingWord_7ree = wordQueryViewModel.isSpeakingWord_7ree
@@ -327,7 +329,7 @@ fun WordResultComponent_7ree(
                         contentAlignment = Alignment.Center
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(0.95f), // 由于现在有4个卡片，稍微增加宽度
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceEvenly
                         ) {
                             // 卡片1：初次查询时间

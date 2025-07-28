@@ -7,12 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.VolumeUp
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +16,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
@@ -40,76 +40,97 @@ fun ArticleDetailScreen_7ree(
     keywordStats: Map<String, Int> = emptyMap()
 ) {
     val scrollState = rememberScrollState()
+    var isSearchMode by remember { mutableStateOf(false) }
+    var searchQuery by remember { mutableStateOf("") }
     
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 顶部应用栏
-        TopAppBar(
-            title = { 
+        // 顶部应用栏 - 使用与文章列表页相同的结构
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp) // 固定标题栏高度，确保与文章列表页一致
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 标题模式：显示标题和操作按钮
                 Text(
                     text = "文章详情",
-                    maxLines = 1
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f)
                 )
-            },
-            navigationIcon = {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "返回"
-                    )
-                }
-            },
-            actions = {
-                // 收藏按钮
-                IconButton(onClick = onToggleFavorite) {
-                    Icon(
-                        imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                        contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
-                        tint = if (article.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
-                    )
-                }
                 
-                // 朗读按钮
-                IconButton(
-                    onClick = onShareClick,
-                    enabled = ttsButtonState != com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    when (ttsButtonState) {
-                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING -> {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(20.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                    // 收藏按钮
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (article.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (article.isFavorite) "取消收藏" else "收藏",
+                            tint = if (article.isFavorite) Color.Red else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    
+                    // 朗读按钮
+                    IconButton(
+                        onClick = onShareClick,
+                        enabled = ttsButtonState != com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING
+                    ) {
+                        when (ttsButtonState) {
+                            com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.LOADING -> {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.PLAYING -> {
+                                Icon(
+                                    imageVector = Icons.Default.Stop,
+                                    contentDescription = "停止朗读",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.ERROR -> {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "重试朗读",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                            com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY -> {
+                                Icon(
+                                    imageVector = Icons.Default.VolumeUp,
+                                    contentDescription = "朗读文章",
+                                    tint = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
                         }
-                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.PLAYING -> {
-                            Icon(
-                                imageVector = Icons.Default.Stop,
-                                contentDescription = "停止朗读",
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
-                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.ERROR -> {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "重试朗读",
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                        }
-                        com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY -> {
-                            Icon(
-                                imageVector = Icons.Default.VolumeUp,
-                                contentDescription = "朗读文章",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                    }
+                    
+                    // 返回按钮（放置在右边）
+                    IconButton(
+                        onClick = onBackClick,
+                        modifier = Modifier.size(30.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "返回",
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
             }
-        )
+        }
         
         // 文章内容
         Column(

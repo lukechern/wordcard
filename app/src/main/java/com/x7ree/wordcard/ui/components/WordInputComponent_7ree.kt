@@ -122,7 +122,7 @@ fun WordInputComponent_7ree(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 0.dp)
                 .offset(y = (-0.15f * 100 + 50).dp), // 调整偏移量
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -151,7 +151,7 @@ fun WordInputComponent_7ree(
         // 输入框容器
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .height(72.dp)
         ) {
             // 输入框 - 统一设计风格，限制只能输入英文字母
@@ -273,7 +273,7 @@ fun WordInputComponent_7ree(
             onClick = { wordQueryViewModel.queryWord_7ree() },
             enabled = !wordQueryViewModel.isLoading_7ree && wordQueryViewModel.wordInput_7ree.length >= 3,
             modifier = Modifier
-                .fillMaxWidth(0.8f)
+                .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(
