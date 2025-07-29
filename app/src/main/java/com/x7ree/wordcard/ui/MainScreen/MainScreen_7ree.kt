@@ -18,14 +18,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
-import com.x7ree.wordcard.ui.ArticleDetailScreen_7ree
-import com.x7ree.wordcard.ui.ArticleScreen_7ree
 import com.x7ree.wordcard.ui.BottomNavigationBar_7ree
-import com.x7ree.wordcard.ui.DashboardScreen_7ree
-import com.x7ree.wordcard.ui.MainScreen.HistoryScreen_7ree
 import com.x7ree.wordcard.ui.SplashScreen_7ree
-import com.x7ree.wordcard.ui.WordCardScreen_7ree
-import kotlinx.coroutines.delay
+import com.x7ree.wordcard.ui.MainScreen.HandleOperationResultToast_7ree
+import com.x7ree.wordcard.ui.MainScreen.HandleSplashScreenLogic_7ree
+import com.x7ree.wordcard.ui.MainScreen.HandleViewModelAvailableLogic_7ree
+import com.x7ree.wordcard.ui.MainScreen.ShowSearchScreen_7ree
+import com.x7ree.wordcard.ui.MainScreen.ShowHistoryScreen_7ree
+import com.x7ree.wordcard.ui.MainScreen.ShowArticleScreen_7ree
+import com.x7ree.wordcard.ui.MainScreen.ShowSettingsScreen_7ree
+import com.x7ree.wordcard.ui.MainScreen.HandleLoadingTimeoutLogic_7ree
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,57 +47,29 @@ fun MainScreen_7ree(
     var showSplash_7ree by remember { mutableStateOf(true) }
     var showCustomToast_7ree by remember { mutableStateOf(false) }
     var toastMessage_7ree by remember { mutableStateOf("") }
-    val operationResult_7ree by wordQueryViewModel_7ree?.operationResult_7ree?.collectAsState() ?: mutableStateOf(null)
-    val articleOperationResult_7ree by wordQueryViewModel_7ree?.articleViewModel_7ree?.operationResult?.collectAsState() ?: mutableStateOf(null)
+    val showSplashState_7ree = remember { mutableStateOf(showSplash_7ree) }
 
-    // 监听操作结果，显示自定义提示条
-    LaunchedEffect(operationResult_7ree) {
-        operationResult_7ree?.let { result ->
-            toastMessage_7ree = result
-            showCustomToast_7ree = true
-            // 清除操作结果
-            wordQueryViewModel_7ree?.clearOperationResult_7ree()
-        }
-    }
-    
-    // 监听文章操作结果，显示自定义提示条
-    LaunchedEffect(articleOperationResult_7ree) {
-        articleOperationResult_7ree?.let { result ->
-            toastMessage_7ree = result
-            showCustomToast_7ree = true
-            // 清除操作结果
-            wordQueryViewModel_7ree?.articleViewModel_7ree?.clearOperationResult()
-        }
-    }
+    // 处理操作结果提示条显示逻辑
+    HandleOperationResultToast_7ree(
+        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+        showCustomToast_7ree = { showCustomToast_7ree = it },
+        setToastMessage_7ree = { toastMessage_7ree = it }
+    )
 
-    // 智能启动画面控制 - 改进逻辑，确保不会卡住
-    LaunchedEffect(isInitializationComplete_7ree) {
-        if (isInitializationComplete_7ree) {
-            // 如果初始化已完成，只显示500毫秒启动画面给用户视觉反馈
-            delay(500)
-            showSplash_7ree = false
-        }
-    }
-    
-    // 强制超时机制 - 确保启动画面不会无限显示
-    LaunchedEffect(Unit) {
-        delay(5000) // 最多显示5秒启动画面，给冷启动更多时间
-        if (showSplash_7ree) {
-            // Log.d("MainScreen_7ree", "启动画面超时，强制关闭")
-            showSplash_7ree = false
-        }
-    }
+    // 处理启动画面逻辑
+    HandleSplashScreenLogic_7ree(
+        isInitializationComplete_7ree = isInitializationComplete_7ree,
+        showSplash_7ree = showSplashState_7ree
+    )
     
     // 额外的安全机制 - 如果ViewModel可用但初始化标志未设置，也关闭启动画面
-    LaunchedEffect(wordQueryViewModel_7ree) {
-        if (wordQueryViewModel_7ree != null && showSplash_7ree) {
-            delay(1000) // 给一点时间让初始化标志更新
-            if (showSplash_7ree) {
-                // Log.d("MainScreen_7ree", "ViewModel已可用，关闭启动画面")
-                showSplash_7ree = false
-            }
-        }
-    }
+    HandleViewModelAvailableLogic_7ree(
+        wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+        showSplash_7ree = showSplashState_7ree
+    )
+
+    // 更新showSplash_7ree状态
+    showSplash_7ree = showSplashState_7ree.value
 
     Box(modifier = Modifier.fillMaxSize()) {
         Scaffold(
@@ -130,12 +104,10 @@ fun MainScreen_7ree(
                     if (wordQueryViewModel_7ree != null) {
                         when (currentScreen_7ree) {
                             Screen_7ree.SEARCH -> {
-                                WordCardScreen_7ree(
-                                    wordQueryViewModel_7ree = wordQueryViewModel_7ree
-                                )
+                                ShowSearchScreen_7ree(wordQueryViewModel_7ree = wordQueryViewModel_7ree)
                             }
                             Screen_7ree.HISTORY -> {
-                                HistoryScreen_7ree(
+                                ShowHistoryScreen_7ree(
                                     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                                     onWordClick_7ree = { word ->
                                         wordQueryViewModel_7ree.loadWordFromHistory_7ree(word)
@@ -144,225 +116,10 @@ fun MainScreen_7ree(
                                 )
                             }
                             Screen_7ree.ARTICLE -> {
-                                val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree
-                                if (articleViewModel != null) {
-                                    // 收集分页相关状态
-                                    val usePaginationMode by articleViewModel.usePaginationMode.collectAsState()
-                                    val isSearchMode by articleViewModel.isSearchMode.collectAsState()
-                                    val searchQuery by articleViewModel.searchQuery.collectAsState()
-                                    val searchResults by articleViewModel.searchResults.collectAsState()
-                                    
-                                    // 根据搜索模式选择显示的文章列表
-                                    val articles by if (usePaginationMode) {
-                                        // 分页模式下，搜索结果也通过pagedArticles获取
-                                        articleViewModel.pagedArticles.collectAsState()
-                                    } else if (isSearchMode && searchQuery.isNotBlank()) {
-                                        // 非分页模式下，搜索结果通过searchResults获取
-                                        articleViewModel.searchResults.collectAsState()
-                                    } else {
-                                        // 非分页模式下的正常文章列表
-                                        articleViewModel.articles.collectAsState()
-                                    }
-                                    val isLoadingMore by articleViewModel.isLoadingMore.collectAsState()
-                                    val hasMoreData by articleViewModel.hasMoreData.collectAsState()
-                                    val isRefreshing by if (usePaginationMode) {
-                                        articleViewModel.isPaginationRefreshing.collectAsState()
-                                    } else {
-                                        articleViewModel.isRefreshing.collectAsState()
-                                    }
-                                    
-                                    val isGenerating by articleViewModel.isGenerating.collectAsState()
-                                    val showDetailScreen by articleViewModel.showDetailScreen.collectAsState()
-                                    val selectedArticle by articleViewModel.selectedArticle.collectAsState()
-                                    
-                                    selectedArticle?.let { article ->
-                                        if (showDetailScreen) {
-                                            val isReading by articleViewModel.isReading.collectAsState()
-                                            val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
-                                            val keywordStats by articleViewModel.keywordStats.collectAsState()
-                                            
-                                            // 显示文章详情页
-                                            ArticleDetailScreen_7ree(
-                                                article = article,
-                                                onBackClick = {
-                                                    articleViewModel.closeDetailScreen()
-                                                },
-                                                onToggleFavorite = {
-                                                    articleViewModel.toggleSelectedArticleFavorite()
-                                                },
-                                                onShareClick = {
-                                                    articleViewModel.toggleReading()
-                                                },
-                                                onKeywordClick = { keyword ->
-                                                    // 处理关键词点击事件
-                                                    wordQueryViewModel_7ree?.onWordInputChanged_7ree(keyword)
-                                                    wordQueryViewModel_7ree?.queryWord_7ree()
-                                                    wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
-                                                },
-                                                isReading = isReading,
-                                                ttsButtonState = ttsButtonState,
-                                                keywordStats = keywordStats
-                                            )
-                                        } else {
-                                            // 显示文章列表页
-                                            ArticleScreen_7ree(
-                                                articles = articles,
-                                                onGenerateArticle = { keyWords ->
-                                                    articleViewModel.generateArticle(keyWords)
-                                                },
-                                                onSmartGenerate = { type ->
-                                                    articleViewModel.smartGenerateArticle(type)
-                                                },
-                                                onSmartGenerateWithKeywords = { type, keywords ->
-                                                    articleViewModel.smartGenerateArticle(type, keywords)
-                                                },
-                                                onArticleClick = { article ->
-                                                    articleViewModel.selectArticle(article)
-                                                },
-                                                onToggleFavorite = { articleId ->
-                                                    if (usePaginationMode) {
-                                                        articleViewModel.paginationToggleFavorite(articleId)
-                                                    } else {
-                                                        articleViewModel.toggleFavorite(articleId)
-                                                    }
-                                                },
-                                                isGenerating = isGenerating,
-                                                showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
-                                                smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
-                                                smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
-                                                onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
-                                                currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
-                                                isRefreshing = isRefreshing,
-                                                onRefresh = { 
-                                                    if (usePaginationMode) {
-                                                        articleViewModel.paginationRefreshArticles()
-                                                    } else {
-                                                        articleViewModel.pullToRefreshArticles()
-                                                    }
-                                                },
-                                                // 新增的筛选菜单参数
-                                                showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
-                                                filterState = articleViewModel.filterState.collectAsState().value,
-                                                onShowFilterMenu = { articleViewModel.showFilterMenu() },
-                                                onHideFilterMenu = { articleViewModel.hideFilterMenu() },
-                                                onFilterStateChange = { filterState -> articleViewModel.updateFilterState(filterState) },
-                                                // 新增的管理模式参数
-                                                isManagementMode = articleViewModel.isManagementMode.collectAsState().value,
-                                                selectedArticleIds = articleViewModel.selectedArticleIds.collectAsState().value,
-                                                onEnterManagementMode = { articleViewModel.enterManagementMode() },
-                                                onExitManagementMode = { articleViewModel.exitManagementMode() },
-                                                onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
-                                                onToggleSelectAll = { articleViewModel.toggleSelectAll() },
-                                                onDeleteSelectedArticles = { 
-                                                    if (usePaginationMode) {
-                                                        articleViewModel.paginationDeleteSelectedArticles()
-                                                    } else {
-                                                        articleViewModel.deleteSelectedArticles()
-                                                    }
-                                                },
-                                                // 新增的分页参数
-                                                usePaginationMode = usePaginationMode,
-                                                isLoadingMore = isLoadingMore,
-                                                hasMoreData = hasMoreData,
-                                                onLoadMore = { articleViewModel.loadMoreArticles() },
-                                                // 新增的搜索参数
-                                                searchQuery = articleViewModel.searchQuery.collectAsState().value,
-                                                isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
-                                                onSearchQueryChange = { query -> 
-                                                    println("DEBUG: MainScreen onSearchQueryChange called with: '$query'")
-                                                    articleViewModel.updateSearchQuery(query)
-                                                },
-                                                onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
-                                            )
-                                        }
-                                    } ?: run {
-                                        // 显示文章列表页
-                                        ArticleScreen_7ree(
-                                            articles = articles,
-                                            onGenerateArticle = { keyWords ->
-                                                articleViewModel.generateArticle(keyWords)
-                                            },
-                                            onSmartGenerate = { type ->
-                                                articleViewModel.smartGenerateArticle(type)
-                                            },
-                                            onSmartGenerateWithKeywords = { type, keywords ->
-                                                articleViewModel.smartGenerateArticle(type, keywords)
-                                            },
-                                            onArticleClick = { article ->
-                                                articleViewModel.selectArticle(article)
-                                            },
-                                            onToggleFavorite = { articleId ->
-                                                if (usePaginationMode) {
-                                                    articleViewModel.paginationToggleFavorite(articleId)
-                                                } else {
-                                                    articleViewModel.toggleFavorite(articleId)
-                                                }
-                                            },
-                                            isGenerating = isGenerating,
-                                            showSmartGenerationCard = articleViewModel.showSmartGenerationCard.collectAsState().value,
-                                            smartGenerationStatus = articleViewModel.smartGenerationStatus.collectAsState().value,
-                                            smartGenerationKeywords = articleViewModel.smartGenerationKeywords.collectAsState().value,
-                                            onCloseSmartGenerationCard = { articleViewModel.closeSmartGenerationCard() },
-                                            currentSmartGenerationType = articleViewModel.getCurrentSmartGenerationType(),
-                                            isRefreshing = isRefreshing,
-                                            onRefresh = { 
-                                                if (usePaginationMode) {
-                                                    articleViewModel.paginationRefreshArticles()
-                                                } else {
-                                                    articleViewModel.pullToRefreshArticles()
-                                                }
-                                            },
-                                            // 新增的筛选菜单参数
-                                            showFilterMenu = articleViewModel.showFilterMenu.collectAsState().value,
-                                            filterState = articleViewModel.filterState.collectAsState().value,
-                                            onShowFilterMenu = { articleViewModel.showFilterMenu() },
-                                            onHideFilterMenu = { articleViewModel.hideFilterMenu() },
-                                            onFilterStateChange = { filterState -> articleViewModel.updateFilterState(filterState) },
-                                            // 新增的管理模式参数
-                                            isManagementMode = articleViewModel.isManagementMode.collectAsState().value,
-                                            selectedArticleIds = articleViewModel.selectedArticleIds.collectAsState().value,
-                                            onEnterManagementMode = { articleViewModel.enterManagementMode() },
-                                            onExitManagementMode = { articleViewModel.exitManagementMode() },
-                                            onToggleArticleSelection = { articleId -> articleViewModel.toggleArticleSelection(articleId) },
-                                            onToggleSelectAll = { articleViewModel.toggleSelectAll() },
-                                            onDeleteSelectedArticles = { 
-                                                if (usePaginationMode) {
-                                                    articleViewModel.paginationDeleteSelectedArticles()
-                                                } else {
-                                                    articleViewModel.deleteSelectedArticles()
-                                                }
-                                            },
-                                            // 新增的分页参数
-                                            usePaginationMode = usePaginationMode,
-                                            isLoadingMore = isLoadingMore,
-                                            hasMoreData = hasMoreData,
-                                            onLoadMore = { articleViewModel.loadMoreArticles() },
-                                            // 新增的搜索参数
-                                            searchQuery = articleViewModel.searchQuery.collectAsState().value,
-                                            isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
-                                            onSearchQueryChange = { query -> 
-                                                println("DEBUG: MainScreen onSearchQueryChange (2nd) called with: '$query'")
-                                                articleViewModel.updateSearchQuery(query)
-                                            },
-                                            onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
-                                        )
-                                    }
-                                } else {
-                                    // 如果ArticleViewModel未初始化，显示错误信息
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "文章功能初始化失败",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    }
-                                }
+                                ShowArticleScreen_7ree(wordQueryViewModel_7ree = wordQueryViewModel_7ree)
                             }
                             Screen_7ree.SETTINGS -> {
-                                DashboardScreen_7ree(
+                                ShowSettingsScreen_7ree(
                                     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
                                     onImportFile_7ree = onImportFile_7ree
                                 )
@@ -370,14 +127,7 @@ fun MainScreen_7ree(
                         }
                     } else {
                         // 如果ViewModel还未初始化完成，显示加载状态，但添加超时保护
-                        var showLoadingTimeout by remember { mutableStateOf(false) }
-                        
-                        // 超时保护机制 - 如果10秒后还在加载状态，显示错误信息
-                        LaunchedEffect(Unit) {
-                            delay(10000) // 10秒超时
-                            Log.e("MainScreen_7ree", "应用初始化超时")
-                            showLoadingTimeout = true
-                        }
+                        val showLoadingTimeout = HandleLoadingTimeoutLogic_7ree()
                         
                         Box(
                             modifier = Modifier.fillMaxSize(),
