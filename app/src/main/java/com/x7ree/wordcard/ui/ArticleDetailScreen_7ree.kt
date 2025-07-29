@@ -194,36 +194,98 @@ fun ArticleDetailScreen_7ree(
                 }
             }
             
-            // 第二个卡片：英文文章内容
+// 合并的卡片：英文文章和中文翻译，使用tab切换
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
+                var selectedTab by remember { mutableStateOf(0) } // 0 for English, 1 for Chinese
+                
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(
-                        text = "英文文章",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
+                    // Tab布局
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        // 英文文章tab
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { selectedTab = 0 }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "英文文章",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selectedTab == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        
+                        // 中文翻译tab
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { selectedTab = 1 }
+                                .padding(vertical = 8.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "中文翻译",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                color = if (selectedTab == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                     
-                    MarkdownText_7ree(
-                        text = article.englishContent,
-                        style = MaterialTheme.typography.bodyLarge,
-                        lineHeight = 24.sp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    // Tab内容区域
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        // 根据选中的tab显示相应内容
+                        when (selectedTab) {
+                            0 -> {
+                                // 显示英文文章内容
+                                MarkdownText_7ree(
+                                    text = article.englishContent,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    lineHeight = 24.sp,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            1 -> {
+                                // 显示中文翻译内容
+                                if (article.chineseContent.isNotEmpty()) {
+                                    MarkdownText_7ree(
+                                        text = article.chineseContent,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        lineHeight = 24.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                } else {
+                                    Text(
+                                        text = "暂无中文翻译",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
             
-            // 第三个卡片：关键词
+            // 关键词卡片（保持不变）
             if (article.keyWords.isNotEmpty()) {
                 Card(
                     modifier = Modifier
@@ -249,37 +311,6 @@ fun ArticleDetailScreen_7ree(
                             keywords = article.keyWords.split(",").map { it.trim() },
                             keywordStats = keywordStats,
                             onKeywordClick = onKeywordClick
-                        )
-                    }
-                }
-            }
-            
-            // 第四个卡片：中文翻译
-            if (article.chineseContent.isNotEmpty()) {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(
-                            text = "文章中文翻译",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
-                        
-                        MarkdownText_7ree(
-                            text = article.chineseContent,
-                            style = MaterialTheme.typography.bodyLarge,
-                            lineHeight = 24.sp,
-                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

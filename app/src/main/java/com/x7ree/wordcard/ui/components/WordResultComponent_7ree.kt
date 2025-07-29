@@ -42,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.x7ree.wordcard.R
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.LocalSwipeState_7ree
 import com.x7ree.wordcard.ui.SpellingCard_7ree
@@ -352,11 +353,11 @@ fun WordResultComponent_7ree(
                             
                             Spacer(modifier = Modifier.width(6.dp))
                             
-                            // 卡片3：引用次数 - 添加点击事件跳转到文章页面
+// 卡片3：引用次数 - 添加点击事件跳转到文章页面
                             InfoCard_7ree(
                                 title = "引用次数",
                                 value = "引用${wordQueryViewModel.currentWordInfo_7ree!!.referenceCount}次",
-                                icon = Icons.Filled.Article,
+                                drawableRes = R.drawable.ic_article_custom_7ree,
                                 modifier = Modifier.weight(1f),
                                 onClick = {
                                     // 点击引用次数卡片，跳转到文章页面并搜索当前单词

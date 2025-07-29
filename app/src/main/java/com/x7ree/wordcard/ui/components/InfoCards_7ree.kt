@@ -19,18 +19,58 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// 信息卡片组件
+// 信息卡片组件 - ImageVector版本
 @Composable
 fun InfoCard_7ree(
     title: String,
     value: String,
     icon: ImageVector,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
+) {
+    InfoCard_7ree(
+        title = title,
+        value = value,
+        icon = icon,
+        drawableRes = null,
+        modifier = modifier,
+        onClick = onClick
+    )
+}
+
+// 信息卡片组件 - Drawable资源版本
+@Composable
+fun InfoCard_7ree(
+    title: String,
+    value: String,
+    drawableRes: Int,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
+) {
+    InfoCard_7ree(
+        title = title,
+        value = value,
+        icon = null,
+        drawableRes = drawableRes,
+        modifier = modifier,
+        onClick = onClick
+    )
+}
+
+// 信息卡片组件 - 内部实现
+@Composable
+private fun InfoCard_7ree(
+    title: String,
+    value: String,
+    icon: ImageVector? = null,
+    drawableRes: Int? = null,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null
 ) {
@@ -51,12 +91,21 @@ fun InfoCard_7ree(
                 .padding(12.dp), // 从16.dp减少到12.dp
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                modifier = Modifier.size(20.dp), // 从24.dp减少到20.dp
-                tint = MaterialTheme.colorScheme.primary
-            )
+            if (drawableRes != null) {
+                Icon(
+                    painter = painterResource(id = drawableRes),
+                    contentDescription = title,
+                    modifier = Modifier.size(20.dp), // 从24.dp减少到20.dp
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Icon(
+                    imageVector = icon!!,
+                    contentDescription = title,
+                    modifier = Modifier.size(20.dp), // 从24.dp减少到20.dp
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             Spacer(modifier = Modifier.height(4.dp)) // 从6.dp减少到4.dp（缩小30%）
             Text(
                 text = value,

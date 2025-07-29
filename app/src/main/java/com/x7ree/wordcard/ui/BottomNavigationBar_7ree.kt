@@ -15,6 +15,8 @@ import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.x7ree.wordcard.R
 
 /**
 语言包定义
@@ -74,8 +77,8 @@ fun BottomNavigationBar_7ree(
                 onClick = { onScreenSelected_7ree(Screen_7ree.HISTORY) }
             )
             
-            CustomNavigationItem_7ree(
-                icon = Icons.Filled.Article,
+CustomNavigationItem_7ree(
+                drawableRes = R.drawable.ic_article_custom_7ree,
                 label = "读文章",
                 isSelected = currentScreen_7ree == Screen_7ree.ARTICLE,
                 onClick = { onScreenSelected_7ree(Screen_7ree.ARTICLE) }
@@ -94,6 +97,23 @@ fun BottomNavigationBar_7ree(
 @Composable
 private fun CustomNavigationItem_7ree(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    CustomNavigationItem_7ree(
+        icon = icon,
+        drawableRes = null,
+        label = label,
+        isSelected = isSelected,
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun CustomNavigationItem_7ree(
+    icon: ImageVector? = null,
+    drawableRes: Int? = null,
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -118,12 +138,21 @@ private fun CustomNavigationItem_7ree(
                 modifier = Modifier.height(30.8.dp), // 使用最大图标高度
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    modifier = Modifier.size(if (isSelected) 30.8.dp else 24.dp),
-                    tint = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF666666)
-                )
+                if (drawableRes != null) {
+                    Icon(
+                        painter = painterResource(id = drawableRes),
+                        contentDescription = label,
+                        modifier = Modifier.size(if (isSelected) 30.8.dp else 24.dp),
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF666666)
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon!!,
+                        contentDescription = label,
+                        modifier = Modifier.size(if (isSelected) 30.8.dp else 24.dp),
+                        tint = if (isSelected) MaterialTheme.colorScheme.primary else Color(0xFF666666)
+                    )
+                }
             }
             Text(
                 text = label,
