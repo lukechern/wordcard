@@ -79,17 +79,21 @@ fun WordInputComponent_7ree(
     wordQueryViewModel: WordQueryViewModel_7ree,
     showInputWarning: Boolean,
     onInputWarningChange: (Boolean) -> Unit,
+    onCustomKeyboardStateChange: ((Boolean) -> Unit)? = null,
+    customKeyboardState: CustomKeyboardState_7ree? = null,
     modifier: Modifier = Modifier
 ) {
     // 获取通用配置
     val generalConfig_7ree by wordQueryViewModel.generalConfig_7ree.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
-    val customKeyboardState_7ree = rememberCustomKeyboardState_7ree()
     
     // 根据键盘类型决定是否显示自定义键盘
     val useCustomKeyboard = generalConfig_7ree.keyboardType == "custom"
     val focusManager = LocalFocusManager.current
+    
+    // 使用传入的键盘状态或创建新的状态
+    val actualKeyboardState = customKeyboardState ?: rememberCustomKeyboardState_7ree()
     
     // 使用TextFieldValue来管理文本和光标位置
     var textFieldValue by remember {
@@ -114,7 +118,8 @@ fun WordInputComponent_7ree(
                     // 点击空白区域时失去焦点并隐藏键盘
                     focusManager.clearFocus()
                     if (useCustomKeyboard) {
-                        customKeyboardState_7ree.hide_7ree()
+                        actualKeyboardState.hide_7ree()
+                        onCustomKeyboardStateChange?.invoke(false)
                     }
                 })
             }
@@ -188,7 +193,8 @@ fun WordInputComponent_7ree(
                         isFocused = focusState.isFocused
                         if (focusState.isFocused && useCustomKeyboard) {
                             keyboardController?.hide()
-                            customKeyboardState_7ree.show_7ree()
+                            actualKeyboardState.show_7ree()
+                            onCustomKeyboardStateChange?.invoke(true)
                         }
                     }
                     .pointerInput(Unit) {
@@ -197,7 +203,8 @@ fun WordInputComponent_7ree(
                             focusRequester.requestFocus()
                             if (useCustomKeyboard) {
                                 keyboardController?.hide()
-                                customKeyboardState_7ree.show_7ree()
+                                actualKeyboardState.show_7ree()
+                                onCustomKeyboardStateChange?.invoke(true)
                             }
                         })
                     },
@@ -252,7 +259,8 @@ fun WordInputComponent_7ree(
                 if (useCustomKeyboard) {
                     // 使用自定义键盘时，隐藏系统键盘并显示自定义键盘
                     keyboardController?.hide()
-                    customKeyboardState_7ree.show_7ree()
+                    actualKeyboardState.show_7ree()
+                    onCustomKeyboardStateChange?.invoke(true)
                 }
             }
             
@@ -307,44 +315,6 @@ fun WordInputComponent_7ree(
             )
         }
         
-        // 自定义键盘 - 固定在屏幕底部
-        if (useCustomKeyboard && customKeyboardState_7ree.isVisible_7ree.value) {
-            CustomKeyboard_7ree(
-                onKeyPress_7ree = { key ->
-                    val currentInput = wordQueryViewModel.wordInput_7ree
-                    when (key) {
-                        "BACKSPACE" -> {
-                            if (currentInput.isNotEmpty()) {
-                                wordQueryViewModel.onWordInputChanged_7ree(currentInput.dropLast(1))
-                            }
-                        }
-                        "SEARCH" -> {
-                            if (currentInput.length >= 3) {
-                                wordQueryViewModel.queryWord_7ree()
-                                customKeyboardState_7ree.hide_7ree()
-                            }
-                        }
-                        else -> {
-                            // 添加字母
-                            wordQueryViewModel.onWordInputChanged_7ree(currentInput + key)
-                        }
-                    }
-                },
-                onBackspace_7ree = {
-                    val currentInput = wordQueryViewModel.wordInput_7ree
-                    if (currentInput.isNotEmpty()) {
-                        wordQueryViewModel.onWordInputChanged_7ree(currentInput.dropLast(1))
-                    }
-                },
-                onSearch_7ree = {
-                    if (wordQueryViewModel.wordInput_7ree.length >= 3) {
-                        wordQueryViewModel.queryWord_7ree()
-                        customKeyboardState_7ree.hide_7ree()
-                    }
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-            )
-        }
+
     }
 }
