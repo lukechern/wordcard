@@ -160,13 +160,6 @@ fun ArticleDetailScreen_7ree(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(
-                        text = "文章标题",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(bottom = 12.dp)
-                    )
                     
                     MarkdownText_7ree(
                         text = article.englishTitle,
