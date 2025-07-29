@@ -325,8 +325,7 @@ fun ArticleDetailScreen_7ree(
 @Composable
 private fun KeywordTags_7ree(keywords: List<String>) {
     // 使用FlowRow布局显示关键词标签
-    var currentRowWidth = 0
-    val maxRowWidth = 3 // 每行最多3个标签
+    val maxRowWidth = 2 // 每行最多2个标签
     
     Column {
         var currentRow = mutableListOf<String>()
@@ -352,7 +351,13 @@ private fun KeywordTags_7ree(keywords: List<String>) {
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 rowKeywords.forEach { keyword ->
-                    KeywordTag_7ree(keyword = keyword)
+                    Box(modifier = Modifier.weight(1f)) {
+                        KeywordTag_7ree(keyword = keyword)
+                    }
+                }
+                // 如果只有一个标签，添加一个占位符以确保标签宽度正确
+                if (rowKeywords.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -366,7 +371,7 @@ private fun KeywordTagsWithStats_7ree(
     onKeywordClick: (String) -> Unit = {}
 ) {
     // 使用FlowRow布局显示关键词标签
-    val maxRowWidth = 3 // 每行最多3个标签
+    val maxRowWidth = 2 // 每行最多2个标签
     
     Column {
         var currentRow = mutableListOf<String>()
@@ -392,11 +397,17 @@ private fun KeywordTagsWithStats_7ree(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 rowKeywords.forEach { keyword ->
-                    KeywordTagWithStats_7ree(
-                        keyword = keyword,
-                        count = keywordStats[keyword] ?: 0,
-                        onKeywordClick = onKeywordClick
-                    )
+                    Box(modifier = Modifier.weight(1f)) {
+                        KeywordTagWithStats_7ree(
+                            keyword = keyword,
+                            count = keywordStats[keyword] ?: 0,
+                            onKeywordClick = onKeywordClick
+                        )
+                    }
+                }
+                // 如果只有一个标签，添加一个占位符以确保标签宽度正确
+                if (rowKeywords.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -407,17 +418,41 @@ private fun KeywordTagsWithStats_7ree(
 private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick: (String) -> Unit = {}) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(12.dp)) // 减少圆角
+            .background(Color(0xFFE8F5E9)) // 浅绿色背景
+            .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
             .clickable { onKeywordClick(keyword) }
     ) {
-        Text(
-            text = "$keyword($count)",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            fontWeight = FontWeight.Medium
-        )
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = keyword,
+                style = MaterialTheme.typography.bodyMedium, // 加大文字
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold, // 加粗
+                maxLines = 1, // 强制不允许换行
+                modifier = Modifier.padding(end = 24.dp) // 为统计数字留出空间
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = 8.dp) // 向右移动
+                    .clip(RoundedCornerShape(50)) // 圆形背景
+                    .background(Color(0xFF4CAF50)) // 较深的绿色背景
+                    .padding(horizontal = 8.dp, vertical = 4.dp), // 增大圆形背景
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "$count",
+                    style = MaterialTheme.typography.bodySmall, // 字号比单词小一点
+                    color = Color.White, // 白色文字
+                    fontWeight = FontWeight.Normal, // 不加粗
+                    maxLines = 1 // 强制不允许换行
+                )
+            }
+        }
     }
 }
 
@@ -425,15 +460,16 @@ private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick
 private fun KeywordTag_7ree(keyword: String) {
     Box(
         modifier = Modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(12.dp)) // 减少圆角
+            .background(Color(0xFFE8F5E9)) // 浅绿色背景
+            .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
     ) {
         Text(
             text = keyword,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            fontWeight = FontWeight.Medium
+            style = MaterialTheme.typography.bodyMedium, // 加大文字
+            color = MaterialTheme.colorScheme.onSurface,
+            fontWeight = FontWeight.Bold, // 加粗
+            maxLines = 1 // 强制不允许换行
         )
     }
 }
