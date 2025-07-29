@@ -5,6 +5,18 @@ import android.util.Log
 /**
  * 文章Markdown解析器
  * 专门用于解析API返回的文章Markdown格式数据
+ * 
+ * 支持的新模板格式：
+ * ### 英文标题
+ * {title}
+ * ### 英文文章内容
+ * {content}
+ * ### 重点单词
+ * {keywords}
+ * ### 中文标题
+ * {title translation}
+ * ### 中文文章内容
+ * {content translation}
  */
 class ArticleMarkdownParser_7ree {
     
@@ -25,6 +37,7 @@ class ArticleMarkdownParser_7ree {
     
     /**
      * 解析文章Markdown内容
+     * 使用新的模板格式进行解析
      */
     fun parseArticleMarkdown(markdownContent: String): ArticleParseResult {
         Log.d(TAG, "开始解析文章Markdown内容")
@@ -32,149 +45,29 @@ class ArticleMarkdownParser_7ree {
         Log.d(TAG, "原始内容: $markdownContent")
         
         return try {
-            val lines = markdownContent.split("\n")
-            var englishTitle = ""
-            var chineseTitle = ""
-            var englishContent = ""
-            var chineseContent = ""
-            var keywords = ""
+            // 使用正则表达式解析各个部分
+            val englishTitle = extractSection(markdownContent, "英文标题")
+            val englishContent = extractSection(markdownContent, "英文文章内容")
+            val keywords = extractSection(markdownContent, "重点单词")
+            val chineseTitle = extractSection(markdownContent, "中文标题")
+            val chineseContent = extractSection(markdownContent, "中文文章内容")
             
-            var currentSection = ""
-            val englishContentBuilder = StringBuilder()
-            val chineseContentBuilder = StringBuilder()
-            
-            for (line in lines) {
-                val trimmedLine = line.trim()
-                Log.d(TAG, "处理行: $trimmedLine")
-                
-                when {
-                    // 检测各个章节标题
-                    trimmedLine.startsWith("### 文章标题") || 
-                    trimmedLine.startsWith("## 文章标题") ||
-                    trimmedLine.startsWith("# 文章标题") -> {
-                        // 如果当前在中文翻译章节中，这应该是中文标题章节
-                        if (currentSection == "chineseTranslation") {
-                            currentSection = "chineseTitle"
-                            Log.d(TAG, "进入中文标题章节（在翻译章节中）")
-                        } else {
-                            currentSection = "englishTitle"
-                            Log.d(TAG, "进入英文标题章节")
-                        }
-                    }
-                    
-                    trimmedLine.startsWith("### 文章内容") || 
-                    trimmedLine.startsWith("## 文章内容") ||
-                    trimmedLine.startsWith("# 文章内容") -> {
-                        // 如果当前在中文翻译章节中，这应该是中文内容章节
-                        if (currentSection == "chineseTranslation" || currentSection == "chineseTitle") {
-                            currentSection = "chineseContent"
-                            Log.d(TAG, "进入中文内容章节（在翻译章节中）")
-                        } else {
-                            currentSection = "englishContent"
-                            Log.d(TAG, "进入英文内容章节")
-                        }
-                    }
-                    
-                    trimmedLine.startsWith("### 重点单词") || 
-                    trimmedLine.startsWith("## 重点单词") ||
-                    trimmedLine.startsWith("# 重点单词") -> {
-                        currentSection = "keywords"
-                        Log.d(TAG, "进入关键词章节")
-                    }
-                    
-                    trimmedLine.startsWith("### 文章翻译") || 
-                    trimmedLine.startsWith("## 文章翻译") ||
-                    trimmedLine.startsWith("# 文章翻译") -> {
-                        currentSection = "chineseTranslation"
-                        Log.d(TAG, "进入中文翻译章节")
-                    }
-                    
-                    // 在中文翻译章节中，如果遇到任何三级标题，且不是已知的标准标题，则视为中文标题
-                    currentSection == "chineseTranslation" && trimmedLine.startsWith("###") -> {
-                        // 提取标题内容（去掉###前缀）
-                        val titleContent = trimmedLine.removePrefix("###").trim()
-                        if (chineseTitle.isEmpty() && titleContent.isNotEmpty()) {
-                            chineseTitle = titleContent
-                            Log.d(TAG, "解析到中文标题（从###行）: $chineseTitle")
-                        }
-                        // 识别到中文标题后，下一步应该是中文内容
-                        currentSection = "chineseContent"
-                        Log.d(TAG, "进入中文内容章节（中文标题后自动切换）")
-                    }
-                    
-                    // 处理内容行（非标题行）
-                    trimmedLine.isNotEmpty() && !trimmedLine.startsWith("#") -> {
-                        when (currentSection) {
-                            "englishTitle" -> {
-                                if (englishTitle.isEmpty()) {
-                                    englishTitle = trimmedLine
-                                    Log.d(TAG, "解析到英文标题: $englishTitle")
-                                }
-                            }
-                            "chineseTitle" -> {
-                                if (chineseTitle.isEmpty()) {
-                                    chineseTitle = trimmedLine
-                                    Log.d(TAG, "解析到中文标题: $chineseTitle")
-                                }
-                            }
-                            "englishContent" -> {
-                                englishContentBuilder.appendLine(trimmedLine)
-                                Log.d(TAG, "添加英文内容行: $trimmedLine")
-                            }
-                            "chineseContent" -> {
-                                chineseContentBuilder.appendLine(trimmedLine)
-                                Log.d(TAG, "添加中文内容行: $trimmedLine")
-                            }
-                            "keywords" -> {
-                                if (keywords.isEmpty()) {
-                                    keywords = trimmedLine
-                                    Log.d(TAG, "解析到关键词: $keywords")
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // 清理内容
-            englishContent = englishContentBuilder.toString().trim()
-            chineseContent = chineseContentBuilder.toString().trim()
-            
-            // 应用默认值
-            if (englishTitle.isEmpty()) {
-                englishTitle = "Generated Article"
-                Log.d(TAG, "使用默认英文标题")
-            }
-            
-            if (chineseTitle.isEmpty()) {
-                chineseTitle = generateChineseTitle(englishTitle)
-                Log.d(TAG, "生成默认中文标题: $chineseTitle")
-            }
-            
-            if (englishContent.isEmpty()) {
-                englishContent = markdownContent
-                Log.d(TAG, "使用原始内容作为英文内容")
-            }
-            
-            if (chineseContent.isEmpty()) {
-                chineseContent = "翻译暂不可用"
-                Log.d(TAG, "使用默认中文内容")
-            }
-            
-            if (keywords.isEmpty()) {
-                keywords = "无关键词"
-                Log.d(TAG, "使用默认关键词")
-            }
+            Log.d(TAG, "解析结果:")
+            Log.d(TAG, "英文标题: '$englishTitle'")
+            Log.d(TAG, "英文内容长度: ${englishContent.length}")
+            Log.d(TAG, "关键词: '$keywords'")
+            Log.d(TAG, "中文标题: '$chineseTitle'")
+            Log.d(TAG, "中文内容长度: ${chineseContent.length}")
             
             val result = ArticleParseResult(
-                englishTitle = englishTitle,
-                chineseTitle = chineseTitle,
-                englishContent = englishContent,
-                chineseContent = chineseContent,
-                keywords = keywords
+                englishTitle = englishTitle.ifEmpty { "Generated Article" },
+                chineseTitle = chineseTitle.ifEmpty { generateChineseTitle(englishTitle) },
+                englishContent = englishContent.ifEmpty { markdownContent },
+                chineseContent = chineseContent.ifEmpty { "翻译暂不可用" },
+                keywords = filterKeywords(keywords).ifEmpty { "无关键词" }
             )
             
-            Log.d(TAG, "解析完成:")
+            Log.d(TAG, "最终解析结果:")
             Log.d(TAG, "英文标题: ${result.englishTitle}")
             Log.d(TAG, "中文标题: ${result.chineseTitle}")
             Log.d(TAG, "英文内容长度: ${result.englishContent.length}")
@@ -194,6 +87,63 @@ class ArticleMarkdownParser_7ree {
                 keywords = "解析失败"
             )
         }
+    }
+    
+    /**
+     * 提取指定章节的内容
+     * @param markdownContent 完整的markdown内容
+     * @param sectionTitle 章节标题（不包含###前缀）
+     * @return 章节内容，如果未找到则返回空字符串
+     */
+    private fun extractSection(markdownContent: String, sectionTitle: String): String {
+        Log.d(TAG, "提取章节: $sectionTitle")
+        
+        // 构建正则表达式，匹配章节标题和内容
+        // 支持不同级别的标题（#、##、###）
+        val regex = Regex(
+            "^#+\\s*$sectionTitle\\s*$\\n([\\s\\S]*?)(?=^#+\\s|\\z)",
+            setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
+        )
+        
+        val matchResult = regex.find(markdownContent)
+        val content = matchResult?.groupValues?.get(1)?.trim() ?: ""
+        
+        Log.d(TAG, "章节 '$sectionTitle' 内容长度: ${content.length}")
+        if (content.isNotEmpty()) {
+            Log.d(TAG, "章节 '$sectionTitle' 内容预览: ${content.take(100)}...")
+        }
+        
+        return content
+    }
+    
+    /**
+     * 过滤关键词，只保留英文字母和空格，去掉其他符号
+     * @param rawKeywords 原始关键词字符串
+     * @return 过滤后的关键词字符串
+     */
+    private fun filterKeywords(rawKeywords: String): String {
+        Log.d(TAG, "开始过滤关键词: '$rawKeywords'")
+        
+        if (rawKeywords.isEmpty()) {
+            return ""
+        }
+        
+        // 使用正则表达式只保留英文字母和空格，去掉其他符号
+        val filteredKeywords = rawKeywords
+            .replace(Regex("[^a-zA-Z\\s,]"), "") // 先保留逗号用于分割
+            .split(",") // 按逗号分割
+            .map { keyword ->
+                keyword.trim() // 去掉前后空格
+                    .replace(Regex("[^a-zA-Z\\s]"), "") // 去掉除英文字母和空格外的所有字符
+                    .replace(Regex("\\s+"), " ") // 将多个连续空格替换为单个空格
+                    .trim() // 再次去掉前后空格
+            }
+            .filter { it.isNotEmpty() } // 过滤掉空字符串
+            .joinToString(", ") // 重新用逗号和空格连接
+        
+        Log.d(TAG, "关键词过滤结果: '$filteredKeywords'")
+        
+        return filteredKeywords
     }
     
     /**

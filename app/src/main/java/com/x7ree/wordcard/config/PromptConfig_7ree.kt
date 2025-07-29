@@ -56,18 +56,18 @@ data class PromptConfig_7ree(
 5. 适合英语学习者阅读
 
 请确保文章质量高，能够帮助用户在语境中理解和记忆单词。""",
-    val articleOutputTemplate_7ree: String = """# 文章标题
+    val articleOutputTemplate_7ree: String = """### 英文标题
 {英文标题}
 
-# 标题翻译
-{中文标题}
-
-# 文章内容
+### 英文文章内容
 {英文文章内容}
 
-# 重点单词
+### 重点单词
 {关键词，用逗号分隔}
 
-# 文章翻译
+### 中文标题
+{中文标题}
+
+### 中文文章内容
 {中文翻译内容}"""
 ) 
