@@ -32,7 +32,12 @@ class ArticleMarkdownParser_7ree {
         val chineseTitle: String,
         val englishContent: String,
         val chineseContent: String,
-        val keywords: String
+        val keywords: String,
+        // 新增：用于朗读的清理文本
+        val englishContentForTts: String,
+        val chineseContentForTts: String,
+        val englishTitleForTts: String,
+        val chineseTitleForTts: String
     )
     
     /**
@@ -59,12 +64,24 @@ class ArticleMarkdownParser_7ree {
             Log.d(TAG, "中文标题: '$chineseTitle'")
             Log.d(TAG, "中文内容长度: ${chineseContent.length}")
             
+            // 处理默认值
+            val finalEnglishTitle = englishTitle.ifEmpty { "Generated Article" }
+            val finalChineseTitle = chineseTitle.ifEmpty { generateChineseTitle(englishTitle) }
+            val finalEnglishContent = englishContent.ifEmpty { markdownContent }
+            val finalChineseContent = chineseContent.ifEmpty { "翻译暂不可用" }
+            val finalKeywords = filterKeywords(keywords).ifEmpty { "无关键词" }
+            
             val result = ArticleParseResult(
-                englishTitle = englishTitle.ifEmpty { "Generated Article" },
-                chineseTitle = chineseTitle.ifEmpty { generateChineseTitle(englishTitle) },
-                englishContent = englishContent.ifEmpty { markdownContent },
-                chineseContent = chineseContent.ifEmpty { "翻译暂不可用" },
-                keywords = filterKeywords(keywords).ifEmpty { "无关键词" }
+                englishTitle = finalEnglishTitle,
+                chineseTitle = finalChineseTitle,
+                englishContent = finalEnglishContent,
+                chineseContent = finalChineseContent,
+                keywords = finalKeywords,
+                // 生成用于TTS的清理文本
+                englishTitleForTts = cleanTextForTts(finalEnglishTitle),
+                chineseTitleForTts = cleanTextForTts(finalChineseTitle),
+                englishContentForTts = cleanTextForTts(finalEnglishContent),
+                chineseContentForTts = cleanTextForTts(finalChineseContent)
             )
             
             Log.d(TAG, "最终解析结果:")
@@ -84,7 +101,11 @@ class ArticleMarkdownParser_7ree {
                 chineseTitle = "生成的文章",
                 englishContent = markdownContent,
                 chineseContent = "翻译暂不可用",
-                keywords = "解析失败"
+                keywords = "解析失败",
+                englishTitleForTts = "Generated Article",
+                chineseTitleForTts = "生成的文章",
+                englishContentForTts = cleanTextForTts(markdownContent),
+                chineseContentForTts = "翻译暂不可用"
             )
         }
     }
@@ -144,6 +165,59 @@ class ArticleMarkdownParser_7ree {
         Log.d(TAG, "关键词过滤结果: '$filteredKeywords'")
         
         return filteredKeywords
+    }
+    
+    /**
+     * 清理文本用于TTS朗读
+     * 去除Markdown格式标记和语音说明
+     * @param text 原始文本
+     * @return 清理后的朗读文本
+     */
+    fun cleanTextForTts(text: String): String {
+        Log.d(TAG, "开始清理TTS文本: '${text.take(50)}...'")
+        
+        if (text.isEmpty()) {
+            return ""
+        }
+        
+        var cleanedText = text
+        
+        // 去除三个星号包裹的粗体标记 ***text*** -> text
+        cleanedText = cleanedText.replace(Regex("\\*\\*\\*([^*]+)\\*\\*\\*"), "$1")
+        
+        // 去除两个星号包裹的粗体标记 **text** -> text
+        cleanedText = cleanedText.replace(Regex("\\*\\*([^*]+)\\*\\*"), "$1")
+        
+        // 去除单个星号包裹的斜体标记 *text* -> text
+        cleanedText = cleanedText.replace(Regex("\\*([^*]+)\\*"), "$1")
+        
+        // 去除标题前的"title"语音说明
+        cleanedText = cleanedText.replace(Regex("^title\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 去除文章前的"content"语音说明
+        cleanedText = cleanedText.replace(Regex("^content\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 去除其他可能的语音说明前缀
+        cleanedText = cleanedText.replace(Regex("^(article|text|story)\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 清理多余的空白字符
+        cleanedText = cleanedText.replace(Regex("\\s+"), " ").trim()
+        
+        Log.d(TAG, "TTS文本清理完成: '${cleanedText.take(50)}...'")
+        
+        return cleanedText
+    }
+    
+    /**
+     * 为显示渲染处理Markdown格式
+     * 保留Markdown标记用于UI渲染
+     * @param text 原始文本
+     * @return 用于显示的文本（保留Markdown格式）
+     */
+    fun formatTextForDisplay(text: String): String {
+        // 这个方法保留原始的Markdown格式，供UI组件渲染使用
+        // UI组件（如Compose的Text或MarkdownText）会自动处理**和***标记
+        return text
     }
     
     /**

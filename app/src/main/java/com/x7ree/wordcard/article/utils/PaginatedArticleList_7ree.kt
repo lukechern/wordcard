@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
+import com.x7ree.wordcard.ui.components.StaggeredGrid_7ree
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
@@ -267,70 +268,33 @@ fun PaginatedArticleList_7ree(
                 }
             }
         } else {
+            // 使用瀑布流布局替代简单的两列布局
             LazyColumn(
                 state = listState,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.padding(horizontal = 8.dp)
             ) {
-                // 直接按行处理，每行显示两个文章
-                items(
-                    count = (articles.size + 1) / 2,
-                    key = { rowIndex -> 
-                        // 使用行中文章的ID作为key，确保稳定性
-                        val leftIndex = rowIndex * 2
-                        val rightIndex = leftIndex + 1
-                        val leftId = if (leftIndex < articles.size) articles[leftIndex].id else -1L
-                        val rightId = if (rightIndex < articles.size) articles[rightIndex].id else -2L
-                        "${leftId}_${rightId}"
-                    }
-                ) { rowIndex ->
-                    val leftIndex = rowIndex * 2
-                    val rightIndex = leftIndex + 1
-                    
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        // 左列 - 显示偶数索引的文章 (0, 2, 4, ...)
-                        Box(modifier = Modifier.weight(1f)) {
-                            if (leftIndex < articles.size) {
-                                val leftArticle = articles[leftIndex]
-                                ArticleCard_7ree(
-                                    article = leftArticle,
-                                    onClick = { 
-                                        if (isManagementMode) {
-                                            onToggleArticleSelection(leftArticle.id)
-                                        } else {
-                                            onArticleClick(leftArticle)
-                                        }
-                                    },
-                                    onToggleFavorite = { onToggleFavorite(leftArticle.id) },
-                                    isManagementMode = isManagementMode,
-                                    isSelected = selectedArticleIds.contains(leftArticle.id),
-                                    onToggleSelection = { onToggleArticleSelection(leftArticle.id) }
-                                )
-                            }
-                        }
-                        
-                        // 右列 - 显示奇数索引的文章 (1, 3, 5, ...)
-                        Box(modifier = Modifier.weight(1f)) {
-                            if (rightIndex < articles.size) {
-                                val rightArticle = articles[rightIndex]
-                                ArticleCard_7ree(
-                                    article = rightArticle,
-                                    onClick = { 
-                                        if (isManagementMode) {
-                                            onToggleArticleSelection(rightArticle.id)
-                                        } else {
-                                            onArticleClick(rightArticle)
-                                        }
-                                    },
-                                    onToggleFavorite = { onToggleFavorite(rightArticle.id) },
-                                    isManagementMode = isManagementMode,
-                                    isSelected = selectedArticleIds.contains(rightArticle.id),
-                                    onToggleSelection = { onToggleArticleSelection(rightArticle.id) }
-                                )
-                            }
-                        }
+                item {
+                    StaggeredGrid_7ree(
+                        items = articles,
+                        columns = 2,
+                        horizontalSpacing = 8.dp,
+                        verticalSpacing = 8.dp,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { article ->
+                        ArticleCard_7ree(
+                            article = article,
+                            onClick = { 
+                                if (isManagementMode) {
+                                    onToggleArticleSelection(article.id)
+                                } else {
+                                    onArticleClick(article)
+                                }
+                            },
+                            onToggleFavorite = { onToggleFavorite(article.id) },
+                            isManagementMode = isManagementMode,
+                            isSelected = selectedArticleIds.contains(article.id),
+                            onToggleSelection = { onToggleArticleSelection(article.id) }
+                        )
                     }
                 }
                 

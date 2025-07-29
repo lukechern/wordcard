@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
+import com.x7ree.wordcard.ui.components.MarkdownText_7ree
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -167,10 +168,9 @@ fun ArticleDetailScreen_7ree(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
                     
-                    Text(
+                    MarkdownText_7ree(
                         text = article.englishTitle,
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -221,7 +221,7 @@ fun ArticleDetailScreen_7ree(
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
                     
-                    Text(
+                    MarkdownText_7ree(
                         text = article.englishContent,
                         style = MaterialTheme.typography.bodyLarge,
                         lineHeight = 24.sp,
@@ -282,7 +282,7 @@ fun ArticleDetailScreen_7ree(
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
                         
-                        Text(
+                        MarkdownText_7ree(
                             text = article.chineseContent,
                             style = MaterialTheme.typography.bodyLarge,
                             lineHeight = 24.sp,

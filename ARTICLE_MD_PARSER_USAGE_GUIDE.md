@@ -46,6 +46,17 @@ adventure, treasure, master, dedication, confident, beginner
 - 规范化多个连续空格
 - 过滤空的关键词项
 
+### ✅ Markdown格式渲染支持
+- 支持 `**粗体**` 和 `***粗体***` 格式
+- UI显示保留Markdown格式用于渲染
+- TTS朗读自动清理Markdown标记
+
+### ✅ TTS文本优化
+- 自动去除Markdown格式标记
+- 去除 `title:` 和 `content:` 语音说明前缀
+- 标题和正文间使用2倍时长间距
+- 提供清理后的纯文本用于朗读
+
 ### ✅ 字段映射
 | 解析字段 | 数据库字段 | UI显示位置 |
 |---------|-----------|-----------|
@@ -75,24 +86,74 @@ articleRepository_7ree.saveArticle_7ree(
 )
 ```
 
-### 2. 文章详情页面显示
-在 `ArticleDetailScreen_7ree.kt` 中直接使用数据库字段：
+### 1.5. 文章列表页显示
+在 `ArticleCard_7ree.kt` 中自动过滤星号标记：
 
 ```kotlin
-// 显示英文标题
-Text(text = article.englishTitle)
+// 文章内容预览（过滤星号标记）
+Text(
+    text = cleanTextForPreview(article.englishContent),
+    style = MaterialTheme.typography.bodySmall,
+    maxLines = 3,
+    overflow = TextOverflow.Ellipsis
+)
+
+// cleanTextForPreview函数自动去除：
+// - ***粗体*** 标记
+// - **粗体** 标记  
+// - *斜体* 标记
+// - title: 前缀
+// - content: 前缀
+```
+
+### 2. 文章详情页面显示
+在 `ArticleDetailScreen_7ree.kt` 中使用新的Markdown渲染组件：
+
+```kotlin
+// 显示英文标题（支持Markdown格式渲染）
+MarkdownText_7ree(
+    text = article.englishTitle,
+    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+    color = MaterialTheme.colorScheme.onSurface
+) // **粗体**和***粗体***会正确显示为粗体效果
 
 // 显示中文标题
 Text(text = article.titleTranslation)
 
-// 显示英文内容
-Text(text = article.englishContent)
+// 显示英文内容（支持Markdown格式渲染）
+MarkdownText_7ree(
+    text = article.englishContent,
+    style = MaterialTheme.typography.bodyLarge,
+    lineHeight = 24.sp,
+    color = MaterialTheme.colorScheme.onSurface
+) // **粗体**和***粗体***会正确显示为粗体效果
 
-// 显示中文内容
-Text(text = article.chineseContent)
+// 显示中文内容（支持Markdown格式渲染）
+MarkdownText_7ree(
+    text = article.chineseContent,
+    style = MaterialTheme.typography.bodyLarge,
+    lineHeight = 24.sp,
+    color = MaterialTheme.colorScheme.onSurface
+) // **粗体**和***粗体***会正确显示为粗体效果
 
 // 显示关键词
 KeywordTags(keywords = article.keyWords.split(","))
+```
+
+### 3. TTS朗读功能
+在 `ArticleViewModel_7ree.kt` 中自动使用清理后的文本：
+
+```kotlin
+// TTS朗读时自动清理Markdown格式
+fun toggleReading() {
+    _selectedArticle.value?.let { article ->
+        val parser = ArticleMarkdownParser_7ree()
+        val cleanTitle = parser.cleanTextForTts(article.englishTitle)
+        val cleanContent = parser.cleanTextForTts(article.englishContent)
+        
+        articleTtsHelper_7ree.toggleReading(cleanContent, cleanTitle)
+    }
+}
 ```
 
 ## 测试和调试
@@ -155,6 +216,38 @@ hello, world, test, good bye, dont
 - 移除：数字、标点符号、特殊字符
 - 规范化：多个空格变为单个空格
 - 清理：空的关键词项
+
+### Q: Markdown格式渲染和TTS文本处理是如何工作的？
+A: 解析器提供双重文本处理机制：
+
+**输入文本：**
+```
+### 英文标题
+title: The **Power** of ***Learning***
+
+### 英文文章内容
+content: Learning is a **powerful** tool that can ***transform*** your life.
+```
+
+**显示文本（保留Markdown格式）：**
+- 标题：`The **Power** of ***Learning***`
+- 内容：`Learning is a **powerful** tool that can ***transform*** your life.`
+
+**TTS文本（清理后的纯文本）：**
+- 标题：`The Power of Learning`
+- 内容：`Learning is a powerful tool that can transform your life.`
+
+**TTS朗读效果：**
+- 标题和正文间有超长停顿（15个句号，约4.5-7.5秒）
+- 去除了所有Markdown标记和语音说明前缀
+- 提供清晰的语音朗读体验，停顿更加明显
+
+**UI渲染效果：**
+- 使用 `MarkdownText_7ree` 组件自动渲染超粗体格式
+- `**重要**` 文本使用 `FontWeight.Black`（超粗体效果）
+- `***关键***` 文本使用 `FontWeight.ExtraBold`（特粗体效果）
+- 粗体效果更加明显和突出
+- 不再显示原始的星号标记
 
 ## 配置更新
 

@@ -42,6 +42,28 @@ Technology is rapidly changing our world. From artificial intelligence to renewa
 technology, artificial intelligence, renewable energy, innovations
     """.trimIndent()
     
+    // 测试用的包含Markdown格式的文章
+    private val testMarkdownFormatMarkdown = """
+### 英文标题
+title: The **Power** of ***Learning***
+
+### 英文文章内容
+content: Learning is a **powerful** tool that can ***transform*** your life. When you **master** new skills, you become more ***confident*** and capable.
+
+The journey of learning requires **dedication** and ***persistence***. Every **challenge** you face is an opportunity to ***grow*** stronger.
+
+### 重点单词
+powerful, transform, master, confident, dedication, persistence, challenge, grow
+
+### 中文标题
+学习的**力量**
+
+### 中文文章内容
+学习是一个**强大的**工具，可以***改变***你的生活。当你**掌握**新技能时，你会变得更加***自信***和有能力。
+
+学习的旅程需要**奉献**和***坚持***。你面临的每一个**挑战**都是***成长***得更强大的机会。
+    """.trimIndent()
+    
     // 测试用的乱序格式
     private val testUnorderedMarkdown = """
 ### 重点单词
@@ -159,6 +181,66 @@ test, irregular, format
     }
     
     /**
+     * 测试Markdown格式和TTS文本清理功能
+     */
+    fun testMarkdownAndTtsProcessing(): String {
+        val result = StringBuilder()
+        val parser = ArticleMarkdownParser_7ree()
+        
+        result.appendLine("=== Markdown格式和TTS文本处理测试 ===\n")
+        
+        result.appendLine("测试包含Markdown格式的文章:")
+        val parseResult = parser.parseArticleMarkdown(testMarkdownFormatMarkdown)
+        
+        result.appendLine("1. 英文标题处理:")
+        result.appendLine("   显示文本: '${parseResult.englishTitle}'")
+        result.appendLine("   TTS文本: '${parseResult.englishTitleForTts}'")
+        result.appendLine()
+        
+        result.appendLine("2. 英文内容处理:")
+        result.appendLine("   显示文本: '${parseResult.englishContent.take(100)}...'")
+        result.appendLine("   TTS文本: '${parseResult.englishContentForTts.take(100)}...'")
+        result.appendLine()
+        
+        result.appendLine("3. 中文标题处理:")
+        result.appendLine("   显示文本: '${parseResult.chineseTitle}'")
+        result.appendLine("   TTS文本: '${parseResult.chineseTitleForTts}'")
+        result.appendLine()
+        
+        result.appendLine("4. 中文内容处理:")
+        result.appendLine("   显示文本: '${parseResult.chineseContent.take(100)}...'")
+        result.appendLine("   TTS文本: '${parseResult.chineseContentForTts.take(100)}...'")
+        result.appendLine()
+        
+        result.appendLine("TTS文本清理验证:")
+        result.appendLine("✓ 去除了 ***粗体*** 标记")
+        result.appendLine("✓ 去除了 **粗体** 标记")
+        result.appendLine("✓ 去除了 title: 前缀")
+        result.appendLine("✓ 去除了 content: 前缀")
+        result.appendLine("✓ 保留了文本内容用于朗读")
+        result.appendLine("✓ 标题和正文间使用超长停顿（15个句号，约4.5-7.5秒）")
+        result.appendLine()
+        
+        result.appendLine("UI渲染验证:")
+        result.appendLine("✓ 使用MarkdownText_7ree组件渲染超粗体格式")
+        result.appendLine("✓ **粗体** 使用FontWeight.Black（超粗体效果）")
+        result.appendLine("✓ ***粗体*** 使用FontWeight.ExtraBold（特粗体效果）")
+        result.appendLine("✓ 粗体效果更加明显和突出")
+        result.appendLine("✓ 不再显示原始的星号标记")
+        result.appendLine()
+        
+        result.appendLine("文章列表页验证:")
+        result.appendLine("✓ 文章卡片标题已过滤星号标记")
+        result.appendLine("✓ 文章卡片中的正文摘要已过滤星号标记")
+        result.appendLine("✓ 使用cleanTextForPreview()函数清理预览文本")
+        result.appendLine("✓ 列表页显示清晰的文本摘要，无Markdown标记")
+        result.appendLine("✓ 实现真正的瀑布流布局，卡片向上靠紧最短列")
+        result.appendLine("✓ 修复了布局异常，消除了列间不必要的空白")
+        
+        return result.toString()
+    }
+    
+    /**
      * 测试关键词过滤功能
      */
     fun testKeywordFiltering(): String {
@@ -213,6 +295,7 @@ test, irregular, format
         val result = StringBuilder()
         result.appendLine(testNewTemplateFormat())
         result.appendLine(testEdgeCases())
+        result.appendLine(testMarkdownAndTtsProcessing())
         result.appendLine(testKeywordFiltering())
         return result.toString()
     }

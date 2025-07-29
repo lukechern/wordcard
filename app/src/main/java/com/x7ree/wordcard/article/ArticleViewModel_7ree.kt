@@ -389,7 +389,12 @@ class ArticleViewModel_7ree(
      * 朗读文章
      */
     fun readArticle(article: ArticleEntity_7ree) {
-        articleTtsHelper_7ree.readArticle(article.englishContent, article.englishTitle)
+        // 使用解析器清理文本用于TTS朗读
+        val parser = ArticleMarkdownParser_7ree()
+        val cleanTitle = parser.cleanTextForTts(article.englishTitle)
+        val cleanContent = parser.cleanTextForTts(article.englishContent)
+        
+        articleTtsHelper_7ree.readArticle(cleanContent, cleanTitle)
     }
     
     /**
@@ -404,7 +409,12 @@ class ArticleViewModel_7ree(
      */
     fun toggleReading() {
         _selectedArticle.value?.let { article ->
-            articleTtsHelper_7ree.toggleReading(article.englishContent, article.englishTitle)
+            // 使用解析器清理文本用于TTS朗读
+            val parser = ArticleMarkdownParser_7ree()
+            val cleanTitle = parser.cleanTextForTts(article.englishTitle)
+            val cleanContent = parser.cleanTextForTts(article.englishContent)
+            
+            articleTtsHelper_7ree.toggleReading(cleanContent, cleanTitle)
         }
     }
     

@@ -52,7 +52,69 @@ private fun extractSection(markdownContent: String, sectionTitle: String): Strin
 - 自动忽略大小写差异
 - 支持标题前后的空格
 
-### 3. 关键词智能过滤
+### 3. Markdown格式渲染和TTS文本处理
+
+**双重文本处理机制：**
+1. **显示文本** - 保留Markdown格式用于UI渲染
+2. **TTS文本** - 清理后的纯文本用于语音朗读
+
+```kotlin
+// 显示文本处理 - 保留Markdown格式
+fun formatTextForDisplay(text: String): String {
+    return text // 保留**粗体**和***粗体***标记
+}
+
+// TTS文本处理 - 清理Markdown格式
+fun cleanTextForTts(text: String): String {
+    return text
+        .replace(Regex("\\*\\*\\*([^*]+)\\*\\*\\*"), "$1") // ***text*** -> text
+        .replace(Regex("\\*\\*([^*]+)\\*\\*"), "$1")       // **text** -> text
+        .replace(Regex("^title\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("^content\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        .replace(Regex("\\s+"), " ").trim()
+}
+```
+
+**TTS优化特性：**
+- 去除三个星号 `***粗体***` 标记
+- 去除两个星号 `**粗体**` 标记
+- 去除标题前的 `title:` 语音说明
+- 去除内容前的 `content:` 语音说明
+- 标题和正文间使用超长停顿（15个句号，约4.5-7.5秒，通过 `. . . . . . . . . . . . . . .` 实现）
+
+**Markdown渲染组件：**
+```kotlin
+// 新增的MarkdownText_7ree组件
+@Composable
+fun MarkdownText_7ree(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = LocalTextStyle.current,
+    color: Color = Color.Unspecified
+) {
+    val annotatedString = parseMarkdownToAnnotatedString(text)
+    BasicText(text = annotatedString, style = style)
+}
+
+// 超粗体渲染实现
+private fun parseMarkdownToAnnotatedString(text: String): AnnotatedString {
+    return buildAnnotatedString {
+        // ***text*** -> FontWeight.ExtraBold（特粗体）
+        // **text** -> FontWeight.Black（超粗体）
+    }
+}
+```
+
+**粗体渲染级别：**
+- `**粗体**` → 使用 `FontWeight.Black`（超粗体效果）
+- `***粗体***` → 使用 `FontWeight.ExtraBold`（特粗体效果）
+
+**示例：**
+- 原始文本：`The **power** of ***learning***`
+- UI显示：The **power** of ***learning*** （超明显的粗体效果）
+- TTS文本：`The power of learning`
+
+### 4. 关键词智能过滤
 
 ```kotlin
 private fun filterKeywords(rawKeywords: String): String {

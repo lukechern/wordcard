@@ -120,6 +120,7 @@ class ArticleTtsManager_7ree(private val context: Context) {
     
     /**
      * 朗读文章英文内容
+     * 支持使用清理后的TTS文本，去除Markdown格式和语音说明前缀
      */
     fun readArticle(englishContent: String, englishTitle: String = "") {
         if (englishContent.isBlank()) {
@@ -145,17 +146,25 @@ class ArticleTtsManager_7ree(private val context: Context) {
                 _buttonState.value = TtsButtonState.LOADING
                 _errorMessage.value = null
                 
-                // 准备朗读内容
-                val contentToRead = if (englishTitle.isNotBlank()) {
-                    "Title: $englishTitle. Content: $englishContent"
+                // 清理TTS文本，去除Markdown格式和语音说明前缀
+                val cleanTitle = cleanTextForTts(englishTitle)
+                val cleanContent = cleanTextForTts(englishContent)
+                
+                // 准备朗读内容，使用长停顿分隔标题和正文（更长停顿）
+                val contentToRead = if (cleanTitle.isNotBlank()) {
+                    // 使用15个句号来创造更长的停顿效果
+                    // 每个句号大约停顿0.3-0.5秒，15个句号约4.5-7.5秒停顿
+                    "$cleanTitle. . . . . . . . . . . . . . . $cleanContent"
                 } else {
-                    englishContent
+                    cleanContent
                 }
                 
                 Log.d(TAG, "开始朗读文章")
                 Log.d(TAG, "当前引擎: ${ttsManager.getCurrentEngineName()}")
-                Log.d(TAG, "内容长度: ${contentToRead.length}")
-                Log.d(TAG, "内容预览: ${contentToRead.take(100)}...")
+                Log.d(TAG, "清理后标题: '$cleanTitle'")
+                Log.d(TAG, "清理后内容长度: ${cleanContent.length}")
+                Log.d(TAG, "最终朗读内容长度: ${contentToRead.length}")
+                Log.d(TAG, "朗读内容预览: ${contentToRead.take(100)}...")
                 
                 // 开始朗读
                 ttsManager.speak(
@@ -186,6 +195,41 @@ class ArticleTtsManager_7ree(private val context: Context) {
                 _isReading.value = false
             }
         }
+    }
+    
+    /**
+     * 清理文本用于TTS朗读
+     * 去除Markdown格式标记和语音说明前缀
+     */
+    private fun cleanTextForTts(text: String): String {
+        if (text.isEmpty()) {
+            return ""
+        }
+        
+        var cleanedText = text
+        
+        // 去除三个星号包裹的粗体标记 ***text*** -> text
+        cleanedText = cleanedText.replace(Regex("\\*\\*\\*([^*]+)\\*\\*\\*"), "$1")
+        
+        // 去除两个星号包裹的粗体标记 **text** -> text
+        cleanedText = cleanedText.replace(Regex("\\*\\*([^*]+)\\*\\*"), "$1")
+        
+        // 去除单个星号包裹的斜体标记 *text* -> text
+        cleanedText = cleanedText.replace(Regex("\\*([^*]+)\\*"), "$1")
+        
+        // 去除标题前的"title"语音说明
+        cleanedText = cleanedText.replace(Regex("^title\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 去除文章前的"content"语音说明
+        cleanedText = cleanedText.replace(Regex("^content\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 去除其他可能的语音说明前缀
+        cleanedText = cleanedText.replace(Regex("^(article|text|story)\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+        
+        // 清理多余的空白字符
+        cleanedText = cleanedText.replace(Regex("\\s+"), " ").trim()
+        
+        return cleanedText
     }
     
     /**

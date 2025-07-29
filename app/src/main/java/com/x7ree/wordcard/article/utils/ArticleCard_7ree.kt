@@ -64,9 +64,9 @@ fun ArticleCard_7ree(
                         Spacer(modifier = Modifier.width(4.dp))
                     }
                     
-                    // 标题
+                    // 标题（过滤星号标记）
                     Text(
-                        text = article.englishTitle,
+                        text = cleanTextForPreview(article.englishTitle),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
@@ -85,9 +85,9 @@ fun ArticleCard_7ree(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
                 
-                // 文章内容预览
+                // 文章内容预览（过滤星号标记）
                 Text(
-                    text = article.englishContent,
+                    text = cleanTextForPreview(article.englishContent),
                     style = MaterialTheme.typography.bodySmall,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -141,6 +141,42 @@ fun ArticleCard_7ree(
             }
         }
     }
+}
+
+/**
+ * 清理文本用于预览显示，去除Markdown格式标记
+ * @param text 原始文本
+ * @return 清理后的预览文本
+ */
+private fun cleanTextForPreview(text: String): String {
+    if (text.isEmpty()) {
+        return ""
+    }
+    
+    var cleanedText = text
+    
+    // 去除三个星号包裹的粗体标记 ***text*** -> text
+    cleanedText = cleanedText.replace(Regex("\\*\\*\\*([^*]+)\\*\\*\\*"), "$1")
+    
+    // 去除两个星号包裹的粗体标记 **text** -> text
+    cleanedText = cleanedText.replace(Regex("\\*\\*([^*]+)\\*\\*"), "$1")
+    
+    // 去除单个星号包裹的斜体标记 *text* -> text
+    cleanedText = cleanedText.replace(Regex("\\*([^*]+)\\*"), "$1")
+    
+    // 去除标题前的"title"语音说明
+    cleanedText = cleanedText.replace(Regex("^title\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+    
+    // 去除文章前的"content"语音说明
+    cleanedText = cleanedText.replace(Regex("^content\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+    
+    // 去除其他可能的语音说明前缀
+    cleanedText = cleanedText.replace(Regex("^(article|text|story)\\s*:?\\s*", RegexOption.IGNORE_CASE), "")
+    
+    // 清理多余的空白字符
+    cleanedText = cleanedText.replace(Regex("\\s+"), " ").trim()
+    
+    return cleanedText
 }
 
 private fun formatTimestamp(timestamp: Long): String {
