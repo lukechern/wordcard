@@ -3,6 +3,7 @@ package com.x7ree.wordcard.core
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -70,6 +71,13 @@ class IntentHandler_7ree(private val context: Context, private val lifecycleOwne
                         // 然后加载单词详情
                         wordQueryViewModel_7ree?.loadWordFromHistory_7ree(queryWord)
                         // Log.d(TAG_7ree, "查看详情已执行: $queryWord，已切换到查询页面")
+                        
+                        // 确保隐藏键盘（特别是从小组件进入时）
+                        val activity = context as? android.app.Activity
+                        activity?.let { act ->
+                            val imm = act.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                            imm.hideSoftInputFromWindow(act.findViewById<android.view.View>(android.R.id.content).windowToken, 0)
+                        }
                     } catch (e: Exception) {
                         Log.e(TAG_7ree, "处理查看详情请求时出错: ${e.message}", e)
                         Toast.makeText(context, "处理请求时出错，请重试", Toast.LENGTH_SHORT).show()

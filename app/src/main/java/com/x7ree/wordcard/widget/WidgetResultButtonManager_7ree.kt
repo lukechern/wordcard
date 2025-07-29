@@ -213,6 +213,10 @@ class WidgetResultButtonManager_7ree(
         touchFeedbackManager_7ree.addTextTouchFeedback_7ree(detailText, detailButton)
         
         detailContainer.setOnClickListener {
+            // 隐藏键盘后再跳转
+            val inputMethodManager = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(activity.findViewById<android.view.View>(android.R.id.content).windowToken, 0)
+            
             val intent = Intent(activity, MainActivity::class.java).apply {
                 putExtra("query_word", queryText)
                 putExtra("show_detail", true)

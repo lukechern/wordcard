@@ -91,11 +91,18 @@ fun WordCardScreen_7ree(
                             onCustomKeyboardStateChange = { isVisible ->
                                 showCustomKeyboard_7ree = isVisible
                             },
-                            customKeyboardState = customKeyboardState_7ree
+                            customKeyboardState = customKeyboardState_7ree,
+                            autoShowKeyboard = true // 在输入界面自动显示键盘
                         )
                     }
                     // 有查询结果时，显示结果界面
                     else -> {
+                        // 确保隐藏自定义键盘
+                        if (useCustomKeyboard && showCustomKeyboard_7ree) {
+                            customKeyboardState_7ree.hide_7ree()
+                            showCustomKeyboard_7ree = false
+                        }
+                        
                         WordResultComponent_7ree(
                             wordQueryViewModel = wordQueryViewModel_7ree,
                             showSpellingDialog = showSpellingDialog_7ree,

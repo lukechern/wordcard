@@ -81,6 +81,7 @@ fun WordInputComponent_7ree(
     onInputWarningChange: (Boolean) -> Unit,
     onCustomKeyboardStateChange: ((Boolean) -> Unit)? = null,
     customKeyboardState: CustomKeyboardState_7ree? = null,
+    autoShowKeyboard: Boolean = true, // 添加控制是否自动显示键盘的参数
     modifier: Modifier = Modifier
 ) {
     // 获取通用配置
@@ -255,8 +256,8 @@ fun WordInputComponent_7ree(
             }
             
             // 处理输入框点击事件
-            LaunchedEffect(useCustomKeyboard) {
-                if (useCustomKeyboard) {
+            LaunchedEffect(useCustomKeyboard, autoShowKeyboard) {
+                if (useCustomKeyboard && autoShowKeyboard) {
                     // 使用自定义键盘时，隐藏系统键盘并显示自定义键盘
                     keyboardController?.hide()
                     actualKeyboardState.show_7ree()
