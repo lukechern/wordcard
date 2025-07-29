@@ -43,8 +43,8 @@ class WidgetButtonManager_7ree(private val context: Context) {
                 ContextCompat.getColor(context, R.color.dark_gray) // 未生效状态：深灰色图标
             }
             it.setTint(iconColor)
-            // 调整图标大小，使其与文字更好地对齐
-            val iconSize = (15 * context.resources.displayMetrics.density).toInt() // 15dp转换为像素
+            // 调整图标大小，使其与文字更好地对齐（增加15%：15 * 1.15 ≈ 17dp）
+            val iconSize = (17 * context.resources.displayMetrics.density).toInt() // 17dp转换为像素
             it.setBounds(0, 0, iconSize, iconSize)
             // 使用ALIGN_CENTER来垂直居中对齐
             val imageSpan = ImageSpan(it, ImageSpan.ALIGN_CENTER)

@@ -75,9 +75,9 @@ fun ArticleCard_7ree(
                     )
                 }
                 
-                // 标题翻译
+                // 标题翻译（过滤星号标记）
                 Text(
-                    text = article.titleTranslation,
+                    text = cleanTextForPreview(article.titleTranslation),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                     maxLines = 1,

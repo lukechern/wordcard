@@ -90,6 +90,13 @@ articleRepository_7ree.saveArticle_7ree(
 在 `ArticleCard_7ree.kt` 中自动过滤星号标记：
 
 ```kotlin
+// 标题（过滤星号标记）
+Text(
+    text = cleanTextForPreview(article.englishTitle),
+    style = MaterialTheme.typography.titleMedium,
+    fontWeight = FontWeight.Bold
+)
+
 // 文章内容预览（过滤星号标记）
 Text(
     text = cleanTextForPreview(article.englishContent),
@@ -104,6 +111,32 @@ Text(
 // - *斜体* 标记
 // - title: 前缀
 // - content: 前缀
+```
+
+### 1.6. 瀑布流布局优化
+在 `PaginatedArticleList_7ree.kt` 中使用真正的瀑布流布局：
+
+```kotlin
+// 使用瀑布流布局替代简单的两列布局
+StaggeredGrid_7ree(
+    items = articles,
+    columns = 2,
+    horizontalSpacing = 8.dp,
+    verticalSpacing = 8.dp,
+    modifier = Modifier.fillMaxWidth()
+) { article ->
+    ArticleCard_7ree(
+        article = article,
+        onClick = { onArticleClick(article) },
+        onToggleFavorite = { onToggleFavorite(article.id) }
+    )
+}
+
+// 瀑布流特性：
+// - 卡片自动向上靠紧最短的列
+// - 消除不必要的空白间隙
+// - 最大化空间利用率
+// - 真正的瀑布流视觉效果
 ```
 
 ### 2. 文章详情页面显示

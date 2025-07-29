@@ -128,7 +128,7 @@ fun WordInputComponent_7ree(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 0.dp)
-                .offset(y = (-0.15f * 100 + 50).dp), // 调整偏移量
+                .offset(y = (-0.15f * 100 + 50 + 24).dp), // 向下移动一行（增加24dp）
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // App图标
