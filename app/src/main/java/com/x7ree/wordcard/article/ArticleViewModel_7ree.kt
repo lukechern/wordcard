@@ -213,8 +213,8 @@ val searchQuery: StateFlow<String> = state.searchQuery
             listHandler.initializeArticleFlow(viewModelScope)
         }
     }
-    fun paginationToggleFavorite(articleId: Long) { /* ... */ }
-    fun paginationDeleteArticle(articleId: Long) { /* ... */ }
+    fun paginationToggleFavorite(_articleId: Long) { /* ... */ }
+    fun paginationDeleteArticle(_articleId: Long) { /* ... */ }
     fun paginationDeleteSelectedArticles() { /* ... */ }
     private fun handleNewArticleGenerated() {
         if (usePaginationMode.value) {

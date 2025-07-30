@@ -91,7 +91,6 @@ private fun LeftEdgeSwipeArea(
                     },
                     onDragEnd = {
                         val totalDistanceX = currentX - startX
-                        val totalDistanceY = currentY - startY
                         val shouldTrigger = isValidSwipe && totalDistanceX >= swipeThreshold
                         
                         if (shouldTrigger) {
@@ -101,8 +100,6 @@ private fun LeftEdgeSwipeArea(
                     }
                 ) { change, dragAmount ->
                     dragCount++
-                    val oldCurrentX = currentX
-                    val oldCurrentY = currentY
                     currentX += dragAmount.x
                     currentY += dragAmount.y
                     
@@ -149,7 +146,6 @@ private fun RightEdgeSwipeArea(
                     },
                     onDragEnd = {
                         val totalDistanceX = startX - currentX  // 注意：右边缘是startX - currentX
-                        val totalDistanceY = currentY - startY
                         val shouldTrigger = isValidSwipe && totalDistanceX >= swipeThreshold
                         
                         if (shouldTrigger) {
