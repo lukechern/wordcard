@@ -73,6 +73,7 @@ val searchQuery: StateFlow<String> = state.searchQuery
     val isSearchMode: StateFlow<Boolean> = state.isSearchMode
     val searchResults: StateFlow<List<ArticleEntity_7ree>> = state.searchResults
     val relatedArticles: StateFlow<List<ArticleEntity_7ree>> = state.relatedArticles
+    val isFromArticleList: StateFlow<Boolean> = state.isFromArticleList
     private var currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
 
     init {
@@ -114,6 +115,7 @@ val searchQuery: StateFlow<String> = state.searchQuery
     }
     fun selectArticle(article: ArticleEntity_7ree) = detailHandler.selectArticle(article, viewModelScope) { incrementViewCount(it) }
     fun closeDetailScreen() = detailHandler.closeDetailScreen()
+    fun returnToArticleList() = detailHandler.returnToArticleList()
     fun toggleSelectedArticleFavorite() = detailHandler.toggleSelectedArticleFavorite { toggleFavorite(it) }
     fun readArticle(article: ArticleEntity_7ree) = ttsHandler.readArticle(article)
     fun stopReading() = ttsHandler.stopReading()

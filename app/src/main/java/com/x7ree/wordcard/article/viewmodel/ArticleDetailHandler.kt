@@ -12,6 +12,8 @@ class ArticleDetailHandler(
 ) {
 
 fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.CoroutineScope, incrementViewCount: (Long) -> Unit) {
+        // 设置从文章列表进入的标记
+        state._isFromArticleList.value = true
         // 使用协程异步获取完整的文章列表用于统计
         scope.launch {
             val articlesToUse = try {
@@ -60,6 +62,13 @@ fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.Corouti
     fun closeDetailScreen() {
         state._showDetailScreen.value = false
         state._selectedArticle.value = null
+        state._isFromArticleList.value = false
+    }
+    
+    fun returnToArticleList() {
+        state._showDetailScreen.value = false
+        state._selectedArticle.value = null
+        state._isFromArticleList.value = false
     }
 
 fun toggleSelectedArticleFavorite(toggleFavorite: (Long) -> Unit) {

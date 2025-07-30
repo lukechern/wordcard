@@ -16,6 +16,7 @@ import com.x7ree.wordcard.article.ArticleDetailScreen.ArticleKeywordsCard_7ree
 import com.x7ree.wordcard.article.ArticleDetailScreen.RelatedArticlesCard_7ree
 import com.x7ree.wordcard.article.ArticleDetailScreen.filterMarkdownStars
 import com.x7ree.wordcard.article.ArticleDetailScreen.formatTimestamp
+import com.x7ree.wordcard.article.utils.ArticleEdgeSwipeComponent_7ree
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,48 +38,58 @@ fun ArticleDetailScreen_7ree(
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        ArticleDetailAppBar_7ree(
-            article = article,
-            onToggleFavorite = onToggleFavorite,
-            onShareClick = onShareClick,
-            onBackClick = onBackClick,
-            ttsButtonState = ttsButtonState
-        )
-        
-        // 文章内容
+        // 主要内容
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(16.dp)
+            modifier = Modifier.fillMaxSize()
         ) {
-            ArticleTitleCard_7ree(
+            ArticleDetailAppBar_7ree(
                 article = article,
-                filterMarkdownStars = { filterMarkdownStars(it) },
-                formatTimestamp = { formatTimestamp(it) }
+                onToggleFavorite = onToggleFavorite,
+                onShareClick = onShareClick,
+                onBackClick = onBackClick,
+                ttsButtonState = ttsButtonState
             )
             
-            ArticleContentTabs_7ree(article = article)
-            
-            ArticleKeywordsCard_7ree(
-                article = article,
-                keywordStats = keywordStats,
-                onKeywordClick = onKeywordClick
-            )
-            
-            RelatedArticlesCard_7ree(
-                relatedArticles = relatedArticles,
-                onRelatedArticleClick = onRelatedArticleClick,
-                scrollState = scrollState
-            )
-            
-            // 底部间距
-            Spacer(modifier = Modifier.height(32.dp))
+            // 文章内容
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(16.dp)
+            ) {
+                ArticleTitleCard_7ree(
+                    article = article,
+                    filterMarkdownStars = { filterMarkdownStars(it) },
+                    formatTimestamp = { formatTimestamp(it) }
+                )
+                
+                ArticleContentTabs_7ree(article = article)
+                
+                ArticleKeywordsCard_7ree(
+                    article = article,
+                    keywordStats = keywordStats,
+                    onKeywordClick = onKeywordClick
+                )
+                
+                RelatedArticlesCard_7ree(
+                    relatedArticles = relatedArticles,
+                    onRelatedArticleClick = onRelatedArticleClick,
+                    scrollState = scrollState
+                )
+                
+                // 底部间距
+                Spacer(modifier = Modifier.height(32.dp))
+            }
         }
+        
+        // 边缘滑动返回组件
+        ArticleEdgeSwipeComponent_7ree(
+            onBackNavigation = onBackClick
+        )
     }
 }

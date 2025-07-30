@@ -87,4 +87,8 @@ class ArticleState {
     // Related articles
     val _relatedArticles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
     val relatedArticles: StateFlow<List<ArticleEntity_7ree>> = _relatedArticles
+    
+    // Whether the article detail page was entered from the article list
+    val _isFromArticleList = MutableStateFlow(false)
+    val isFromArticleList: StateFlow<Boolean> = _isFromArticleList
 }

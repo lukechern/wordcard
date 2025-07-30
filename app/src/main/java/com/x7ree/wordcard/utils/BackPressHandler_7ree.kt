@@ -35,6 +35,17 @@ class BackPressHandler_7ree(
             return
         }
         
+        // 检查是否从文章列表进入文章详情页面
+        val articleViewModel = wordQueryViewModel_7ree?.articleViewModel_7ree
+        val isFromArticleList = articleViewModel?.isFromArticleList?.value ?: false
+        val showDetailScreen = articleViewModel?.showDetailScreen?.value ?: false
+        
+        if (isFromArticleList && showDetailScreen) {
+            // 如果是从文章列表进入的文章详情页面，直接返回文章列表
+            articleViewModel?.returnToArticleList()
+            return
+        }
+        
         val currentTime_7ree = System.currentTimeMillis()
         
         if (currentTime_7ree - backPressedTime_7ree > 2000) {
