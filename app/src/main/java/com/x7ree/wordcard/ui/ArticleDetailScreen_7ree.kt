@@ -32,10 +32,12 @@ import java.util.*
 @Composable
 fun ArticleDetailScreen_7ree(
     article: ArticleEntity_7ree,
+    relatedArticles: List<ArticleEntity_7ree> = emptyList(),
     onBackClick: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onKeywordClick: (String) -> Unit = {},
+    onRelatedArticleClick: (ArticleEntity_7ree) -> Unit = {},
     isReading: Boolean = false,
     ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY,
     keywordStats: Map<String, Int> = emptyMap()
@@ -312,6 +314,43 @@ Text(
                             keywordStats = keywordStats,
                             onKeywordClick = onKeywordClick
                         )
+                    }
+                }
+}
+            
+// 相关文章卡片
+            if (relatedArticles.isNotEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "相关文章",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        
+                        // 显示最多5篇相关文章
+                        relatedArticles.take(5).forEach { relatedArticle ->
+                            Text(
+                                text = filterMarkdownStars(relatedArticle.englishTitle),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clickable { onRelatedArticleClick(relatedArticle) }
+                            )
+                        }
                     }
                 }
             }

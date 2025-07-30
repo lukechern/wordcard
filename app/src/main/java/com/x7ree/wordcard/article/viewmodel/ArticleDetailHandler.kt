@@ -11,7 +11,7 @@ class ArticleDetailHandler(
     private val articleRepository: com.x7ree.wordcard.data.ArticleRepository_7ree? = null
 ) {
 
-    fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.CoroutineScope, incrementViewCount: (Long) -> Unit) {
+fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.CoroutineScope, incrementViewCount: (Long) -> Unit) {
         // 使用协程异步获取完整的文章列表用于统计
         scope.launch {
             val articlesToUse = try {
@@ -39,6 +39,15 @@ class ArticleDetailHandler(
                 { stats -> state._keywordStats.value = stats },
                 articlesToUse
             )
+            
+            // 获取相关文章
+            try {
+                val relatedArticles = articleDetailHelper.getRelatedArticles(article, 5)
+                state._relatedArticles.value = relatedArticles
+            } catch (e: Exception) {
+                // 发生错误时清空相关文章列表
+                state._relatedArticles.value = emptyList()
+            }
 
             // 增加浏览次数
             incrementViewCount(article.id)
@@ -53,10 +62,17 @@ class ArticleDetailHandler(
         state._selectedArticle.value = null
     }
 
-    fun toggleSelectedArticleFavorite(toggleFavorite: (Long) -> Unit) {
+fun toggleSelectedArticleFavorite(toggleFavorite: (Long) -> Unit) {
         state.selectedArticle.value?.let { article ->
             toggleFavorite(article.id)
             state._selectedArticle.value = article.copy(isFavorite = !article.isFavorite)
         }
+    }
+    
+    /**
+     * 获取相关文章
+     */
+    suspend fun getRelatedArticles(currentArticle: ArticleEntity_7ree, maxCount: Int = 5): List<ArticleEntity_7ree> {
+        return articleDetailHelper.getRelatedArticles(currentArticle, maxCount)
     }
 }

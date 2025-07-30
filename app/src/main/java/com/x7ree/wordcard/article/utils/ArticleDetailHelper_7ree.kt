@@ -108,7 +108,7 @@ class ArticleDetailHelper_7ree(
         }
     }
     
-    /**
+/**
      * 将关键词统计同步到单词本数据库
      */
     private fun syncKeywordStatsToWordDatabase(
@@ -136,6 +136,48 @@ class ArticleDetailHelper_7ree(
             } catch (e: Exception) {
                 // 静默处理同步错误
             }
+        }
+    }
+    
+    /**
+     * 获取相关文章（基于相同关键词）
+     */
+    suspend fun getRelatedArticles(currentArticle: ArticleEntity_7ree, maxCount: Int = 5): List<ArticleEntity_7ree> {
+        try {
+            // 获取当前文章的关键词
+            val currentKeywords = currentArticle.keyWords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            
+            if (currentKeywords.isEmpty()) {
+                return emptyList()
+            }
+            
+            // 从数据库获取所有文章
+            val allArticles = articleRepository_7ree.getAllArticlesSortedByTimeDesc(100, 0)
+            
+            // 过滤掉当前文章本身
+            val otherArticles = allArticles.filter { it.id != currentArticle.id }
+            
+            // 计算每篇文章与当前文章的关键词匹配度
+            val relatedArticlesWithScore = otherArticles.mapNotNull { article ->
+                val articleKeywords = article.keyWords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                val commonKeywords = currentKeywords.intersect(articleKeywords.toSet())
+                
+                // 如果有共同关键词，则计算匹配度（共同关键词数量）
+                if (commonKeywords.isNotEmpty()) {
+                    Pair(article, commonKeywords.size)
+                } else {
+                    null
+                }
+            }
+            
+            // 按匹配度降序排序，取前maxCount篇文章
+            return relatedArticlesWithScore
+                .sortedByDescending { it.second }
+                .take(maxCount)
+                .map { it.first }
+        } catch (e: Exception) {
+            // 发生错误时返回空列表
+            return emptyList()
         }
     }
 }

@@ -75,15 +75,17 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
         val showDetailScreen by articleViewModel.showDetailScreen.collectAsState()
         val selectedArticle by articleViewModel.selectedArticle.collectAsState()
         
-        selectedArticle?.let { article ->
+selectedArticle?.let { article ->
             if (showDetailScreen) {
                 val isReading by articleViewModel.isReading.collectAsState()
                 val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
                 val keywordStats by articleViewModel.keywordStats.collectAsState()
+                val relatedArticles by articleViewModel.relatedArticles.collectAsState()
                 
 // 显示文章详情页
                 ArticleDetailScreen_7ree(
                     article = article,
+                    relatedArticles = relatedArticles,
                     onBackClick = {
                         articleViewModel.closeDetailScreen()
                     },
@@ -98,6 +100,9 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
                         wordQueryViewModel_7ree?.onWordInputChanged_7ree(keyword)
                         wordQueryViewModel_7ree?.queryWord_7ree()
                         wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
+                    },
+                    onRelatedArticleClick = { relatedArticle ->
+                        articleViewModel.selectArticle(relatedArticle)
                     },
                     isReading = isReading,
                     ttsButtonState = ttsButtonState,

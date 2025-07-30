@@ -80,7 +80,11 @@ class ArticleState {
     val _isSearchMode = MutableStateFlow(false)
     val isSearchMode: StateFlow<Boolean> = _isSearchMode
 
-    // Search results (for non-pagination mode)
+// Search results (for non-pagination mode)
     val _searchResults = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
     val searchResults: StateFlow<List<ArticleEntity_7ree>> = _searchResults
+    
+    // Related articles
+    val _relatedArticles = MutableStateFlow<List<ArticleEntity_7ree>>(emptyList())
+    val relatedArticles: StateFlow<List<ArticleEntity_7ree>> = _relatedArticles
 }

@@ -27,7 +27,7 @@ class ArticleViewModel_7ree(
     private val wordRepository_7ree: WordRepository_7ree? = null
 ) : ViewModel() {
 
-    private val state = ArticleState()
+private val state = ArticleState()
 
     private val articleListHelper = ArticleListHelper_7ree(articleRepository_7ree)
     private val articleGenerationHelper = ArticleGenerationHelper2_7ree(apiService_7ree, AppConfigManager_7ree(context), articleRepository_7ree, ArticleGenerationHelper_7ree(wordRepository_7ree, articleRepository_7ree, apiService_7ree))
@@ -69,9 +69,10 @@ class ArticleViewModel_7ree(
     val hasMoreData: StateFlow<Boolean> = paginationHandler.hasMoreData
     val isPaginationRefreshing: StateFlow<Boolean> = paginationHandler.isPaginationRefreshing
     val usePaginationMode: StateFlow<Boolean> = state.usePaginationMode
-    val searchQuery: StateFlow<String> = state.searchQuery
+val searchQuery: StateFlow<String> = state.searchQuery
     val isSearchMode: StateFlow<Boolean> = state.isSearchMode
     val searchResults: StateFlow<List<ArticleEntity_7ree>> = state.searchResults
+    val relatedArticles: StateFlow<List<ArticleEntity_7ree>> = state.relatedArticles
     private var currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
 
     init {
