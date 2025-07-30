@@ -74,6 +74,7 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
         val isGenerating by articleViewModel.isGenerating.collectAsState()
         val showDetailScreen by articleViewModel.showDetailScreen.collectAsState()
         val selectedArticle by articleViewModel.selectedArticle.collectAsState()
+        val shouldRestoreScrollPosition by articleViewModel.shouldRestoreScrollPosition.collectAsState()
         
 selectedArticle?.let { article ->
             if (showDetailScreen) {
@@ -87,6 +88,8 @@ selectedArticle?.let { article ->
                     article = article,
                     relatedArticles = relatedArticles,
                     onBackClick = {
+                        // 返回文章列表时，标记需要恢复滚动位置
+                        articleViewModel.markScrollPositionForRestore()
                         articleViewModel.closeDetailScreen()
                     },
                     onToggleFavorite = {
@@ -174,10 +177,13 @@ selectedArticle?.let { article ->
                     searchQuery = articleViewModel.searchQuery.collectAsState().value,
                     isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
                     onSearchQueryChange = { query -> 
-                        println("DEBUG: MainScreen onSearchQueryChange called with: '$query'")
                         articleViewModel.updateSearchQuery(query)
                     },
-                    onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
+                    onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) },
+                    // 新增的滚动位置管理参数
+                    shouldRestoreScrollPosition = shouldRestoreScrollPosition,
+                    onScrollPositionSaved = { articleViewModel.saveScrollPositionBeforeNavigation() },
+                    onScrollPositionRestored = { articleViewModel.clearScrollPositionRestore() }
                 )
             }
         } ?: run {
@@ -246,10 +252,13 @@ selectedArticle?.let { article ->
                 searchQuery = articleViewModel.searchQuery.collectAsState().value,
                 isSearchMode = articleViewModel.isSearchMode.collectAsState().value,
                 onSearchQueryChange = { query -> 
-                    println("DEBUG: MainScreen onSearchQueryChange (2nd) called with: '$query'")
                     articleViewModel.updateSearchQuery(query)
                 },
-                onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) }
+                onSearchModeToggle = { isSearchMode -> articleViewModel.toggleSearchMode(isSearchMode) },
+                // 新增的滚动位置管理参数
+                shouldRestoreScrollPosition = shouldRestoreScrollPosition,
+                onScrollPositionSaved = { articleViewModel.saveScrollPositionBeforeNavigation() },
+                onScrollPositionRestored = { articleViewModel.clearScrollPositionRestore() }
             )
         }
     } else {

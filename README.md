@@ -8,7 +8,7 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-6.1-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-6.2-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
 </div>
 
@@ -66,6 +66,9 @@ WordCard单词卡片 是一款基于 AI 的智能单词学习安卓应用APP，�
 - 响应式布局设计
 - 新增边缘滑动返回功能，从屏幕左边缘向右滑动即可返回单词本
 - 智能返回键优化，保持浏览位置和筛选状态
+- **文章阅读位置记录**: 从文章列表页进入详情页前自动记录滚动位置，返回时精确还原到之前的阅读位置
+- **边缘滑动返回**: 在文章详情页支持从屏幕两侧向中间滑动手指返回文章列表页，操作更加便捷自然
+- **智能位置恢复**: 支持分页加载、搜索模式等多种场景下的滚动位置保存和恢复，确保阅读体验的连续性
 
 ### ⌨️ 全新自定义键盘
 - 便捷高效的键位布局设计，操作更加流畅自然

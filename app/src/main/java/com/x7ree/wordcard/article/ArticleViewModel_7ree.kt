@@ -74,6 +74,7 @@ val searchQuery: StateFlow<String> = state.searchQuery
     val searchResults: StateFlow<List<ArticleEntity_7ree>> = state.searchResults
     val relatedArticles: StateFlow<List<ArticleEntity_7ree>> = state.relatedArticles
     val isFromArticleList: StateFlow<Boolean> = state.isFromArticleList
+    val shouldRestoreScrollPosition: StateFlow<Boolean> = state.shouldRestoreScrollPosition
     private var currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
 
     init {
@@ -235,6 +236,23 @@ val searchQuery: StateFlow<String> = state.searchQuery
         }
     }
     fun clearSearchResults() = searchHandler.clearSearchResults()
+    
+    // 滚动位置管理方法
+    fun saveScrollPositionBeforeNavigation() {
+        // 标记从文章列表进入详情页
+        state._isFromArticleList.value = true
+    }
+    
+    fun markScrollPositionForRestore() {
+        // 标记需要恢复滚动位置
+        state._shouldRestoreScrollPosition.value = true
+    }
+    
+    fun clearScrollPositionRestore() {
+        // 清除滚动位置恢复标记
+        state._shouldRestoreScrollPosition.value = false
+        state._isFromArticleList.value = false
+    }
 
     override fun onCleared() {
         super.onCleared()

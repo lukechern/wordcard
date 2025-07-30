@@ -91,4 +91,8 @@ class ArticleState {
     // Whether the article detail page was entered from the article list
     val _isFromArticleList = MutableStateFlow(false)
     val isFromArticleList: StateFlow<Boolean> = _isFromArticleList
+    
+    // Scroll position restoration status
+    val _shouldRestoreScrollPosition = MutableStateFlow(false)
+    val shouldRestoreScrollPosition: StateFlow<Boolean> = _shouldRestoreScrollPosition
 }

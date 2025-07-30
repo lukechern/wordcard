@@ -36,6 +36,9 @@ import com.x7ree.wordcard.article.utils.ArticleSearchBarComponent_7ree
 import com.x7ree.wordcard.article.ArticleManagementBar_7ree
 import com.x7ree.wordcard.article.ArticleEmptyState_7ree
 import com.x7ree.wordcard.article.ArticleTwoColumnList_7ree
+import com.x7ree.wordcard.article.utils.ArticleScrollPositionManager_7ree
+import com.x7ree.wordcard.article.utils.rememberArticleScrollPositionManager
+import androidx.compose.foundation.lazy.rememberLazyListState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -79,10 +82,18 @@ fun ArticleScreen_7ree(
     searchQuery: String = "",
     isSearchMode: Boolean = false,
     onSearchQueryChange: (String) -> Unit = {},
-    onSearchModeToggle: (Boolean) -> Unit = {}
+    onSearchModeToggle: (Boolean) -> Unit = {},
+    // 新增的滚动位置管理相关参数
+    shouldRestoreScrollPosition: Boolean = false,
+    onScrollPositionSaved: () -> Unit = {},
+    onScrollPositionRestored: () -> Unit = {}
 ) {
     var showGenerationDialog by remember { mutableStateOf(false) }
     var shouldCloseDialogAfterGeneration by remember { mutableStateOf(false) }
+    
+    // 滚动位置管理器和列表状态
+    val scrollPositionManager = rememberArticleScrollPositionManager()
+    val listState = rememberLazyListState()
     
     // 监听生成状态，如果正在生成文章，则在生成完成后关闭对话框
     LaunchedEffect(isGenerating) {
@@ -91,6 +102,8 @@ fun ArticleScreen_7ree(
             shouldCloseDialogAfterGeneration = false
         }
     }
+    
+    // 滚动位置恢复逻辑已移至 PaginatedArticleList_7ree 中处理，避免重复执行
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -117,9 +130,15 @@ fun ArticleScreen_7ree(
                 articles = articles,
                 isLoadingMore = isLoadingMore,
                 hasMoreData = hasMoreData,
-                onArticleClick = onArticleClick,
+                onArticleClick = { article ->
+                    // 在点击文章进入详情页前，保存当前滚动位置
+                    scrollPositionManager.saveScrollPosition(listState)
+                    onScrollPositionSaved()
+                    onArticleClick(article)
+                },
                 onToggleFavorite = onToggleFavorite,
                 onLoadMore = onLoadMore,
+                listState = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 16.dp),
@@ -129,7 +148,10 @@ fun ArticleScreen_7ree(
                 selectedArticleIds = selectedArticleIds,
                 onToggleArticleSelection = onToggleArticleSelection,
                 isSearchMode = isSearchMode,
-                searchQuery = searchQuery
+                searchQuery = searchQuery,
+                scrollPositionManager = scrollPositionManager,
+                shouldRestoreScrollPosition = shouldRestoreScrollPosition,
+                onScrollPositionRestored = onScrollPositionRestored
             )
         } else {
             // 使用原有的下拉刷新组件

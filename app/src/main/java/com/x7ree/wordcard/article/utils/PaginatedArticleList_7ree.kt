@@ -31,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -113,7 +114,11 @@ fun PaginatedArticleList_7ree(
     onToggleArticleSelection: (Long) -> Unit = {},
     // 搜索模式相关参数
     isSearchMode: Boolean = false,
-    searchQuery: String = ""
+    searchQuery: String = "",
+    // 滚动位置管理相关参数
+    scrollPositionManager: ArticleScrollPositionManager_7ree? = null,
+    shouldRestoreScrollPosition: Boolean = false,
+    onScrollPositionRestored: () -> Unit = {}
 ) {
     
     // 检测是否滚动到接近底部
@@ -131,6 +136,21 @@ fun PaginatedArticleList_7ree(
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
             onLoadMore()
+        }
+    }
+    
+    // 滚动位置恢复逻辑
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(shouldRestoreScrollPosition, articles.size) {
+        if (shouldRestoreScrollPosition && articles.isNotEmpty() && scrollPositionManager != null) {
+            // 延迟一小段时间确保列表完全渲染
+            kotlinx.coroutines.delay(100)
+            scrollPositionManager.restoreScrollPosition(listState, scope)
+            
+            // 恢复完成后清除状态
+            kotlinx.coroutines.delay(50)
+            scrollPositionManager.clearSavedPosition()
+            onScrollPositionRestored()
         }
     }
     

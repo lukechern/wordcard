@@ -14,6 +14,8 @@ class ArticleDetailHandler(
 fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.CoroutineScope, incrementViewCount: (Long) -> Unit) {
         // 设置从文章列表进入的标记
         state._isFromArticleList.value = true
+        // 标记需要恢复滚动位置（当从详情页返回时）
+        state._shouldRestoreScrollPosition.value = true
         // 使用协程异步获取完整的文章列表用于统计
         scope.launch {
             val articlesToUse = try {
@@ -62,13 +64,14 @@ fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.Corouti
     fun closeDetailScreen() {
         state._showDetailScreen.value = false
         state._selectedArticle.value = null
-        state._isFromArticleList.value = false
+        // 注意：这里不应该清除 _isFromArticleList，因为需要保持滚动位置恢复的状态
     }
     
     fun returnToArticleList() {
         state._showDetailScreen.value = false
         state._selectedArticle.value = null
-        state._isFromArticleList.value = false
+        // 注意：不清除 _isFromArticleList 和 _shouldRestoreScrollPosition，
+        // 让文章列表页面能够检测到需要恢复滚动位置
     }
 
 fun toggleSelectedArticleFavorite(toggleFavorite: (Long) -> Unit) {
