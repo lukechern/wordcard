@@ -37,7 +37,7 @@ class ArticleViewModel_7ree(
     private val articlePaginationHandler = ArticlePaginationHandler_7ree(articleRepository_7ree)
 
     private val listHandler = ArticleListHandler(state, articleListHelper)
-    private val generationHandler = ArticleGenerationHandler(state, articleGenerationHelper)
+    private val generationHandler = ArticleGenerationHandler(state, articleGenerationHelper, articleRepository_7ree)
     private val detailHandler = ArticleDetailHandler(state, articleDetailHelper)
     private val ttsHandler = ArticleTtsHandler(state, articleTtsHelper)
     private val managementHandler = ArticleManagementHandler(state, articleDeleteHelper)
@@ -160,7 +160,14 @@ class ArticleViewModel_7ree(
                 }
                 
                 state._smartGenerationKeywords.value = keywords
-                state._smartGenerationStatus.value = "已选择单词：${keywords.joinToString(", ")}\n正在生成文章..."
+                
+                // 获取API引擎名
+                val appConfigManager = AppConfigManager_7ree(context)
+                val apiConfig = appConfigManager.loadApiConfig_7ree()
+                val activeApi = apiConfig.getActiveTranslationApi()
+                val engineName = activeApi.apiName.ifEmpty { "AI引擎" }
+                
+                state._smartGenerationStatus.value = "重点单词：${keywords.joinToString(", ")}\n${engineName}写作中，请稍候…"
                 
                 // 调用生成文章的方法
                 generationHandler.generateArticle(keywords.joinToString(", "), viewModelScope) { handleNewArticleGenerated() }
@@ -208,6 +215,9 @@ class ArticleViewModel_7ree(
     private fun handleNewArticleGenerated() {
         if (usePaginationMode.value) {
             paginationHandler.loadInitialArticles(viewModelScope)
+        } else {
+            // 非分页模式下也需要刷新文章列表
+            listHandler.initializeArticleFlow(viewModelScope)
         }
     }
     fun toggleSearchMode(isSearchMode: Boolean) = searchHandler.toggleSearchMode(isSearchMode, viewModelScope) { loadInitialArticles() }

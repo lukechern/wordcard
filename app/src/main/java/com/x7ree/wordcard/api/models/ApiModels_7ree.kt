@@ -13,6 +13,9 @@ data class ChatCompletionRequest_7ree(
     val model: String,
     val messages: List<Message_7ree>,
     val temperature: Double = 0.7,
+    val top_p: Double? = null,  // 核采样参数，控制随机性
+    val frequency_penalty: Double? = null,  // 频率惩罚，减少重复
+    val presence_penalty: Double? = null,   // 存在惩罚，鼓励新话题
     val stream: Boolean = false,  // 添加stream参数
     val enable_thinking: Boolean = false  // 通义千问API特殊参数
 )

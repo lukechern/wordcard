@@ -35,6 +35,35 @@ ${apiConfigManager_7ree.getOutputTemplate_7ree()}
 待解释的英文单词：$word"""
             val activeApi = apiConfig_7ree.getActiveTranslationApi()
             val fixedApiUrl = apiConfigManager_7ree.validateAndFixApiUrl_7ree(activeApi.apiUrl)
+            
+            // 判断是否为文章生成请求（通过检查提示词内容）
+            val isArticleGeneration = prompt_7ree.contains("文章", ignoreCase = true) || 
+                                    prompt_7ree.contains("article", ignoreCase = true) ||
+                                    prompt_7ree.contains("故事", ignoreCase = true) ||
+                                    prompt_7ree.contains("story", ignoreCase = true) ||
+                                    prompt_7ree.contains("写作", ignoreCase = true) ||
+                                    prompt_7ree.contains("创作", ignoreCase = true)
+            
+            // 根据请求类型设置不同的创造性参数
+            val temperature: Double
+            val topP: Double?
+            val frequencyPenalty: Double?
+            val presencePenalty: Double?
+            
+            if (isArticleGeneration) {
+                // 文章生成使用更高的创造性参数
+                temperature = 0.9   // 高温度，增加随机性和创造性
+                topP = 0.95         // 高top_p，保持多样性的同时确保连贯性
+                frequencyPenalty = 0.3  // 适度的频率惩罚，减少重复词汇
+                presencePenalty = 0.6   // 较高的存在惩罚，鼓励引入新话题和概念
+            } else {
+                // 单词查询使用保守参数，确保准确性
+                temperature = 0.7
+                topP = null
+                frequencyPenalty = null
+                presencePenalty = null
+            }
+            
             // 根据API类型创建不同的请求
             val request_7ree: ChatCompletionRequest_7ree = if (activeApi.apiName.contains("通义千问", ignoreCase = true) || 
                 activeApi.apiUrl.contains("modelscope.cn", ignoreCase = true)) {
@@ -42,6 +71,10 @@ ${apiConfigManager_7ree.getOutputTemplate_7ree()}
                 ChatCompletionRequest_7ree(
                     model = activeApi.modelName,
                     messages = listOf(Message_7ree(role = "user", content = prompt_7ree)),
+                    temperature = temperature,
+                    top_p = topP,
+                    frequency_penalty = frequencyPenalty,
+                    presence_penalty = presencePenalty,
                     stream = false,
                     enable_thinking = false
                 )
@@ -49,7 +82,11 @@ ${apiConfigManager_7ree.getOutputTemplate_7ree()}
                 // 其他API使用默认请求
                 ChatCompletionRequest_7ree(
                     model = activeApi.modelName,
-                    messages = listOf(Message_7ree(role = "user", content = prompt_7ree))
+                    messages = listOf(Message_7ree(role = "user", content = prompt_7ree)),
+                    temperature = temperature,
+                    top_p = topP,
+                    frequency_penalty = frequencyPenalty,
+                    presence_penalty = presencePenalty
                 )
             }
 

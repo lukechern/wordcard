@@ -55,6 +55,10 @@ class ArticleGenerationHelper2_7ree(
                     chineseContent = parsedResult.chineseContent
                 )
                 
+                // 确保数据库操作完成后再发出成功消息
+                // 添加短暂延时确保数据库事务完成
+                kotlinx.coroutines.delay(100)
+                
                 onResult("文章生成成功！")
                 
             } catch (e: Exception) {
