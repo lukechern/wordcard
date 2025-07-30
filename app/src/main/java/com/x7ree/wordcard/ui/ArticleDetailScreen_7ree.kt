@@ -161,16 +161,16 @@ Row(
                         .padding(16.dp)
                 ) {
                     
-                    MarkdownText_7ree(
-                        text = article.englishTitle,
-                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+MarkdownText_7ree(
+                        text = filterMarkdownStars(article.englishTitle),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
                     Text(
-                        text = article.titleTranslation,
-                        style = MaterialTheme.typography.titleMedium,
+                        text = filterMarkdownStars(article.titleTranslation),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
@@ -181,7 +181,7 @@ Row(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "生成时间: ${formatTimestamp(article.generationTimestamp)}",
+                            text = "写作时间: ${formatTimestamp(article.generationTimestamp)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
                         )
@@ -221,10 +221,10 @@ Row(
                                 .padding(vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
+Text(
                                 text = "英文文章",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                fontWeight = if (selectedTab == 0) FontWeight.ExtraBold else FontWeight.Normal,
                                 color = if (selectedTab == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -240,7 +240,7 @@ Row(
                             Text(
                                 text = "中文翻译",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                fontWeight = if (selectedTab == 1) FontWeight.ExtraBold else FontWeight.Normal,
                                 color = if (selectedTab == 1) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -419,7 +419,7 @@ private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp)) // 减少圆角
-            .background(Color(0xFFE8F5E9)) // 浅绿色背景
+            .background(Color(0xFFC5D0C6)) // 浅绿色背景 (降低15%亮度)
             .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
             .clickable { onKeywordClick(keyword) }
     ) {
@@ -440,7 +440,7 @@ private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick
                     .align(Alignment.CenterEnd)
                     .offset(x = 8.dp) // 向右移动
                     .clip(RoundedCornerShape(50)) // 圆形背景
-                    .background(Color(0xFF4CAF50)) // 较深的绿色背景
+                    .background(Color(0xFF419544)) // 较深的绿色背景 (降低15%亮度)
                     .padding(horizontal = 8.dp, vertical = 4.dp), // 增大圆形背景
                 contentAlignment = Alignment.Center
             ) {
@@ -461,7 +461,7 @@ private fun KeywordTag_7ree(keyword: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp)) // 减少圆角
-            .background(Color(0xFFE8F5E9)) // 浅绿色背景
+            .background(Color(0xFFC5D0C6)) // 浅绿色背景 (降低15%亮度)
             .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
     ) {
         Text(
@@ -472,6 +472,13 @@ private fun KeywordTag_7ree(keyword: String) {
             maxLines = 1 // 强制不允许换行
         )
     }
+}
+
+/**
+ * 过滤掉文本中的MD符号星号(**和***)
+ */
+private fun filterMarkdownStars(text: String): String {
+    return text.replace(Regex("\\*{2,3}"), "")
 }
 
 private fun formatTimestamp(timestamp: Long): String {
