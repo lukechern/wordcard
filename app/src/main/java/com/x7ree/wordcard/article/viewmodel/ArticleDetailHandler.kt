@@ -3,34 +3,49 @@ package com.x7ree.wordcard.article.viewmodel
 import androidx.lifecycle.viewModelScope
 import com.x7ree.wordcard.article.utils.ArticleDetailHelper_7ree
 import com.x7ree.wordcard.data.ArticleEntity_7ree
+import kotlinx.coroutines.launch
 
-class ArticleDetailHandler(private val state: ArticleState, private val articleDetailHelper: ArticleDetailHelper_7ree) {
+class ArticleDetailHandler(
+    private val state: ArticleState, 
+    private val articleDetailHelper: ArticleDetailHelper_7ree,
+    private val articleRepository: com.x7ree.wordcard.data.ArticleRepository_7ree? = null
+) {
 
     fun selectArticle(article: ArticleEntity_7ree, scope: kotlinx.coroutines.CoroutineScope, incrementViewCount: (Long) -> Unit) {
-        val articlesToUse = if (state.usePaginationMode.value) {
-            // This part needs to be adapted based on how pagination is handled
-            emptyList()
-        } else {
-            state.articles.value
+        // 使用协程异步获取完整的文章列表用于统计
+        scope.launch {
+            val articlesToUse = try {
+                if (articleRepository != null) {
+                    // 直接从数据库获取所有文章用于准确统计
+                    articleRepository.getAllArticlesSortedByTimeDesc(100, 0) // 获取最新100篇文章用于统计
+                } else {
+                    // 备用方案：使用状态中的文章数据
+                    if (state.usePaginationMode.value) {
+                        state.articles.value.ifEmpty { listOf(article) }
+                    } else {
+                        state.articles.value
+                    }
+                }
+            } catch (e: Exception) {
+                // 异常情况下至少包含当前文章
+                listOf(article)
+            }
+
+            // 处理文章选择和统计
+            articleDetailHelper.handleArticleSelection(
+                article,
+                scope,
+                { selectedArticle -> state._selectedArticle.value = selectedArticle },
+                { stats -> state._keywordStats.value = stats },
+                articlesToUse
+            )
+
+            // 增加浏览次数
+            incrementViewCount(article.id)
         }
 
-        articleDetailHelper.handleArticleSelection(
-            article,
-            scope,
-            { selectedArticle -> state._selectedArticle.value = selectedArticle },
-            { stats -> state._keywordStats.value = stats },
-            articlesToUse
-        )
-
+        // 立即显示详情页面
         state._showDetailScreen.value = true
-
-        articleDetailHelper.handleArticleSelection(
-            article,
-            scope,
-            { selectedArticle -> incrementViewCount(selectedArticle.id) },
-            { stats -> },
-            articlesToUse
-        )
     }
 
     fun closeDetailScreen() {

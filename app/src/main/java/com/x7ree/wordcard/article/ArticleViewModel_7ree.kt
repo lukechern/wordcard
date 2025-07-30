@@ -38,7 +38,7 @@ class ArticleViewModel_7ree(
 
     private val listHandler = ArticleListHandler(state, articleListHelper)
     private val generationHandler = ArticleGenerationHandler(state, articleGenerationHelper, articleRepository_7ree)
-    private val detailHandler = ArticleDetailHandler(state, articleDetailHelper)
+    private val detailHandler = ArticleDetailHandler(state, articleDetailHelper, articleRepository_7ree)
     private val ttsHandler = ArticleTtsHandler(state, articleTtsHelper)
     private val managementHandler = ArticleManagementHandler(state, articleDeleteHelper)
     private val paginationHandler = ArticlePaginationHandlerWrapper(state, articlePaginationHandler)
