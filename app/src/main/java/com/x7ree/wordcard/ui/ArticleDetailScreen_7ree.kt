@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
 import com.x7ree.wordcard.ui.components.MarkdownText_7ree
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -43,6 +44,7 @@ fun ArticleDetailScreen_7ree(
     keywordStats: Map<String, Int> = emptyMap()
 ) {
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     
@@ -339,17 +341,22 @@ Text(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         
-                        // 显示最多5篇相关文章
-                        relatedArticles.take(5).forEach { relatedArticle ->
-                            Text(
-                                text = filterMarkdownStars(relatedArticle.englishTitle),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp)
-                                    .clickable { onRelatedArticleClick(relatedArticle) }
+// 显示最多5篇相关文章
+                        relatedArticles.take(5).forEachIndexed { index, relatedArticle ->
+                            RelatedArticleItem_7ree(
+                                article = relatedArticle,
+                                onClick = {
+                                    // 滚动到顶部
+                                    scope.launch {
+                                        scrollState.scrollTo(0)
+                                    }
+                                    onRelatedArticleClick(relatedArticle)
+                                }
                             )
+                            // 添加行间距（除了最后一项）
+                            if (index < relatedArticles.take(5).size - 1) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                         }
                     }
                 }
@@ -455,10 +462,10 @@ private fun KeywordTagsWithStats_7ree(
 
 @Composable
 private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick: (String) -> Unit = {}) {
-    Box(
+Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp)) // 减少圆角
-            .background(Color(0xFFC5D0C6)) // 浅绿色背景 (降低15%亮度)
+            .background(Color(0xFFD1D9D2)) // 浅绿色背景 (再减淡6%)
             .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
             .clickable { onKeywordClick(keyword) }
     ) {
@@ -474,12 +481,12 @@ private fun KeywordTagWithStats_7ree(keyword: String, count: Int, onKeywordClick
                 maxLines = 1, // 强制不允许换行
                 modifier = Modifier.padding(end = 24.dp) // 为统计数字留出空间
             )
-            Box(
+Box(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .offset(x = 8.dp) // 向右移动
                     .clip(RoundedCornerShape(50)) // 圆形背景
-                    .background(Color(0xFF419544)) // 较深的绿色背景 (降低15%亮度)
+                    .background(Color(0xFF64A966)) // 较深的绿色背景 (再减淡4%)
                     .padding(horizontal = 8.dp, vertical = 4.dp), // 增大圆形背景
                 contentAlignment = Alignment.Center
             ) {
@@ -500,7 +507,7 @@ private fun KeywordTag_7ree(keyword: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(12.dp)) // 减少圆角
-            .background(Color(0xFFC5D0C6)) // 浅绿色背景 (降低15%亮度)
+            .background(Color(0xFFD1D9D2)) // 浅绿色背景 (再减淡6%)
             .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
     ) {
         Text(
@@ -510,6 +517,52 @@ private fun KeywordTag_7ree(keyword: String) {
             fontWeight = FontWeight.Bold, // 加粗
             maxLines = 1 // 强制不允许换行
         )
+    }
+}
+
+@Composable
+private fun RelatedArticleItem_7ree(
+    article: ArticleEntity_7ree,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp)) // 圆角
+            .background(Color(0xFFD1D9D2)) // 浅绿色背景 (再减淡6%)
+            .padding(horizontal = 12.dp, vertical = 7.dp) // 调整内边距
+            .clickable { onClick() }
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = filterMarkdownStars(article.englishTitle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1, // 最多显示一行
+                modifier = Modifier.padding(end = 24.dp) // 为统计数字留出空间
+            )
+Box(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .offset(x = 8.dp) // 向右移动
+                    .clip(RoundedCornerShape(50)) // 圆形背景
+                    .background(Color(0xFF64A966)) // 较深的绿色背景 (再减淡4%)
+                    .padding(horizontal = 8.dp, vertical = 4.dp), // 增大圆形背景
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${article.viewCount}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Normal,
+                    maxLines = 1
+                )
+            }
+        }
     }
 }
 
