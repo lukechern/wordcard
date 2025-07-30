@@ -118,8 +118,65 @@ class ArticleViewModel_7ree(
     fun stopReading() = ttsHandler.stopReading()
     fun toggleReading() = ttsHandler.toggleReading()
     fun clearTtsError() = ttsHandler.clearTtsError()
-    fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree, manualKeywords: String = "") { /* ... */ }
-    fun closeSmartGenerationCard() { /* ... */ }
+    fun smartGenerateArticle(type: com.x7ree.wordcard.ui.SmartGenerationType_7ree, manualKeywords: String = "") {
+        currentSmartGenerationType = type
+        state._showSmartGenerationCard.value = true
+        
+        viewModelScope.launch {
+            try {
+                state._smartGenerationStatus.value = "正在选择单词..."
+                
+                val smartWordHelper = SmartWordSelectionHelper_7ree(wordRepository_7ree)
+                val keywords = when (type) {
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_VIEW_COUNT -> {
+                        state._smartGenerationStatus.value = "正在获取查阅次数最少的单词..."
+                        smartWordHelper.getWordsWithLowViewCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_REFERENCE_COUNT -> {
+                        state._smartGenerationStatus.value = "正在获取引用次数最少的单词..."
+                        smartWordHelper.getWordsWithLowReferenceCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.LOW_SPELLING_COUNT -> {
+                        state._smartGenerationStatus.value = "正在获取拼写练习最少的单词..."
+                        smartWordHelper.getWordsWithLowSpellingCount()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.NEWEST_WORDS -> {
+                        state._smartGenerationStatus.value = "正在获取最新收录的单词..."
+                        smartWordHelper.getNewestWords()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.RANDOM_WORDS -> {
+                        state._smartGenerationStatus.value = "正在随机选择单词..."
+                        smartWordHelper.getRandomWords()
+                    }
+                    com.x7ree.wordcard.ui.SmartGenerationType_7ree.MANUAL_INPUT -> {
+                        state._smartGenerationStatus.value = "正在处理手动输入的单词..."
+                        manualKeywords.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                    }
+                }
+                
+                if (keywords.isEmpty()) {
+                    state._smartGenerationStatus.value = "未找到合适的单词，请稍后重试"
+                    return@launch
+                }
+                
+                state._smartGenerationKeywords.value = keywords
+                state._smartGenerationStatus.value = "已选择单词：${keywords.joinToString(", ")}\n正在生成文章..."
+                
+                // 调用生成文章的方法
+                generationHandler.generateArticle(keywords.joinToString(", "), viewModelScope) { handleNewArticleGenerated() }
+                
+            } catch (e: Exception) {
+                state._smartGenerationStatus.value = "智能生成失败: ${e.message}"
+            }
+        }
+    }
+    
+    fun closeSmartGenerationCard() {
+        state._showSmartGenerationCard.value = false
+        state._smartGenerationStatus.value = ""
+        state._smartGenerationKeywords.value = emptyList()
+        currentSmartGenerationType = null
+    }
     fun showFilterMenu() {
         state._showFilterMenu.value = true
     }

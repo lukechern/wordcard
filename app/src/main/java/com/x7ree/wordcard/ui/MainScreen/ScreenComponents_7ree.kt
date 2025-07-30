@@ -81,7 +81,7 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
                 val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
                 val keywordStats by articleViewModel.keywordStats.collectAsState()
                 
-                // 显示文章详情页
+// 显示文章详情页
                 ArticleDetailScreen_7ree(
                     article = article,
                     onBackClick = {

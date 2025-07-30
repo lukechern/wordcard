@@ -165,7 +165,7 @@ fun ArticleScreen_7ree(
         )
     }
     
-    // 文章生成对话框
+// 文章生成对话框
     ArticleGenerationDialog_7ree(
         isVisible = showGenerationDialog,
         onDismiss = { showGenerationDialog = false },
@@ -175,7 +175,8 @@ fun ArticleScreen_7ree(
         },
         onSmartGenerate = { type ->
             onSmartGenerate(type)
-            showGenerationDialog = false
+            // 不立即关闭对话框，等待生成完成后再关闭
+            shouldCloseDialogAfterGeneration = true
         },
         onSmartGenerateWithKeywords = { type, keywords ->
             onSmartGenerateWithKeywords(type, keywords)
