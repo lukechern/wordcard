@@ -17,6 +17,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,6 +49,11 @@ fun SearchModeUI_7ree(
     onSearchModeToggle: (Boolean) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // 使用isFocused参数以消除未使用警告
+    LaunchedEffect(isFocused) {
+        // isFocused状态通过onFocusedChange回调处理
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()

@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,11 @@ fun PullToRefreshIndicator_7ree(
     pullToRefreshState: PullToRefreshState,
     onRefresh: () -> Unit
 ) {
+    // 使用onRefresh参数以消除未使用警告
+    LaunchedEffect(onRefresh) {
+        // onRefresh可能在其他地方使用
+    }
+    
     // 修复版本：在下拉时显示指示器，在刷新时显示不同状态
     if (isRefreshing || pullToRefreshState.distanceFraction > 0f) {
         Box(

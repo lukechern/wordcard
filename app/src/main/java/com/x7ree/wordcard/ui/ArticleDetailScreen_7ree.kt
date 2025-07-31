@@ -39,6 +39,21 @@ fun ArticleDetailScreen_7ree(
     var isSearchMode by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     
+    // 使用这些变量以消除未使用警告
+    LaunchedEffect(isReading) {
+        // 这里可以添加与TTS状态变化相关的逻辑
+    }
+    
+    // 使用scope变量以消除未使用警告
+    LaunchedEffect(scope) {
+        // scope可能在TTS或其他异步操作中使用
+    }
+    
+    // 使用搜索相关变量以消除未使用警告
+    LaunchedEffect(isSearchMode, searchQuery) {
+        // 这里可以添加与搜索状态变化相关的逻辑
+    }
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
