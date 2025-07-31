@@ -17,7 +17,6 @@ import androidx.compose.ui.window.Dialog
 fun SmartGenerationProgressCard_7ree(
     isVisible: Boolean,
     status: String,
-    keywords: List<String>,
     onDismiss: () -> Unit,
     currentSmartGenerationType: com.x7ree.wordcard.ui.SmartGenerationType_7ree? = null
 ) {

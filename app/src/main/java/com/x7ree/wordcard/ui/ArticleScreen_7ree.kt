@@ -212,7 +212,6 @@ fun ArticleScreen_7ree(
     SmartGenerationProgressCard_7ree(
         isVisible = showSmartGenerationCard,
         status = smartGenerationStatus,
-        keywords = smartGenerationKeywords,
         onDismiss = onCloseSmartGenerationCard,
         currentSmartGenerationType = currentSmartGenerationType
     )
