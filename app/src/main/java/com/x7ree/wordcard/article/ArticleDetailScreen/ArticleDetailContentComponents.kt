@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.data.ArticleEntity_7ree
 import com.x7ree.wordcard.ui.components.MarkdownText_7ree
+import com.x7ree.wordcard.ui.components.BilingualComparisonContent_7ree
 import kotlinx.coroutines.launch
 
 @Composable
@@ -25,7 +26,7 @@ fun ArticleContentTabs_7ree(
             .padding(bottom = 16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        var selectedTab by remember { mutableStateOf(0) } // 0 for English, 1 for Chinese
+        var selectedTab by remember { mutableStateOf(0) } // 0 for English, 1 for Chinese, 2 for Bilingual
         
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -50,6 +51,22 @@ fun ArticleContentTabs_7ree(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = if (selectedTab == 0) FontWeight.ExtraBold else FontWeight.Normal,
                         color = if (selectedTab == 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                
+                // 中英对照tab
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { selectedTab = 2 }
+                        .padding(vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "中英对照",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = if (selectedTab == 2) FontWeight.ExtraBold else FontWeight.Normal,
+                        color = if (selectedTab == 2) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
@@ -103,6 +120,13 @@ fun ArticleContentTabs_7ree(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                    2 -> {
+                        // 显示中英对照内容
+                        BilingualComparisonContent_7ree(
+                            englishContent = article.englishContent,
+                            chineseContent = article.chineseContent
+                        )
                     }
                 }
             }
