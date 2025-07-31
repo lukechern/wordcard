@@ -222,7 +222,6 @@ class ArticlePaginationHandler_7ree(
      */
     suspend fun searchArticles(query: String, filterState: ArticleFilterState_7ree) {
         try {
-            println("DEBUG: ArticlePaginationHandler.searchArticles called with query: '$query'")
             currentSearchQuery = query
             isSearchMode = query.isNotBlank()
             currentFilterState = filterState
@@ -232,33 +231,17 @@ class ArticlePaginationHandler_7ree(
             
             if (query.isBlank()) {
                 // 如果搜索查询为空，加载正常的文章列表
-                println("DEBUG: Query is blank, loading normal articles")
                 loadInitialArticles(filterState)
                 return
             }
             
             // 执行搜索并加载第一页结果
-            println("DEBUG: Executing search with filter")
-            
-            // 先尝试使用测试搜索方法
-            val testArticles = articleRepository_7ree.testSearchArticles(query, pageSize, 0)
-            println("DEBUG: Test search returned ${testArticles.size} articles")
-            
-            // 如果测试搜索有结果，直接使用测试结果
-            if (testArticles.isNotEmpty()) {
-                println("DEBUG: Using test search results")
-                _pagedArticles.value = testArticles
-                _hasMoreData.value = testArticles.size == pageSize
-            } else {
-                // 否则使用原来的搜索方法
-                val articles = searchArticlesWithFilter(0, pageSize, query, filterState)
-                println("DEBUG: Filter search returned ${articles.size} articles")
-                _pagedArticles.value = articles
-                _hasMoreData.value = articles.size == pageSize
-            }
+            // 直接使用完整的搜索方法，而不是测试搜索方法
+            val articles = searchArticlesWithFilter(0, pageSize, query, filterState)
+            _pagedArticles.value = articles
+            _hasMoreData.value = articles.size == pageSize
             
         } catch (e: Exception) {
-            println("DEBUG: Search failed with exception: ${e.message}")
             // 处理搜索错误
         }
     }
@@ -310,9 +293,6 @@ class ArticlePaginationHandler_7ree(
         filterState: ArticleFilterState_7ree
     ): List<ArticleEntity_7ree> {
         val offset = page * size
-        println("DEBUG: searchArticlesWithFilter called with query='$query', page=$page, size=$size, offset=$offset")
-        println("DEBUG: filterState.showFavoritesOnly=${filterState.showFavoritesOnly}, sortType=${filterState.sortType}")
-        
         return when {
             // 在收藏文章中搜索
             filterState.showFavoritesOnly -> {

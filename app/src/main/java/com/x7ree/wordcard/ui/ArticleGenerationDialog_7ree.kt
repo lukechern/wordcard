@@ -143,7 +143,7 @@ fun ArticleGenerationDialog_7ree(
                         OutlinedTextField(
                             value = keyWords,
                             onValueChange = { keyWords = it },
-                            label = { Text("关键词") },
+                            label = { Text("请输入关键词") },
                             placeholder = { Text("请输入关键词，多个词用逗号分隔") },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -151,6 +151,16 @@ fun ArticleGenerationDialog_7ree(
                             enabled = !isGenerating,
                             minLines = 2,
                             maxLines = 4
+                        )
+                        
+                        // 添加提示小字
+                        Text(
+                            text = "中文或者英文关键词均可",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 16.dp)
                         )
                         
                         Row(

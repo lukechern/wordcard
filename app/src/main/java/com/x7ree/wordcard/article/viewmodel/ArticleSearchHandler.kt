@@ -41,11 +41,17 @@ class ArticleSearchHandler(private val state: ArticleState, private val articleP
                     val searchQueryLower = searchQuery.lowercase()
                     val articlesToSearch = state.articles.value
                     val filteredArticles = articlesToSearch.filter { article ->
-                        article.englishTitle.lowercase().contains(searchQueryLower) ||
-                        article.titleTranslation.lowercase().contains(searchQueryLower) ||
-                        article.keyWords.lowercase().contains(searchQueryLower) ||
-                        article.englishContent.lowercase().contains(searchQueryLower) ||
-                        article.chineseContent.lowercase().contains(searchQueryLower)
+                        val titleMatch = article.englishTitle.lowercase().contains(searchQueryLower)
+                        val translationMatch = article.titleTranslation.lowercase().contains(searchQueryLower)
+                        // 改进关键词匹配逻辑，支持逗号分隔的关键词搜索
+                        val keywordsMatch = article.keyWords.lowercase()
+                            .split(",")
+                            .map { it.trim() }
+                            .any { it.contains(searchQueryLower) }
+                        val contentMatch = article.englishContent.lowercase().contains(searchQueryLower)
+                        val chineseContentMatch = article.chineseContent.lowercase().contains(searchQueryLower)
+                        
+                        titleMatch || translationMatch || keywordsMatch || contentMatch || chineseContentMatch
                     }
                     state._searchResults.value = filteredArticles
                 }
