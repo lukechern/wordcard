@@ -13,7 +13,8 @@ import com.x7ree.wordcard.ui.HelpScreen_7ree
 @Composable
 fun ConfigPage_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit
+    onImportWordFile_7ree: () -> Unit,
+    onImportArticleFile_7ree: () -> Unit
 ) {
     var selectedTab_7ree by remember { mutableStateOf(SettingsTab_7ree.HELP) }
     
@@ -189,7 +190,8 @@ fun ConfigPage_7ree(
                 SettingsTab_7ree.DATA_MANAGEMENT -> {
                     DataManagementTab_7ree(
                         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                        onImportFile_7ree = onImportFile_7ree
+                        onImportWordFile_7ree = onImportWordFile_7ree,
+                        onImportArticleFile_7ree = onImportArticleFile_7ree
                     )
                 }
             }

@@ -389,6 +389,15 @@ class WordQueryViewModel_7ree(
         dataHandler_7ree.importHistoryData_7ree(uri)
     }
     
+    // 文章数据导入导出
+    fun exportArticleData_7ree() {
+        dataHandler_7ree.exportArticleData_7ree()
+    }
+    
+    fun importArticleData_7ree(uri: Uri) {
+        dataHandler_7ree.importArticleData_7ree(uri)
+    }
+    
     fun getDataExportImportManager(): DataExportImportManager_7ree {
         return dataHandler_7ree.getDataExportImportManager()
     }

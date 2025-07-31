@@ -19,11 +19,13 @@ typealias Screen_7ree = ScreenImpl
 fun MainScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
     isInitializationComplete_7ree: Boolean = false,
-    onImportFile_7ree: () -> Unit = {}
+    onImportWordFile_7ree: () -> Unit = {},
+    onImportArticleFile_7ree: () -> Unit = {}
 ) = MainScreenImpl(
     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
     isInitializationComplete_7ree = isInitializationComplete_7ree,
-    onImportFile_7ree = onImportFile_7ree
+    onImportWordFile_7ree = onImportWordFile_7ree,
+    onImportArticleFile_7ree = onImportArticleFile_7ree
 )
 
 @Composable

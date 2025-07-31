@@ -22,7 +22,8 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 @Composable
 fun PhoneOperationSection_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit,
+    onImportWordFile_7ree: () -> Unit,
+    onImportArticleFile_7ree: () -> Unit,
     isPhoneOperationEnabled: Boolean,
     onPhoneOperationToggle: (Boolean) -> Unit
 ) {
@@ -67,18 +68,23 @@ fun PhoneOperationSection_7ree(
         if (isPhoneOperationEnabled) {
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 数据导出部分
-            DataExportSection_7ree(wordQueryViewModel_7ree)
+            // 单词数据导出部分
+            WordDataExportSection_7ree(wordQueryViewModel_7ree)
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 存储路径信息
-            StoragePathSection_7ree(wordQueryViewModel_7ree)
+            // 单词数据导入部分
+            WordDataImportSection_7ree(onImportWordFile_7ree)
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
+            // 文章数据导出部分
+            ArticleDataExportSection_7ree(wordQueryViewModel_7ree)
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            // 数据导入部分
-            DataImportSection_7ree(onImportFile_7ree)
+            // 文章数据导入部分
+            ArticleDataImportSection_7ree(onImportArticleFile_7ree)
             
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -86,12 +92,15 @@ fun PhoneOperationSection_7ree(
 }
 
 /**
- * 数据导出部分
+ * 单词数据导出部分
  */
 @Composable
-private fun DataExportSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
+private fun WordDataExportSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
+    val exportPath_7ree by wordQueryViewModel_7ree.exportPath_7ree.collectAsState()
+    val hasExportedData_7ree by wordQueryViewModel_7ree.hasExportedData_7ree.collectAsState()
+    
     Text(
-        text = "数据导出",
+        text = "单词数据导出",
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(bottom = 4.dp)
@@ -115,17 +124,117 @@ private fun DataExportSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7
             contentDescription = "导出",
             modifier = Modifier.padding(end = 8.dp)
         )
-        Text("导出历史数据")
+        Text("单词数据导出")
+    }
+    
+    // 显示单词数据导出成功路径
+    if (hasExportedData_7ree && !exportPath_7ree.contains("ArticleData")) {
+        val textColor = Color(0xFF2E7D32) // 单词数据使用绿色
+        
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(8.dp)
+                .padding(top = 8.dp)
+        ) {
+            Text(
+                text = "单词数据已经导出到：",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = textColor,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            Text(
+                text = exportPath_7ree,
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor
+            )
+        }
     }
 }
 
 /**
- * 数据导入部分
+ * 文章数据导出部分
  */
 @Composable
-private fun DataImportSection_7ree(onImportFile_7ree: () -> Unit) {
+private fun ArticleDataExportSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
+    val exportPath_7ree by wordQueryViewModel_7ree.exportPath_7ree.collectAsState()
+    val hasExportedData_7ree by wordQueryViewModel_7ree.hasExportedData_7ree.collectAsState()
+    
     Text(
-        text = "数据导入",
+        text = "文章数据导出",
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
+    
+    Text(
+        text = "将文章单词数据导出为JSON文件，包含文章内容、单词信息等",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+    
+    Button(
+        onClick = {
+            wordQueryViewModel_7ree.exportArticleData_7ree()
+        },
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF1565C0) // 深蓝色背景
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Download,
+            contentDescription = "导出",
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text("文章数据导出")
+    }
+    
+    // 显示文章数据导出成功路径
+    if (hasExportedData_7ree && exportPath_7ree.contains("ArticleData")) {
+        val textColor = Color(0xFF1565C0) // 文章数据使用深蓝色，与文章导出按钮背景色一致
+        
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    color = Color.White.copy(alpha = 0.5f),
+                    shape = RoundedCornerShape(4.dp)
+                )
+                .padding(8.dp)
+                .padding(top = 8.dp)
+        ) {
+            Text(
+                text = "文章数据已经导出到：",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = textColor,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            
+            Text(
+                text = exportPath_7ree,
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor
+            )
+        }
+    }
+}
+
+/**
+ * 单词数据导入部分
+ */
+@Composable
+private fun WordDataImportSection_7ree(onImportFile_7ree: () -> Unit) {
+    Text(
+        text = "单词数据导入",
         style = MaterialTheme.typography.titleSmall,
         fontWeight = FontWeight.SemiBold,
         modifier = Modifier.padding(bottom = 4.dp)
@@ -147,45 +256,43 @@ private fun DataImportSection_7ree(onImportFile_7ree: () -> Unit) {
             contentDescription = "导入",
             modifier = Modifier.padding(end = 8.dp)
         )
-        Text("导入历史数据")
+        Text("单词数据导入")
     }
 }
 
 /**
- * 存储路径信息部分
+ * 文章数据导入部分
  */
 @Composable
-private fun StoragePathSection_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
-    val exportPath_7ree by wordQueryViewModel_7ree.exportPath_7ree.collectAsState()
-    val hasExportedData_7ree by wordQueryViewModel_7ree.hasExportedData_7ree.collectAsState()
+private fun ArticleDataImportSection_7ree(onImportFile_7ree: () -> Unit) {
+    Text(
+        text = "文章数据导入",
+        style = MaterialTheme.typography.titleSmall,
+        fontWeight = FontWeight.SemiBold,
+        modifier = Modifier.padding(bottom = 4.dp)
+    )
     
-    // 只有在成功导出数据后才显示存储路径区域，并且一直显示直到APP重启
-    if (hasExportedData_7ree) {
-        val textColor = Color(0xFF2E7D32) // green_500_7ree的颜色值
-        
-        // 将标题移到路径显示区域内部
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    color = Color.White.copy(alpha = 0.5f),
-                    shape = RoundedCornerShape(4.dp)
-                )
-                .padding(8.dp)
-        ) {
-            Text(
-                text = "单词数据已经导出到：",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = textColor,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            
-            Text(
-                text = exportPath_7ree,
-                style = MaterialTheme.typography.bodySmall,
-                color = textColor
-            )
-        }
+    Text(
+        text = "从JSON文件导入文章单词数据，支持批量恢复文章记录",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+    
+    Button(
+        onClick = onImportFile_7ree,
+        modifier = Modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF1565C0) // 深蓝色背景
+        )
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Upload,
+            contentDescription = "导入",
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        Text("文章数据导入")
     }
 }
+
+// 已移除StoragePathSection_7ree函数，路径显示功能已移到对应的导出部分

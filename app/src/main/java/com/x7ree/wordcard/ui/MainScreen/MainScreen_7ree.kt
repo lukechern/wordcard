@@ -34,7 +34,8 @@ import com.x7ree.wordcard.ui.MainScreen.HandleLoadingTimeoutLogic_7ree
 fun MainScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree?,
     isInitializationComplete_7ree: Boolean = false,
-    onImportFile_7ree: () -> Unit = {}
+    onImportWordFile_7ree: () -> Unit = {},
+    onImportArticleFile_7ree: () -> Unit = {}
 ) {
     // 从ViewModel获取当前屏幕状态
     val currentScreenString_7ree by wordQueryViewModel_7ree?.currentScreen_7ree?.collectAsState() ?: mutableStateOf("SEARCH")
@@ -121,7 +122,8 @@ fun MainScreen_7ree(
                             Screen_7ree.SETTINGS -> {
                                 ShowSettingsScreen_7ree(
                                     wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                                    onImportFile_7ree = onImportFile_7ree
+                                    onImportWordFile_7ree = onImportWordFile_7ree,
+                                    onImportArticleFile_7ree = onImportArticleFile_7ree
                                 )
                             }
                         }

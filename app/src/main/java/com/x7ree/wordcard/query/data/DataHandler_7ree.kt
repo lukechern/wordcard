@@ -27,6 +27,20 @@ class DataHandler_7ree(
     }
     
     /**
+     * 导出文章数据
+     */
+    fun exportArticleData_7ree() {
+        dataManager_7ree.exportArticleData_7ree()
+    }
+    
+    /**
+     * 导入文章数据
+     */
+    fun importArticleData_7ree(uri: Uri) {
+        dataManager_7ree.importArticleData_7ree(uri)
+    }
+    
+    /**
      * 获取数据导出导入管理器
      */
     fun getDataExportImportManager(): DataExportImportManager_7ree {

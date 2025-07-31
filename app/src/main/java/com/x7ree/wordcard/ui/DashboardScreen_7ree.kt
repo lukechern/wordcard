@@ -26,7 +26,8 @@ import com.x7ree.wordcard.ui.DashBoard.ConfigPage_7ree
 @Composable
 fun DashboardScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit = {}
+    onImportWordFile_7ree: () -> Unit = {},
+    onImportArticleFile_7ree: () -> Unit = {}
 ) {
     var showConfigPage_7ree by remember { mutableStateOf(false) }
     
@@ -74,7 +75,8 @@ fun DashboardScreen_7ree(
             // 配置页面
             ConfigPage_7ree(
                 wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-                onImportFile_7ree = onImportFile_7ree
+                onImportWordFile_7ree = onImportWordFile_7ree,
+                onImportArticleFile_7ree = onImportArticleFile_7ree
             )
         } else {
             // 仪表盘页面 - 实际内容

@@ -282,10 +282,12 @@ selectedArticle?.let { article ->
 @Composable
 fun ShowSettingsScreen_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit
+    onImportWordFile_7ree: () -> Unit,
+    onImportArticleFile_7ree: () -> Unit
 ) {
     DashboardScreen_7ree(
         wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-        onImportFile_7ree = onImportFile_7ree
+        onImportWordFile_7ree = onImportWordFile_7ree,
+        onImportArticleFile_7ree = onImportArticleFile_7ree
     )
 }

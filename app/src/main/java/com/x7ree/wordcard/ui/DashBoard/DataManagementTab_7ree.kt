@@ -20,7 +20,8 @@ import com.x7ree.wordcard.ui.DashBoard.DataManagement.rememberDataManagementStat
 @Composable
 fun DataManagementTab_7ree(
     wordQueryViewModel_7ree: WordQueryViewModel_7ree,
-    onImportFile_7ree: () -> Unit = {}
+    onImportWordFile_7ree: () -> Unit = {},
+    onImportArticleFile_7ree: () -> Unit = {}
 ) {
     val context = LocalContext.current
     
@@ -93,7 +94,8 @@ fun DataManagementTab_7ree(
         // 从手机操作区域
         PhoneOperationSection_7ree(
             wordQueryViewModel_7ree = wordQueryViewModel_7ree,
-            onImportFile_7ree = onImportFile_7ree,
+            onImportWordFile_7ree = onImportWordFile_7ree,
+            onImportArticleFile_7ree = onImportArticleFile_7ree,
             isPhoneOperationEnabled = dataManagementState.isPhoneOperationEnabled,
             onPhoneOperationToggle = dataManagementState.onPhoneOperationToggle
         )

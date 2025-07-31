@@ -355,4 +355,53 @@ class DataManager_7ree(
         
         return updatedWords
     }
+    
+    fun exportArticleData_7ree() {
+        coroutineScope.launch {
+            try {
+                val result = dataExportImportManager_7ree.exportArticleData_7ree()
+                result.fold(
+                    onSuccess = { filePath ->
+                        val fileName = filePath.substringAfterLast("/")
+                        queryState_7ree.updateOperationResult_7ree(
+                            "文章数据导出成功！文件: $fileName\n位置: Android/data/com.x7ree.wordcard/files/Downloads/"
+                        )
+                        // 更新存储路径显示为实际的导出文件路径
+                        paginationState_7ree.updateExportPath_7ree(filePath)
+                        // 更新导出数据状态，标记为已导出
+                        queryState_7ree.updateHasExportedData_7ree(true)
+                        // println("DEBUG: 文章数据导出成功: $filePath")
+                    },
+                    onFailure = { exception ->
+                        queryState_7ree.updateOperationResult_7ree("文章数据导出失败: ${exception.message}")
+                        // println("DEBUG: 文章数据导出失败: ${exception.message}")
+                    }
+                )
+            } catch (e: Exception) {
+                queryState_7ree.updateOperationResult_7ree("文章数据导出失败: ${e.message}")
+                // println("DEBUG: 文章数据导出异常: ${e.message}")
+            }
+        }
+    }
+    
+    fun importArticleData_7ree(uri: Uri) {
+        coroutineScope.launch {
+            try {
+                val result = dataExportImportManager_7ree.importArticleData_7ree(uri)
+                result.fold(
+                    onSuccess = { count ->
+                        queryState_7ree.updateOperationResult_7ree("文章数据导入成功，共导入 $count 条记录")
+                        // println("DEBUG: 文章数据导入成功，共导入 $count 条记录")
+                    },
+                    onFailure = { exception ->
+                        queryState_7ree.updateOperationResult_7ree("文章数据导入失败: ${exception.message}")
+                        // println("DEBUG: 文章数据导入失败: ${exception.message}")
+                    }
+                )
+            } catch (e: Exception) {
+                queryState_7ree.updateOperationResult_7ree("文章数据导入失败: ${e.message}")
+                // println("DEBUG: 文章数据导入异常: ${e.message}")
+            }
+        }
+    }
 }

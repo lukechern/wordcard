@@ -34,13 +34,23 @@ class MainActivity : ComponentActivity() {
     // 状态跟踪
     private var isInitializationComplete_7ree by mutableStateOf(false)
     
-    // 文件选择器
-    private val filePickerLauncher = registerForActivityResult(
+    // 单词数据文件选择器
+    private val wordFilePickerLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { selectedUri ->
-            Log.d(TAG_7ree, "文件选择器返回: $selectedUri")
+            Log.d(TAG_7ree, "单词数据文件选择器返回: $selectedUri")
             appInitializer_7ree.wordQueryViewModel_7ree?.importHistoryData_7ree(selectedUri)
+        }
+    }
+    
+    // 文章数据文件选择器
+    private val articleFilePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { selectedUri ->
+            Log.d(TAG_7ree, "文章数据文件选择器返回: $selectedUri")
+            appInitializer_7ree.wordQueryViewModel_7ree?.importArticleData_7ree(selectedUri)
         }
     }
 
@@ -65,8 +75,11 @@ class MainActivity : ComponentActivity() {
                     MainScreen_7ree(
                         wordQueryViewModel_7ree = appInitializer_7ree.wordQueryViewModel_7ree,
                         isInitializationComplete_7ree = isInitializationComplete_7ree,
-                        onImportFile_7ree = {
-                            filePickerLauncher.launch("application/json")
+                        onImportWordFile_7ree = {
+                            wordFilePickerLauncher.launch("application/json")
+                        },
+                        onImportArticleFile_7ree = {
+                            articleFilePickerLauncher.launch("application/json")
                         }
                     )
                 }
