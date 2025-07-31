@@ -31,7 +31,8 @@ fun ArticleDetailScreen_7ree(
     onRelatedArticleClick: (ArticleEntity_7ree) -> Unit = {},
     isReading: Boolean = false,
     ttsButtonState: com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState = com.x7ree.wordcard.article.ArticleTtsManager_7ree.TtsButtonState.READY,
-    keywordStats: Map<String, Int> = emptyMap()
+    keywordStats: Map<String, Int> = emptyMap(),
+    onEdgeSwipeBack: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
@@ -89,7 +90,7 @@ fun ArticleDetailScreen_7ree(
         
         // 边缘滑动返回组件
         ArticleEdgeSwipeComponent_7ree(
-            onBackNavigation = onBackClick
+            onBackNavigation = onEdgeSwipeBack ?: onBackClick
         )
     }
 }

@@ -41,7 +41,14 @@ class BackPressHandler_7ree(
         val showDetailScreen = articleViewModel?.showDetailScreen?.value ?: false
         
         if (isFromArticleList && showDetailScreen) {
-            // 如果是从文章列表进入的文章详情页面，直接返回文章列表
+            // 如果是从文章列表进入的文章详情页面，先停止TTS再返回文章列表
+            // 检查是否正在朗读，如果是则先停止
+            val isReading = articleViewModel?.isReading?.value ?: false
+            if (isReading) {
+                articleViewModel?.stopReading()
+            }
+            
+            // 返回文章列表
             articleViewModel?.returnToArticleList()
             return
         }

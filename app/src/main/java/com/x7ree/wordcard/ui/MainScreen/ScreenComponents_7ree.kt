@@ -83,15 +83,23 @@ selectedArticle?.let { article ->
                 val keywordStats by articleViewModel.keywordStats.collectAsState()
                 val relatedArticles by articleViewModel.relatedArticles.collectAsState()
                 
-// 显示文章详情页
+// 创建一个包装的返回点击函数，用于处理TTS停止逻辑
+                val handleBackClick = {
+                    // 如果正在朗读，则先停止朗读再返回
+                    if (isReading) {
+                        // 直接调用停止朗读的方法
+                        articleViewModel.stopReading()
+                    }
+                    // 返回文章列表时，标记需要恢复滚动位置
+                    articleViewModel.markScrollPositionForRestore()
+                    articleViewModel.closeDetailScreen()
+                }
+                
+                // 显示文章详情页
                 ArticleDetailScreen_7ree(
                     article = article,
                     relatedArticles = relatedArticles,
-                    onBackClick = {
-                        // 返回文章列表时，标记需要恢复滚动位置
-                        articleViewModel.markScrollPositionForRestore()
-                        articleViewModel.closeDetailScreen()
-                    },
+                    onBackClick = handleBackClick,
                     onToggleFavorite = {
                         articleViewModel.toggleSelectedArticleFavorite()
                     },
@@ -109,7 +117,9 @@ selectedArticle?.let { article ->
                     },
                     isReading = isReading,
                     ttsButtonState = ttsButtonState,
-                    keywordStats = keywordStats
+                    keywordStats = keywordStats,
+                    // 新增参数：传递TTS停止逻辑给边缘滑动组件
+                    onEdgeSwipeBack = handleBackClick
                 )
             } else {
                 // 显示文章列表页
