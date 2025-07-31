@@ -50,7 +50,6 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
         val usePaginationMode by articleViewModel.usePaginationMode.collectAsState()
         val isSearchMode by articleViewModel.isSearchMode.collectAsState()
         val searchQuery by articleViewModel.searchQuery.collectAsState()
-        val searchResults by articleViewModel.searchResults.collectAsState()
         
         // 根据搜索模式选择显示的文章列表
         val articles by if (usePaginationMode) {
@@ -76,7 +75,7 @@ fun ShowArticleScreen_7ree(wordQueryViewModel_7ree: WordQueryViewModel_7ree) {
         val selectedArticle by articleViewModel.selectedArticle.collectAsState()
         val shouldRestoreScrollPosition by articleViewModel.shouldRestoreScrollPosition.collectAsState()
         
-selectedArticle?.let { article ->
+        selectedArticle?.let { selectedArticleItem ->
             if (showDetailScreen) {
                 val isReading by articleViewModel.isReading.collectAsState()
                 val ttsButtonState by articleViewModel.ttsButtonState.collectAsState()
@@ -97,7 +96,7 @@ selectedArticle?.let { article ->
                 
                 // 显示文章详情页
                 ArticleDetailScreen_7ree(
-                    article = article,
+                    article = selectedArticleItem,
                     relatedArticles = relatedArticles,
                     onBackClick = handleBackClick,
                     onToggleFavorite = {
@@ -108,9 +107,9 @@ selectedArticle?.let { article ->
                     },
                     onKeywordClick = { keyword ->
                         // 处理关键词点击事件
-                        wordQueryViewModel_7ree?.onWordInputChanged_7ree(keyword)
-                        wordQueryViewModel_7ree?.queryWord_7ree()
-                        wordQueryViewModel_7ree?.setCurrentScreen_7ree("SEARCH")
+                        wordQueryViewModel_7ree.onWordInputChanged_7ree(keyword)
+                        wordQueryViewModel_7ree.queryWord_7ree()
+                        wordQueryViewModel_7ree.setCurrentScreen_7ree("SEARCH")
                     },
                     onRelatedArticleClick = { relatedArticle ->
                         articleViewModel.selectArticle(relatedArticle)
