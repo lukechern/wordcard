@@ -200,8 +200,8 @@ private fun isInsideQuotes(text: String, index: Int): Boolean {
     for (i in 0 until index) {
         when (text[i]) {
             '"' -> quoteCount++
-            '"' -> chineseQuoteCount++
-            '"' -> chineseQuoteCount++
+            '“' -> chineseQuoteCount++
+            '”' -> chineseQuoteCount++
         }
     }
     
@@ -221,7 +221,7 @@ private fun getTrailingQuotesLength(text: String, startIndex: Int): Int {
     while (currentIndex < text.length) {
         val char = text[currentIndex]
         when (char) {
-            '"', '"', '"', '\'', '\'', '\'', '）', ')', '】', ']', '》', '>' -> {
+            '"', '“', '”', '\'', '‘', '’', '）', ')', '】', ']', '》', '>' -> {
                 // 这些符号应该包含在前一句中
                 skipCount++
                 currentIndex++

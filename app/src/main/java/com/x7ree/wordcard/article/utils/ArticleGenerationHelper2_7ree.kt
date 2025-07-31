@@ -46,7 +46,7 @@ class ArticleGenerationHelper2_7ree(
                 val parsedResult = parser.parseArticleMarkdown(apiResult)
                 
                 // 保存到数据库
-                val articleId = articleRepository_7ree.saveArticle_7ree(
+                articleRepository_7ree.saveArticle_7ree(
                     keyWords = parsedResult.keywords, // 使用解析出的关键词
                     apiResult = apiResult,
                     englishTitle = parsedResult.englishTitle,

@@ -47,7 +47,6 @@ fun ArticleSearchBarComponent_7ree(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
     
     // 使用TextFieldValue来管理文本和光标位置
     var textFieldValue by remember {
