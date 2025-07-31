@@ -171,7 +171,7 @@ val searchQuery: StateFlow<String> = state.searchQuery
                 val activeApi = apiConfig.getActiveTranslationApi()
                 val engineName = activeApi.apiName.ifEmpty { "AI引擎" }
                 
-                state._smartGenerationStatus.value = "重点单词：${keywords.joinToString(", ")}\n${engineName}写作中，请稍候…"
+                state._smartGenerationStatus.value = "${keywords.joinToString(", ")}\n${engineName}写作中，请稍候…"
                 
                 // 调用生成文章的方法
                 generationHandler.generateArticle(keywords.joinToString(", "), viewModelScope) { handleNewArticleGenerated() }

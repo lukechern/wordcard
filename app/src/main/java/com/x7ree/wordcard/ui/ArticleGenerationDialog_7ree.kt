@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -72,7 +73,7 @@ fun ArticleGenerationDialog_7ree(
                                 SmartGenerationButton_7ree(
                                     title = "低引用",
                                     subtitle = "引用次数最少",
-                                    icon = Icons.Default.Article,
+                                    icon = Icons.AutoMirrored.Filled.Article,
                                     color = MaterialTheme.colorScheme.secondary,
                                     enabled = !isGenerating,
                                     modifier = Modifier.weight(1f)
@@ -167,9 +168,11 @@ fun ArticleGenerationDialog_7ree(
                                 onClick = {
                                     if (keyWords.isNotBlank()) {
                                         onSmartGenerateWithKeywords(SmartGenerationType_7ree.MANUAL_INPUT, keyWords.trim())
+                                    } else {
+                                        onGenerate("")
                                     }
                                 },
-                                enabled = !isGenerating && keyWords.isNotBlank()
+                                enabled = !isGenerating
                             ) {
                                 if (isGenerating) {
                                     CircularProgressIndicator(
