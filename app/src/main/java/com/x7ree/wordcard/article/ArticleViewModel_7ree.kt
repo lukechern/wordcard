@@ -213,9 +213,41 @@ val searchQuery: StateFlow<String> = state.searchQuery
             listHandler.initializeArticleFlow(viewModelScope)
         }
     }
-    fun paginationToggleFavorite(_articleId: Long) { /* ... */ }
-    fun paginationDeleteArticle(_articleId: Long) { /* ... */ }
-    fun paginationDeleteSelectedArticles() { /* ... */ }
+    fun paginationToggleFavorite(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                ArticleFavoriteHelper_7ree(articleRepository_7ree).toggleFavorite(articleId, viewModelScope) { result -> 
+                    state._operationResult.value = result 
+                }
+                // 刷新分页数据
+                paginationHandler.loadInitialArticles(viewModelScope)
+            } catch (e: Exception) {
+                state._operationResult.value = "操作失败: ${e.message}"
+            }
+        }
+    }
+    
+    fun paginationDeleteArticle(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                articleDeleteHelper.deleteArticleSync(articleId)
+                state._operationResult.value = "文章已删除"
+                // 刷新分页数据
+                paginationHandler.loadInitialArticles(viewModelScope)
+            } catch (e: Exception) {
+                state._operationResult.value = "删除失败: ${e.message}"
+            }
+        }
+    }
+    
+    fun paginationDeleteSelectedArticles() {
+        managementHandler.deleteSelectedArticles(viewModelScope)
+        // 删除完成后刷新分页数据
+        viewModelScope.launch {
+            kotlinx.coroutines.delay(1000) // 等待删除操作完成
+            paginationHandler.loadInitialArticles(viewModelScope)
+        }
+    }
     private fun handleNewArticleGenerated() {
         if (usePaginationMode.value) {
             paginationHandler.loadInitialArticles(viewModelScope)

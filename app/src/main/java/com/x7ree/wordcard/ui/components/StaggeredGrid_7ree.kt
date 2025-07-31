@@ -54,7 +54,7 @@ fun <T> StaggeredGrid_7ree(
         // 为每个子组件分配位置
         val itemPositions = mutableListOf<Pair<Int, Int>>() // x, y
         
-        placeables.forEachIndexed { _, placeable ->
+        @Suppress("UNUSED_PARAMETER") placeables.forEachIndexed { index, placeable ->
             // 找到最短的列
             val shortestColumnIndex = columnHeights.indices.minByOrNull { columnHeights[it] } ?: 0
             

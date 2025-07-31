@@ -8,7 +8,7 @@ class ArticleDeleteHelper_7ree(
     private val articleRepository_7ree: ArticleRepository_7ree
 ) {
     /**
-     * 删除文章
+     * 删除文章（异步回调方式）
      */
     fun deleteArticle(
         articleId: Long,
@@ -23,5 +23,12 @@ class ArticleDeleteHelper_7ree(
                 onResult("删除文章失败: ${e.message}")
             }
         }
+    }
+    
+    /**
+     * 删除文章（同步方式，用于批量删除）
+     */
+    suspend fun deleteArticleSync(articleId: Long) {
+        articleRepository_7ree.deleteArticle_7ree(articleId)
     }
 }

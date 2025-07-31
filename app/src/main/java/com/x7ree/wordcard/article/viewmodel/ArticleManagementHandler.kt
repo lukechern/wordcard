@@ -49,24 +49,16 @@ class ArticleManagementHandler(private val state: ArticleState, private val arti
                 var successCount = 0
                 var failCount = 0
 
-                selectedIds.forEach { articleId ->
+                // 使用同步方式删除文章，确保每个删除操作都完成
+                for (articleId in selectedIds) {
                     try {
-                        articleDeleteHelper.deleteArticle(
-                            articleId,
-                            scope
-                        ) { result ->
-                            if (result.contains("成功")) {
-                                successCount++
-                            } else {
-                                failCount++
-                            }
-                        }
+                        // 直接调用repository的删除方法，而不是通过helper的异步回调
+                        articleDeleteHelper.deleteArticleSync(articleId)
+                        successCount++
                     } catch (e: Exception) {
                         failCount++
                     }
                 }
-
-                delay(500)
 
                 val resultMessage = when {
                     failCount == 0 -> "成功删除 ${successCount} 篇文章"
