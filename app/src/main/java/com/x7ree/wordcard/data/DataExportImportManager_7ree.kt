@@ -32,9 +32,17 @@ data class ExportData_7ree(
     val words: List<WordEntity_7ree> = emptyList()
 )
 
+@Serializable
+data class ArticleExportData_7ree(
+    val exportTime: Long = System.currentTimeMillis(),
+    val version: String = "1.0",
+    val articles: List<ArticleEntity_7ree> = emptyList()
+)
+
 class DataExportImportManager_7ree(
     private val context: Context,
-    private val wordRepository_7ree: WordRepository_7ree
+    private val wordRepository_7ree: WordRepository_7ree,
+    private val articleRepository_7ree: ArticleRepository_7ree? = null
 ) {
     private val json = Json { 
         ignoreUnknownKeys = true 
@@ -57,7 +65,7 @@ class DataExportImportManager_7ree(
             val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
             dateFormat.timeZone = TimeZone.getDefault() // 显式设置为系统默认时区
             val timestamp = dateFormat.format(Date())
-            val fileName = "WordCard_7ree_Data_Export_${timestamp}.json"
+            val fileName = "WordCard_WordData_Export_7ree_${timestamp}.json"
             
             // 保存到外部存储的Downloads目录
             val downloadsDir = File(context.getExternalFilesDir(null), "Downloads")
@@ -145,14 +153,12 @@ class DataExportImportManager_7ree(
                         importedCount++
                     }
                 } catch (e: Exception) {
-                    // println("DEBUG: 导入单词 ${wordEntity_7ree.word} 失败: ${e.message}")
+                    // 单个记录导入失败不影响整体导入
                 }
             }
             
-            // println("DEBUG: 数据导入成功，共导入 $importedCount 条记录")
             Result.success(importedCount)
         } catch (e: Exception) {
-            // println("DEBUG: 数据导入失败: ${e.message}")
             Result.failure(e)
         }
     }
@@ -187,5 +193,105 @@ class DataExportImportManager_7ree(
     fun getDefaultExportDirectory_7ree(): String {
         val downloadsDir = File(context.getExternalFilesDir(null), "Downloads")
         return downloadsDir.absolutePath
+    }
+    
+    // 导出文章数据到文件
+    suspend fun exportArticleData_7ree(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            if (articleRepository_7ree == null) {
+                return@withContext Result.failure(Exception("文章仓库未初始化"))
+            }
+            
+            // 获取所有文章数据
+            val articles_7ree = articleRepository_7ree.getAllArticles_7ree().first()
+            
+            // 创建导出数据对象
+            val exportData_7ree = ArticleExportData_7ree(articles = articles_7ree)
+            
+            // 序列化为JSON
+            val jsonString = json.encodeToString(exportData_7ree)
+            
+            // 生成文件名
+            val dateFormat = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getDefault() // 显式设置为系统默认时区
+            val timestamp = dateFormat.format(Date())
+            val fileName = "WordCard_ArticleData_Export_7ree_${timestamp}.json"
+            
+            // 保存到外部存储的Downloads目录
+            val downloadsDir = File(context.getExternalFilesDir(null), "Downloads")
+            if (!downloadsDir.exists()) {
+                downloadsDir.mkdirs()
+            }
+            
+            val file = File(downloadsDir, fileName)
+            file.writeText(jsonString)
+            
+            // println("DEBUG: 文章数据导出成功，文件: ${file.absolutePath}")
+            // println("DEBUG: 文件大小: ${file.length()} bytes")
+            // println("DEBUG: 文件是否存在: ${file.exists()}")
+            Result.success(file.absolutePath)
+        } catch (e: Exception) {
+            // println("DEBUG: 文章数据导出失败: ${e.message}")
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+    
+    // 从文件导入文章数据
+    suspend fun importArticleData_7ree(uri: Uri): Result<Int> = withContext(Dispatchers.IO) {
+        try {
+            if (articleRepository_7ree == null) {
+                return@withContext Result.failure(Exception("文章仓库未初始化"))
+            }
+            
+            // 读取文件内容
+            val inputStream = context.contentResolver.openInputStream(uri)
+                ?: return@withContext Result.failure(Exception("无法打开文件"))
+            
+            val jsonString = inputStream.bufferedReader().use { it.readText() }
+            inputStream.close()
+            
+            // 反序列化数据
+            val exportData_7ree = json.decodeFromString<ArticleExportData_7ree>(jsonString)
+            
+            // 验证数据格式
+            if (exportData_7ree.articles.isEmpty()) {
+                return@withContext Result.failure(Exception("文件不包含有效的文章数据"))
+            }
+            
+            // 导入数据到数据库
+            var importedCount = 0
+            for (articleEntity_7ree in exportData_7ree.articles) {
+                try {
+                    // 检查是否已存在相同的文章（基于生成时间戳和关键词）
+                    val existingArticle = articleRepository_7ree.getArticle_7ree(articleEntity_7ree.id)
+                    if (existingArticle == null) {
+                        // 插入新记录，重置ID让数据库自动生成
+                        val articleToInsert = articleEntity_7ree.copy(id = 0)
+                        articleRepository_7ree.insertArticle_7ree(articleToInsert)
+                        importedCount++
+                    } else {
+                        // 更新现有记录（保留原有的浏览次数和收藏状态）
+                        val updatedArticle = existingArticle.copy(
+                            keyWords = articleEntity_7ree.keyWords,
+                            apiResult = articleEntity_7ree.apiResult,
+                            englishTitle = articleEntity_7ree.englishTitle,
+                            titleTranslation = articleEntity_7ree.titleTranslation,
+                            englishContent = articleEntity_7ree.englishContent,
+                            chineseContent = articleEntity_7ree.chineseContent,
+                            generationTimestamp = articleEntity_7ree.generationTimestamp
+                        )
+                        articleRepository_7ree.updateArticle_7ree(updatedArticle)
+                        importedCount++
+                    }
+                } catch (e: Exception) {
+                    // 单个记录导入失败不影响整体导入
+                }
+            }
+            
+            Result.success(importedCount)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

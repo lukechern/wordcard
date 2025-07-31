@@ -56,7 +56,7 @@ class WordQueryViewModel_7ree(
     
     // 核心服务
     private val configManager_7ree = AppConfigManager_7ree(context)
-    private val dataExportImportManager_7ree = DataExportImportManager_7ree(context, wordRepository_7ree)
+    private val dataExportImportManager_7ree = DataExportImportManager_7ree(context, wordRepository_7ree, articleRepository_7ree)
     private val coreTtsManager_7ree = CoreTtsManager(context)
     
     // 业务管理器

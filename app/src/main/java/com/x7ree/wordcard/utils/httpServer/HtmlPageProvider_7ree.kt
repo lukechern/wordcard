@@ -135,7 +135,7 @@ class HtmlPageProvider_7ree {
 <body>
     <div class="container">
         <h1>WordCard 数据管理</h1>
-        <p id="wordCountSubtitle" style="text-align: center; color: #666; margin-bottom: 20px;">正在加载单词记录数量...</p>
+        <p id="wordCountSubtitle" style="text-align: center; color: #666; margin-bottom: 20px;">正在加载数据统计...</p>
         
         <!-- Tab导航 -->
         <div class="tab-nav">
@@ -146,39 +146,74 @@ class HtmlPageProvider_7ree {
         
         <!-- 数据导出Tab -->
         <div id="export-tab" class="tab-content active">
+            <!-- 历史单词导出部分 -->
             <div class="section">
-                <h2>数据导出</h2>
+                <h2>历史单词导出</h2>
                 <p>导出您的单词查询历史数据为JSON格式文件</p>
-                <button onclick="exportData()">导出数据</button>
+                <button onclick="exportData()">历史单词导出</button>
                 <div class="loading" id="exportLoading">导出中...</div>
                 <div id="exportMessage"></div>
+            </div>
+            
+            <!-- 历史文章导出部分 -->
+            <div class="section" style="margin-top: 20px;">
+                <h2>历史文章导出</h2>
+                <p>导出您的文章单词数据为JSON格式文件</p>
+                <button onclick="exportArticleData()">历史文章导出</button>
+                <div class="loading" id="exportArticleLoading">导出中...</div>
+                <div id="exportArticleMessage"></div>
             </div>
         </div>
         
         <!-- 文件导入Tab -->
         <div id="import-tab" class="tab-content">
+            <!-- 历史单词导入部分 -->
             <div class="section">
-                <h2>文件导入</h2>
+                <h2>历史单词导入</h2>
                 <p>从JSON文件导入单词查询历史数据</p>
                 <div class="file-input">
                     <input type="file" id="importFile" accept=".json" />
                 </div>
-                <button onclick="importData()">导入数据</button>
+                <button onclick="importData()">历史单词导入</button>
                 <div class="loading" id="importLoading">导入中...</div>
                 <div id="importMessage"></div>
+            </div>
+            
+            <!-- 历史文章导入部分 -->
+            <div class="section" style="margin-top: 20px;">
+                <h2>历史文章导入</h2>
+                <p>从JSON文件导入文章单词数据</p>
+                <div class="file-input">
+                    <input type="file" id="importArticleFile" accept=".json" />
+                </div>
+                <button onclick="importArticleData()">历史文章导入</button>
+                <div class="loading" id="importArticleLoading">导入中...</div>
+                <div id="importArticleMessage"></div>
             </div>
         </div>
         
         <!-- 手动导入Tab -->
         <div id="manual-tab" class="tab-content">
+            <!-- 历史单词手动导入部分 -->
             <div class="section">
-                <h2>手动导入</h2>
-                <p>直接粘贴JSON数据进行导入</p>
-                <textarea id="jsonInput" placeholder="请粘贴JSON数据..."></textarea>
+                <h2>历史单词手动导入</h2>
+                <p>直接粘贴JSON数据进行历史单词导入</p>
+                <textarea id="jsonInput" placeholder="请粘贴历史单词JSON数据..."></textarea>
                 <br>
-                <button onclick="importFromText()">从文本导入</button>
+                <button onclick="importFromText()">历史单词手动导入</button>
                 <div class="loading" id="textImportLoading">导入中...</div>
                 <div id="textImportMessage"></div>
+            </div>
+            
+            <!-- 历史文章手动导入部分 -->
+            <div class="section" style="margin-top: 20px;">
+                <h2>历史文章手动导入</h2>
+                <p>直接粘贴JSON数据进行文章单词导入</p>
+                <textarea id="jsonArticleInput" placeholder="请粘贴文章单词JSON数据..."></textarea>
+                <br>
+                <button onclick="importArticleFromText()">历史文章手动导入</button>
+                <div class="loading" id="textArticleImportLoading">导入中...</div>
+                <div id="textArticleImportMessage"></div>
             </div>
         </div>
     </div>
@@ -244,20 +279,59 @@ class HtmlPageProvider_7ree {
                     const timeStr = String(now.getHours()).padStart(2, '0') + 
                                   String(now.getMinutes()).padStart(2, '0') + 
                                   String(now.getSeconds()).padStart(2, '0');
-                    a.download = 'WordCard_7ree_Data_Export_' + dateStr + '_' + timeStr + '.json';
+                    a.download = 'WordCard_WordData_Export_7ree_' + dateStr + '_' + timeStr + '.json';
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
                     window.URL.revokeObjectURL(url);
                     
-                    showMessage('exportMessage', '数据导出成功！文件已开始下载。');
+                    showMessage('exportMessage', '历史单词导出成功！文件已开始下载。');
                 } else {
-                    showMessage('exportMessage', '导出失败：' + response.statusText, true);
+                    showMessage('exportMessage', '历史单词导出失败：' + response.statusText, true);
                 }
             } catch (error) {
-                showMessage('exportMessage', '导出失败：' + error.message, true);
+                showMessage('exportMessage', '历史单词导出失败：' + error.message, true);
             } finally {
                 showLoading('exportLoading', false);
+            }
+        }
+        
+        async function exportArticleData() {
+            showLoading('exportArticleLoading', true);
+            document.getElementById('exportArticleMessage').innerHTML = '';
+            
+            try {
+                const response = await fetch('/export-article');
+                if (response.ok) {
+                    const data = await response.text();
+                    
+                    // 创建下载链接
+                    const blob = new Blob([data], { type: 'application/json' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    // 生成手机所在时区的时间格式：WordCard_7ree_Article_Export_20250724_164139.json
+                    const now = new Date();
+                    const dateStr = now.getFullYear() + 
+                                  String(now.getMonth() + 1).padStart(2, '0') + 
+                                  String(now.getDate()).padStart(2, '0');
+                    const timeStr = String(now.getHours()).padStart(2, '0') + 
+                                  String(now.getMinutes()).padStart(2, '0') + 
+                                  String(now.getSeconds()).padStart(2, '0');
+                    a.download = 'WordCard_ArticleData_Export_7ree_' + dateStr + '_' + timeStr + '.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    
+                    showMessage('exportArticleMessage', '历史文章导出成功！文件已开始下载。');
+                } else {
+                    showMessage('exportArticleMessage', '历史文章导出失败：' + response.statusText, true);
+                }
+            } catch (error) {
+                showMessage('exportArticleMessage', '历史文章导出失败：' + error.message, true);
+            } finally {
+                showLoading('exportArticleLoading', false);
             }
         }
         
@@ -297,18 +371,67 @@ class HtmlPageProvider_7ree {
             await performImport(jsonText, 'textImportMessage', 'textImportLoading');
         }
         
-        // 页面加载时获取单词数量
+        async function importArticleData() {
+            const fileInput = document.getElementById('importArticleFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('importArticleMessage', '请选择要导入的文件', true);
+                return;
+            }
+            
+            showLoading('importArticleLoading', true);
+            document.getElementById('importArticleMessage').innerHTML = '';
+            
+            try {
+                const text = await file.text();
+                await performArticleImport(text, 'importArticleMessage', 'importArticleLoading');
+            } catch (error) {
+                showMessage('importArticleMessage', '读取文件失败：' + error.message, true);
+                showLoading('importArticleLoading', false);
+            }
+        }
+        
+        async function importArticleFromText() {
+            const jsonInput = document.getElementById('jsonArticleInput');
+            const jsonText = jsonInput.value.trim();
+            
+            if (!jsonText) {
+                showMessage('textArticleImportMessage', '请输入JSON数据', true);
+                return;
+            }
+            
+            showLoading('textArticleImportLoading', true);
+            document.getElementById('textArticleImportMessage').innerHTML = '';
+            
+            await performArticleImport(jsonText, 'textArticleImportMessage', 'textArticleImportLoading');
+        }
+        
+        // 页面加载时获取单词和文章数量
         async function loadWordCount() {
             try {
-                const response = await fetch('/wordcount');
-                if (response.ok) {
-                    const result = await response.json();
-                    document.getElementById('wordCountSubtitle').textContent = 'APP共存储了' + result.count + '条单词记录';
-                } else {
-                    document.getElementById('wordCountSubtitle').textContent = 'APP共存储了--条单词记录';
+                const [wordResponse, articleResponse] = await Promise.all([
+                    fetch('/wordcount'),
+                    fetch('/articlecount')
+                ]);
+                
+                let wordCount = '--';
+                let articleCount = '--';
+                
+                if (wordResponse.ok) {
+                    const wordResult = await wordResponse.json();
+                    wordCount = wordResult.count;
                 }
+                
+                if (articleResponse.ok) {
+                    const articleResult = await articleResponse.json();
+                    articleCount = articleResult.count;
+                }
+                
+                document.getElementById('wordCountSubtitle').textContent = 
+                    'APP共存储了' + wordCount + '条单词记录和' + articleCount + '篇文章记录';
             } catch (error) {
-                document.getElementById('wordCountSubtitle').textContent = 'APP共存储了--条单词记录';
+                document.getElementById('wordCountSubtitle').textContent = 'APP共存储了--条单词记录和--篇文章记录';
             }
         }
         
@@ -359,6 +482,56 @@ class HtmlPageProvider_7ree {
                     showMessage(messageElementId, '无效的JSON格式', true);
                 } else {
                     showMessage(messageElementId, '导入失败：' + error.message, true);
+                }
+            } finally {
+                showLoading(loadingElementId, false);
+            }
+        }
+        
+        async function performArticleImport(jsonText, messageElementId, loadingElementId) {
+            try {
+                // 验证JSON格式
+                JSON.parse(jsonText);
+                
+                const response = await fetch('/import-article', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: jsonText
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showMessage(messageElementId, result.message);
+                        // 清空文件选择字段
+                        if (messageElementId === 'importArticleMessage') {
+                            document.getElementById('importArticleFile').value = '';
+                        } else if (messageElementId === 'textArticleImportMessage') {
+                            document.getElementById('jsonArticleInput').value = '';
+                        }
+                        // 导入成功后刷新单词数量
+                        loadWordCount();
+                    } else {
+                        showMessage(messageElementId, result.message, true);
+                    }
+                } else {
+                    // 处理HTTP错误状态
+                    const errorText = await response.text();
+                    try {
+                        const errorResult = JSON.parse(errorText);
+                        showMessage(messageElementId, errorResult.message || '历史文章导入失败', true);
+                    } catch (e) {
+                        showMessage(messageElementId, '历史文章导入失败：服务器错误 ' + response.status, true);
+                    }
+                }
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    showMessage(messageElementId, '无效的JSON格式', true);
+                } else {
+                    showMessage(messageElementId, '历史文章导入失败：' + error.message, true);
                 }
             } finally {
                 showLoading(loadingElementId, false);
