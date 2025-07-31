@@ -54,7 +54,7 @@ fun ArticleScreen_7ree(
     isGenerating: Boolean = false,
     showSmartGenerationCard: Boolean = false,
     smartGenerationStatus: String = "",
-    smartGenerationKeywords: List<String> = emptyList(),
+    @Suppress("UNUSED_PARAMETER") smartGenerationKeywords: List<String> = emptyList(),
     onCloseSmartGenerationCard: () -> Unit = {},
     currentSmartGenerationType: SmartGenerationType_7ree? = null,
     isRefreshing: Boolean = false,
@@ -71,7 +71,7 @@ fun ArticleScreen_7ree(
     onEnterManagementMode: () -> Unit = {},
     onExitManagementMode: () -> Unit = {},
     onToggleArticleSelection: (Long) -> Unit = {},
-    onToggleSelectAll: () -> Unit = {},
+    @Suppress("UNUSED_PARAMETER") onToggleSelectAll: () -> Unit = {},
     onDeleteSelectedArticles: () -> Unit = {},
     // 新增的分页相关参数
     usePaginationMode: Boolean = true,
