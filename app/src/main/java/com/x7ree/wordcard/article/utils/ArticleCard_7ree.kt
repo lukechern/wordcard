@@ -1,5 +1,6 @@
 package com.x7ree.wordcard.article.utils
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,7 +35,12 @@ fun ArticleCard_7ree(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onClick() },
+                .clickable { onClick() }
+                .border(
+                    width = 2.dp,
+                    color = if (isSelected) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else Color.Transparent,
+                    shape = RoundedCornerShape(12.dp)
+                ),
             shape = RoundedCornerShape(12.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
@@ -43,27 +49,11 @@ fun ArticleCard_7ree(
                     .fillMaxWidth()
                     .padding(12.dp)
             ) {
-                // 管理模式下的复选框和标题行
+                // 标题行
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // 管理模式下显示复选框
-                    if (isManagementMode) {
-                        IconButton(
-                            onClick = onToggleSelection,
-                            modifier = Modifier.size(24.dp)
-                        ) {
-                            Icon(
-                                imageVector = if (isSelected) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
-                                contentDescription = if (isSelected) "取消选择" else "选择",
-                                tint = if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(4.dp))
-                    }
-                    
                     // 标题（过滤星号标记）
                     Text(
                         text = cleanTextForPreview(article.englishTitle),
@@ -110,6 +100,21 @@ fun ArticleCard_7ree(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // 管理模式下显示复选框
+                    if (isManagementMode) {
+                        IconButton(
+                            onClick = onToggleSelection,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (isSelected) Icons.Default.CheckBox else Icons.Default.CheckBoxOutlineBlank,
+                                contentDescription = if (isSelected) "取消选择" else "选择",
+                                tint = if (isSelected) MaterialTheme.colorScheme.error else Color.Gray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    
                     Column {
                         // 生成时间
                         Text(
