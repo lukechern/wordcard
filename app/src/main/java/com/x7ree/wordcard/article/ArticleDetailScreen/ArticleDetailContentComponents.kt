@@ -124,8 +124,7 @@ fun ArticleContentTabs_7ree(
                     2 -> {
                         // 显示中英对照内容
                         BilingualComparisonContent_7ree(
-                            englishContent = article.englishContent,
-                            chineseContent = article.chineseContent
+                            bilingualComparison = article.bilingualComparison
                         )
                     }
                 }

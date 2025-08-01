@@ -17,5 +17,6 @@ data class ArticleEntity_7ree(
     val titleTranslation: String,        // 标题翻译
     val englishContent: String,          // 英文文章内容
     val chineseContent: String,          // 中文翻译文章内容
+    val bilingualComparison: String = "",// 中英对照内容
     val isFavorite: Boolean = false      // 是否收藏状态
 )

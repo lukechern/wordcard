@@ -2,22 +2,7 @@ package com.x7ree.wordcard.article
 
 import android.util.Log
 
-/**
- * 文章Markdown解析器
- * 专门用于解析API返回的文章Markdown格式数据
- * 
- * 支持的新模板格式：
- * ### 英文标题
- * {title}
- * ### 英文文章内容
- * {content}
- * ### 重点单词
- * {keywords}
- * ### 中文标题
- * {title translation}
- * ### 中文文章内容
- * {content translation}
- */
+
 class ArticleMarkdownParser_7ree {
     
     companion object {
@@ -33,6 +18,7 @@ class ArticleMarkdownParser_7ree {
         val englishContent: String,
         val chineseContent: String,
         val keywords: String,
+        val bilingualComparison: String, // 新增：中英对照内容
         // 新增：用于朗读的清理文本
         val englishContentForTts: String,
         val chineseContentForTts: String,
@@ -42,70 +28,98 @@ class ArticleMarkdownParser_7ree {
     
     /**
      * 解析文章Markdown内容
-     * 使用新的模板格式进行解析
+     * 使用新的模板格式进行解析，支持中英对照格式
      */
     fun parseArticleMarkdown(markdownContent: String): ArticleParseResult {
-        Log.d(TAG, "开始解析文章Markdown内容")
+        Log.d(TAG, "==================== 开始解析文章Markdown内容 ====================")
         Log.d(TAG, "原始内容长度: ${markdownContent.length}")
-        Log.d(TAG, "原始内容: $markdownContent")
+        Log.d(TAG, "原始API返回内容:")
+        Log.d(TAG, "---BEGIN API CONTENT---")
+        Log.d(TAG, markdownContent)
+        Log.d(TAG, "---END API CONTENT---")
         
         return try {
             // 使用正则表达式解析各个部分
+            Log.d(TAG, "开始提取各个章节...")
             val englishTitle = extractSection(markdownContent, "英文标题")
-            val englishContent = extractSection(markdownContent, "英文文章内容")
-            val keywords = extractSection(markdownContent, "重点单词")
             val chineseTitle = extractSection(markdownContent, "中文标题")
-            val chineseContent = extractSection(markdownContent, "中文文章内容")
+            val keywords = extractSection(markdownContent, "重点单词")
+            val bilingualComparison = extractSection(markdownContent, "中英文章对照")
             
-            Log.d(TAG, "解析结果:")
+            Log.d(TAG, "章节提取完成，开始提取英文和中文内容...")
+            // 从API返回内容中提取英文和中文内容
+            val englishContent = extractEnglishContent(markdownContent)
+            val chineseContent = extractChineseContent(markdownContent)
+            
+            Log.d(TAG, "==================== 原始解析结果 ====================")
             Log.d(TAG, "英文标题: '$englishTitle'")
-            Log.d(TAG, "英文内容长度: ${englishContent.length}")
-            Log.d(TAG, "关键词: '$keywords'")
             Log.d(TAG, "中文标题: '$chineseTitle'")
+            Log.d(TAG, "关键词: '$keywords'")
+            Log.d(TAG, "中英对照长度: ${bilingualComparison.length}")
+            Log.d(TAG, "中英对照内容预览: ${bilingualComparison.take(200)}...")
+            Log.d(TAG, "英文内容长度: ${englishContent.length}")
+            Log.d(TAG, "英文内容: '$englishContent'")
             Log.d(TAG, "中文内容长度: ${chineseContent.length}")
+            Log.d(TAG, "中文内容: '$chineseContent'")
             
             // 处理默认值
-            val finalEnglishTitle = englishTitle.ifEmpty { "Generated Article" }
-            val finalChineseTitle = chineseTitle.ifEmpty { generateChineseTitle(englishTitle) }
-            val finalEnglishContent = englishContent.ifEmpty { markdownContent }
-            val finalChineseContent = chineseContent.ifEmpty { "翻译暂不可用" }
-            val finalKeywords = filterKeywords(keywords).ifEmpty { "无关键词" }
+            val processedEnglishTitle = englishTitle.ifEmpty { "Generated Article" }
+            val processedChineseTitle = chineseTitle.ifEmpty { generateChineseTitle(englishTitle) }
+            val processedKeywords = filterKeywords(keywords).ifEmpty { "无关键词" }
+            val processedBilingualComparison = if (bilingualComparison.isEmpty()) {
+                "暂无中英对照内容"
+            } else {
+                cleanBilingualComparison(bilingualComparison)
+            }
+            val processedEnglishContent = englishContent.ifEmpty { "暂无英文内容" }
+            val processedChineseContent = chineseContent.ifEmpty { "暂无中文内容" }
+            
+            Log.d(TAG, "==================== 处理后的内容 ====================")
+            Log.d(TAG, "处理后英文内容: '$processedEnglishContent'")
+            Log.d(TAG, "处理后中文内容: '$processedChineseContent'")
             
             val result = ArticleParseResult(
-                englishTitle = finalEnglishTitle,
-                chineseTitle = finalChineseTitle,
-                englishContent = finalEnglishContent,
-                chineseContent = finalChineseContent,
-                keywords = finalKeywords,
+                englishTitle = processedEnglishTitle,
+                chineseTitle = processedChineseTitle,
+                englishContent = processedEnglishContent,
+                chineseContent = processedChineseContent,
+                keywords = processedKeywords,
+                bilingualComparison = processedBilingualComparison,
                 // 生成用于TTS的清理文本
-                englishTitleForTts = cleanTextForTts(finalEnglishTitle),
-                chineseTitleForTts = cleanTextForTts(finalChineseTitle),
-                englishContentForTts = cleanTextForTts(finalEnglishContent),
-                chineseContentForTts = cleanTextForTts(finalChineseContent)
+                englishTitleForTts = cleanTextForTts(processedEnglishTitle),
+                chineseTitleForTts = cleanTextForTts(processedChineseTitle),
+                englishContentForTts = cleanTextForTts(processedEnglishContent),
+                chineseContentForTts = cleanTextForTts(processedChineseContent)
             )
             
-            Log.d(TAG, "最终解析结果:")
+            Log.d(TAG, "==================== 最终解析结果 ====================")
             Log.d(TAG, "英文标题: ${result.englishTitle}")
             Log.d(TAG, "中文标题: ${result.chineseTitle}")
             Log.d(TAG, "英文内容长度: ${result.englishContent.length}")
+            Log.d(TAG, "英文内容: ${result.englishContent}")
             Log.d(TAG, "中文内容长度: ${result.chineseContent.length}")
+            Log.d(TAG, "中文内容: ${result.chineseContent}")
+            Log.d(TAG, "中英对照长度: ${result.bilingualComparison.length}")
             Log.d(TAG, "关键词: ${result.keywords}")
+            Log.d(TAG, "==================== 解析完成 ====================")
             
             result
             
         } catch (e: Exception) {
             Log.e(TAG, "解析失败: ${e.message}", e)
+            Log.e(TAG, "异常堆栈:", e)
             // 解析失败时返回默认结果
             ArticleParseResult(
                 englishTitle = "Generated Article",
                 chineseTitle = "生成的文章",
-                englishContent = markdownContent,
-                chineseContent = "翻译暂不可用",
+                englishContent = "解析失败",
+                chineseContent = "解析失败",
                 keywords = "解析失败",
+                bilingualComparison = markdownContent,
                 englishTitleForTts = "Generated Article",
                 chineseTitleForTts = "生成的文章",
-                englishContentForTts = cleanTextForTts(markdownContent),
-                chineseContentForTts = "翻译暂不可用"
+                englishContentForTts = "解析失败",
+                chineseContentForTts = "解析失败"
             )
         }
     }
@@ -218,6 +232,110 @@ class ArticleMarkdownParser_7ree {
         // 这个方法保留原始的Markdown格式，供UI组件渲染使用
         // UI组件（如Compose的Text或MarkdownText）会自动处理**和***标记
         return text
+    }
+    
+    /**
+     * 从API返回内容中提取英文内容
+     * 拼接全部[英文]开头的行
+     * @param markdownContent API返回的完整内容
+     * @return 拼接后的英文内容
+     */
+    private fun extractEnglishContent(markdownContent: String): String {
+        Log.d(TAG, "开始提取英文内容")
+        
+        val englishSentences = mutableListOf<String>()
+        
+        try {
+            // 修正正则表达式：匹配 [英文]内容 格式（没有大括号）
+            val englishRegex = Regex("\\[英文\\](.+?)(?=\\s*\\[中文\\]|\\s*$)", RegexOption.DOT_MATCHES_ALL)
+            
+            // 提取所有英文句子
+            englishRegex.findAll(markdownContent).forEach { matchResult ->
+                val sentence = matchResult.groupValues[1].trim()
+                if (sentence.isNotEmpty()) {
+                    englishSentences.add(sentence)
+                    Log.d(TAG, "找到英文句子: '$sentence'")
+                }
+            }
+            
+            Log.d(TAG, "提取到 ${englishSentences.size} 个英文句子")
+            
+            // 将句子拼接成完整内容，每行之间加换行符
+            val englishContent = englishSentences.joinToString("\n")
+            
+            Log.d(TAG, "英文内容拼接完成，长度: ${englishContent.length}")
+            Log.d(TAG, "英文内容: '$englishContent'")
+            
+            return englishContent
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "提取英文内容失败: ${e.message}", e)
+            return ""
+        }
+    }
+    
+    /**
+     * 从API返回内容中提取中文内容
+     * 拼接全部[中文]开头的行
+     * @param markdownContent API返回的完整内容
+     * @return 拼接后的中文内容
+     */
+    private fun extractChineseContent(markdownContent: String): String {
+        Log.d(TAG, "开始提取中文内容")
+        
+        val chineseSentences = mutableListOf<String>()
+        
+        try {
+            // 修正正则表达式：匹配 [中文]内容 格式（没有大括号）
+            val chineseRegex = Regex("\\[中文\\](.+?)(?=\\s*\\[英文\\]|\\s*$)", RegexOption.DOT_MATCHES_ALL)
+            
+            // 提取所有中文句子
+            chineseRegex.findAll(markdownContent).forEach { matchResult ->
+                val sentence = matchResult.groupValues[1].trim()
+                if (sentence.isNotEmpty()) {
+                    chineseSentences.add(sentence)
+                    Log.d(TAG, "找到中文句子: '$sentence'")
+                }
+            }
+            
+            Log.d(TAG, "提取到 ${chineseSentences.size} 个中文句子")
+            
+            // 将句子拼接成完整内容，每行之间加换行符
+            val chineseContent = chineseSentences.joinToString("\n")
+            
+            Log.d(TAG, "中文内容拼接完成，长度: ${chineseContent.length}")
+            Log.d(TAG, "中文内容: '$chineseContent'")
+            
+            return chineseContent
+            
+        } catch (e: Exception) {
+            Log.e(TAG, "提取中文内容失败: ${e.message}", e)
+            return ""
+        }
+    }
+    
+    /**
+     * 清理中英对照内容，删除每行开头的"[英文]"和"[中文]"
+     * @param bilingualComparison 原始中英对照内容
+     * @return 清理后的中英对照内容
+     */
+    private fun cleanBilingualComparison(bilingualComparison: String): String {
+        Log.d(TAG, "开始清理中英对照内容")
+        
+        return try {
+            val cleanedContent = bilingualComparison
+                .replace(Regex("\\[英文\\]"), "") // 删除 [英文]
+                .replace(Regex("\\[中文\\]"), "") // 删除 [中文]
+                .replace(Regex("\\n\\s*\\n"), "\n") // 将多个连续换行符替换为单个换行符
+                .trim()
+            
+            Log.d(TAG, "中英对照内容清理完成，长度: ${cleanedContent.length}")
+            
+            cleanedContent
+        } catch (e: Exception) {
+            Log.e(TAG, "清理中英对照内容失败: ${e.message}", e)
+            bilingualComparison // 失败时返回原始内容
+        }
     }
     
     /**
