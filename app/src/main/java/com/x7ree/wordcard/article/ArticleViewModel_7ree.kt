@@ -30,10 +30,10 @@ class ArticleViewModel_7ree(
 private val state = ArticleState()
 
     private val articleListHelper = ArticleListHelper_7ree(articleRepository_7ree)
-    private val articleGenerationHelper = ArticleGenerationHelper2_7ree(apiService_7ree, AppConfigManager_7ree(context), articleRepository_7ree, ArticleGenerationHelper_7ree(wordRepository_7ree, articleRepository_7ree, apiService_7ree))
+    private val articleGenerationHelper = ArticleGenerationHelper2_7ree(apiService_7ree, AppConfigManager_7ree(context), articleRepository_7ree, ArticleGenerationHelper_7ree(wordRepository_7ree, articleRepository_7ree, apiService_7ree), wordRepository_7ree)
     private val articleDetailHelper = ArticleDetailHelper_7ree(articleRepository_7ree, wordRepository_7ree)
     private val articleTtsHelper = ArticleTtsHelper_7ree(context)
-    private val articleDeleteHelper = ArticleDeleteHelper_7ree(articleRepository_7ree)
+    private val articleDeleteHelper = ArticleDeleteHelper_7ree(articleRepository_7ree, wordRepository_7ree)
     private val articlePaginationHandler = ArticlePaginationHandler_7ree(articleRepository_7ree)
 
     private val listHandler = ArticleListHandler(state, articleListHelper)

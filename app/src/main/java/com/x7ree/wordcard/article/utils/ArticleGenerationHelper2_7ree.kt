@@ -4,6 +4,7 @@ import android.util.Log
 import com.x7ree.wordcard.api.OpenAiApiService_7ree
 import com.x7ree.wordcard.config.AppConfigManager_7ree
 import com.x7ree.wordcard.data.ArticleRepository_7ree
+import com.x7ree.wordcard.data.WordRepository_7ree
 import com.x7ree.wordcard.article.ArticleMarkdownParser_7ree
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -12,7 +13,8 @@ class ArticleGenerationHelper2_7ree(
     private val apiService_7ree: OpenAiApiService_7ree,
     private val appConfigManager_7ree: AppConfigManager_7ree,
     private val articleRepository_7ree: ArticleRepository_7ree,
-    private val articleGenerationHelper_7ree: ArticleGenerationHelper_7ree
+    private val articleGenerationHelper_7ree: ArticleGenerationHelper_7ree,
+    private val wordRepository_7ree: WordRepository_7ree? = null
 ) {
     companion object {
         private const val TAG = "ArticleGenerationHelper2"
@@ -97,6 +99,10 @@ class ArticleGenerationHelper2_7ree(
                 
                 Log.d(TAG, "文章保存成功，ID: $articleId")
                 
+                // 更新相关单词的引用次数
+                updateWordReferenceCount(parsedResult.keywords)
+                Log.d(TAG, "单词引用次数更新完成")
+                
                 // 确保数据库操作完成后再发出成功消息
                 // 添加短暂延时确保数据库事务完成
                 kotlinx.coroutines.delay(100)
@@ -109,6 +115,36 @@ class ArticleGenerationHelper2_7ree(
                 onResult("文章生成失败: ${e.message}")
             } finally {
                 onGenerating(false)
+            }
+        }
+    }
+    
+    /**
+     * 更新相关单词的引用次数
+     */
+    private suspend fun updateWordReferenceCount(keywords: String) {
+        // 检查 wordRepository_7ree 是否为空
+        wordRepository_7ree ?: return
+        
+        // 解析关键词字符串，通常是以逗号分隔的单词列表
+        val words = keywords.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+        
+        // 对每个关键词更新引用次数
+        for (word in words) {
+            try {
+                // 获取当前单词记录
+                val wordEntity = wordRepository_7ree.getWord_7ree(word)
+                
+                // 如果单词存在，更新其引用次数
+                wordEntity?.let {
+                    val newReferenceCount = it.referenceCount + 1
+                    wordRepository_7ree.updateReferenceCount_7ree(word, newReferenceCount)
+                    Log.d(TAG, "单词 '$word' 的引用次数已更新为 $newReferenceCount")
+                } ?: run {
+                    Log.w(TAG, "单词 '$word' 不存在于数据库中，无法更新引用次数")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "更新单词 '$word' 的引用次数时出错: ${e.message}", e)
             }
         }
     }

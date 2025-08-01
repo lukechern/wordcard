@@ -140,8 +140,8 @@ interface WordDao_7ree {
     @Query("SELECT * FROM words ORDER BY spellingCount DESC LIMIT :limit OFFSET :offset")
     suspend fun getWordsPagedBySpellingCountDesc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
     
-    // 按引用次数排序（升序）
-    @Query("SELECT * FROM words ORDER BY referenceCount ASC LIMIT :limit OFFSET :offset")
+    // 按引用次数排序（升序），引用次数相同时按记录时间排序
+    @Query("SELECT * FROM words ORDER BY referenceCount ASC, queryTimestamp ASC LIMIT :limit OFFSET :offset")
     suspend fun getWordsPagedByReferenceCountAsc_7ree(limit: Int, offset: Int): List<WordEntity_7ree>
     
     // 按引用次数排序（降序）
