@@ -32,6 +32,22 @@ fun rememberDataManagementState_7ree(
         mutableStateOf(sharedPrefs.getBoolean("phone_operation_enabled", true)) // 默认开启
     }
     
+    // CloudFlare操作开关状态
+    var isCloudFlareEnabled by remember { 
+        mutableStateOf(sharedPrefs.getBoolean("cloudflare_enabled", false)) // 默认关闭
+    }
+    
+    // CloudFlare配置参数
+    var databaseId by remember { 
+        mutableStateOf(sharedPrefs.getString("cloudflare_database_id", "") ?: "") 
+    }
+    var apiToken by remember { 
+        mutableStateOf(sharedPrefs.getString("cloudflare_api_token", "") ?: "") 
+    }
+    var accountId by remember { 
+        mutableStateOf(sharedPrefs.getString("cloudflare_account_id", "") ?: "") 
+    }
+    
     // 初始化HTTP服务器管理器（使用全局实例）
     LaunchedEffect(Unit) {
         // Log.d("DataManagement", "=== 进入页面，开始初始化 ===")
@@ -150,11 +166,18 @@ fun rememberDataManagementState_7ree(
             // Log.d("DataManagement", "=== 用户点击电脑操作开关 ===")
             // Log.d("DataManagement", "开关从 $isServerEnabled 切换到 $newState")
             
-            // 如果开启电脑操作，先关闭手机操作
-            if (newState && isPhoneOperationEnabled) {
-                isPhoneOperationEnabled = false
-                sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
-                // Log.d("DataManagement", "电脑操作开启，自动关闭手机操作")
+            // 如果开启电脑操作，先关闭手机操作和CloudFlare操作
+            if (newState) {
+                if (isPhoneOperationEnabled) {
+                    isPhoneOperationEnabled = false
+                    sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
+                    // Log.d("DataManagement", "电脑操作开启，自动关闭手机操作")
+                }
+                if (isCloudFlareEnabled) {
+                    isCloudFlareEnabled = false
+                    sharedPrefs.edit().putBoolean("cloudflare_enabled", false).apply()
+                    // Log.d("DataManagement", "电脑操作开启，自动关闭CloudFlare操作")
+                }
             }
             
             // 然后设置电脑操作状态
@@ -170,11 +193,18 @@ fun rememberDataManagementState_7ree(
             // Log.d("DataManagement", "=== 用户点击手机操作开关 ===")
             // Log.d("DataManagement", "手机操作开关从 $isPhoneOperationEnabled 切换到 $newState")
             
-            // 如果开启手机操作，先关闭电脑操作
-            if (newState && isServerEnabled) {
-                isServerEnabled = false
-                sharedPrefs.edit().putBoolean("server_enabled", false).apply()
-                // Log.d("DataManagement", "手机操作开启，自动关闭电脑操作")
+            // 如果开启手机操作，先关闭电脑操作和CloudFlare操作
+            if (newState) {
+                if (isServerEnabled) {
+                    isServerEnabled = false
+                    sharedPrefs.edit().putBoolean("server_enabled", false).apply()
+                    // Log.d("DataManagement", "手机操作开启，自动关闭电脑操作")
+                }
+                if (isCloudFlareEnabled) {
+                    isCloudFlareEnabled = false
+                    sharedPrefs.edit().putBoolean("cloudflare_enabled", false).apply()
+                    // Log.d("DataManagement", "手机操作开启，自动关闭CloudFlare操作")
+                }
             }
             
             // 然后设置手机操作状态
@@ -183,6 +213,41 @@ fun rememberDataManagementState_7ree(
             // 保存手机操作状态到SharedPreferences
             sharedPrefs.edit().putBoolean("phone_operation_enabled", newState).commit()
             // Log.d("DataManagement", "保存手机操作状态结果: $saveResult")
+        },
+        isCloudFlareEnabled = isCloudFlareEnabled,
+        onCloudFlareToggle = { newState ->
+            // 如果开启CloudFlare操作，先关闭电脑操作和手机操作
+            if (newState) {
+                if (isServerEnabled) {
+                    isServerEnabled = false
+                    sharedPrefs.edit().putBoolean("server_enabled", false).apply()
+                }
+                if (isPhoneOperationEnabled) {
+                    isPhoneOperationEnabled = false
+                    sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
+                }
+            }
+            
+            // 设置CloudFlare操作状态
+            isCloudFlareEnabled = newState
+            
+            // 保存CloudFlare操作状态到SharedPreferences
+            sharedPrefs.edit().putBoolean("cloudflare_enabled", newState).commit()
+        },
+        databaseId = databaseId,
+        onDatabaseIdChange = { newValue ->
+            databaseId = newValue
+            sharedPrefs.edit().putString("cloudflare_database_id", newValue).apply()
+        },
+        apiToken = apiToken,
+        onApiTokenChange = { newValue ->
+            apiToken = newValue
+            sharedPrefs.edit().putString("cloudflare_api_token", newValue).apply()
+        },
+        accountId = accountId,
+        onAccountIdChange = { newValue ->
+            accountId = newValue
+            sharedPrefs.edit().putString("cloudflare_account_id", newValue).apply()
         }
     )
 }
@@ -196,5 +261,13 @@ data class DataManagementState_7ree(
     val httpServerManager: HttpServerManager_7ree?,
     val onServerToggle: (Boolean) -> Unit,
     val isPhoneOperationEnabled: Boolean,
-    val onPhoneOperationToggle: (Boolean) -> Unit
+    val onPhoneOperationToggle: (Boolean) -> Unit,
+    val isCloudFlareEnabled: Boolean,
+    val onCloudFlareToggle: (Boolean) -> Unit,
+    val databaseId: String,
+    val onDatabaseIdChange: (String) -> Unit,
+    val apiToken: String,
+    val onApiTokenChange: (String) -> Unit,
+    val accountId: String,
+    val onAccountIdChange: (String) -> Unit
 )

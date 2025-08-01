@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.ServerControlSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.PhoneOperationSection_7ree
+import com.x7ree.wordcard.ui.DashBoard.DataManagement.CloudFlareOperationSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.rememberDataManagementState_7ree
 import kotlinx.coroutines.flow.first
 
@@ -126,6 +127,21 @@ fun DataManagementTab_7ree(
             onImportArticleFile_7ree = onImportArticleFile_7ree,
             isPhoneOperationEnabled = dataManagementState.isPhoneOperationEnabled,
             onPhoneOperationToggle = dataManagementState.onPhoneOperationToggle
+        )
+        
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        // CloudFlare操作区域
+        CloudFlareOperationSection_7ree(
+            wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+            isCloudFlareEnabled = dataManagementState.isCloudFlareEnabled,
+            onCloudFlareToggle = dataManagementState.onCloudFlareToggle,
+            databaseId = dataManagementState.databaseId,
+            onDatabaseIdChange = dataManagementState.onDatabaseIdChange,
+            apiToken = dataManagementState.apiToken,
+            onApiTokenChange = dataManagementState.onApiTokenChange,
+            accountId = dataManagementState.accountId,
+            onAccountIdChange = dataManagementState.onAccountIdChange
         )
         
         Spacer(modifier = Modifier.height(16.dp))
