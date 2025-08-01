@@ -260,8 +260,8 @@ class ArticleMarkdownParser_7ree {
             
             Log.d(TAG, "提取到 ${englishSentences.size} 个英文句子")
             
-            // 将句子拼接成完整内容，每行之间加换行符
-            val englishContent = englishSentences.joinToString("\n")
+            // 将句子拼接成完整内容，每行之间加2个换行符以加大间距
+            val englishContent = englishSentences.joinToString("\n\n")
             
             Log.d(TAG, "英文内容拼接完成，长度: ${englishContent.length}")
             Log.d(TAG, "英文内容: '$englishContent'")
@@ -300,8 +300,8 @@ class ArticleMarkdownParser_7ree {
             
             Log.d(TAG, "提取到 ${chineseSentences.size} 个中文句子")
             
-            // 将句子拼接成完整内容，每行之间加换行符
-            val chineseContent = chineseSentences.joinToString("\n")
+            // 将句子拼接成完整内容，每行之间加2个换行符以加大间距
+            val chineseContent = chineseSentences.joinToString("\n\n")
             
             Log.d(TAG, "中文内容拼接完成，长度: ${chineseContent.length}")
             Log.d(TAG, "中文内容: '$chineseContent'")
@@ -315,7 +315,7 @@ class ArticleMarkdownParser_7ree {
     }
     
     /**
-     * 清理中英对照内容，删除每行开头的"[英文]"和"[中文]"
+     * 清理中英对照内容，删除每行开头的"[英文]"和"[中文]"，并在每对中英对照段落之间添加空行
      * @param bilingualComparison 原始中英对照内容
      * @return 清理后的中英对照内容
      */
@@ -323,18 +323,55 @@ class ArticleMarkdownParser_7ree {
         Log.d(TAG, "开始清理中英对照内容")
         
         return try {
-            val cleanedContent = bilingualComparison
-                .replace(Regex("\\[英文\\]"), "") // 删除 [英文]
-                .replace(Regex("\\[中文\\]"), "") // 删除 [中文]
-                .replace(Regex("\\n\\s*\\n"), "\n") // 将多个连续换行符替换为单个换行符
-                .trim()
+            // 先按行分割内容
+            val lines = bilingualComparison.split("\n")
+            val cleanedLines = mutableListOf<String>()
+            
+            for (line in lines) {
+                val trimmedLine = line.trim()
+                if (trimmedLine.isNotEmpty()) {
+                    // 删除 [英文] 和 [中文] 标记
+                    val cleanedLine = trimmedLine
+                        .replace(Regex("^\\[英文\\]"), "")
+                        .replace(Regex("^\\[中文\\]"), "")
+                        .trim()
+                    
+                    if (cleanedLine.isNotEmpty()) {
+                        cleanedLines.add(cleanedLine)
+                        
+                        // 如果这是中文行（通过检查是否包含中文字符），在后面添加空行
+                        if (containsChinese(cleanedLine)) {
+                            cleanedLines.add("") // 添加空行
+                        }
+                    }
+                }
+            }
+            
+            // 移除最后的空行（如果有的话）
+            while (cleanedLines.isNotEmpty() && cleanedLines.last().isEmpty()) {
+                cleanedLines.removeAt(cleanedLines.size - 1)
+            }
+            
+            val cleanedContent = cleanedLines.joinToString("\n")
             
             Log.d(TAG, "中英对照内容清理完成，长度: ${cleanedContent.length}")
+            Log.d(TAG, "清理后内容预览: ${cleanedContent.take(200)}...")
             
             cleanedContent
         } catch (e: Exception) {
             Log.e(TAG, "清理中英对照内容失败: ${e.message}", e)
             bilingualComparison // 失败时返回原始内容
+        }
+    }
+    
+    /**
+     * 检查字符串是否包含中文字符
+     * @param text 要检查的文本
+     * @return 是否包含中文字符
+     */
+    private fun containsChinese(text: String): Boolean {
+        return text.any { char ->
+            char.code in 0x4E00..0x9FFF // 中文字符的Unicode范围
         }
     }
     

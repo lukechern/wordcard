@@ -155,10 +155,6 @@ private fun RightEdgeSwipeArea(
                     }
                 ) { _, dragAmount ->
                     dragCount++
-
-
-                    val oldCurrentX = currentX
-                    val oldCurrentY = currentY
                     currentX += dragAmount.x
                     currentY += dragAmount.y
                     
