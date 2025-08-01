@@ -13,6 +13,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.ServerControlSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.PhoneOperationSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.rememberDataManagementState_7ree
+import kotlinx.coroutines.flow.first
 
 /**
  * 数据管理标签页 - 重构后的简化版本
@@ -27,14 +28,18 @@ fun DataManagementTab_7ree(
     
     // 获取单词记录数量 - 使用状态来存储
     var wordCount by remember { mutableStateOf(0) }
+    // 获取文章记录数量 - 使用状态来存储
+    var articleCount by remember { mutableStateOf(0) }
     
-    // 在组件初始化时获取单词数量
+    // 在组件初始化时获取单词和文章数量
     LaunchedEffect(Unit) {
         try {
             val dataExportImportManager = wordQueryViewModel_7ree.getDataExportImportManager()
-            val result = dataExportImportManager.exportData_7ree()
-            if (result.isSuccess) {
-                val filePath = result.getOrNull()
+            
+            // 获取单词数量
+            val wordResult = dataExportImportManager.exportData_7ree()
+            if (wordResult.isSuccess) {
+                val filePath = wordResult.getOrNull()
                 if (filePath != null) {
                     val file = java.io.File(filePath)
                     if (file.exists()) {
@@ -45,6 +50,29 @@ fun DataManagementTab_7ree(
                                 val wordsArray = jsonElement["words"]
                                 if (wordsArray is kotlinx.serialization.json.JsonArray) {
                                     wordCount = wordsArray.size
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // 解析失败，保持默认值0
+                        }
+                    }
+                }
+            }
+            
+            // 获取文章数量
+            val articleResult = dataExportImportManager.exportArticleData_7ree()
+            if (articleResult.isSuccess) {
+                val filePath = articleResult.getOrNull()
+                if (filePath != null) {
+                    val file = java.io.File(filePath)
+                    if (file.exists()) {
+                        val content = file.readText()
+                        try {
+                            val jsonElement = kotlinx.serialization.json.Json.parseToJsonElement(content)
+                            if (jsonElement is kotlinx.serialization.json.JsonObject) {
+                                val articlesArray = jsonElement["articles"]
+                                if (articlesArray is kotlinx.serialization.json.JsonArray) {
+                                    articleCount = articlesArray.size
                                 }
                             }
                         } catch (e: Exception) {
@@ -75,7 +103,7 @@ fun DataManagementTab_7ree(
         )
         
         Text(
-            text = "共存储了${wordCount}条单词记录",
+            text = "共存储了${wordCount}条单词记录和${articleCount}篇文章记录",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 16.dp)
