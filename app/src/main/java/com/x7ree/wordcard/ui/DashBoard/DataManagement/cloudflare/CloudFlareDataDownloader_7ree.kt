@@ -121,9 +121,9 @@ class CloudFlareDataDownloader_7ree(
             onProgress("正在查询云端单词数据...")
             
             val querySql = """
-                SELECT word, translation, pronunciation, query_time, source, created_at, updated_at
+                SELECT word, apiResult, queryTimestamp, viewCount, isFavorite, spellingCount, chineseDefinition, phonetic, partOfSpeech, referenceCount
                 FROM words 
-                ORDER BY created_at DESC
+                ORDER BY queryTimestamp DESC
             """.trimIndent()
             
             val result = apiClient.executeQuery(querySql)
@@ -139,13 +139,16 @@ class CloudFlareDataDownloader_7ree(
             val wordDataList = results.mapNotNull { row ->
                 try {
                     WordData(
-                        word = row["word"]?.jsonPrimitive?.content ?: "",
-                        translation = row["translation"]?.jsonPrimitive?.content ?: "",
-                        pronunciation = row["pronunciation"]?.jsonPrimitive?.content ?: "",
-                        queryTime = row["query_time"]?.jsonPrimitive?.longOrNull ?: 0L,
-                        source = row["source"]?.jsonPrimitive?.content ?: "",
-                        createdAt = row["created_at"]?.jsonPrimitive?.longOrNull ?: 0L,
-                        updatedAt = row["updated_at"]?.jsonPrimitive?.longOrNull ?: 0L
+                        word = decodeHtmlEntities(row["word"]?.jsonPrimitive?.content ?: ""),
+                        apiResult = decodeHtmlEntities(row["apiResult"]?.jsonPrimitive?.content ?: ""),
+                        queryTimestamp = row["queryTimestamp"]?.jsonPrimitive?.longOrNull ?: 0L,
+                        viewCount = row["viewCount"]?.jsonPrimitive?.intOrNull ?: 0,
+                        isFavorite = row["isFavorite"]?.jsonPrimitive?.intOrNull == 1,
+                        spellingCount = row["spellingCount"]?.jsonPrimitive?.intOrNull ?: 0,
+                        chineseDefinition = decodeHtmlEntities(row["chineseDefinition"]?.jsonPrimitive?.content ?: ""),
+                        phonetic = decodeHtmlEntities(row["phonetic"]?.jsonPrimitive?.content ?: ""),
+                        partOfSpeech = decodeHtmlEntities(row["partOfSpeech"]?.jsonPrimitive?.content ?: ""),
+                        referenceCount = row["referenceCount"]?.jsonPrimitive?.intOrNull ?: 0
                     )
                 } catch (e: Exception) {
                     null // 跳过解析失败的记录
@@ -171,9 +174,9 @@ class CloudFlareDataDownloader_7ree(
             onProgress("正在查询云端文章数据...")
             
             val querySql = """
-                SELECT id, title, content, word_count, created_at, updated_at
+                SELECT id, generationTimestamp, keyWords, viewCount, apiResult, englishTitle, titleTranslation, englishContent, chineseContent, bilingualComparison, isFavorite, author
                 FROM articles 
-                ORDER BY created_at DESC
+                ORDER BY generationTimestamp DESC
             """.trimIndent()
             
             val result = apiClient.executeQuery(querySql)
@@ -188,15 +191,19 @@ class CloudFlareDataDownloader_7ree(
             
             val articleDataList = results.mapNotNull { row ->
                 try {
-                    val articleId = row["id"]?.jsonPrimitive?.longOrNull ?: 0L
-                    
                     ArticleData(
-                        id = articleId,
-                        title = row["title"]?.jsonPrimitive?.content ?: "",
-                        content = row["content"]?.jsonPrimitive?.content ?: "",
-                        wordCount = row["word_count"]?.jsonPrimitive?.intOrNull ?: 0,
-                        createdAt = row["created_at"]?.jsonPrimitive?.longOrNull ?: 0L,
-                        updatedAt = row["updated_at"]?.jsonPrimitive?.longOrNull ?: 0L,
+                        id = row["id"]?.jsonPrimitive?.longOrNull ?: 0L,
+                        generationTimestamp = row["generationTimestamp"]?.jsonPrimitive?.longOrNull ?: 0L,
+                        keyWords = decodeHtmlEntities(row["keyWords"]?.jsonPrimitive?.content ?: ""),
+                        viewCount = row["viewCount"]?.jsonPrimitive?.intOrNull ?: 0,
+                        apiResult = decodeHtmlEntities(row["apiResult"]?.jsonPrimitive?.content ?: ""),
+                        englishTitle = decodeHtmlEntities(row["englishTitle"]?.jsonPrimitive?.content ?: ""),
+                        titleTranslation = decodeHtmlEntities(row["titleTranslation"]?.jsonPrimitive?.content ?: ""),
+                        englishContent = decodeHtmlEntities(row["englishContent"]?.jsonPrimitive?.content ?: ""),
+                        chineseContent = decodeHtmlEntities(row["chineseContent"]?.jsonPrimitive?.content ?: ""),
+                        bilingualComparison = decodeHtmlEntities(row["bilingualComparison"]?.jsonPrimitive?.content ?: ""),
+                        isFavorite = row["isFavorite"]?.jsonPrimitive?.intOrNull == 1,
+                        author = decodeHtmlEntities(row["author"]?.jsonPrimitive?.content ?: ""),
                         words = emptyList() // 暂时不下载文章单词，可以后续扩展
                     )
                 } catch (e: Exception) {
@@ -262,31 +269,17 @@ class CloudFlareDataDownloader_7ree(
     private fun createWordJsonData(wordDataList: List<WordData>): String {
         val wordsJson = wordDataList.map { wordData ->
             buildJsonObject {
+                // 直接映射本地WordEntity_7ree的所有字段
                 put("word", wordData.word)
-                
-                // 映射为本地WordEntity_7ree的字段结构
-                put("chineseDefinition", wordData.translation) // translation -> chineseDefinition
-                put("phonetic", wordData.pronunciation) // pronunciation -> phonetic
-                put("apiResult", "Imported from CloudFlare D1") // 默认API结果
-                put("queryTimestamp", if (wordData.queryTime < 1000000000000L) wordData.queryTime * 1000 else wordData.queryTime) // query_time -> queryTimestamp
-                put("partOfSpeech", "") // 默认词性为空
-                
-                // 默认字段
-                put("viewCount", 0)
-                put("isFavorite", false)
-                put("spellingCount", 0)
-                put("referenceCount", 0)
-                
-                // 兼容性字段（保留原有字段以防需要）
-                put("translation", wordData.translation)
-                put("pronunciation", wordData.pronunciation)
-                put("queryTime", if (wordData.queryTime < 1000000000000L) wordData.queryTime * 1000 else wordData.queryTime)
-                put("source", wordData.source)
-                put("createdAt", if (wordData.createdAt < 1000000000000L) wordData.createdAt * 1000 else wordData.createdAt)
-                put("updatedAt", if (wordData.updatedAt < 1000000000000L) wordData.updatedAt * 1000 else wordData.updatedAt)
-                put("query_time", if (wordData.queryTime < 1000000000000L) wordData.queryTime * 1000 else wordData.queryTime)
-                put("created_at", if (wordData.createdAt < 1000000000000L) wordData.createdAt * 1000 else wordData.createdAt)
-                put("updated_at", if (wordData.updatedAt < 1000000000000L) wordData.updatedAt * 1000 else wordData.updatedAt)
+                put("apiResult", wordData.apiResult)
+                put("queryTimestamp", wordData.queryTimestamp)
+                put("viewCount", wordData.viewCount)
+                put("isFavorite", wordData.isFavorite)
+                put("spellingCount", wordData.spellingCount)
+                put("chineseDefinition", wordData.chineseDefinition)
+                put("phonetic", wordData.phonetic)
+                put("partOfSpeech", wordData.partOfSpeech)
+                put("referenceCount", wordData.referenceCount)
             }
         }
         
@@ -305,40 +298,20 @@ class CloudFlareDataDownloader_7ree(
      */
     private fun createArticleJsonData(articleDataList: List<ArticleData>): String {
         val articlesJson = articleDataList.map { articleData ->
-            // 解析CloudFlare D1中的组合内容，还原为本地ArticleEntity_7ree格式
-            val (englishTitle, titleTranslation) = parseTitle(articleData.title)
-            val (englishContent, chineseContent, bilingualComparison, keyWords) = parseContent(articleData.content)
-            
             buildJsonObject {
+                // 直接映射本地ArticleEntity_7ree的所有字段
                 put("id", articleData.id)
-                
-                // 映射为本地ArticleEntity_7ree的字段结构
-                put("englishTitle", englishTitle)
-                put("titleTranslation", titleTranslation)
-                put("englishContent", englishContent)
-                put("chineseContent", chineseContent)
-                put("bilingualComparison", bilingualComparison)
-                put("keyWords", keyWords)
-                
-                // 转换为毫秒级时间戳（本地数据库使用毫秒级）
-                put("generationTimestamp", if (articleData.createdAt < 1000000000000L) articleData.createdAt * 1000 else articleData.createdAt)
-                
-                // 默认字段
-                put("viewCount", 0)
-                put("apiResult", "Imported from CloudFlare D1")
-                put("isFavorite", false)
-                put("author", "CloudFlare D1")
-                
-                // 兼容性字段
-                put("wordCount", articleData.wordCount)
-                put("word_count", articleData.wordCount)
-                put("createdAt", if (articleData.createdAt < 1000000000000L) articleData.createdAt * 1000 else articleData.createdAt)
-                put("updatedAt", if (articleData.updatedAt < 1000000000000L) articleData.updatedAt * 1000 else articleData.updatedAt)
-                put("created_at", if (articleData.createdAt < 1000000000000L) articleData.createdAt * 1000 else articleData.createdAt)
-                put("updated_at", if (articleData.updatedAt < 1000000000000L) articleData.updatedAt * 1000 else articleData.updatedAt)
-                put("timestamp", if (articleData.createdAt < 1000000000000L) articleData.createdAt * 1000 else articleData.createdAt)
-                
-                put("words", JsonArray(emptyList())) // 暂时为空，可以后续扩展
+                put("generationTimestamp", articleData.generationTimestamp)
+                put("keyWords", articleData.keyWords)
+                put("viewCount", articleData.viewCount)
+                put("apiResult", articleData.apiResult)
+                put("englishTitle", articleData.englishTitle)
+                put("titleTranslation", articleData.titleTranslation)
+                put("englishContent", articleData.englishContent)
+                put("chineseContent", articleData.chineseContent)
+                put("bilingualComparison", articleData.bilingualComparison)
+                put("isFavorite", articleData.isFavorite)
+                put("author", articleData.author)
             }
         }
         
@@ -352,72 +325,33 @@ class CloudFlareDataDownloader_7ree(
         return json.encodeToString(JsonObject.serializer(), jsonObject)
     }
     
-    /**
-     * 解析标题，分离英文标题和翻译
-     */
-    private fun parseTitle(combinedTitle: String): Pair<String, String> {
-        return try {
-            // 检查是否包含括号格式：English Title (中文翻译)
-            val regex = """^(.+?)\s*\((.+?)\)$""".toRegex()
-            val matchResult = regex.find(combinedTitle)
-            
-            if (matchResult != null) {
-                val englishTitle = matchResult.groupValues[1].trim()
-                val titleTranslation = matchResult.groupValues[2].trim()
-                Pair(englishTitle, titleTranslation)
-            } else {
-                // 如果没有括号格式，判断是否为中文（简单判断）
-                if (combinedTitle.any { it.toString().matches("""[\u4e00-\u9fa5]""".toRegex()) }) {
-                    Pair("", combinedTitle) // 中文作为翻译
-                } else {
-                    Pair(combinedTitle, "") // 英文作为标题
-                }
-            }
-        } catch (e: Exception) {
-            Pair(combinedTitle, "") // 出错时全部作为英文标题
-        }
-    }
+
     
     /**
-     * 解析内容，分离各个部分
+     * 转换HTML实体和转义字符为正常字符
      */
-    private fun parseContent(combinedContent: String): Tuple4<String, String, String, String> {
-        var englishContent = ""
-        var chineseContent = ""
-        var bilingualComparison = ""
-        var keyWords = ""
-        
-        try {
-            val sections = combinedContent.split("===").map { it.trim() }
-            
-            for (i in sections.indices) {
-                val section = sections[i]
-                when {
-                    section.startsWith("English Content") && i + 1 < sections.size -> {
-                        englishContent = sections[i + 1].trim()
-                    }
-                    section.startsWith("Chinese Translation") && i + 1 < sections.size -> {
-                        chineseContent = sections[i + 1].trim()
-                    }
-                    section.startsWith("Bilingual Comparison") && i + 1 < sections.size -> {
-                        bilingualComparison = sections[i + 1].trim()
-                    }
-                    section.startsWith("Key Words") && i + 1 < sections.size -> {
-                        keyWords = sections[i + 1].trim()
-                    }
-                }
-            }
-            
-            // 如果没有找到分段标记，将整个内容作为英文内容
-            if (englishContent.isEmpty() && chineseContent.isEmpty() && bilingualComparison.isEmpty()) {
-                englishContent = combinedContent
-            }
-        } catch (e: Exception) {
-            // 解析失败时，将整个内容作为英文内容
-            englishContent = combinedContent
-        }
-        
-        return Tuple4(englishContent, chineseContent, bilingualComparison, keyWords)
+    private fun decodeHtmlEntities(text: String): String {
+        return text
+            // HTML实体转换
+            .replace("&amp;", "&")
+            .replace("&lt;", "<")
+            .replace("&gt;", ">")
+            .replace("&quot;", "\"")
+            .replace("&#39;", "'")
+            .replace("&#10;", "\n")  // 换行符实体
+            .replace("&#13;", "\r")  // 回车符实体
+            .replace("&#9;", "\t")   // 制表符实体
+            // 转义字符转换
+            .replace("\\n", "\n")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replace("\\\"", "\"")
+            .replace("\\'", "'")
+            .replace("\\\\", "\\")
+            // Unicode转义
+            .replace("\\u000A", "\n")
+            .replace("\\u000D", "\r")
+            .replace("\\u0009", "\t")
     }
     
     /**
@@ -432,24 +366,33 @@ class CloudFlareDataDownloader_7ree(
     }
 }
 
-// 数据类定义
+// 数据类定义 - 完全匹配本地表结构
 data class WordData(
     val word: String,
-    val translation: String,
-    val pronunciation: String,
-    val queryTime: Long,
-    val source: String,
-    val createdAt: Long,
-    val updatedAt: Long
+    val apiResult: String,
+    val queryTimestamp: Long,
+    val viewCount: Int,
+    val isFavorite: Boolean,
+    val spellingCount: Int,
+    val chineseDefinition: String,
+    val phonetic: String,
+    val partOfSpeech: String,
+    val referenceCount: Int
 )
 
 data class ArticleData(
     val id: Long,
-    val title: String,
-    val content: String,
-    val wordCount: Int,
-    val createdAt: Long,
-    val updatedAt: Long,
+    val generationTimestamp: Long,
+    val keyWords: String,
+    val viewCount: Int,
+    val apiResult: String,
+    val englishTitle: String,
+    val titleTranslation: String,
+    val englishContent: String,
+    val chineseContent: String,
+    val bilingualComparison: String,
+    val isFavorite: Boolean,
+    val author: String,
     val words: List<ArticleWordData>
 )
 
@@ -459,12 +402,3 @@ data class ArticleWordData(
     val position: Int
 )
 
-/**
- * 四元组数据类，用于返回四个值
- */
-data class Tuple4<A, B, C, D>(
-    val first: A,
-    val second: B,
-    val third: C,
-    val fourth: D
-)

@@ -32,13 +32,13 @@ class CloudFlareDataUploader_7ree(
         try {
             val apiClient = CloudFlareApiClient_7ree(accountId, databaseId, apiToken)
             
-            onProgress("正在创建数据库表结构...")
+            onProgress("正在检查数据库表结构...")
             
-            // 创建表结构
-            val createTablesResult = createTables(apiClient)
-            if (createTablesResult.isFailure) {
+            // 检查表结构是否存在
+            val checkTablesResult = checkTables(apiClient)
+            if (checkTablesResult.isFailure) {
                 return@withContext Result.failure(
-                    Exception("创建表结构失败: ${createTablesResult.exceptionOrNull()?.message}")
+                    Exception("表结构检查失败: ${checkTablesResult.exceptionOrNull()?.message}")
                 )
             }
             
@@ -75,65 +75,49 @@ class CloudFlareDataUploader_7ree(
     }
     
     /**
-     * 创建数据库表结构
+     * 检查数据库表结构是否存在
      */
-    private suspend fun createTables(apiClient: CloudFlareApiClient_7ree): Result<Unit> {
+    private suspend fun checkTables(apiClient: CloudFlareApiClient_7ree): Result<Unit> {
         return try {
-            val createWordTableSql = """
-                CREATE TABLE IF NOT EXISTS words (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    word TEXT NOT NULL,
-                    translation TEXT,
-                    pronunciation TEXT,
-                    query_time INTEGER,
-                    source TEXT,
-                    created_at INTEGER DEFAULT (strftime('%s', 'now')),
-                    updated_at INTEGER DEFAULT (strftime('%s', 'now'))
-                )
-            """.trimIndent()
-            
-            val createArticleTableSql = """
-                CREATE TABLE IF NOT EXISTS articles (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT NOT NULL,
-                    content TEXT,
-                    word_count INTEGER DEFAULT 0,
-                    created_at INTEGER DEFAULT (strftime('%s', 'now')),
-                    updated_at INTEGER DEFAULT (strftime('%s', 'now'))
-                )
-            """.trimIndent()
-            
-            val createArticleWordsTableSql = """
-                CREATE TABLE IF NOT EXISTS article_words (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    article_id INTEGER,
-                    word TEXT NOT NULL,
-                    translation TEXT,
-                    position INTEGER,
-                    created_at INTEGER DEFAULT (strftime('%s', 'now')),
-                    FOREIGN KEY (article_id) REFERENCES articles (id)
-                )
-            """.trimIndent()
-            
-            val createIndexSql = listOf(
-                "CREATE INDEX IF NOT EXISTS idx_words_word ON words(word)",
-                "CREATE INDEX IF NOT EXISTS idx_words_query_time ON words(query_time)",
-                "CREATE INDEX IF NOT EXISTS idx_articles_created_at ON articles(created_at)",
-                "CREATE INDEX IF NOT EXISTS idx_article_words_article_id ON article_words(article_id)",
-                "CREATE INDEX IF NOT EXISTS idx_article_words_word ON article_words(word)"
-            )
-            
-            // 执行创建表的SQL
-            val sqlStatements = listOf(createWordTableSql, createArticleTableSql, createArticleWordsTableSql) + createIndexSql
-            val result = apiClient.executeBatch(sqlStatements)
-            
-            if (result.isSuccess) {
-                Result.success(Unit)
-            } else {
-                Result.failure(result.exceptionOrNull() ?: Exception("创建表失败"))
+            // 检查words表结构
+            val wordsTableResult = apiClient.executeQuery("PRAGMA table_info(words)")
+            if (wordsTableResult.isFailure) {
+                return Result.failure(Exception("无法访问words表，请先手动创建表结构。参考文档：document/本地单词和文章数据表的详细结构.md"))
             }
+            
+            val wordsTableInfo = wordsTableResult.getOrNull()
+            val wordsColumns = wordsTableInfo?.results?.map { row ->
+                row["name"]?.toString()?.trim('"') ?: ""
+            } ?: emptyList()
+            
+            val requiredWordsFields = listOf("word", "apiResult", "queryTimestamp", "viewCount", "isFavorite", "spellingCount", "chineseDefinition", "phonetic", "partOfSpeech", "referenceCount")
+            val missingWordsFields = requiredWordsFields.filter { it !in wordsColumns }
+            
+            if (missingWordsFields.isNotEmpty()) {
+                return Result.failure(Exception("words表结构不完整，缺少字段: ${missingWordsFields.joinToString(", ")}。请参考文档手动创建完整表结构。"))
+            }
+            
+            // 检查articles表结构
+            val articlesTableResult = apiClient.executeQuery("PRAGMA table_info(articles)")
+            if (articlesTableResult.isFailure) {
+                return Result.failure(Exception("无法访问articles表，请先手动创建表结构。参考文档：document/本地单词和文章数据表的详细结构.md"))
+            }
+            
+            val articlesTableInfo = articlesTableResult.getOrNull()
+            val articlesColumns = articlesTableInfo?.results?.map { row ->
+                row["name"]?.toString()?.trim('"') ?: ""
+            } ?: emptyList()
+            
+            val requiredArticlesFields = listOf("id", "generationTimestamp", "keyWords", "viewCount", "apiResult", "englishTitle", "titleTranslation", "englishContent", "chineseContent", "bilingualComparison", "isFavorite", "author")
+            val missingArticlesFields = requiredArticlesFields.filter { it !in articlesColumns }
+            
+            if (missingArticlesFields.isNotEmpty()) {
+                return Result.failure(Exception("articles表结构不完整，缺少字段: ${missingArticlesFields.joinToString(", ")}。请参考文档手动创建完整表结构。"))
+            }
+            
+            Result.success(Unit)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("表结构检查失败: ${e.message}。请确保已按照文档手动创建表结构。"))
         }
     }
     
@@ -180,6 +164,28 @@ class CloudFlareDataUploader_7ree(
             }
             
             onProgress("正在上传单词数据到CloudFlare...")
+            
+            // 验证表结构是否正确创建
+            val verifyTableResult = apiClient.executeQuery("PRAGMA table_info(words)")
+            if (verifyTableResult.isFailure) {
+                return Result.failure(Exception("验证words表结构失败: ${verifyTableResult.exceptionOrNull()?.message}"))
+            }
+            
+            // 输出表结构信息用于调试
+            val tableInfo = verifyTableResult.getOrNull()
+            val columnNames = tableInfo?.results?.map { row ->
+                row["name"]?.toString()?.trim('"') ?: "unknown"
+            } ?: emptyList()
+            
+            onProgress("表结构验证: 发现字段 ${columnNames.joinToString(", ")}")
+            
+            // 检查必要字段是否存在
+            val requiredFields = listOf("word", "apiResult", "queryTimestamp", "viewCount", "isFavorite", "spellingCount", "chineseDefinition", "phonetic", "partOfSpeech", "referenceCount")
+            val missingFields = requiredFields.filter { it !in columnNames }
+            
+            if (missingFields.isNotEmpty()) {
+                return Result.failure(Exception("表结构不完整，缺少字段: ${missingFields.joinToString(", ")}"))
+            }
             
             // 清空现有数据
             apiClient.executeQuery("DELETE FROM words")
@@ -282,37 +288,23 @@ class CloudFlareDataUploader_7ree(
         val values = words.mapNotNull { wordElement ->
             if (wordElement !is JsonObject) return@mapNotNull null
             
+            // 直接映射本地WordEntity_7ree的所有字段
             val word = wordElement["word"]?.toString()?.trim('"') ?: return@mapNotNull null
-            
-            // 正确映射本地WordEntity_7ree的字段
-            val chineseDefinition = wordElement["chineseDefinition"]?.toString()?.trim('"') ?: ""
-            val phonetic = wordElement["phonetic"]?.toString()?.trim('"') ?: ""
-            val apiResult = wordElement["apiResult"]?.toString()?.trim('"') ?: ""
+            val apiResult = wordElement["apiResult"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
             val queryTimestamp = wordElement["queryTimestamp"]?.toString()?.trim('"')?.toLongOrNull() ?: System.currentTimeMillis()
-            val partOfSpeech = wordElement["partOfSpeech"]?.toString()?.trim('"') ?: ""
+            val viewCount = wordElement["viewCount"]?.toString()?.trim('"')?.toIntOrNull() ?: 0
+            val isFavorite = if (wordElement["isFavorite"]?.toString()?.trim('"')?.toBoolean() == true) 1 else 0
+            val spellingCount = wordElement["spellingCount"]?.toString()?.trim('"')?.toIntOrNull() ?: 0
+            val chineseDefinition = wordElement["chineseDefinition"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val phonetic = wordElement["phonetic"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val partOfSpeech = wordElement["partOfSpeech"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val referenceCount = wordElement["referenceCount"]?.toString()?.trim('"')?.toIntOrNull() ?: 0
             
-            // 映射到CloudFlare D1字段
-            val translation = chineseDefinition // chineseDefinition -> translation
-            val pronunciation = phonetic // phonetic -> pronunciation
-            val source = "local" // 默认来源
-            
-            // 处理查询时间 - 支持多种可能的字段名
-            val queryTime = queryTimestamp
-            
-            // 处理创建和更新时间
-            val createdAt = queryTime
-            val updatedAt = queryTime
-            
-            // 转换为秒级时间戳（CloudFlare D1使用秒级）
-            val queryTimeSeconds = if (queryTime > 1000000000000L) queryTime / 1000 else queryTime
-            val createdAtSeconds = if (createdAt > 1000000000000L) createdAt / 1000 else createdAt
-            val updatedAtSeconds = if (updatedAt > 1000000000000L) updatedAt / 1000 else updatedAt
-            
-            "('${word.replace("'", "''")}', '${translation.replace("'", "''")}', '${pronunciation.replace("'", "''")}', $queryTimeSeconds, '${source.replace("'", "''")}', $createdAtSeconds, $updatedAtSeconds)"
+            "('${word.replace("'", "''")}', '$apiResult', $queryTimestamp, $viewCount, $isFavorite, $spellingCount, '$chineseDefinition', '$phonetic', '$partOfSpeech', $referenceCount)"
         }
         
         return if (values.isNotEmpty()) {
-            "INSERT INTO words (word, translation, pronunciation, query_time, source, created_at, updated_at) VALUES ${values.joinToString(", ")}"
+            "INSERT INTO words (word, apiResult, queryTimestamp, viewCount, isFavorite, spellingCount, chineseDefinition, phonetic, partOfSpeech, referenceCount) VALUES ${values.joinToString(", ")}"
         } else {
             "SELECT 1" // 空操作
         }
@@ -323,63 +315,23 @@ class CloudFlareDataUploader_7ree(
      */
     private suspend fun insertArticle(apiClient: CloudFlareApiClient_7ree, articleElement: JsonObject): Result<Unit> {
         return try {
-            // 正确映射本地ArticleEntity_7ree的字段
-            val englishTitle = articleElement["englishTitle"]?.toString()?.trim('"') ?: ""
-            val titleTranslation = articleElement["titleTranslation"]?.toString()?.trim('"') ?: ""
-            val englishContent = articleElement["englishContent"]?.toString()?.trim('"') ?: ""
-            val chineseContent = articleElement["chineseContent"]?.toString()?.trim('"') ?: ""
-            val bilingualComparison = articleElement["bilingualComparison"]?.toString()?.trim('"') ?: ""
-            val keyWords = articleElement["keyWords"]?.toString()?.trim('"') ?: ""
+            // 直接映射本地ArticleEntity_7ree的所有字段
+            val generationTimestamp = articleElement["generationTimestamp"]?.toString()?.trim('"')?.toLongOrNull() ?: System.currentTimeMillis()
+            val keyWords = articleElement["keyWords"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val viewCount = articleElement["viewCount"]?.toString()?.trim('"')?.toIntOrNull() ?: 0
+            val apiResult = articleElement["apiResult"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val englishTitle = articleElement["englishTitle"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val titleTranslation = articleElement["titleTranslation"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val englishContent = articleElement["englishContent"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val chineseContent = articleElement["chineseContent"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val bilingualComparison = articleElement["bilingualComparison"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
+            val isFavorite = if (articleElement["isFavorite"]?.toString()?.trim('"')?.toBoolean() == true) 1 else 0
+            val author = articleElement["author"]?.toString()?.trim('"')?.replace("'", "''") ?: ""
             
-            // 组合标题：优先使用英文标题，如果为空则使用翻译
-            val title = if (englishTitle.isNotEmpty()) {
-                if (titleTranslation.isNotEmpty()) "$englishTitle ($titleTranslation)" else englishTitle
-            } else if (titleTranslation.isNotEmpty()) {
-                titleTranslation
-            } else {
-                "Untitled Article"
-            }
-            
-            // 组合内容：包含英文内容、中文内容和双语对照
-            val content = buildString {
-                if (englishContent.isNotEmpty()) {
-                    append("=== English Content ===\n")
-                    append(englishContent)
-                    append("\n\n")
-                }
-                if (chineseContent.isNotEmpty()) {
-                    append("=== Chinese Translation ===\n")
-                    append(chineseContent)
-                    append("\n\n")
-                }
-                if (bilingualComparison.isNotEmpty()) {
-                    append("=== Bilingual Comparison ===\n")
-                    append(bilingualComparison)
-                    append("\n\n")
-                }
-                if (keyWords.isNotEmpty()) {
-                    append("=== Key Words ===\n")
-                    append(keyWords)
-                }
-            }.trim()
-            
-            // 计算单词数量（基于英文内容）
-            val wordCount = if (englishContent.isNotEmpty()) {
-                englishContent.split("\\s+".toRegex()).filter { it.isNotBlank() }.size
-            } else 0
-            
-            // 处理时间戳字段 - 使用generationTimestamp
-            val generationTimestamp = articleElement["generationTimestamp"]?.toString()?.trim('"')?.toLongOrNull() 
-                ?: System.currentTimeMillis()
-            
-            // 转换为秒级时间戳（CloudFlare D1使用秒级）
-            val createdAtSeconds = if (generationTimestamp > 1000000000000L) generationTimestamp / 1000 else generationTimestamp
-            val updatedAtSeconds = createdAtSeconds
-            
-            // 插入文章（包含所有字段）
+            // 插入文章（完全匹配本地表结构）
             val insertArticleSql = """
-                INSERT INTO articles (title, content, word_count, created_at, updated_at) 
-                VALUES ('${title.replace("'", "''")}', '${content.replace("'", "''")}', $wordCount, $createdAtSeconds, $updatedAtSeconds)
+                INSERT INTO articles (generationTimestamp, keyWords, viewCount, apiResult, englishTitle, titleTranslation, englishContent, chineseContent, bilingualComparison, isFavorite, author) 
+                VALUES ($generationTimestamp, '$keyWords', $viewCount, '$apiResult', '$englishTitle', '$titleTranslation', '$englishContent', '$chineseContent', '$bilingualComparison', $isFavorite, '$author')
             """.trimIndent()
             
             val articleResult = apiClient.executeQuery(insertArticleSql)
