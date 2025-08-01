@@ -17,7 +17,8 @@ class ArticleRepository_7ree(private val articleDao_7ree: ArticleDao_7ree) {
         titleTranslation: String,
         englishContent: String,
         chineseContent: String,
-        bilingualComparison: String = ""
+        bilingualComparison: String = "",
+        author: String = ""
     ): Long {
         val articleEntity_7ree = ArticleEntity_7ree(
             generationTimestamp = System.currentTimeMillis(),
@@ -29,7 +30,8 @@ class ArticleRepository_7ree(private val articleDao_7ree: ArticleDao_7ree) {
             englishContent = englishContent,
             chineseContent = chineseContent,
             bilingualComparison = bilingualComparison,
-            isFavorite = false
+            isFavorite = false,
+            author = author
         )
         return articleDao_7ree.insertArticle_7ree(articleEntity_7ree)
     }

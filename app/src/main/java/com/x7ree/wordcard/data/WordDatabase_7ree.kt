@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [WordEntity_7ree::class, ArticleEntity_7ree::class], version = 6, exportSchema = false)
+@Database(entities = [WordEntity_7ree::class, ArticleEntity_7ree::class], version = 7, exportSchema = false)
 abstract class WordDatabase_7ree : RoomDatabase() {
     
     abstract fun wordDao_7ree(): WordDao_7ree
@@ -67,13 +67,20 @@ abstract class WordDatabase_7ree : RoomDatabase() {
             }
         }
         
+        // 数据库迁移：从版本6到版本7，添加文章作者字段
+        private val MIGRATION_6_7_7ree = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE articles ADD COLUMN author TEXT NOT NULL DEFAULT ''")
+            }
+        }
+        
         fun getDatabase_7ree(context: Context): WordDatabase_7ree {
             return INSTANCE_7ree ?: synchronized(this) {
                 val instance_7ree = Room.databaseBuilder(
                     context.applicationContext,
                     WordDatabase_7ree::class.java,
                     "word_database_7ree"
-                ).addMigrations(MIGRATION_1_2_7ree, MIGRATION_2_3_7ree, MIGRATION_3_4_7ree, MIGRATION_4_5_7ree, MIGRATION_5_6_7ree).build()
+                ).addMigrations(MIGRATION_1_2_7ree, MIGRATION_2_3_7ree, MIGRATION_3_4_7ree, MIGRATION_4_5_7ree, MIGRATION_5_6_7ree, MIGRATION_6_7_7ree).build()
                 INSTANCE_7ree = instance_7ree
                 instance_7ree
             }

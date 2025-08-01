@@ -154,7 +154,11 @@ fun ArticleTitleCard_7ree(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "写作时间: ${formatTimestamp(article.generationTimestamp)}",
+                    text = if (article.author.isNotEmpty()) {
+                        "${article.author} ${formatTimestamp(article.generationTimestamp)}"
+                    } else {
+                        formatTimestamp(article.generationTimestamp)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

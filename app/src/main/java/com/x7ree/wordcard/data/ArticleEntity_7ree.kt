@@ -18,5 +18,6 @@ data class ArticleEntity_7ree(
     val englishContent: String,          // 英文文章内容
     val chineseContent: String,          // 中文翻译文章内容
     val bilingualComparison: String = "",// 中英对照内容
-    val isFavorite: Boolean = false      // 是否收藏状态
+    val isFavorite: Boolean = false,     // 是否收藏状态
+    val author: String = ""              // 文章作者（API名称）
 )

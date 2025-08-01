@@ -78,6 +78,11 @@ class ArticleGenerationHelper2_7ree(
                 Log.d(TAG, "中文内容: '${parsedResult.chineseContent}'")
                 Log.d(TAG, "中英对照长度: ${parsedResult.bilingualComparison.length}")
                 
+                // 获取当前使用的API名称
+                val currentApiConfig = appConfigManager_7ree.loadApiConfig_7ree()
+                val activeApiConfig = currentApiConfig.getActiveTranslationApi()
+                val apiName = activeApiConfig.apiName.ifEmpty { "未知API" }
+                
                 // 保存到数据库
                 val articleId = articleRepository_7ree.saveArticle_7ree(
                     keyWords = parsedResult.keywords, // 使用解析出的关键词
@@ -86,7 +91,8 @@ class ArticleGenerationHelper2_7ree(
                     titleTranslation = parsedResult.chineseTitle,
                     englishContent = parsedResult.englishContent,
                     chineseContent = parsedResult.chineseContent,
-                    bilingualComparison = parsedResult.bilingualComparison
+                    bilingualComparison = parsedResult.bilingualComparison,
+                    author = apiName
                 )
                 
                 Log.d(TAG, "文章保存成功，ID: $articleId")
