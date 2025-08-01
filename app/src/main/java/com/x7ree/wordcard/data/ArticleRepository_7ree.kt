@@ -9,6 +9,11 @@ class ArticleRepository_7ree(private val articleDao_7ree: ArticleDao_7ree) {
         return articleDao_7ree.getArticle_7ree(id)
     }
     
+    // 根据英文标题获取文章
+    suspend fun getArticleByTitle_7ree(title: String): ArticleEntity_7ree? {
+        return articleDao_7ree.getArticleByTitle_7ree(title)
+    }
+    
     // 保存文章记录
     suspend fun saveArticle_7ree(
         keyWords: String,

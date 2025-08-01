@@ -113,8 +113,8 @@ class DataExportImportManager_7ree(
                     val existingWord = wordRepository_7ree.getWord_7ree(wordEntity_7ree.word)
                     if (existingWord == null) {
                         // 插入新记录，如果导入的数据缺少新字段，则从API结果中解析
-                        val wordToInsert = if (wordEntity_7ree.chineseDefinition.isEmpty() && 
-                                              wordEntity_7ree.phonetic.isEmpty() && 
+                        val wordToInsert = if (wordEntity_7ree.chineseDefinition.isEmpty() &&
+                                              wordEntity_7ree.phonetic.isEmpty() &&
                                               wordEntity_7ree.partOfSpeech.isEmpty()) {
                             // 从API结果中解析新字段
                             val wordInfo = com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(wordEntity_7ree.apiResult)
@@ -128,30 +128,8 @@ class DataExportImportManager_7ree(
                         }
                         wordRepository_7ree.insertWord_7ree(wordToInsert)
                         importedCount++
-                    } else {
-                        // 更新现有记录（保留原有的浏览次数和收藏状态）
-                        val wordInfo = if (wordEntity_7ree.chineseDefinition.isEmpty() && 
-                                          wordEntity_7ree.phonetic.isEmpty() && 
-                                          wordEntity_7ree.partOfSpeech.isEmpty()) {
-                            com.x7ree.wordcard.utils.MarkdownParser_7ree.parseWordInfo(wordEntity_7ree.apiResult)
-                        } else {
-                            com.x7ree.wordcard.utils.MarkdownParser_7ree.WordInfo(
-                                wordEntity_7ree.chineseDefinition,
-                                wordEntity_7ree.phonetic,
-                                wordEntity_7ree.partOfSpeech
-                            )
-                        }
-                        
-                        val updatedWord = existingWord.copy(
-                            apiResult = wordEntity_7ree.apiResult,
-                            queryTimestamp = wordEntity_7ree.queryTimestamp,
-                            chineseDefinition = wordInfo.chineseDefinition,
-                            phonetic = wordInfo.phonetic,
-                            partOfSpeech = wordInfo.partOfSpeech
-                        )
-                        wordRepository_7ree.updateWord_7ree(updatedWord)
-                        importedCount++
                     }
+                    // 如果单词已存在，则忽略不处理
                 } catch (e: Exception) {
                     // 单个记录导入失败不影响整体导入
                 }
@@ -263,27 +241,15 @@ class DataExportImportManager_7ree(
             var importedCount = 0
             for (articleEntity_7ree in exportData_7ree.articles) {
                 try {
-                    // 检查是否已存在相同的文章（基于生成时间戳和关键词）
-                    val existingArticle = articleRepository_7ree.getArticle_7ree(articleEntity_7ree.id)
+                    // 检查是否已存在相同标题的文章
+                    val existingArticle = articleRepository_7ree.getArticleByTitle_7ree(articleEntity_7ree.englishTitle)
                     if (existingArticle == null) {
                         // 插入新记录，重置ID让数据库自动生成
                         val articleToInsert = articleEntity_7ree.copy(id = 0)
                         articleRepository_7ree.insertArticle_7ree(articleToInsert)
                         importedCount++
-                    } else {
-                        // 更新现有记录（保留原有的浏览次数和收藏状态）
-                        val updatedArticle = existingArticle.copy(
-                            keyWords = articleEntity_7ree.keyWords,
-                            apiResult = articleEntity_7ree.apiResult,
-                            englishTitle = articleEntity_7ree.englishTitle,
-                            titleTranslation = articleEntity_7ree.titleTranslation,
-                            englishContent = articleEntity_7ree.englishContent,
-                            chineseContent = articleEntity_7ree.chineseContent,
-                            generationTimestamp = articleEntity_7ree.generationTimestamp
-                        )
-                        articleRepository_7ree.updateArticle_7ree(updatedArticle)
-                        importedCount++
                     }
+                    // 如果文章已存在，则忽略不处理
                 } catch (e: Exception) {
                     // 单个记录导入失败不影响整体导入
                 }

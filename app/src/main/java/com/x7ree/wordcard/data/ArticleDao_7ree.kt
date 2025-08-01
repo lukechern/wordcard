@@ -10,6 +10,10 @@ interface ArticleDao_7ree {
     @Query("SELECT * FROM articles WHERE id = :id")
     suspend fun getArticle_7ree(id: Long): ArticleEntity_7ree?
     
+    // 根据英文标题获取文章
+    @Query("SELECT * FROM articles WHERE englishTitle = :title")
+    suspend fun getArticleByTitle_7ree(title: String): ArticleEntity_7ree?
+    
     // 获取所有文章记录，按生成时间倒序排列
     @Query("SELECT * FROM articles ORDER BY generationTimestamp DESC")
     fun getAllArticles_7ree(): Flow<List<ArticleEntity_7ree>>
