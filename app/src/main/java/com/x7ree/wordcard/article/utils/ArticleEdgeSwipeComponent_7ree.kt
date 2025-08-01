@@ -73,7 +73,7 @@ private fun LeftEdgeSwipeArea(
             .fillMaxHeight()
             .pointerInput(Unit) {
                 var startX = 0f
-                var startY = 0f
+                
                 var currentX = 0f
                 var currentY = 0f
                 var isValidSwipe = false
@@ -82,7 +82,7 @@ private fun LeftEdgeSwipeArea(
                 detectDragGestures(
                     onDragStart = { offset ->
                         startX = offset.x
-                        startY = offset.y
+                        
                         currentX = offset.x
                         currentY = offset.y
                         dragCount = 0
@@ -98,7 +98,7 @@ private fun LeftEdgeSwipeArea(
                         }
                         isValidSwipe = false
                     }
-                ) { change, dragAmount ->
+                ) { _, dragAmount ->
                     dragCount++
                     currentX += dragAmount.x
                     currentY += dragAmount.y
@@ -128,7 +128,7 @@ private fun RightEdgeSwipeArea(
             .fillMaxHeight()
             .pointerInput(Unit) {
                 var startX = 0f
-                var startY = 0f
+                
                 var currentX = 0f
                 var currentY = 0f
                 var isValidSwipe = false
@@ -137,7 +137,7 @@ private fun RightEdgeSwipeArea(
                 detectDragGestures(
                     onDragStart = { offset ->
                         startX = offset.x
-                        startY = offset.y
+                        
                         currentX = offset.x
                         currentY = offset.y
                         dragCount = 0
@@ -153,8 +153,10 @@ private fun RightEdgeSwipeArea(
                         }
                         isValidSwipe = false
                     }
-                ) { change, dragAmount ->
+                ) { _, dragAmount ->
                     dragCount++
+
+
                     val oldCurrentX = currentX
                     val oldCurrentY = currentY
                     currentX += dragAmount.x
