@@ -378,8 +378,7 @@ fun CloudFlareOperationSection_7ree(
             
             // 功能说明
             Text(
-                text = "� 参功能说明：\n" +
-                      "• 上传：将本地单词和文章数据同步到CloudFlare D1数据库\n" +
+                text = "• 上传：将本地单词和文章数据同步到CloudFlare D1数据库\n" +
                       "• 下载：从CloudFlare D1数据库恢复数据到本地",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

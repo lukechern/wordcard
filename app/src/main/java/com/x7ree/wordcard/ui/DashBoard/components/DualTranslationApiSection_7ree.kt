@@ -3,6 +3,9 @@ package com.x7ree.wordcard.ui.DashBoard.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -178,6 +181,8 @@ private fun TranslationApiConfigSection_7ree(
             singleLine = true
         )
         
+        // API Key输入框（带显示/隐藏功能）
+        var isApiKeyVisible by remember { mutableStateOf(false) }
         OutlinedTextField(
             value = apiKey,
             onValueChange = { 
@@ -186,8 +191,16 @@ private fun TranslationApiConfigSection_7ree(
             label = { Text("API Key") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-            visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.sp)
+            visualTransformation = if (isApiKeyVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(letterSpacing = 0.sp),
+            trailingIcon = {
+                IconButton(onClick = { isApiKeyVisible = !isApiKeyVisible }) {
+                    Icon(
+                        imageVector = if (isApiKeyVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (isApiKeyVisible) "隐藏API Key" else "显示API Key"
+                    )
+                }
+            }
         )
         
         OutlinedTextField(
