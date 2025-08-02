@@ -26,6 +26,9 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareConnectionTester_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareDataUploader_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareDataDownloader_7ree
+import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareProgressManager_7ree
+import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareProgressDisplay_7ree
+import com.x7ree.wordcard.ui.DashBoard.DataManagement.cloudflare.CloudFlareOperationType_7ree
 import kotlinx.coroutines.*
 
 /**
@@ -44,15 +47,23 @@ fun CloudFlareOperationSection_7ree(
     onAccountIdChange: (String) -> Unit
 ) {
     var isPasswordVisible by remember { mutableStateOf(false) }
-    var isUploading by remember { mutableStateOf(false) }
-    var isDownloading by remember { mutableStateOf(false) }
-    var isTesting by remember { mutableStateOf(false) }
     var testResult by remember { mutableStateOf<String?>(null) }
     var testSuccess by remember { mutableStateOf<Boolean?>(null) }
     
     // 获取协程作用域和上下文
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    
+    // 创建进度管理器
+    val progressManager = remember { CloudFlareProgressManager_7ree() }
+    val progressState by progressManager.progressState
+    
+    // 当CloudFlare操作开关关闭时，清除进度显示
+    LaunchedEffect(isCloudFlareEnabled) {
+        if (!isCloudFlareEnabled) {
+            progressManager.hideProgress()
+        }
+    }
     
     // 创建业务模块实例
     val connectionTester = remember { CloudFlareConnectionTester_7ree() }
@@ -153,15 +164,22 @@ fun CloudFlareOperationSection_7ree(
                 }
             )
             
+            // 进度显示组件 - 移动到测试按钮上方
+            CloudFlareProgressDisplay_7ree(
+                progressManager = progressManager,
+                modifier = Modifier.fillMaxWidth()
+            )
+            
             // API连接测试按钮
             OutlinedButton(
                 onClick = {
                     if (databaseId.isNotBlank() && apiToken.isNotBlank() && accountId.isNotBlank()) {
-                        isTesting = true
                         testResult = null
                         testSuccess = null
                         
-                        // 使用实际的连接测试器
+                        // 开始测试进度
+                        progressManager.startOperation(CloudFlareOperationType_7ree.TEST)
+                        
                         coroutineScope.launch {
                             try {
                                 val result = connectionTester.testConnection(
@@ -169,41 +187,39 @@ fun CloudFlareOperationSection_7ree(
                                     databaseId = databaseId,
                                     apiToken = apiToken,
                                     onProgress = { progress ->
-                                        wordQueryViewModel_7ree.setOperationResult_7ree(progress)
+                                        progressManager.parseProgressFromText(progress)
                                     }
                                 )
                                 
-                                isTesting = false
                                 if (result.isSuccess) {
                                     testSuccess = true
                                     testResult = result.getOrNull() ?: "连接成功"
-                                    wordQueryViewModel_7ree.setOperationResult_7ree("CloudFlare D1连接测试成功")
+                                    progressManager.completeOperation("✅ ${result.getOrNull()}")
                                 } else {
                                     testSuccess = false
                                     testResult = result.exceptionOrNull()?.message ?: "连接失败"
-                                    wordQueryViewModel_7ree.setOperationResult_7ree("CloudFlare D1连接测试失败")
+                                    progressManager.failOperation("❌ ${result.exceptionOrNull()?.message}")
                                 }
                             } catch (e: Exception) {
-                                isTesting = false
                                 testSuccess = false
                                 testResult = "连接异常：${e.message}"
-                                wordQueryViewModel_7ree.setOperationResult_7ree("CloudFlare D1连接测试异常：${e.message}")
+                                progressManager.failOperation("❌ 连接异常：${e.message}")
                             }
                         }
                     } else {
                         testResult = "请先填写完整的配置参数"
                         testSuccess = false
-                        wordQueryViewModel_7ree.setOperationResult_7ree("请填写完整的CloudFlare配置信息")
+                        progressManager.failOperation("❌ 请填写完整的CloudFlare配置信息")
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isTesting && !isUploading && !isDownloading
+                enabled = !progressState.isVisible || progressState.isCompleted
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    if (isTesting) {
+                    if (progressState.isVisible && !progressState.isCompleted && progressState.operationType == CloudFlareOperationType_7ree.TEST) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             strokeWidth = 2.dp
@@ -222,30 +238,6 @@ fun CloudFlareOperationSection_7ree(
                 }
             }
             
-            // 显示测试结果
-            testResult?.let { result ->
-                Spacer(modifier = Modifier.height(8.dp))
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (testSuccess == true) 
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                        else 
-                            MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
-                    )
-                ) {
-                    Text(
-                        text = if (testSuccess == true) "✅ $result" else "❌ $result",
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (testSuccess == true) 
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        else 
-                            MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-            }
-            
             Spacer(modifier = Modifier.height(12.dp))
             
             // 操作按钮区域
@@ -257,8 +249,8 @@ fun CloudFlareOperationSection_7ree(
                 Button(
                     onClick = {
                         if (databaseId.isNotBlank() && apiToken.isNotBlank() && accountId.isNotBlank()) {
-                            isUploading = true
-                            wordQueryViewModel_7ree.setOperationResult_7ree("开始上传数据到CloudFlare...")
+                            // 开始上传进度
+                            progressManager.startOperation(CloudFlareOperationType_7ree.UPLOAD)
                             
                             coroutineScope.launch {
                                 try {
@@ -267,34 +259,32 @@ fun CloudFlareOperationSection_7ree(
                                         databaseId = databaseId,
                                         apiToken = apiToken,
                                         onProgress = { progress ->
-                                            wordQueryViewModel_7ree.setOperationResult_7ree(progress)
+                                            progressManager.parseProgressFromText(progress)
                                         }
                                     )
                                     
-                                    isUploading = false
                                     if (result.isSuccess) {
-                                        wordQueryViewModel_7ree.setOperationResult_7ree("✅ ${result.getOrNull()}")
+                                        progressManager.completeOperation("✅ ${result.getOrNull()}")
                                     } else {
-                                        wordQueryViewModel_7ree.setOperationResult_7ree("❌ 上传失败：${result.exceptionOrNull()?.message}")
+                                        progressManager.failOperation("❌ 上传失败：${result.exceptionOrNull()?.message}")
                                     }
                                     
                                 } catch (e: Exception) {
-                                    isUploading = false
-                                    wordQueryViewModel_7ree.setOperationResult_7ree("❌ 上传异常：${e.message}")
+                                    progressManager.failOperation("❌ 上传异常：${e.message}")
                                 }
                             }
                         } else {
-                            wordQueryViewModel_7ree.setOperationResult_7ree("请填写完整的CloudFlare配置信息")
+                            progressManager.failOperation("❌ 请填写完整的CloudFlare配置信息")
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = !isUploading && !isDownloading && 
+                    enabled = (!progressState.isVisible || progressState.isCompleted) && 
                              databaseId.isNotBlank() && apiToken.isNotBlank() && accountId.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF1976D2) // 蓝色背景
                     )
                 ) {
-                    if (isUploading) {
+                    if (progressState.isVisible && !progressState.isCompleted && progressState.operationType == CloudFlareOperationType_7ree.UPLOAD) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             color = MaterialTheme.colorScheme.onPrimary,
@@ -317,8 +307,8 @@ fun CloudFlareOperationSection_7ree(
                 Button(
                     onClick = {
                         if (databaseId.isNotBlank() && apiToken.isNotBlank() && accountId.isNotBlank()) {
-                            isDownloading = true
-                            wordQueryViewModel_7ree.setOperationResult_7ree("开始从CloudFlare下载数据...")
+                            // 开始下载进度
+                            progressManager.startOperation(CloudFlareOperationType_7ree.DOWNLOAD)
                             
                             coroutineScope.launch {
                                 try {
@@ -327,34 +317,32 @@ fun CloudFlareOperationSection_7ree(
                                         databaseId = databaseId,
                                         apiToken = apiToken,
                                         onProgress = { progress ->
-                                            wordQueryViewModel_7ree.setOperationResult_7ree(progress)
+                                            progressManager.parseProgressFromText(progress)
                                         }
                                     )
                                     
-                                    isDownloading = false
                                     if (result.isSuccess) {
-                                        wordQueryViewModel_7ree.setOperationResult_7ree("✅ ${result.getOrNull()}")
+                                        progressManager.completeOperation("✅ ${result.getOrNull()}")
                                     } else {
-                                        wordQueryViewModel_7ree.setOperationResult_7ree("❌ 下载失败：${result.exceptionOrNull()?.message}")
+                                        progressManager.failOperation("❌ 下载失败：${result.exceptionOrNull()?.message}")
                                     }
                                     
                                 } catch (e: Exception) {
-                                    isDownloading = false
-                                    wordQueryViewModel_7ree.setOperationResult_7ree("❌ 下载异常：${e.message}")
+                                    progressManager.failOperation("❌ 下载异常：${e.message}")
                                 }
                             }
                         } else {
-                            wordQueryViewModel_7ree.setOperationResult_7ree("请填写完整的CloudFlare配置信息")
+                            progressManager.failOperation("❌ 请填写完整的CloudFlare配置信息")
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = !isUploading && !isDownloading && 
+                    enabled = (!progressState.isVisible || progressState.isCompleted) && 
                              databaseId.isNotBlank() && apiToken.isNotBlank() && accountId.isNotBlank(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF388E3C) // 绿色背景
                     )
                 ) {
-                    if (isDownloading) {
+                    if (progressState.isVisible && !progressState.isCompleted && progressState.operationType == CloudFlareOperationType_7ree.DOWNLOAD) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(16.dp),
                             color = MaterialTheme.colorScheme.onPrimary,
