@@ -9,11 +9,12 @@ data class DailyData_7ree(
     val date: String,
     val wordCount: Int,
     val viewCount: Int,
-    val spellingCount: Int
+    val spellingCount: Int,
+    val articleCount: Int = 0  // 添加文章数量字段
 )
 
 // 生成本周统计数据
-fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List<DailyData_7ree> {
+fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>, articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>): List<DailyData_7ree> {
     val dateFormat = SimpleDateFormat("E", Locale.getDefault()) // 使用星期几格式
     val result = mutableListOf<DailyData_7ree>()
     
@@ -67,11 +68,25 @@ fun generateDailyChartData_7ree(words_7ree: List<WordEntity_7ree>): List<DailyDa
             isSameDay
         }
         
+        // 计算当天的文章数量
+        val dayArticles = articles_7ree.filter { article ->
+            val articleDate = Calendar.getInstance().apply {
+                timeInMillis = article.generationTimestamp
+            }
+            
+            // 比较年月日，忽略时分秒
+            val isSameDay = articleDate.get(Calendar.YEAR) == currentDate.get(Calendar.YEAR) &&
+                           articleDate.get(Calendar.DAY_OF_YEAR) == currentDate.get(Calendar.DAY_OF_YEAR)
+            
+            isSameDay
+        }
+        
         val wordCount = dayWords.size
         val viewCount = dayWords.sumOf { it.viewCount } / 10
         val spellingCount = dayWords.sumOf { it.spellingCount }
+        val articleCount = dayArticles.size  // 真正的文章生成数量
         
-        result.add(DailyData_7ree(dateStr, wordCount, viewCount, spellingCount))
+        result.add(DailyData_7ree(dateStr, wordCount, viewCount, spellingCount, articleCount))
         
         // 统计数据计算完成
     }

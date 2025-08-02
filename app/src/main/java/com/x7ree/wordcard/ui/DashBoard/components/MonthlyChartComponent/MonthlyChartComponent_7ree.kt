@@ -21,6 +21,7 @@ import com.x7ree.wordcard.data.WordEntity_7ree
 @Composable
 fun MonthlyChartComponent_7ree(
     words_7ree: List<WordEntity_7ree>,
+    articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -52,6 +53,7 @@ fun MonthlyChartComponent_7ree(
             // 使用Compose Canvas绘制柱状图
             MonthlyChartCanvas_7ree(
                 words_7ree = words_7ree,
+                articles_7ree = articles_7ree,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)

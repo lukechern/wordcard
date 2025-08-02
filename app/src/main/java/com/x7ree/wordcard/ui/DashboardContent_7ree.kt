@@ -57,6 +57,7 @@ fun DashboardContent_7ree(
     val cacheManager_7ree = remember { CacheManager_7ree(context) }
     
     var allWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
+    var articles_7ree by remember { mutableStateOf<List<com.x7ree.wordcard.data.ArticleEntity_7ree>>(emptyList()) }
     var stats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
     var animatedValues_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
     var articleStats_7ree by remember { mutableStateOf(ArticleStatistics_7ree.ArticleStatisticsData_7ree(0, 0, 0)) }
@@ -94,7 +95,7 @@ fun DashboardContent_7ree(
             println("DEBUG: wordQueryViewModel_7ree.articleViewModel_7ree is null = ${wordQueryViewModel_7ree.articleViewModel_7ree == null}")
             
             // 获取文章列表数据
-            val articles_7ree = if (wordQueryViewModel_7ree.articleViewModel_7ree != null) {
+            articles_7ree = if (wordQueryViewModel_7ree.articleViewModel_7ree != null) {
                 println("DEBUG: articleViewModel_7ree is not null, trying to get articles...")
                 try {
                     val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree!!
@@ -204,12 +205,12 @@ fun DashboardContent_7ree(
         
         // 30天曲线图
         item {
-            DailyChartComponent_7ree(allWords_7ree)
+            DailyChartComponent_7ree(allWords_7ree, articles_7ree)
         }
         
         // 12个月柱状图
         item {
-            MonthlyChart_7ree(allWords_7ree)
+            MonthlyChart_7ree(allWords_7ree, articles_7ree)
         }
         
         // 缓存说明区域
@@ -275,7 +276,7 @@ fun DashboardContent_7ree(
 
 
 @Composable
-private fun MonthlyChart_7ree(words_7ree: List<WordEntity_7ree>) {
+private fun MonthlyChart_7ree(words_7ree: List<WordEntity_7ree>, articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>) {
     // 使用新的MonthlyChartComponent_7ree组件
-    MonthlyChartComponent_7ree(words_7ree = words_7ree)
+    MonthlyChartComponent_7ree(words_7ree = words_7ree, articles_7ree = articles_7ree)
 }

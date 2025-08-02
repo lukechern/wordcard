@@ -108,7 +108,41 @@ val searchQuery: StateFlow<String> = state.searchQuery
     }
 
     fun generateArticle(keyWords: String) = generationHandler.generateArticle(keyWords, viewModelScope) { handleNewArticleGenerated() }
-    fun toggleFavorite(articleId: Long) = ArticleFavoriteHelper_7ree(articleRepository_7ree).toggleFavorite(articleId, viewModelScope) { result -> state._operationResult.value = result }
+    fun toggleFavorite(articleId: Long) {
+        ArticleFavoriteHelper_7ree(articleRepository_7ree).toggleFavorite(articleId, viewModelScope) { result ->
+            state._operationResult.value = result
+            // 更新UI状态以反映收藏状态的变化
+            updateArticleFavoriteStatus(articleId)
+        }
+    }
+    
+    /**
+     * 更新文章收藏状态以反映UI变化
+     */
+    private fun updateArticleFavoriteStatus(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                // 获取文章的最新状态
+                val updatedArticle = articleRepository_7ree.getArticle_7ree(articleId)
+                updatedArticle?.let { article ->
+                    if (usePaginationMode.value) {
+                        // 在分页模式下，数据会通过重新加载自动更新
+                        paginationHandler.loadInitialArticles(viewModelScope)
+                    } else {
+                        // 在普通模式下更新文章列表
+                        val currentArticles = state._articles.value.toMutableList()
+                        val index = currentArticles.indexOfFirst { it.id == articleId }
+                        if (index >= 0) {
+                            currentArticles[index] = article
+                            state._articles.value = currentArticles
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // 更新UI状态失败不需要显示错误信息
+            }
+        }
+    }
     fun incrementViewCount(articleId: Long) = listHandler.incrementViewCount(articleId, viewModelScope)
     fun deleteArticle(articleId: Long) = articleDeleteHelper.deleteArticle(articleId, viewModelScope) { result -> state._operationResult.value = result }
     fun clearOperationResult() {
@@ -218,11 +252,40 @@ val searchQuery: StateFlow<String> = state.searchQuery
             try {
                 ArticleFavoriteHelper_7ree(articleRepository_7ree).toggleFavorite(articleId, viewModelScope) { result -> 
                     state._operationResult.value = result 
+                    // 立即更新UI状态，而不是重新加载整个列表
+                    updatePaginationArticleFavoriteStatus(articleId)
                 }
-                // 刷新分页数据
-                paginationHandler.loadInitialArticles(viewModelScope)
             } catch (e: Exception) {
                 state._operationResult.value = "操作失败: ${e.message}"
+            }
+        }
+    }
+    
+    /**
+     * 更新分页模式下的文章收藏状态以立即反映UI变化
+     */
+    private fun updatePaginationArticleFavoriteStatus(articleId: Long) {
+        viewModelScope.launch {
+            try {
+                // 获取文章的最新状态
+                val updatedArticle = articleRepository_7ree.getArticle_7ree(articleId)
+                updatedArticle?.let { article ->
+                    // 通过 articlePaginationHandler 直接更新分页文章列表中的文章
+                    articlePaginationHandler.updateArticle(article)
+                    
+                    // 同时更新搜索结果（如果在搜索模式下）
+                    if (isSearchMode.value) {
+                        val currentSearchResults = state._searchResults.value.toMutableList()
+                        val searchIndex = currentSearchResults.indexOfFirst { it.id == articleId }
+                        if (searchIndex >= 0) {
+                            currentSearchResults[searchIndex] = article
+                            state._searchResults.value = currentSearchResults
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // 如果立即更新失败，则回退到重新加载数据
+                paginationHandler.loadInitialArticles(viewModelScope)
             }
         }
     }

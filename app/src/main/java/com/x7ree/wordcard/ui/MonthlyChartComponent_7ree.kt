@@ -8,10 +8,12 @@ import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.MonthlyC
 @Composable
 fun MonthlyChartComponent_7ree(
     words_7ree: List<WordEntity_7ree>,
+    articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>,
     modifier: Modifier = Modifier
 ) {
     MonthlyChartComponentImpl(
         words_7ree = words_7ree,
+        articles_7ree = articles_7ree,
         modifier = modifier
     )
 }

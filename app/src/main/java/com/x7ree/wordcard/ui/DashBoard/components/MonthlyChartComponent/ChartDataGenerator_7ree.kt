@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 // 生成年度月度统计数据
-fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): List<MonthlyData_7ree> {
+fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>, articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>): List<MonthlyData_7ree> {
     val dateFormat = SimpleDateFormat("M月", Locale.getDefault()) // 使用月份格式
     val result = mutableListOf<MonthlyData_7ree>()
     
@@ -42,11 +42,18 @@ fun generateMonthlyChartData_7ree(words_7ree: List<WordEntity_7ree>): List<Month
             wordTimestamp >= currentMonth.timeInMillis && wordTimestamp < nextMonth.timeInMillis
         }
         
+        // 计算当月的文章数量
+        val monthArticles = articles_7ree.filter { article ->
+            val articleTimestamp = article.generationTimestamp
+            articleTimestamp >= currentMonth.timeInMillis && articleTimestamp < nextMonth.timeInMillis
+        }
+        
         val wordCount = monthWords.size
         val viewCount = monthWords.sumOf { it.viewCount } / 10
         val spellingCount = monthWords.sumOf { it.spellingCount }
+        val articleCount = monthArticles.size  // 真正的文章生成数量
         
-        result.add(MonthlyData_7ree(monthStr, wordCount, viewCount, spellingCount))
+        result.add(MonthlyData_7ree(monthStr, wordCount, viewCount, spellingCount, articleCount))
         
         // 月度统计数据计算完成
     }

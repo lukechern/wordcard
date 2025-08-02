@@ -28,11 +28,12 @@ import com.x7ree.wordcard.ui.DashBoard.components.MonthlyChartComponent.drawLege
 @Composable
 fun MonthlyChartCanvas_7ree(
     words_7ree: List<WordEntity_7ree>,
+    articles_7ree: List<com.x7ree.wordcard.data.ArticleEntity_7ree>,
     modifier: Modifier = Modifier
 ) {
-    val chartData_7ree = remember(words_7ree) {
+    val chartData_7ree = remember(words_7ree, articles_7ree) {
         // 使用真实数据生成图表
-        generateMonthlyChartData_7ree(words_7ree)
+        generateMonthlyChartData_7ree(words_7ree, articles_7ree)
     }
     
     // 动画进度状态
@@ -55,7 +56,7 @@ fun MonthlyChartCanvas_7ree(
     
     if (chartData_7ree.isNotEmpty()) {
         // 检查是否有实际数据（不是全为0）
-        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 }
+        val hasRealData = chartData_7ree.any { it.wordCount > 0 || it.viewCount > 0 || it.spellingCount > 0 || it.articleCount > 0 }
         
         if (hasRealData) {
             Canvas(
@@ -102,7 +103,8 @@ fun MonthlyChartCanvas_7ree(
                 val maxWordCount = chartData_7ree.maxOfOrNull { it.wordCount } ?: 0
                 val maxViewCount = chartData_7ree.maxOfOrNull { it.viewCount } ?: 0
                 val maxSpellingCount = chartData_7ree.maxOfOrNull { it.spellingCount } ?: 0
-                val maxValue = maxOf(maxWordCount, maxViewCount, maxSpellingCount, 1)
+                val maxArticleCount = chartData_7ree.maxOfOrNull { it.articleCount } ?: 0
+                val maxValue = maxOf(maxWordCount, maxViewCount, maxSpellingCount, maxArticleCount, 1)
                 
                 // 绘制坐标轴
                 drawAxes_7ree(width, height, padding, chartData_7ree, maxValue)

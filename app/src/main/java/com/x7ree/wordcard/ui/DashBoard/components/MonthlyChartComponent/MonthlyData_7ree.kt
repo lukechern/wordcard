@@ -5,5 +5,6 @@ data class MonthlyData_7ree(
     val month: String,
     val wordCount: Int,
     val viewCount: Int,
-    val spellingCount: Int
+    val spellingCount: Int,
+    val articleCount: Int = 0  // 添加文章数量字段
 )

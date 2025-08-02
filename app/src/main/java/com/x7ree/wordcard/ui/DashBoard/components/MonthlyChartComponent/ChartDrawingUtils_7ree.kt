@@ -77,17 +77,17 @@ internal fun DrawScope.drawBars_7ree(
                 )
             }
             "view" -> {
-                // 只显示查阅次数柱子，居中显示
-                val viewCount = data[i].viewCount
-                val targetViewBarHeight = if (maxValue > 0) (chartHeight * viewCount / maxValue) else 0f
-                val animatedViewBarHeight = targetViewBarHeight * animationProgress
-                val viewBarX = centerX - barWidth / 2  // 居中显示
-                val viewBarY = height - padding - 80f - animatedViewBarHeight
+                // 只显示生成文章数柱子，居中显示
+                val articleCount = data[i].articleCount
+                val targetArticleBarHeight = if (maxValue > 0) (chartHeight * articleCount / maxValue) else 0f
+                val animatedArticleBarHeight = targetArticleBarHeight * animationProgress
+                val articleBarX = centerX - barWidth / 2  // 居中显示
+                val articleBarY = height - padding - 80f - animatedArticleBarHeight
                 
                 drawRect(
                     color = Color(0xFFD2691E),
-                    topLeft = Offset(viewBarX, viewBarY),
-                    size = androidx.compose.ui.geometry.Size(barWidth, animatedViewBarHeight)
+                    topLeft = Offset(articleBarX, articleBarY),
+                    size = androidx.compose.ui.geometry.Size(barWidth, animatedArticleBarHeight)
                 )
             }
             "spelling" -> {
@@ -119,17 +119,17 @@ internal fun DrawScope.drawBars_7ree(
                     size = androidx.compose.ui.geometry.Size(barWidth, animatedWordBarHeight)
                 )
                 
-                // 查阅次数柱子（中1/3部分）- 橙色
-                val viewCount = data[i].viewCount
-                val targetViewBarHeight = if (maxValue > 0) (chartHeight * viewCount / maxValue) else 0f
-                val animatedViewBarHeight = targetViewBarHeight * animationProgress
-                val viewBarX = monthX + barWidth
-                val viewBarY = height - padding - 80f - animatedViewBarHeight
+                // 生成文章数柱子（中1/3部分）- 橙色
+                val articleCount = data[i].articleCount
+                val targetArticleBarHeight = if (maxValue > 0) (chartHeight * articleCount / maxValue) else 0f
+                val animatedArticleBarHeight = targetArticleBarHeight * animationProgress
+                val articleBarX = monthX + barWidth
+                val articleBarY = height - padding - 80f - animatedArticleBarHeight
                 
                 drawRect(
                     color = Color(0xFFD2691E),
-                    topLeft = Offset(viewBarX, viewBarY),
-                    size = androidx.compose.ui.geometry.Size(barWidth, animatedViewBarHeight)
+                    topLeft = Offset(articleBarX, articleBarY),
+                    size = androidx.compose.ui.geometry.Size(barWidth, animatedArticleBarHeight)
                 )
                 
                 // 拼写练习柱子（右1/3部分）- 绿色
