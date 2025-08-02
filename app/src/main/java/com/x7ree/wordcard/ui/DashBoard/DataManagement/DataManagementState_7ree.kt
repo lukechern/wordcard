@@ -24,7 +24,7 @@ fun rememberDataManagementState_7ree(
     
     // HTTP服务器相关状态
     var isServerEnabled by remember { mutableStateOf(false) }
-    var serverUrl by remember { mutableStateOf<String?>(null) }
+    var httpServerUrl by remember { mutableStateOf<String?>(null) }
     var httpServerManager by remember { mutableStateOf<HttpServerManager_7ree?>(null) }
     
     // 手机操作开关状态
@@ -46,6 +46,19 @@ fun rememberDataManagementState_7ree(
     }
     var accountId by remember { 
         mutableStateOf(sharedPrefs.getString("cloudflare_account_id", "") ?: "") 
+    }
+    
+    // 局域网MySQL操作开关状态
+    var isLanMysqlEnabled by remember { 
+        mutableStateOf(sharedPrefs.getBoolean("lan_mysql_enabled", false)) // 默认关闭
+    }
+    
+    // 局域网PHP API配置参数
+    var serverUrl by remember { 
+        mutableStateOf(sharedPrefs.getString("lan_php_server_url", "") ?: "") 
+    }
+    var apiKey by remember { 
+        mutableStateOf(sharedPrefs.getString("lan_php_api_key", "") ?: "") 
     }
     
     // 初始化HTTP服务器管理器（使用全局实例）
@@ -77,8 +90,8 @@ fun rememberDataManagementState_7ree(
                 // 状态一致：保存状态=开启，服务器正在运行
                 // Log.d("DataManagement", "状态一致：保存状态=开启，服务器正在运行")
                 isServerEnabled = true
-                serverUrl = httpServerManager?.getServerUrl()
-                // Log.d("DataManagement", "同步后的URL: $serverUrl")
+                httpServerUrl = httpServerManager?.getServerUrl()
+                // Log.d("DataManagement", "同步后的URL: $httpServerUrl")
             } else {
                 // 状态不一致：保存状态=开启，但服务器未运行，尝试启动
                 // Log.d("DataManagement", "状态不一致：保存状态=开启，服务器未运行，尝试启动")
@@ -87,13 +100,13 @@ fun rememberDataManagementState_7ree(
                     // Log.d("DataManagement", "启动服务器结果: $startResult")
                     if (startResult) {
                         isServerEnabled = true
-                        serverUrl = manager.getServerUrl()
-                        // Log.d("DataManagement", "服务器启动成功，URL: $serverUrl")
+                        httpServerUrl = manager.getServerUrl()
+                        // Log.d("DataManagement", "服务器启动成功，URL: $httpServerUrl")
                     } else {
                         // 启动失败，更新保存的状态
                         // Log.d("DataManagement", "服务器启动失败，重置保存状态")
                         isServerEnabled = false
-                        serverUrl = null
+                        httpServerUrl = null
                         sharedPrefs.edit().putBoolean("server_enabled", false).apply()
                     }
                 }
@@ -108,7 +121,7 @@ fun rememberDataManagementState_7ree(
                 // Log.d("DataManagement", "状态一致：保存状态=关闭，服务器未运行")
             }
             isServerEnabled = false
-            serverUrl = null
+            httpServerUrl = null
         }
         
         // Log.d("DataManagement", "初始化完成 - isServerEnabled: $isServerEnabled, serverUrl: $serverUrl")
@@ -131,18 +144,18 @@ fun rememberDataManagementState_7ree(
                     val startResult = manager.startServer()
                     // Log.d("DataManagement", "启动结果: $startResult")
                     if (startResult) {
-                        serverUrl = manager.getServerUrl()
-                        // Log.d("DataManagement", "启动成功，URL: $serverUrl")
+                        httpServerUrl = manager.getServerUrl()
+                        // Log.d("DataManagement", "启动成功，URL: $httpServerUrl")
                     } else {
                         // Log.d("DataManagement", "启动失败，重置状态")
                         isServerEnabled = false
-                        serverUrl = null
+                        httpServerUrl = null
                         sharedPrefs.edit().putBoolean("server_enabled", false).apply()
                     }
                 } else {
                     // Log.d("DataManagement", "服务器已运行，获取URL")
-                    serverUrl = manager.getServerUrl()
-                    // Log.d("DataManagement", "获取到的URL: $serverUrl")
+                    httpServerUrl = manager.getServerUrl()
+                    // Log.d("DataManagement", "获取到的URL: $httpServerUrl")
                 }
             } else {
                 // Log.d("DataManagement", "开关状态=关闭")
@@ -150,7 +163,7 @@ fun rememberDataManagementState_7ree(
                     // Log.d("DataManagement", "服务器正在运行，停止服务器")
                     manager.stopServer()
                 }
-                serverUrl = null
+                httpServerUrl = null
                 // Log.d("DataManagement", "服务器已停止，URL清空")
             }
         } ?: run {
@@ -160,13 +173,13 @@ fun rememberDataManagementState_7ree(
     
     return DataManagementState_7ree(
         isServerEnabled = isServerEnabled,
-        serverUrl = serverUrl,
+        serverUrl = httpServerUrl,
         httpServerManager = httpServerManager,
         onServerToggle = { newState ->
             // Log.d("DataManagement", "=== 用户点击电脑操作开关 ===")
             // Log.d("DataManagement", "开关从 $isServerEnabled 切换到 $newState")
             
-            // 如果开启电脑操作，先关闭手机操作和CloudFlare操作
+            // 如果开启电脑操作，先关闭手机操作、CloudFlare操作和局域网MySQL操作
             if (newState) {
                 if (isPhoneOperationEnabled) {
                     isPhoneOperationEnabled = false
@@ -177,6 +190,11 @@ fun rememberDataManagementState_7ree(
                     isCloudFlareEnabled = false
                     sharedPrefs.edit().putBoolean("cloudflare_enabled", false).apply()
                     // Log.d("DataManagement", "电脑操作开启，自动关闭CloudFlare操作")
+                }
+                if (isLanMysqlEnabled) {
+                    isLanMysqlEnabled = false
+                    sharedPrefs.edit().putBoolean("lan_mysql_enabled", false).apply()
+                    // Log.d("DataManagement", "电脑操作开启，自动关闭局域网MySQL操作")
                 }
             }
             
@@ -193,7 +211,7 @@ fun rememberDataManagementState_7ree(
             // Log.d("DataManagement", "=== 用户点击手机操作开关 ===")
             // Log.d("DataManagement", "手机操作开关从 $isPhoneOperationEnabled 切换到 $newState")
             
-            // 如果开启手机操作，先关闭电脑操作和CloudFlare操作
+            // 如果开启手机操作，先关闭电脑操作、CloudFlare操作和局域网MySQL操作
             if (newState) {
                 if (isServerEnabled) {
                     isServerEnabled = false
@@ -204,6 +222,11 @@ fun rememberDataManagementState_7ree(
                     isCloudFlareEnabled = false
                     sharedPrefs.edit().putBoolean("cloudflare_enabled", false).apply()
                     // Log.d("DataManagement", "手机操作开启，自动关闭CloudFlare操作")
+                }
+                if (isLanMysqlEnabled) {
+                    isLanMysqlEnabled = false
+                    sharedPrefs.edit().putBoolean("lan_mysql_enabled", false).apply()
+                    // Log.d("DataManagement", "手机操作开启，自动关闭局域网MySQL操作")
                 }
             }
             
@@ -216,7 +239,7 @@ fun rememberDataManagementState_7ree(
         },
         isCloudFlareEnabled = isCloudFlareEnabled,
         onCloudFlareToggle = { newState ->
-            // 如果开启CloudFlare操作，先关闭电脑操作和手机操作
+            // 如果开启CloudFlare操作，先关闭电脑操作、手机操作和局域网MySQL操作
             if (newState) {
                 if (isServerEnabled) {
                     isServerEnabled = false
@@ -225,6 +248,10 @@ fun rememberDataManagementState_7ree(
                 if (isPhoneOperationEnabled) {
                     isPhoneOperationEnabled = false
                     sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
+                }
+                if (isLanMysqlEnabled) {
+                    isLanMysqlEnabled = false
+                    sharedPrefs.edit().putBoolean("lan_mysql_enabled", false).apply()
                 }
             }
             
@@ -248,6 +275,40 @@ fun rememberDataManagementState_7ree(
         onAccountIdChange = { newValue ->
             accountId = newValue
             sharedPrefs.edit().putString("cloudflare_account_id", newValue).apply()
+        },
+        isLanMysqlEnabled = isLanMysqlEnabled,
+        onLanMysqlToggle = { newState ->
+            // 如果开启局域网MySQL操作，先关闭电脑操作、手机操作和CloudFlare操作
+            if (newState) {
+                if (isServerEnabled) {
+                    isServerEnabled = false
+                    sharedPrefs.edit().putBoolean("server_enabled", false).apply()
+                }
+                if (isPhoneOperationEnabled) {
+                    isPhoneOperationEnabled = false
+                    sharedPrefs.edit().putBoolean("phone_operation_enabled", false).apply()
+                }
+                if (isCloudFlareEnabled) {
+                    isCloudFlareEnabled = false
+                    sharedPrefs.edit().putBoolean("cloudflare_enabled", false).apply()
+                }
+            }
+            
+            // 设置局域网MySQL操作状态
+            isLanMysqlEnabled = newState
+            
+            // 保存局域网MySQL操作状态到SharedPreferences
+            sharedPrefs.edit().putBoolean("lan_mysql_enabled", newState).commit()
+        },
+        phpServerUrl = serverUrl,
+        onPhpServerUrlChange = { newValue ->
+            serverUrl = newValue
+            sharedPrefs.edit().putString("lan_php_server_url", newValue).apply()
+        },
+        phpApiKey = apiKey,
+        onPhpApiKeyChange = { newValue ->
+            apiKey = newValue
+            sharedPrefs.edit().putString("lan_php_api_key", newValue).apply()
         }
     )
 }
@@ -269,5 +330,11 @@ data class DataManagementState_7ree(
     val apiToken: String,
     val onApiTokenChange: (String) -> Unit,
     val accountId: String,
-    val onAccountIdChange: (String) -> Unit
+    val onAccountIdChange: (String) -> Unit,
+    val isLanMysqlEnabled: Boolean,
+    val onLanMysqlToggle: (Boolean) -> Unit,
+    val phpServerUrl: String,
+    val onPhpServerUrlChange: (String) -> Unit,
+    val phpApiKey: String,
+    val onPhpApiKeyChange: (String) -> Unit
 )

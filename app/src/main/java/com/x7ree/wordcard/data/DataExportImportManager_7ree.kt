@@ -97,8 +97,17 @@ class DataExportImportManager_7ree(
             val jsonString = inputStream.bufferedReader().use { it.readText() }
             inputStream.close()
             
+            // 验证JSON格式
+            if (jsonString.isBlank()) {
+                return@withContext Result.failure(Exception("文件内容为空"))
+            }
+            
             // 反序列化数据
-            val exportData_7ree = json.decodeFromString<ExportData_7ree>(jsonString)
+            val exportData_7ree = try {
+                json.decodeFromString<ExportData_7ree>(jsonString)
+            } catch (e: Exception) {
+                return@withContext Result.failure(Exception("JSON格式解析失败: ${e.message}"))
+            }
             
             // 验证数据格式
             if (exportData_7ree.words.isEmpty()) {
@@ -107,8 +116,18 @@ class DataExportImportManager_7ree(
             
             // 导入数据到数据库
             var importedCount = 0
+            var failedCount = 0
+            val failedWords = mutableListOf<String>()
+            
             for (wordEntity_7ree in exportData_7ree.words) {
                 try {
+                    // 验证必要字段
+                    if (wordEntity_7ree.word.isBlank()) {
+                        failedCount++
+                        failedWords.add("空单词")
+                        continue
+                    }
+                    
                     // 检查是否已存在
                     val existingWord = wordRepository_7ree.getWord_7ree(wordEntity_7ree.word)
                     if (existingWord == null) {
@@ -132,12 +151,19 @@ class DataExportImportManager_7ree(
                     // 如果单词已存在，则忽略不处理
                 } catch (e: Exception) {
                     // 单个记录导入失败不影响整体导入
+                    failedCount++
+                    failedWords.add(wordEntity_7ree.word)
                 }
+            }
+            
+            if (importedCount == 0 && failedCount > 0) {
+                val errorMsg = "所有单词导入失败。失败的单词: ${failedWords.take(5).joinToString(", ")}"
+                return@withContext Result.failure(Exception(errorMsg))
             }
             
             Result.success(importedCount)
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("导入过程异常: ${e.message}"))
         }
     }
     

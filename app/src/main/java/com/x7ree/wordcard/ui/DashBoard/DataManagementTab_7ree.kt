@@ -13,6 +13,7 @@ import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.ServerControlSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.PhoneOperationSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.CloudFlareOperationSection_7ree
+import com.x7ree.wordcard.ui.DashBoard.DataManagement.LanMysqlOperationSection_7ree
 import com.x7ree.wordcard.ui.DashBoard.DataManagement.rememberDataManagementState_7ree
 import kotlinx.coroutines.flow.first
 
@@ -142,6 +143,19 @@ fun DataManagementTab_7ree(
             onApiTokenChange = dataManagementState.onApiTokenChange,
             accountId = dataManagementState.accountId,
             onAccountIdChange = dataManagementState.onAccountIdChange
+        )
+        
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        // 局域网PHP API操作区域
+        LanMysqlOperationSection_7ree(
+            wordQueryViewModel_7ree = wordQueryViewModel_7ree,
+            isLanMysqlEnabled = dataManagementState.isLanMysqlEnabled,
+            onLanMysqlToggle = dataManagementState.onLanMysqlToggle,
+            serverUrl = dataManagementState.phpServerUrl,
+            onServerUrlChange = dataManagementState.onPhpServerUrlChange,
+            apiKey = dataManagementState.phpApiKey,
+            onApiKeyChange = dataManagementState.onPhpApiKeyChange
         )
         
         Spacer(modifier = Modifier.height(16.dp))
