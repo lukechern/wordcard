@@ -222,7 +222,7 @@ fun DrawScope.drawLegend_7ree(
     drawCircle(
         color = Color(0xFFD2691E).copy(alpha = viewAlpha), // 使用查阅总数的深橙色
         radius = if (selectedLegend == "view") 15f else 12f, // 选中时加大圆点
-        center = Offset(legendX + 220f, legendY) // 调整位置
+        center = Offset(legendX + 250f, legendY) // 调整位置
     )
     
     // 绘制拼写练习图例（加大圆点）
@@ -267,8 +267,8 @@ fun DrawScope.drawLegend_7ree(
         )
         paint.textSize = if (selectedLegend == "view") 38f else 35f // 选中时加大文字
         canvas.nativeCanvas.drawText(
-            "查阅次数/10",
-            legendX + 245f,
+            "生成文章",
+            legendX + 280f,
             legendY + 12f,
             paint
         )
@@ -284,7 +284,7 @@ fun DrawScope.drawLegend_7ree(
         paint.textSize = if (selectedLegend == "spelling") 38f else 35f // 选中时加大文字
         canvas.nativeCanvas.drawText(
             "拼写练习",
-            legendX + 525f,
+            legendX + 530f,
             legendY + 12f,
             paint
         )

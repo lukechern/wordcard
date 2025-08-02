@@ -261,7 +261,7 @@ internal fun DrawScope.drawLegend_7ree(
     val viewSize = if (selectedLegend == "view") 28f else 24f
     drawRect(
         color = Color(0xFFD2691E).copy(alpha = viewAlpha), // 使用查阅总数的深橙色
-        topLeft = Offset(legendX + 220f, legendY - viewSize/2),
+        topLeft = Offset(legendX + 250f, legendY - viewSize/2),
         size = androidx.compose.ui.geometry.Size(viewSize, viewSize)
     )
     
@@ -300,8 +300,8 @@ internal fun DrawScope.drawLegend_7ree(
             0xD2, 0x69, 0x1E
         )
         canvas.nativeCanvas.drawText(
-            "查阅次数/10",
-            legendX + 250f,
+            "生成文章",
+            legendX + 280f,
             legendY + 12f,
             paint
         )
@@ -320,3 +320,4 @@ internal fun DrawScope.drawLegend_7ree(
         )
     }
 }
+
