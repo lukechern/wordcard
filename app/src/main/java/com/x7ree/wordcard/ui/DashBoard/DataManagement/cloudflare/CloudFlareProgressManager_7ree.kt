@@ -252,7 +252,7 @@ fun CloudFlareProgressDisplay_7ree(
                 // 进度条
                 if (!progressState.isCompleted) {
                     LinearProgressIndicator(
-                        progress = progressState.progress,
+                        progress = { progressState.progress },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(6.dp),
@@ -265,7 +265,7 @@ fun CloudFlareProgressDisplay_7ree(
                 } else {
                     // 完成状态的进度条
                     LinearProgressIndicator(
-                        progress = 1f,
+                        progress = { 1f },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(6.dp),
