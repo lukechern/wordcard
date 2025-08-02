@@ -27,8 +27,7 @@ object ArticleStatistics_7ree {
      * @return 文章统计数据
      */
     fun calculateArticleStatistics_7ree(
-        articles: List<ArticleEntity_7ree>,
-        words: List<WordEntity_7ree>
+        articles: List<ArticleEntity_7ree>
     ): ArticleStatisticsData_7ree {
         // 生成文章数应该是实际的文章数量，而不是基于单词数量计算
         val generatedArticles = articles.size

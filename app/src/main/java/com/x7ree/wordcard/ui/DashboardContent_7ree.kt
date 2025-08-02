@@ -98,7 +98,7 @@ fun DashboardContent_7ree(
             articles_7ree = if (wordQueryViewModel_7ree.articleViewModel_7ree != null) {
                 println("DEBUG: articleViewModel_7ree is not null, trying to get articles...")
                 try {
-                    val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree!!
+                    val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree
                     val usePaginationMode = articleViewModel.usePaginationMode.first()
                     println("DEBUG: usePaginationMode = $usePaginationMode")
                     
@@ -126,7 +126,7 @@ fun DashboardContent_7ree(
             }
             
             // 计算文章统计数据
-            articleStats_7ree = ArticleStatistics_7ree.calculateArticleStatistics_7ree(articles_7ree, allWords_7ree)
+            articleStats_7ree = ArticleStatistics_7ree.calculateArticleStatistics_7ree(articles_7ree)
             
             // 输出计算结果
             println("DEBUG: 生成文章数 = ${articleStats_7ree.generatedArticles}")
