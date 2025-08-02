@@ -24,6 +24,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.x7ree.wordcard.utils.DataStatistics_7ree
+import com.x7ree.wordcard.utils.ArticleStatistics_7ree
 import kotlin.math.roundToInt
 
 private enum class AnimationState_7ree { Initial, Final }
@@ -135,7 +136,7 @@ fun NewStatCard_7ree(
     
     // 格式化显示值
     val displayValue = remember(animatedValue, value, label) {
-        val isTwoDecimalLabel = label in listOf("查阅倍率", "每日查阅", "拼写倍率", "每日拼写")
+        val isTwoDecimalLabel = label in listOf("复习倍率", "每日复习", "拼写倍率", "每日拼写")
         when {
             isTwoDecimalLabel -> String.format("%.2f", animatedValue)
             value.contains(".") -> String.format("%.1f", animatedValue)
@@ -217,7 +218,10 @@ fun NewStatCard_7ree(
  * 用于显示9个统计数据卡片
  */
 @Composable
-fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) {
+fun NewStatisticsGrid_7ree(
+    stats_7ree: DataStatistics_7ree.StatisticsData_7ree,
+    articleStats_7ree: ArticleStatistics_7ree.ArticleStatisticsData_7ree
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -246,7 +250,7 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
             NewStatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.favoriteWords.toString(),
-                label = "收藏总数",
+                label = "单抽收藏",
                 numberColor = Color(0xFF1976D2),
                 labelColor = Color(0xFF1976D2)
             )
@@ -260,7 +264,7 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
             NewStatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = stats_7ree.totalViews.toString(),
-                label = "查阅总数",
+                label = "单词复习",
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -268,7 +272,7 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
             NewStatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatReviewRatio_7ree(stats_7ree.reviewRatio),
-                label = "查阅倍率",
+                label = "复习倍率",
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -276,7 +280,7 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
             NewStatCard_7ree(
                 modifier = Modifier.weight(1f),
                 value = DataStatistics_7ree.formatDailyStudy_7ree(stats_7ree.dailyStudy),
-                label = "每日查阅",
+                label = "每日复习",
                 numberColor = Color(0xFFE65100),
                 labelColor = Color(0xFFD3681D)
             )
@@ -309,6 +313,36 @@ fun NewStatisticsGrid_7ree(stats_7ree: DataStatistics_7ree.StatisticsData_7ree) 
                 label = "每日拼写",
                 numberColor = Color(0xFF2E7D32),
                 labelColor = Color(0xFF2E7C32)
+            )
+        }
+        
+        // 第四行：3个卡片 - 深紫色主题
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            NewStatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = articleStats_7ree.generatedArticles.toString(),
+                label = "生成文章",
+                numberColor = Color(0xFF6A1B9A),
+                labelColor = Color(0xFF6A1B9A)
+            )
+            
+            NewStatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = articleStats_7ree.viewedArticles.toString(),
+                label = "查阅文章",
+                numberColor = Color(0xFF6A1B9A),
+                labelColor = Color(0xFF6A1B9A)
+            )
+            
+            NewStatCard_7ree(
+                modifier = Modifier.weight(1f),
+                value = articleStats_7ree.favoritedArticles.toString(),
+                label = "收藏文章",
+                numberColor = Color(0xFF6A1B9A),
+                labelColor = Color(0xFF6A1B9A)
             )
         }
     }

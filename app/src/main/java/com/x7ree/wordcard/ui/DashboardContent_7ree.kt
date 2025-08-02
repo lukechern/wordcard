@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import com.x7ree.wordcard.query.WordQueryViewModel_7ree
 import com.x7ree.wordcard.data.WordEntity_7ree
 import com.x7ree.wordcard.utils.DataStatistics_7ree
+import com.x7ree.wordcard.utils.ArticleStatistics_7ree
 import com.x7ree.wordcard.utils.CacheManager_7ree
 import com.x7ree.wordcard.ui.DashBoard.components.DailyChartComponent.DailyChartComponent_7ree
 
@@ -58,6 +59,7 @@ fun DashboardContent_7ree(
     var allWords_7ree by remember { mutableStateOf<List<WordEntity_7ree>>(emptyList()) }
     var stats_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
     var animatedValues_7ree by remember { mutableStateOf(DataStatistics_7ree.StatisticsData_7ree(0, 0, 0, 0, 0.0f, 0.0f, 0, 0.0f, 0.0f)) }
+    var articleStats_7ree by remember { mutableStateOf(ArticleStatistics_7ree.ArticleStatisticsData_7ree(0, 0, 0)) }
     var lastUpdateTime_7ree by remember { mutableStateOf(System.currentTimeMillis()) }
     var timeUntilNextUpdate_7ree by remember { mutableStateOf("") }
     
@@ -87,9 +89,53 @@ fun DashboardContent_7ree(
                 totalViews = totalViews
             )
             
+            // 输出调试信息
+            println("DEBUG: 单词数量 = ${allWords_7ree.size}")
+            println("DEBUG: wordQueryViewModel_7ree.articleViewModel_7ree is null = ${wordQueryViewModel_7ree.articleViewModel_7ree == null}")
+            
+            // 获取文章列表数据
+            val articles_7ree = if (wordQueryViewModel_7ree.articleViewModel_7ree != null) {
+                println("DEBUG: articleViewModel_7ree is not null, trying to get articles...")
+                try {
+                    val articleViewModel = wordQueryViewModel_7ree.articleViewModel_7ree!!
+                    val usePaginationMode = articleViewModel.usePaginationMode.first()
+                    println("DEBUG: usePaginationMode = $usePaginationMode")
+                    
+                    val articles = if (usePaginationMode) {
+                        // 分页模式：使用 pagedArticles
+                        articleViewModel.pagedArticles.first()
+                    } else {
+                        // 非分页模式：使用 articles
+                        articleViewModel.articles.first()
+                    }
+                    println("DEBUG: 成功获取文章列表，数量 = ${articles.size}")
+                    articles
+                } catch (e: Exception) {
+                    println("DEBUG: 获取文章列表失败: ${e.message}")
+                    emptyList()
+                }
+            } else {
+                println("DEBUG: articleViewModel_7ree is null")
+                emptyList()
+            }
+            
+            // 输出每篇文章的viewCount和isFavorite信息
+            for (article in articles_7ree) {
+                println("DEBUG: 文章ID=${article.id}, 标题=${article.englishTitle}, 查阅次数=${article.viewCount}, 是否收藏=${article.isFavorite}")
+            }
+            
+            // 计算文章统计数据
+            articleStats_7ree = ArticleStatistics_7ree.calculateArticleStatistics_7ree(articles_7ree, allWords_7ree)
+            
+            // 输出计算结果
+            println("DEBUG: 生成文章数 = ${articleStats_7ree.generatedArticles}")
+            println("DEBUG: 查阅文章数 = ${articleStats_7ree.viewedArticles}")
+            println("DEBUG: 收藏文章数 = ${articleStats_7ree.favoritedArticles}")
+            
             // 数据加载完成
         } catch (e: Exception) {
             // 数据加载失败: ${e.message}
+            println("DEBUG: 数据加载失败: ${e.message}")
             e.printStackTrace()
         }
     }
@@ -151,7 +197,7 @@ fun DashboardContent_7ree(
     ) {
         // 新的统计卡片网格
         item {
-            NewStatisticsGrid_7ree(animatedValues_7ree)
+            NewStatisticsGrid_7ree(animatedValues_7ree, articleStats_7ree)
         }
         
 

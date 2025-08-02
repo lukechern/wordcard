@@ -346,7 +346,7 @@ fun WordResultComponent_7ree(
                             // 卡片2：查阅次数
                             InfoCard_7ree(
                                 title = "查阅次数",
-                                value = "查阅${wordQueryViewModel.currentWordInfo_7ree!!.viewCount}次",
+                                value = "复习${wordQueryViewModel.currentWordInfo_7ree!!.viewCount}次",
                                 icon = Icons.Filled.Visibility,
                                 modifier = Modifier.weight(1f)
                             )
