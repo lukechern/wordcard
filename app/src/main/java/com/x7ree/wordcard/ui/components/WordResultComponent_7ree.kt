@@ -326,7 +326,7 @@ fun WordResultComponent_7ree(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp, bottom = 16.dp),
+                            .padding(top = 8.dp, bottom = 16.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Row(
@@ -341,7 +341,7 @@ fun WordResultComponent_7ree(
                                 modifier = Modifier.weight(1f)
                             )
                             
-                            Spacer(modifier = Modifier.width(6.dp)) // 减少间距以适应4个卡片
+                            Spacer(modifier = Modifier.width(4.dp)) // 减少间距以适应4个卡片
                             
                             // 卡片2：查阅次数
                             InfoCard_7ree(
@@ -351,7 +351,7 @@ fun WordResultComponent_7ree(
                                 modifier = Modifier.weight(1f)
                             )
                             
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             
 // 卡片3：引用次数 - 添加点击事件跳转到文章页面
                             InfoCard_7ree(
@@ -365,7 +365,7 @@ fun WordResultComponent_7ree(
                                 }
                             )
                             
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
                             
                             // 卡片4：拼写练习
                             SpellingCard_7ree(

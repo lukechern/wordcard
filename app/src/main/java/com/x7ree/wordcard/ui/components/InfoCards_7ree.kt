@@ -111,7 +111,9 @@ private fun InfoCard_7ree(
                 text = value,
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                softWrap = false
             )
             // 删除额外的空间以减少高度
         }
@@ -153,7 +155,9 @@ fun FavoriteCard_7ree(
                 text = if (isFavorite) "已收藏" else "收藏",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                softWrap = false
             )
             // 删除额外的空间以减少高度
         }

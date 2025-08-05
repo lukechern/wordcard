@@ -1,3 +1,4 @@
+<a name="chinese-version"></a>
 # WordCard - AI 智能单词卡片应用
 
 <div align="center">
@@ -8,8 +9,13 @@
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-6.6.1-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+[![Version](https://img.shields.io/badge/version-6.6.2-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
 
+</div>
+
+<div align="center">
+  <a href="#chinese-version">中文版本</a> •
+  <a href="#english-version">English Version</a>
 </div>
 
 ## 📱 应用简介
@@ -343,6 +349,7 @@ app/src/main/java/com/x7ree/wordcard/
 - [Ktor](https://ktor.io/) - 网络请求库
 - [Room](https://developer.android.com/training/data-storage/room) - 本地数据库
 - [Markwon](https://noties.io/Markwon/) - Markdown 渲染库
+- [Google Fonts](https://fonts.google.com/) - 提供现代化的 Google Sans Code 字体
 
 ## 📞 联系方式
 
@@ -355,5 +362,372 @@ app/src/main/java/com/x7ree/wordcard/
 <div align="center">
 
 **如果这个项目对您有帮助，请给它一个 ⭐️**
+
+---
+
+<a name="english-version"></a>
+# WordCard - AI Smart Word Card Application
+
+<div align="center">
+
+![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
+![Kotlin](https://img.shields.io/badge/Kotlin-0095D5?style=for-the-badge&logo=kotlin&logoColor=white)
+![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-4285F4?style=for-the-badge&logo=jetpack-compose&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/badge/version-6.6.2-blue.svg?style=for-the-badge)](https://github.com/lukechern/wordcard)
+
+</div>
+
+<div align="center">
+  <a href="#chinese-version">中文版本</a> •
+  <a href="#english-version">English Version</a>
+</div>
+
+## 📱 Application Introduction
+
+WordCard is an AI-powered smart word learning Android app that integrates OpenAI GPT or compatible models to provide users with intelligent English word query and learning experiences. The application uses the modern Jetpack Compose UI framework to provide a smooth user interface and rich functional features.
+
+## ✨ Key Features
+
+### 🤖 AI Smart Query
+- Integration with OpenAI GPT and compatible models for intelligent word explanations
+- Support for phonetics, parts of speech, Chinese definitions, English examples, and more
+- Smart example sentence generation with Chinese translation
+- Synonym and antonym recommendations
+- Optimized Chinese meaning parsing to ensure complete output before parsing and display
+- Keyword detection mechanism to determine streaming output completion status, improving parsing accuracy
+
+### 🎵 Text-to-Speech
+- Support for TTS voice reading of words and example sentences
+- Support for English and Chinese voices
+- Intelligent voice status management
+- Added auto-read feature to automatically read word pronunciation upon word query completion or spelling practice
+
+### 📚 Learning Management
+- Word history management
+- Favorites feature to mark important words
+- Learning progress statistics and visualization charts
+- Weekly learning trend analysis
+- Data import/export functionality
+- Support for data import/export operations via LAN on PC
+- PC web interface supports both file import and manual JSON data pasting
+- AI scenario article generation based on words in the word book to help deepen word learning in context
+- Article favorites, search, and management functions for easy user management and review of generated articles
+
+### ✏️ Spelling Practice
+- Interactive word spelling practice feature
+- Smart Chinese meaning hints (automatically displays the first two meanings)
+- Real-time spelling correctness detection
+- Success/failure animation feedback
+- Auto-focus on input box to enhance practice experience
+- Beautiful UI design focused on learning effectiveness
+- Support for automatic reading of target words when opening spelling practice cards
+
+### 🎨 Modern Interface
+- Modern UI based on Jetpack Compose
+- Material Design 3 design language
+- Smooth animation effects
+- Support for dark/light themes
+- Optimized interface layout to improve information display efficiency
+- Unified design language for consistent visual experience
+
+### 📱 Interactive Experience
+- Gesture navigation with support for swiping up and down to switch between words
+- Smart touch area division to avoid accidental touches
+- Responsive layout design
+- Added edge swipe back feature to return to word book by swiping right from the left edge of the screen
+- Smart back button optimization to maintain browsing position and filter status
+- **Article reading position recording**: Automatically records scroll position before entering detail page from article list, precisely restoring to previous reading position when returning
+- **Edge swipe back**: Supports swiping fingers from both sides of the screen to the center to return to article list page in article detail page, making operation more convenient and natural
+- **Smart position recovery**: Supports scroll position saving and recovery in various scenarios such as pagination loading and search mode to ensure continuity of reading experience
+
+### ⌨️ New Custom Keyboard
+- Convenient and efficient key layout design for smoother and more natural operation
+- Modern keyboard interface with beautiful and coordinated visual effects
+- Streamlined key configuration to effectively reduce accidental touches and input errors
+- Triple sensory feedback: visual animation + haptic vibration + sound effects
+- Immersive interactive experience with rich feedback for each key press
+- Flexible keyboard switching to freely choose between built-in app keyboard and system keyboard
+
+### 🔍 Smart Search Function
+- Real-time search experience with new smart search feature on word book page
+- Seamless interface switching with smooth transition between title bar and search box
+- Smart keyboard control with dynamic button at bottom right to control keyboard expansion and collapse
+- Real-time search feedback with instant display of matching results as characters are entered, supporting fuzzy search
+
+### 🔄 Pull-to-Refresh Function
+- Smart pull-to-refresh to easily refresh word list data on word book page
+- Smooth refresh animation with smooth pull-to-refresh animation effect
+- Data synchronization optimization with automatic reloading of word count and pagination data during refresh
+- Status retention with maintained favorite filter status during refresh process
+
+### 🔐 Secure Storage
+- API key encrypted storage using Android Keystore and AES encryption algorithm to protect sensitive information
+- Secure migration mechanism to automatically detect and migrate plaintext stored keys from old versions to encrypted storage
+- Integrity verification with built-in storage integrity verification mechanism to ensure reliability of key data
+
+### 📊 Data Statistics Function
+- All-new statistics card design with modern flat design style
+- Smart number animation with 1-second animation effect from 0 to target value when loading number cards
+- Beautiful visual effects with unified card shadow effects and delicate border lines
+
+## 🛠️ Technology Stack
+
+### Frontend Technology
+- **UI Framework**: Jetpack Compose
+- **Design Language**: Material Design 3
+- **Programming Language**: Kotlin
+- **Minimum SDK**: Android 8.0 (API 26)
+- **Target SDK**: Android 14 (API 36)
+- **Compile SDK**: Android 14 (API 36)
+- **Chart Implementation**: Custom drawing with Compose Canvas
+
+### Backend Technology
+- **AI Service**: OpenAI GPT API
+- **Network Request**: Ktor Client 2.3.4
+- **Data Serialization**: Kotlinx Serialization 1.6.0
+- **Markdown Rendering**: Markwon 4.6.2
+
+### Data Storage
+- **Local Database**: Room Database 2.6.1
+- **Data Access**: Repository Pattern
+- **Data Export**: JSON Format
+
+### Architecture Pattern
+- **Architecture Pattern**: MVVM (Model-View-ViewModel)
+- **Dependency Injection**: Manual Dependency Injection
+- **State Management**: StateFlow + Compose State
+
+## 📦 Installation Instructions
+
+### Environment Requirements
+- Android Studio Hedgehog | 2023.1.1 or higher
+- JDK 11 or higher
+- Android SDK 26 or higher (Android 8.0+)
+- Supported devices: Android 8.0 and above
+
+### Build Steps
+
+1. **Clone Project**
+   ```bash
+   git clone https://github.com/lukechern/wordcard.git
+   cd wordcard
+   ```
+
+2. **Configure API Key**
+   - Configure your OpenAI API key in `app/src/main/java/com/x7ree/wordcard/config/AppConfig_7ree.kt`
+   - Or configure through the app settings interface
+
+3. **Build Project**
+   ```bash
+   ./gradlew build
+   ```
+
+4. **Install to Device**
+   ```bash
+   ./gradlew installDebug
+   ```
+
+## 🔧 Configuration Instructions
+
+### OpenAI API Configuration
+The application requires configuration of OpenAI API key to use AI query functionality:
+
+1. Visit [OpenAI API](https://platform.openai.com/api-keys) to get an API key
+2. Configure API key in app settings
+3. Optionally configure custom API endpoint
+4. If using another API provider, as long as it's compatible with OpenAI API interface, it's supported
+
+### Prompt Configuration
+Supports custom query prompts and output templates to get query results that better meet personal needs.
+
+## 📁 Project Structure
+
+```
+app/src/main/java/com/x7ree/wordcard/
+├── MainActivity.kt
+├── api/                         # API service layer
+│   └── OpenAiApiService_7ree.kt
+├── config/                      # Configuration management
+│   ├── AppConfig_7ree.kt
+│   └── PromptConfig_7ree.kt
+├── data/                        # Data layer
+│   ├── DataExportImportManager_7ree.kt
+│   ├── WordDao_7ree.kt
+│   ├── WordDatabase_7ree.kt
+│   ├── WordEntity_7ree.kt
+│   └── WordRepository_7ree.kt
+├── query/                       # Query logic
+│   ├── WordQueryViewModel_7ree.kt
+│   ├── manager/                 # Query manager
+│   └── state/                   # Query state management
+├── test/                        # Test tools
+│   ├── DatabaseUpdateTester_7ree.kt
+│   ├── MarkdownParserTester_7ree.kt
+│   ├── SpeechApiTester_7ree.kt
+│   └── TranslationApiTester_7ree.kt
+├── tts/                         # Text-to-speech service
+│   ├── AzureTtsService_7ree.kt
+│   └── TtsManager_7ree.kt
+├── ui/                          # User interface
+│   ├── BottomNavigationBar_7ree.kt
+│   ├── DailyChartComponent_7ree.kt
+│   ├── DashboardContent_7ree.kt
+│   ├── DashboardScreen_7ree.kt
+│   ├── EdgeSwipeNavigationComponent_7ree.kt
+│   ├── HelpScreen_7ree.kt
+│   ├── MainScreen_7ree.kt
+│   ├── MonthlyChartComponent_7ree.kt
+│   ├── NewStatCard_7ree.kt
+│   ├── PaginatedWordList_7ree.kt
+│   ├── ScrollIndicator_7ree.kt
+│   ├── SpellingPracticeComponent_7ree.kt
+│   ├── SplashScreen_7ree.kt
+│   ├── SwipeArrowIndicator_7ree.kt
+│   ├── SwipeNavigationComponent_7ree.kt
+│   ├── SwipeableRevealItem_7ree.kt
+│   ├── WordCardScreen_7ree.kt
+│   ├── DashBoard/               # Dashboard related interfaces
+│   │   ├── ApiConfigTab_7ree.kt
+│   │   ├── ConfigPage_7ree.kt
+│   │   ├── DataManagementTab_7ree.kt
+│   │   ├── GeneralConfigTab_7ree.kt
+│   │   ├── PromptConfigTab_7ree.kt
+│   │   ├── SettingsTab_7ree.kt
+│   │   ├── DataManagement/      # Data management interface
+│   │   └── components/          # Dashboard components
+│   ├── MainScreen/              # Main screen related components
+│   │   ├── CustomToast_7ree.kt
+│   │   ├── HistoryScreen_7ree.kt
+│   │   ├── HistoryWordItem_7ree.kt
+│   │   └── Screen_7ree.kt
+│   ├── SpellingPractice/        # Spelling practice interface
+│   │   ├── LetterInputBoxes_7ree.kt
+│   │   ├── SpellingCard_7ree.kt
+│   │   ├── SpellingPracticeContent_7ree.kt
+│   │   ├── SpellingPracticeDialog_7ree.kt
+│   │   ├── SpellingResultDisplay_7ree.kt
+│   │   └── SpellingUtils_7ree.kt
+│   ├── components/              # General UI components
+│   │   ├── InfoCards_7ree.kt
+│   │   ├── LoadingComponent_7ree.kt
+│   │   ├── SearchBarComponent_7ree.kt
+│   │   ├── StatisticsComponent_7ree.kt
+│   │   ├── TtsButtonStateManager_7ree.kt
+│   │   ├── WordInputComponent_7ree.kt
+│   │   └── WordResultComponent_7ree.kt
+│   └── theme/                   # Theme related
+│       ├── Color.kt
+│       ├── Theme.kt
+│       └── Type.kt
+├── utils/                       # Utility classes
+│   ├── ApiKeySecureStorage_7ree.kt
+│   ├── AppVersionUtils_7ree.kt
+│   ├── CacheManager_7ree.kt
+│   ├── DataStatistics_7ree.kt
+│   ├── DatabaseMigrationHelper_7ree.kt
+│   ├── HttpServerManager_7ree.kt
+│   ├── KeyboardUtils_7ree.kt
+│   ├── MarkdownParser_7ree.kt
+│   ├── MarkdownRenderer_7ree.kt
+│   ├── NetworkUtils_7ree.kt
+│   ├── CustomKeyboard/          # Custom keyboard related
+│   └── httpServer/              # HTTP server related
+└── widget/                      # Desktop widgets
+    ├── WidgetButtonManager_7ree.kt
+    ├── WidgetCustomCursor_7ree.kt
+    ├── WidgetInputValidator_7ree.kt
+    ├── WidgetKeyboardManager_7ree.kt
+    ├── WidgetLoadingActivity_7ree.kt
+    ├── WidgetMarkdownParser_7ree.kt
+    ├── WidgetOverlayManager_7ree.kt
+    ├── WidgetPreloader_7ree.kt
+    ├── WidgetResultButtonManager_7ree.kt
+    ├── WidgetSearchManager_7ree.kt
+    ├── WidgetTTSManager_7ree.kt
+    ├── WidgetTouchFeedbackManager_7ree.kt
+    ├── WidgetUIStateManager_7ree.kt
+    ├── WidgetWindowManager_7ree.kt
+    ├── WordQueryWidgetProvider_7ree.kt
+    └── widgetconfigactivity_7ree.kt
+```
+
+## 🚀 User Guide
+
+### 📖 Quick Start (Six-Step Guide)
+
+#### Step 1: Installation and Configuration, All Set! ⚙️
+First, install the APK file (you've definitely done this already, otherwise how would you be seeing this page? 😄). Then click on the [Dashboard] in the bottom navigation bar, and click the gear icon in the top right corner to enter the configuration page. Here you can configure your large model API parameters - any that are compatible with OpenAI format will work! Other configuration items can remain default, we've already tuned the best parameters for you.
+
+#### Step 2: Add Desktop Widget, Check Words Anytime Anywhere 📱
+Long press on a blank area of your phone's desktop, select [Widgets], find WordCard and add it to the desktop. In the future, when you want to check a word, just click the widget to pop up the query card, super convenient! No need to open the APP anymore~
+
+#### Step 3: Start Your Learning Journey! ⭐
+Encounter a new word? Just type it directly in the widget! Our AI large model will instantly explain the word meaning for you, and thoughtfully provide example sentences to help with understanding. Even better, there's also a real-person pronunciation reading function to make your pronunciation more standard!
+
+#### Step 4: Word Book, Your Exclusive Vocabulary Treasure House 📚
+All checked words will be automatically saved to the word book, no more worries about forgetting! In the word book, you can review anytime, click the small speaker 🔊 next to the word to hear the pronunciation, and click the word itself to enter the detail page to see more information.
+
+#### Step 5: Word Detail Page, Deep Learning Helper ✅
+On the word detail page, you can let the APP read the word, favorite important vocabulary, and switch to other words for review by swiping your fingers up and down. Even better, there's now a new spelling practice feature! Click the spelling practice card to start word spelling training, the interface will display the Chinese meaning in large dark green title (if there are multiple meanings, it will intelligently display the first two), letting you practice spelling based on understanding the meaning. Such a learning experience, isn't it great?
+
+#### Step 6: AI Scenario Articles, Context Learning New Experience 📝
+There's now a new AI scenario article generation feature! Click on the [Read Articles] column in the bottom navigation bar to enter the article generation interface. The system will intelligently generate relevant English scenario articles based on the vocabulary in your word book, helping you deeply learn words in context. You can favorite articles you like for future review. It also supports article search function to quickly find content you're interested in. Through reading these customized articles, your vocabulary understanding and application ability will be significantly improved!
+
+#### Step 7: Dashboard, Witness Your Growth 📊
+Want to see your learning results? Enter the dashboard to view detailed learning data and statistical charts. Watching those constantly growing numbers, a sense of achievement fills you up! 📈
+
+### 💡 Tips
+Remember, the most important thing in language learning is persistence! Check a few new words every day, accumulate little by little, and your vocabulary will soar unexpectedly. WordCard will always accompany your learning journey, keep going! 💪
+
+### 🔧 Basic Operations
+1. After launching the app, enter the English word to query in the search box
+2. Click the "Start Query" button and wait for AI to generate query results
+3. View detailed word information, including phonetics, definitions, example sentences, etc.
+4. Click the speaker icon to listen to word or example sentence pronunciation
+5. Click the favorite icon to save important words
+
+### 🚀 Advanced Features
+- **History**: View all queried words in the history tab
+- **Learning Statistics**: View learning progress and trend charts in the dashboard
+- **Weekly Analysis**: Visualize weekly word collection and viewing statistics
+- **Data Export**: Export learning data as JSON file in settings page
+- **Data Import**: Support importing previously exported learning data
+- **Gesture Navigation**: Swipe up and down on word detail page to switch between words
+
+### Development Guidelines
+- Follow Kotlin coding conventions
+- Use meaningful variable and function names
+- Add appropriate comments and documentation
+- Ensure code passes all tests
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgements
+
+- [OpenAI](https://openai.com/) - Providing powerful AI models
+- [Jetpack Compose](https://developer.android.com/jetpack/compose) - Modern UI framework
+- [Material Design](https://material.io/) - Design language guidance
+- [Ktor](https://ktor.io/) - Network request library
+- [Room](https://developer.android.com/training/data-storage/room) - Local database
+- [Markwon](https://noties.io/Markwon/) - Markdown rendering library
+- [Google Fonts](https://fonts.google.com/) - Providing modern Google Sans Code font
+
+## 📞 Contact
+
+- Project homepage: [https://github.com/lukechern/wordcard](https://github.com/lukechern/wordcard)
+- Issue feedback: [Issues](https://github.com/lukechern/wordcard/issues)
+
+---
+
+<div align="center">
+
+**If you find this project helpful, please give it a ⭐️**
+
+</div>
 
 </div>

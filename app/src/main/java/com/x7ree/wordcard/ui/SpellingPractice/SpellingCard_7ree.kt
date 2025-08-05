@@ -45,7 +45,9 @@ fun SpellingCard_7ree(
                 text = if (spellingCount > 0) "拼写${spellingCount}次" else "拼写",
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                softWrap = false
             )
             // 删除额外的空间以减少高度
         }
