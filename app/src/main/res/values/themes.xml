@@ -7,6 +7,9 @@
         <item name="android:colorPrimary">@color/green_500_7ree</item>
         <item name="android:colorPrimaryDark">@color/green_700_7ree</item>
         <item name="android:colorAccent">@color/green_200_7ree</item>
+        
+        <!-- Font configuration -->
+        <item name="android:textViewStyle">@style/CustomTextViewStyle</item>
     </style>
 
     <style name="Theme.WidgetConfig_7ree" parent="Theme.AppCompat.Light.Dialog">

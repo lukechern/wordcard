@@ -11,9 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Word"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/green_700_7ree"
+        style="@style/EnglishTextStyle.Title"
         android:gravity="center"
         android:layout_marginBottom="8dp" />
 
@@ -38,9 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="正在查询中..."
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:lineSpacingExtra="4dp"
+            style="@style/EnglishTextStyle.Body"
             android:visibility="gone" />
 
     </ScrollView>

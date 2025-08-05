@@ -55,7 +55,8 @@
                 android:text="正在问AI，请稍候..."
                 android:textSize="16sp"
                 android:textColor="#333333"
-                android:gravity="center" />
+                android:gravity="center"
+                android:fontFamily="@font/google_sans_code" />
 
             <!-- 提示文本 -->
             <TextView
@@ -67,7 +68,8 @@
                 android:textSize="12sp"
                 android:textColor="#666666"
                 android:gravity="center"
-                android:visibility="gone" />
+                android:visibility="gone"
+                android:fontFamily="@font/google_sans_code" />
 
         </LinearLayout>
 

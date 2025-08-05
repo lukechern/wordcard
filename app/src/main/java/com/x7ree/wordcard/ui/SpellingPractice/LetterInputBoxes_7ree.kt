@@ -118,6 +118,7 @@ fun LetterInputBoxes_7ree(
               letterSpacing = 2.sp,
               fontSize = 27.sp,
               fontWeight = FontWeight.Black,
+              fontFamily = com.x7ree.wordcard.ui.theme.GoogleSansCodeFontFamily,
               color = if (textColor != Color.Unspecified) textColor else Color.Unspecified
           ),
         keyboardOptions = if (useCustomKeyboard) {
@@ -190,7 +191,7 @@ fun CustomCursor_7ree(
         } else {
             val textLayoutResult = textMeasurer.measure(
                 text = androidx.compose.ui.text.AnnotatedString(text),
-                style = textStyle
+                style = textStyle.copy(fontFamily = com.x7ree.wordcard.ui.theme.GoogleSansCodeFontFamily)
             )
             with(density) {
                 textLayoutResult.size.width.toDp()

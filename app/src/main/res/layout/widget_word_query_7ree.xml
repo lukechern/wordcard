@@ -19,7 +19,8 @@
         android:paddingLeft="19dp"
         android:paddingRight="12dp"
         android:layout_marginRight="2dp"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:fontFamily="@font/google_sans_code" />
 
     <ImageButton
         android:id="@+id/widget_query_button_7ree"

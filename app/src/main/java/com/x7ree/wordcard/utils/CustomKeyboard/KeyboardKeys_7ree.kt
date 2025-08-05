@@ -82,6 +82,7 @@ fun KeyboardKey_7ree(
             text = key,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
+            fontFamily = com.x7ree.wordcard.ui.theme.GoogleSansCodeFontFamily,
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }

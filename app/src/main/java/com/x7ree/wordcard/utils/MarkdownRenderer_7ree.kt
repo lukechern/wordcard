@@ -271,7 +271,8 @@ fun MarkdownRenderer_7ree(
                     TextView(context).apply {
                         textSize = 20f
                         gravity = android.view.Gravity.CENTER
-                        setTypeface(android.graphics.Typeface.DEFAULT_BOLD)
+                        // 使用Google Sans Code字体
+                        typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
                         setTextColor(context.getColor(R.color.green_500_7ree))
                     }
                 },
@@ -299,7 +300,10 @@ fun MarkdownRenderer_7ree(
                 // 音标标题
                 AndroidView(
                     factory = { context ->
-                        TextView(context)
+                        TextView(context).apply {
+                            // 使用Google Sans Code字体
+                            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
+                        }
                     },
                     update = { textView ->
                         val markwon_7ree = Markwon.builder(textView.context).build()
@@ -322,6 +326,8 @@ fun MarkdownRenderer_7ree(
                     factory = { context ->
                         TextView(context).apply {
                             textSize = 14f
+                            // 使用Google Sans Code字体
+                            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
                         }
                     },
                     update = { textView ->
@@ -344,7 +350,10 @@ fun MarkdownRenderer_7ree(
                 // 英文例句标题
                 AndroidView(
                     factory = { context ->
-                        TextView(context)
+                        TextView(context).apply {
+                            // 使用Google Sans Code字体
+                            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
+                        }
                     },
                     update = { textView ->
                         val markwon_7ree = Markwon.builder(textView.context).build()
@@ -367,6 +376,8 @@ fun MarkdownRenderer_7ree(
                     factory = { context ->
                         TextView(context).apply {
                             textSize = 14f
+                            // 使用Google Sans Code字体
+                            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
                         }
                     },
                     update = { textView ->
@@ -384,6 +395,8 @@ fun MarkdownRenderer_7ree(
                     factory = { context ->
                         TextView(context).apply {
                             textSize = 14f
+                            // 使用Google Sans Code字体
+                            typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.googlesanscode_wght)
                         }
                     },
                     update = { textView ->

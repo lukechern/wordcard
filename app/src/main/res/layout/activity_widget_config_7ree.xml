@@ -46,7 +46,8 @@
         android:textColor="@color/green_700_7ree"
         android:gravity="center"
         android:layout_marginBottom="8dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:fontFamily="@font/google_sans_code" />
 
     <!-- 中文意思显示区域 -->
     <TextView
@@ -57,7 +58,8 @@
         android:textColor="#666666"
         android:gravity="center"
         android:layout_marginBottom="4dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:fontFamily="@font/google_sans_code" />
 
     <!-- 输入框容器 -->
     <FrameLayout
@@ -79,7 +81,8 @@
             android:inputType="text"
             android:imeOptions="actionSearch"
             android:maxLines="1"
-            android:gravity="center" />
+            android:gravity="center"
+            android:fontFamily="@font/google_sans_code" />
         
         <!-- 自定义光标 -->
         <com.x7ree.wordcard.widget.WidgetCustomCursor_7ree
@@ -99,7 +102,8 @@
         android:textColor="@color/dark_gray"
         android:background="@drawable/widget_gray_button_background_7ree"
         android:gravity="center"
-        android:alpha="0.5" />
+        android:alpha="0.5"
+        android:fontFamily="@font/google_sans_code" />
 
     <!-- 查询结果显示区域 -->
     <ProgressBar
@@ -119,7 +123,8 @@
         android:textColor="#999999"
         android:gravity="center"
         android:layout_marginTop="8dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:fontFamily="@font/google_sans_code" />
 
     <TextView
         android:id="@+id/widget_result_text_7ree"
@@ -134,7 +139,8 @@
         android:maxHeight="200dp"
         android:scrollbars="vertical"
         android:fadeScrollbars="false"
-        style="@style/WidgetScrollbarStyle_7ree" />
+        style="@style/WidgetScrollbarStyle_7ree"
+        android:fontFamily="@font/google_sans_code" />
 
         </LinearLayout>
 
@@ -171,7 +177,8 @@
                 android:text="单词本"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="0dp" />
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/google_sans_code" />
         </LinearLayout>
 
         <LinearLayout
@@ -197,7 +204,8 @@
                 android:text="详情页"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="0dp" />
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/google_sans_code" />
         </LinearLayout>
 
         <LinearLayout
@@ -223,7 +231,8 @@
                 android:text="朗读"
                 android:textSize="12sp"
                 android:textColor="#666666"
-                android:layout_marginTop="0dp" />
+                android:layout_marginTop="0dp"
+                android:fontFamily="@font/google_sans_code" />
         </LinearLayout>
 
     </LinearLayout>

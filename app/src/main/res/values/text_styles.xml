@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 自定义TextView样式，应用Google Sans Code字体 -->
+    <style name="CustomTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/google_sans_code</item>
+    </style>
+    
+    <!-- 英文文本样式 -->
+    <style name="EnglishTextStyle">
+        <item name="android:fontFamily">@font/google_sans_code</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+    
+    <style name="EnglishTextStyle.Title">
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/green_700_7ree</item>
+    </style>
+    
+    <style name="EnglishTextStyle.Body">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">4dp</item>
+    </style>
+    
+    <style name="EnglishTextStyle.Small">
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>
