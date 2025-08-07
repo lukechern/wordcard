@@ -14,10 +14,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 
 /**
  * 简单的Markdown文本渲染组件
  * 支持 **粗体** 和 ***粗体*** 格式
+ * 使用多种视觉效果确保加粗效果可见
  */
 @Composable
 fun MarkdownText_7ree(
@@ -28,8 +30,8 @@ fun MarkdownText_7ree(
     fontSize: TextUnit = TextUnit.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified
 ) {
-    val annotatedString = remember(text) {
-        parseMarkdownToAnnotatedString(text)
+    val annotatedString = remember(text, style) {
+        parseMarkdownToAnnotatedString(text, style)
     }
     
     BasicText(
@@ -46,8 +48,9 @@ fun MarkdownText_7ree(
 /**
  * 将Markdown文本解析为AnnotatedString
  * 支持 **粗体** 和 ***粗体*** 格式
+ * 使用多种视觉效果确保加粗效果可见
  */
-private fun parseMarkdownToAnnotatedString(text: String): AnnotatedString {
+private fun parseMarkdownToAnnotatedString(text: String, baseStyle: TextStyle): AnnotatedString {
     return buildAnnotatedString {
         var currentIndex = 0
         val length = text.length
@@ -61,12 +64,16 @@ private fun parseMarkdownToAnnotatedString(text: String): AnnotatedString {
                     // 添加三个星号之前的普通文本
                     if (tripleStarStart > currentIndex) {
                         val beforeText = text.substring(currentIndex, tripleStarStart)
-                        append(parseDoubleStarText(beforeText))
+                        append(parseDoubleStarText(beforeText, baseStyle))
                     }
                     
-                    // 添加超粗体文本（三个星号使用ExtraBold）
+                    // 添加超粗体文本（三个星号使用最强效果）
                     val boldText = text.substring(tripleStarStart + 3, tripleStarEnd)
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                    withStyle(style = SpanStyle(
+                        fontWeight = FontWeight.Black, // 使用最粗的Black字重
+                        fontSize = baseStyle.fontSize * 1.08f, // 更大的字体
+                        letterSpacing = 0.8.sp // 更大的字符间距
+                    )) {
                         append(boldText)
                     }
                     
@@ -85,9 +92,13 @@ private fun parseMarkdownToAnnotatedString(text: String): AnnotatedString {
                         append(text.substring(currentIndex, doubleStarStart))
                     }
                     
-                    // 添加粗体文本（两个星号使用Black字体权重）
+                    // 添加粗体文本（两个星号使用更强的粗体效果）
                     val boldText = text.substring(doubleStarStart + 2, doubleStarEnd)
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Black)) {
+                    withStyle(style = SpanStyle(
+                        fontWeight = FontWeight.ExtraBold, // 使用ExtraBold而不是Bold
+                        letterSpacing = 0.5.sp, // 增加字符间距
+                        fontSize = baseStyle.fontSize * 1.02f // 稍微增大字体
+                    )) {
                         append(boldText)
                     }
                     
@@ -106,7 +117,7 @@ private fun parseMarkdownToAnnotatedString(text: String): AnnotatedString {
 /**
  * 解析包含双星号的文本
  */
-private fun parseDoubleStarText(text: String): AnnotatedString {
+private fun parseDoubleStarText(text: String, baseStyle: TextStyle): AnnotatedString {
     return buildAnnotatedString {
         var currentIndex = 0
         val length = text.length
@@ -121,9 +132,13 @@ private fun parseDoubleStarText(text: String): AnnotatedString {
                         append(text.substring(currentIndex, doubleStarStart))
                     }
                     
-                    // 添加粗体文本（使用Black字体权重）
+                    // 添加粗体文本（使用更强的粗体效果）
                     val boldText = text.substring(doubleStarStart + 2, doubleStarEnd)
-                    withStyle(style = SpanStyle(fontWeight = FontWeight.Black)) {
+                    withStyle(style = SpanStyle(
+                        fontWeight = FontWeight.ExtraBold, // 使用ExtraBold
+                        letterSpacing = 0.5.sp, // 增加字符间距
+                        fontSize = baseStyle.fontSize * 1.02f // 稍微增大字体
+                    )) {
                         append(boldText)
                     }
                     

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 测试主题 - 使用系统默认字体 -->
+    <style name="Theme.WordCard.TestDefault" parent="Theme.WordCard">
+        <!-- 使用系统默认字体进行测试 -->
+        <item name="android:textViewStyle">@style/TestDefaultTextViewStyle</item>
+    </style>
+    
+    <!-- 测试用的TextView样式 - 系统默认字体 -->
+    <style name="TestDefaultTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    
+    <!-- 测试主题 - 使用系统默认字体 -->
+    <style name="Theme.WordCard.TestSystem" parent="Theme.WordCard">
+        <item name="android:textViewStyle">@style/TestSystemTextViewStyle</item>
+    </style>
+    
+    <!-- 测试用的TextView样式 - 系统默认字体 -->
+    <style name="TestSystemTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+    
+    <!-- 测试主题 - 使用Inter字体 -->
+    <style name="Theme.WordCard.TestInter" parent="Theme.WordCard">
+        <item name="android:textViewStyle">@style/TestInterTextViewStyle</item>
+    </style>
+    
+    <!-- 测试用的TextView样式 - Inter字体 -->
+    <style name="TestInterTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/inter_font</item>
+    </style>
+</resources>

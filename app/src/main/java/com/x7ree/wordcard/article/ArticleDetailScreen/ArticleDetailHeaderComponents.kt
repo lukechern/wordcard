@@ -134,7 +134,7 @@ fun ArticleTitleCard_7ree(
                 .padding(16.dp)
         ) {
             
-            MarkdownText_7ree(
+            Text(
                 text = filterMarkdownStars(article.englishTitle),
                 style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
                 color = MaterialTheme.colorScheme.onSurface,

@@ -8,8 +8,8 @@
         <item name="android:colorPrimaryDark">@color/green_700_7ree</item>
         <item name="android:colorAccent">@color/green_200_7ree</item>
         
-        <!-- Font configuration -->
-        <item name="android:textViewStyle">@style/CustomTextViewStyle</item>
+        <!-- Font configuration - 临时使用系统字体确保粗体工作 -->
+        <item name="android:textViewStyle">@style/BackupTextViewStyle</item>
     </style>
 
     <style name="Theme.WidgetConfig_7ree" parent="Theme.AppCompat.Light.Dialog">
